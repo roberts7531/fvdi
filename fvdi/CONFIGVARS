@@ -33,11 +33,8 @@ OPTS   = -O2 -fomit-frame-pointer
 # OPTS   = -O2 -fomit-frame-pointer -mshort
 
 # If building for 68000 (no long multiply instruction),
-# this must be set to point to the gcc library.
-ifeq ($(CPU),000)
- LIBS = -L/opt/cross-mint/lib/gcc/m68k-atari-mint/4.6.3/ -lgcc
-endif
-
+# we need to link with libgcc.
+LIBS := $(shell $(CC) -m68$(CPU) -print-file-name=libgcc.a)
 
 # Set these to point to the correct directories for FreeType support!
 #stdlib_srcdir  = $(top_srcdir)/modules/ft2/stdlib
