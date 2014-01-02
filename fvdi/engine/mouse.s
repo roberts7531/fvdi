@@ -83,6 +83,7 @@ lib_vsc_form:
 	move.l	wk_r_mouse(a1),d0
 	lbeq	.done,2
 	uses_d1
+	move.l	d2,-(a7)
 	move.l	d0,a2
 	move.l	a1,d2
 	add.l	#wk_mouse,d2			; Change
@@ -100,6 +101,7 @@ lib_vsc_form:
 	move.w	d0,pointer_delay
 ;3$:			; .no_error
 	move.l	(a7)+,a0
+	move.l	(a7)+,d2
 	used_d1
  label .done,2
 
@@ -173,7 +175,9 @@ lib_v_show_c:
 ;	bne	3$	; .call_r_mouse
 	lbne	.call_r_mouse,3
 	uses_d1
+	move.l	d2,-(a7)
 	bsr	mouse_unshow
+	move.l	(a7)+,d2
 	used_d1
  endc
  label .end,1
@@ -181,6 +185,7 @@ lib_v_show_c:
 
  label .call_r_mouse,3
 	uses_d1
+	move.l	d2,-(a7)
 	move.l	d0,a2
 	move.w	mouse_op,d0
 	swap	d0
@@ -194,6 +199,7 @@ lib_v_show_c:
 ;	neg.w	d0
 	move.w	d0,pointer_delay
 	move.l	(a7)+,a0
+	move.l	(a7)+,d2
 	used_d1
 	lbra	.end,1
 
@@ -249,13 +255,16 @@ lib_v_hide_c:
 	move.l	wk_r_mouse(a1),d0
 	lbne	.call_r_mouse,2
 	uses_d1
+	move.l	d2,-(a7)
 	bsr	mouse_unshow
+	move.l	(a7)+,d2
 	used_d1
  label .not_shown,1
 	rts
 
  label .call_r_mouse,2
 	uses_d1
+	move.l	d2,-(a7)
 	move.l	d0,a2
 	move.w	mouse_op,d0
 	swap	d0
@@ -269,6 +278,7 @@ lib_v_hide_c:
 ;	neg.w	d0
 	move.w	d0,pointer_delay
 	move.l	(a7)+,a0
+	move.l	(a7)+,d2
 	used_d1
 	lbra	.not_shown,1
 
