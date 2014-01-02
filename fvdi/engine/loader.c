@@ -1006,6 +1006,9 @@ int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
 
    relocate(addr, &header);
 
+   /* Clear the BSS */
+   memset(addr + header.tsize + header.dsize, 0, header.bsize);
+
    /* This will cause trouble if ever called from supervisor mode! */
    Supexec((long)cache_flush);
 
