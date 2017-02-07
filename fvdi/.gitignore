@@ -1,0 +1,6 @@
+*.gnu
+*.o
+*.exe
+*.prg
+*.sys
+depend
