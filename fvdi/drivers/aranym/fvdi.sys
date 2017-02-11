@@ -66,7 +66,7 @@ singlebend
 # If this is uncommented, fVDI will refrain from keeping a list of all
 # allocated memory blocks. This option is useful if fVDI is launched
 # before MiNT running with memory protection.
-nomemlink
+#nomemlink
 
 # Uncomment this to disable all the VDI vector functions (vex_).
 #novex
