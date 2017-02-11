@@ -1843,7 +1843,7 @@ long free(void *addr)
    if (1 || memlink) {
      if (block_used[size] == current) {
        block_used[size] = current->next;
-       if (current->next == current->prev)
+       if (current->next == current)
          block_used[size] = 0;
      }
      if (current->prev == 0) {
