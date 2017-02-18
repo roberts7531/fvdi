@@ -289,6 +289,8 @@ long CDECL initialize(Virtual *vwk)
 	int old_palette_size;
 	Colour *old_palette_colours;
 
+	KDEBUG(("UAEGFX: initialize vwk=%p\n", vwk));
+
 	/* Display startup banner */
 	access->funcs.puts("\r\n");
 	access->funcs.puts("\ep WinUAE RTG driver for fVDI \eq\r\n");
@@ -375,6 +377,8 @@ Virtual* CDECL opnwk(Virtual *vwk)
 	Workstation *wk;
 	UBYTE* screen_address = BOARDINFO_MEMBER(UBYTE*, MemoryBase);
 	uae_u32 ret;
+
+	KDEBUG(("UAEGFX: opnwk vwk=%p\n", vwk));
 
 	KINFO(("screen_address = %p\n", screen_address));
 

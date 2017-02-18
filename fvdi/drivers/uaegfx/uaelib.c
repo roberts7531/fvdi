@@ -19,6 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*#define ENABLE_KDEBUG*/
+
 #include "uaegfx.h"
 #include "uaelib.h"
 
@@ -45,6 +47,8 @@ BOOL uaelib_init(void)
 		uaelib_demux = (uaelib_demux_t*)(RTAREA_DEFAULT + UAELIB_DEMUX_OFFSET);
 	else if (IS_TRAP(RTAREA_BACKUP + UAELIB_DEMUX_OFFSET))
 		uaelib_demux = (uaelib_demux_t*)(RTAREA_BACKUP + UAELIB_DEMUX_OFFSET);
+
+	KDEBUG(("uaelib_demux = %p\n", uaelib_demux));
 
 	return uaelib_demux != NULL;
 }

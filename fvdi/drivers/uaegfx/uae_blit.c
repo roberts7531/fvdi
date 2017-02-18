@@ -274,6 +274,8 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 	int src_line_add, dst_line_add;
 	unsigned long src_pos, dst_pos;
 
+	KDEBUG(("c_blit_area %ld,%ld from %ld,%ld to %ld,%ld\n", w, h, src_x, src_y, dst_x, dst_y));
+
 	wk = vwk->real_address;
 
 	if (!src || !src->address || (src->address == wk->screen.mfdb.address)) {		/* From screen? */
@@ -302,8 +304,6 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 		dst_pos += (short)(h - 1) * (long)dst_wrap;
 		dst_line_add -= dst_wrap * 2;
 	}
-
-	KDEBUG(("Blitting: %ld,%ld from %ld,%ld to %ld,%ld\n", w, h, src_x, src_y, dst_x, dst_y));
 
 	/* Try acceleration */
 	{
