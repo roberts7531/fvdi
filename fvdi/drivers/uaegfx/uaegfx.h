@@ -34,10 +34,18 @@ void panic_help(const char* message);
  * https://sourceforge.net/p/emutos/code/ci/master/tree/include/kprint.h
  */
 
+/* Attribute to check parameters of printf-like functions at compile time */
+#ifdef __GNUC__
+#define PRINTF_STYLE __attribute__ ((format (printf, 1, 2)))
+#else
+#define PRINTF_STYLE
+#endif
+
 /* You can use EmuTOS kprintf() to display text in the WinUAE debug log.
  * To enable it, you must compile EmuTOS yourself, get the _kprintf address
  * from emutos.map, and replace it below. */
-/*#define kprintf (*((void (*)(const char *fmt, ...))0x00fc52c0))*/
+typedef void kprintf_t(const char *fmt, ...) PRINTF_STYLE;
+/*#define kprintf (*(kprintf_t*)0x00fc52c0)*/
 
 /* KINFO(()) outputs to the debugger, if kprintf() is available */
 #ifdef kprintf
