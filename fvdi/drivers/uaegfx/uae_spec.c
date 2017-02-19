@@ -411,7 +411,7 @@ Virtual* CDECL opnwk(Virtual *vwk)
 	wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
 
 	wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
-	wk->screen.coordinates.max_y = (wk->screen.mfdb.height & 0xfff0) - 1;	/* Desktop can't deal with non-16N heights */
+	wk->screen.coordinates.max_y = wk->screen.mfdb.height - 1;
 
 	wk->screen.look_up_table = 0;			/* Was 1 (???)	Shouldn't be needed (graphics_mode) */
 	wk->screen.mfdb.standard = 0;
