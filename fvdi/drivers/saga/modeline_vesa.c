@@ -79,6 +79,36 @@ struct ModeInfo modeline_vesa_entry[] = {
         .Numerator = 60,        /* Refresh rate */
     },
 #endif
+    {
+        .Node = { .ln_Name = "LG:1280 x 960 60Hz" },
+        .Width = 1280, .Height = 960,
+        .Flags = GMF_HPOLARITY | GMF_VPOLARITY,
+        .HorTotal = 1800,       .VerTotal = 1000,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 96,     .VerSyncStart = 1,
+        .HorSyncSize  = 112,     .VerSyncSize  = 3,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        .Node = { .ln_Name = "LG:1440 x 900 60Hz" },
+        .Width = 1440, .Height = 900,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 1600,       .VerTotal = 926,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 6,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        .Node = { .ln_Name = "LG:1680 x 1050 60Hz" },
+        .Width = 1680, .Height = 1050,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 1840,       .VerTotal = 1080,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 6,
+        .Numerator = 60,        /* Refresh rate */
+    },
 };
 
 const int modeline_vesa_entries = sizeof(modeline_vesa_entry)/sizeof(modeline_vesa_entry[0]);
