@@ -32,7 +32,7 @@
  */
 
 #include "saga.h"
-#define MODELINE_VESA 1
+#define MODELINE_VESA 0
 
 /* Originally adapted from AROS uaegfx.hidd timing data
  */
@@ -79,35 +79,95 @@ struct ModeInfo modeline_vesa_entry[] = {
         .Numerator = 60,        /* Refresh rate */
     },
 #endif
+    /* 4:3 modes */
     {
-        .Node = { .ln_Name = "LG:1280 x 960 60Hz" },
-        .Width = 1280, .Height = 960,
-        .Flags = GMF_HPOLARITY | GMF_VPOLARITY,
-        .HorTotal = 1800,       .VerTotal = 1000,
+        /* umc 320 240 60 -d */ /* Pixel Clock = 12.00 MHz */
+        .Node = { .ln_Name = "SAGA: 320 x 240 60Hz" },
+        .Width = 320, .Height = 240,
+        .Flags = GMF_VPOLARITY | GMF_DOUBLESCAN | GMF_DOUBLEVERTICAL,
+        .HorTotal = 400,        .VerTotal = 250,
         .HorBlankSize = 0,      .VerBlankSize = 0,
-        .HorSyncStart = 96,     .VerSyncStart = 1,
-        .HorSyncSize  = 112,     .VerSyncSize  = 3,
+        .HorSyncStart = 8,      .VerSyncStart = 2,
+        .HorSyncSize  = 32,     .VerSyncSize  = 2,
         .Numerator = 60,        /* Refresh rate */
     },
     {
-        .Node = { .ln_Name = "LG:1440 x 900 60Hz" },
+        /* umc 640 480 60 */ /* Pixel Clock = 24.05 MHz */
+        .Node = { .ln_Name = "SAGA: 640 x 480 60Hz" },
+        .Width = 640, .Height = 480,
+        .Flags = GMF_VPOLARITY,
+        .HorTotal = 800,        .VerTotal = 501,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 16,     .VerSyncStart = 4,
+        .HorSyncSize  = 64,     .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        /* umc 800 600 60 */ /* Pixel Clock = 38.40 MHz */
+        .Node = { .ln_Name = "SAGA: 800 x 600 60Hz" },
+        .Width = 800, .Height = 600,
+        .Flags = GMF_VPOLARITY,
+        .HorTotal = 1024,       .VerTotal = 625,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 32,     .VerSyncStart = 4,
+        .HorSyncSize  = 80,     .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        /* umc 1024 768 60 */ /* Pixel Clock = 64.35 MHz */
+        .Node = { .ln_Name = "SAGA:1024 x 768 60Hz" },
+        .Width = 1024, .Height = 768,
+        .Flags = GMF_VPOLARITY,
+        .HorTotal = 1344,       .VerTotal = 798,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 56,     .VerSyncStart = 4,
+        .HorSyncSize  = 104,    .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        /* umc 1280 960 60 */ /* Pixel Clock = 102.41 MHz */
+        .Node = { .ln_Name = "SAGA:1280 x 960 60Hz" },
+        .Width = 1280, .Height = 960,
+        .Flags = GMF_VPOLARITY,
+        .HorTotal = 1712,       .VerTotal = 997,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 80,     .VerSyncStart = 4,
+        .HorSyncSize  = 136,    .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    /* 16:10 modes */
+    {
+        /* umc 840 525 60 --rbt */ /* Pixel Clock = 32.25 MHz */
+        .Node = { .ln_Name = "LG:840 x 525 60" },
+        .Width = 840, .Height = 525,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 1000,       .VerTotal = 540,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        /* umc 1440 900 30 --rbt */ /* Pixel Clock = 43.75 MHz */
+        .Node = { .ln_Name = "LG:1440 x 900 30Hz" },
         .Width = 1440, .Height = 900,
         .Flags = GMF_HPOLARITY,
-        .HorTotal = 1600,       .VerTotal = 926,
+        .HorTotal = 1600,       .VerTotal = 913,
         .HorBlankSize = 0,      .VerBlankSize = 0,
         .HorSyncStart = 48,     .VerSyncStart = 3,
-        .HorSyncSize  = 32,     .VerSyncSize  = 6,
-        .Numerator = 60,        /* Refresh rate */
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 30,        /* Refresh rate */
     },
     {
-        .Node = { .ln_Name = "LG:1680 x 1050 60Hz" },
+        /* umc 1680 1050 30 --rbt */ /* Pixel Clock = 58.75 MHz */
+        .Node = { .ln_Name = "LG:1680 x 1050 30Hz" },
         .Width = 1680, .Height = 1050,
         .Flags = GMF_HPOLARITY,
-        .HorTotal = 1840,       .VerTotal = 1080,
+        .HorTotal = 1840,       .VerTotal = 1065,
         .HorBlankSize = 0,      .VerBlankSize = 0,
         .HorSyncStart = 48,     .VerSyncStart = 3,
-        .HorSyncSize  = 32,     .VerSyncSize  = 6,
-        .Numerator = 60,        /* Refresh rate */
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 30,        /* Refresh rate */
     },
 };
 

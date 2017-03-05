@@ -259,16 +259,17 @@ singlebend
 #01r rage.sys pcibios doblit 4mb mode key
 #01r rage.sys 4mb mode key screencache imgcache
 
-# Stable modes
+# 4:3 modes
 #01r saga.sys mode 320x240x16@60
 01r saga.sys mode 640x480x16@60
 #01r saga.sys mode 800x600x16@60
 #01r saga.sys mode 1024x768x16@60
-
-# Unstable modes
 #01r saga.sys mode 1280x960x16@60
-#01r saga.sys mode 1440x900x16@60
-#01r saga.sys mode 1680x1050x16@60
+
+# 16:10 modes
+#01r saga.sys mode 840x525x16@60
+#01r saga.sys mode 1440x900x16@30
+#01r saga.sys mode 1680x1050x16@30
 
 #s MONACO08.FNT
 #s MONACO09.FNT
