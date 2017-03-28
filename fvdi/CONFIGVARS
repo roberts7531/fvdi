@@ -26,7 +26,14 @@ endif
 DEBUG  = no
 
 # CPU to compile for
-CPU    = 000
+# CPU    = 000
+CPU = v4e
+
+ifeq ($(CPU),v4e)
+	CPUOPTS = -mcpu=547x
+else
+	CPUOPS = -m68$(CPU)
+endif
 
 # General compilation and optimization options (CFLAGS)
 OPTS   = -O2 -fomit-frame-pointer
@@ -34,7 +41,7 @@ OPTS   = -O2 -fomit-frame-pointer
 
 # If building for 68000 (no long multiply instruction),
 # we need to link with libgcc.
-LIBS := $(shell $(CC) -m68$(CPU) -print-file-name=libgcc.a)
+LIBS := $(shell $(CC) $(CPUOPTS) -print-file-name=libgcc.a)
 
 # Set these to point to the correct directories for FreeType support!
 #stdlib_srcdir  = $(top_srcdir)/modules/ft2/stdlib

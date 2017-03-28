@@ -4,22 +4,66 @@ CONV2GAS = $(top_srcdir)/utility/conv2gas/conv2gas
 
 SYMBOLS = --defsym gas=1 --defsym lattice=0
 ifeq ($(CPU),000)
- SYMBOLS += --defsym mc68000=1
+	SYMBOLS += --defsym mc68000=1
+else ifeq ($(CPU),v4e)
+	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=1
 else
- SYMBOLS += --defsym mc68000=0
+	SYMBOLS += --defsym mc68000=0
 endif
+
 
 # Use native compiler when cross compiling
 $(CONV2GAS): $(top_srcdir)/utility/conv2gas/conv2gas.c
 	$(NATIVE_CC) -o $@ $<
 
-
 SINCSRC_GNU = $(SINCSRC:=.gnu)
 SSRC_GNU    = $(SSRC:=.gnu)
 
-# -> .gnu conversion
+# special treatment of ColdFire target
+ifeq ($(CPU),v4e)
+	PORTASM = pacf
+	PORTASM_FLAGS = \
+	-blanks on  \
+	-core v4 \
+	-hardware_divide \
+	-hardware_mac \
+	-a gnu \
+	-gnu_locals \
+	-out_syntax standard \
+	-nowarning 402,502,900,1111,1150 \
+	-noerrfile
+
+	PACF_SYMBOLS = $(subst --defsym,-define,$(SYMBOLS))
+	PORTASM_FLAGS += $(PACF_SYMBOLS)
+	PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include,$(top_srcdir)/drivers/1_plane
+
+	# intermediate filenames for PortAsm output
+	SSRC_GNU_CF := $(subst .gnu,.cf_gnu,$(SSRC_GNU))
+
+$(SINCSRC_GNU): $(SINCSRC)
+$(SSRC_GNU):$(SSRC_GNU_CF)
+
+# pattern rule for assembler sources
+%.cf_gnu: $(basename %.gnu) $(CONV2GAS)
+	$(CONV2GAS).sh $<
+	mv $<.gnu $@
+
+# assembler includes only need to go through conv2gas
+%.inc.gnu: $(basename %.inc.gnu) $(CONV2GAS)
+	$(CONV2GAS).sh $<
+
+# assembler source files get milled through pacf
+%.gnu:%.cf_gnu
+	$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
+
+else
 %.gnu: $(basename %.gnu) $(CONV2GAS)
 	$(CONV2GAS).sh $<
+endif
+
+# -> .gnu conversion
+
+
 
 # Assember for .gnu
 %.gnu.o: %.gnu
@@ -29,3 +73,8 @@ clean_gnu:
 	rm -rf $(SINCSRC_GNU) $(SSRC_GNU)
 
 .PHONY:	clean_gnu
+
+.PHONY: printvars
+printvars:
+	$(Q)$(foreach V,$(.VARIABLES), $(if $(filter-out environment% default automatic, $(origin $V)),$(warning $V=$($V))))
+

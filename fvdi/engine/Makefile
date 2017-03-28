@@ -23,8 +23,8 @@ else
  STDLIB_CFLAGS = -I$(top_srcdir)/modules/include $(M68K_ATARI_MINT_CFLAGS)
 endif
 
-CFLAGS  = -m68$(CPU) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
-ASFLAGS = -m68$(CPU) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include \
+CFLAGS  = $(CPUOPTS) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include \
           -I$(top_srcdir)/drivers/1_plane
 
 # FreeType2 things
@@ -141,7 +141,7 @@ ifneq ($(stdlib_srcdir),)
 endif
 
 %.S.o: %.S
-	$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 -o $@ -c $<
+	$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 -D__cpu__=$(CPU) -o $@ -c $<
 
 $(LIBKERN):
 	cd $(libkern_srcdir); make 020-60
