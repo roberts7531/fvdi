@@ -26,6 +26,7 @@ ifeq ($(CPU),v4e)
 	-blanks on  \
 	-case on \
 	-core v4 \
+	-branch_external_long \
 	-hardware_divide \
 	-hardware_mac \
     -implicit_externs \
