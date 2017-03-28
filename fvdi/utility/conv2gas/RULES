@@ -4,11 +4,11 @@ CONV2GAS = $(top_srcdir)/utility/conv2gas/conv2gas
 
 SYMBOLS = --defsym gas=1 --defsym lattice=0
 ifeq ($(CPU),000)
-	SYMBOLS += --defsym mc68000=1
+	SYMBOLS += --defsym mc68000=1 --defsym mcoldfire=0
 else ifeq ($(CPU),v4e)
 	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=1
 else
-	SYMBOLS += --defsym mc68000=0
+	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=0
 endif
 
 
@@ -33,7 +33,7 @@ ifeq ($(CPU),v4e)
 	-a gnu \
 	-gnu_locals \
 	-out_syntax standard \
-	-nowarning 402,502,900,1111,1150 \
+	-nowarning 402,502,600,900,1111,1150 \
 	-noerrfile
 
 	PACF_SYMBOLS = $(subst --defsym,-define,$(SYMBOLS))

@@ -26,8 +26,10 @@ endif
 DEBUG  = no
 
 # CPU to compile for
-# CPU    = 000
-CPU = v4e
+ifndef CPU
+CPU    = 020
+# CPU = v4e
+endif
 
 ifeq ($(CPU),v4e)
 	CPUOPTS = -mcpu=547x
