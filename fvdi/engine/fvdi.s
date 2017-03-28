@@ -584,7 +584,7 @@ _trap14_address:
 _trap14:
 	tst.w	_xbiosfix
 	beq	.continue_trap14
-	move	usp,a0
+*	move	usp,a0    **** FIXME!!!
 	btst	#5,(a7)
 	beq	.correct_a0
 	lea	6(a7),a0

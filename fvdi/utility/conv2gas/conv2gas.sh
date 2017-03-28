@@ -22,7 +22,7 @@ sed "s%^\\([ 	][ 	]*\\)endc%\1.endif%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 
 # Constants
-sed "s%^\\([^ 	]*\\)[ 	][ 	]*equ[ 	][ 	]*%	.equiv	\\1,%" $file.tmp >$file.gnu
+sed "s%^\\([^ 	]*\\)[ 	][ 	]*equ[ 	][ 	]*%	.equ \\1,%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 sed "s%^\\([^ 	]*\\)[ 	][ 	]*set[ 	][ 	]*%	.set	\\1,%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp

@@ -27,6 +27,7 @@ ifeq ($(CPU),v4e)
 	-core v4 \
 	-hardware_divide \
 	-hardware_mac \
+    -implicit_externs \
 	-a gnu \
 	-gnu_locals \
 	-out_syntax standard \
