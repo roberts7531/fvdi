@@ -3,7 +3,7 @@
 *
 * $Id: support.s,v 1.9 2005-12-06 00:14:04 johan Exp $
 *
-* Copyright 1997-2003, Johan Klockars 
+* Copyright 1997-2003, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -199,11 +199,13 @@ _cache_flush:
 
 .is_030:
   ifeq mc68000
+  ifeq	mcoldfire		; FIXME: ColdFire cache flush
 	movec	cacr,d0
 	move.l	d0,d1
 	or.w	#$808,d1
 	movec	d1,cacr
 	movec	d0,cacr
+  endc
   else
 	dc.w	$4e7a		; movec cacr,d0
 	dc.w	$0002

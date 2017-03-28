@@ -3,7 +3,7 @@
 *
 * $Id: text_sq.s,v 1.24 2006-12-08 16:13:13 standa Exp $
 *
-* Copyright 1997-2002, Johan Klockars 
+* Copyright 1997-2002, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -28,9 +28,9 @@ SUB1		equ	0		; Subtract 1 from text width? (NVDI apparently doesn't)
 	xdef	vst_load_fonts,vst_unload_fonts,vqt_width
 	xdef	vqt_f_extent,vqt_xfntinfo,vqt_fontheader
 
-	xdef	lib_vst_effects,lib_vst_alignment,lib_vst_rotation
-	xdef	lib_vqt_font_info,lib_vst_height,lib_vqt_attributes
-	xdef	lib_vst_load_fonts,lib_vst_unload_fonts,lib_vqt_width
+	xref	lib_vst_effects,lib_vst_alignment,lib_vst_rotation
+	xref	lib_vqt_font_info,lib_vst_height,lib_vqt_attributes
+	xref	lib_vst_load_fonts,lib_vst_unload_fonts,lib_vqt_width
 
 	xdef	vst_arbpt
 
@@ -107,7 +107,7 @@ v_getbitmap_info:
 	beq	.char_bitmap_done
 	move.l	d0,20(a2)
 	bra	.char_bitmap_done
-	
+
 .no_external_char_bitmap:
 	move.l	intout(a1),a2
 	move.w	#6,(a2)+	; Width
@@ -531,7 +531,7 @@ vqt_name:
 	bne	.normal_vqt_name
 	cmp.w	#2,L_intin(a2)
 	bge	vqt_ext_name
-	
+
 .normal_vqt_name:
 	movem.l	d2/a1,-(a7)
 	move.l	intout(a1),a2
@@ -564,7 +564,7 @@ vqt_name:
 vqt_ext_name:
 	move.l	control(a1),a2
 	move.w	#35,L_intout(a2)
-	
+
 	move.l	intin(a1),a2
 	move.w	(a2),d0
 	move.l	intout(a1),a1
@@ -654,12 +654,12 @@ lib_vqt_ext_name:
 	lbpl	.bitmap,5
 	move.w	#1,2*32(a1)	; Vector font!
 	move.w	font_flags(a2),d0
-	and.w	#$0008,d0	; Top byte: 0 - proportional, 1 - monospaced 
+	and.w	#$0008,d0	; Top byte: 0 - proportional, 1 - monospaced
 	lsl.w	#5,d0
 	move.b	#4,d0		; 1 - bitmap, 2 - speedo, 4 - FT, 8 - Type 1
 	move.w	d0,2*33(a1)
  label .bitmap,5
-	
+
 	lea	font_name(a2),a2
 	moveq	#31,d1
 	moveq	#0,d0
@@ -738,7 +738,7 @@ vqt_fontheader:
 	used_d1
 	done_return
 
-	
+
 	dc.b	0,"vqt_xfntinfo",0
 * vqt_xfntinfo - Standard Trap function
 * Todo:	?
@@ -1001,13 +1001,13 @@ vqt_extent:
 	move.l	_external_vqt_extent,d2		; (Handle differently?)
 	beq	.no_external_vqt_extent		; Not really allowed!
 	move.l	d2,a3
-	
+
 	move.l	a7,d2				; Give external renderer
 	move.l	_vdi_stack_top,a7		;  extra stack space!
 	move.l	d2,-(a7)			; (Should be improved)
 
 	movem.l	d0-d1/a0-a2,-(a7)
-	move.l	_vdi_stack_size,-(a7)	
+	move.l	_vdi_stack_size,-(a7)
 	ext.l	d0
 	move.l	d0,-(a7)
 	move.l	a1,-(a7)
@@ -1107,13 +1107,13 @@ lib_vqt_extent:
 	move.l	_external_vqt_extent,d2		; (Handle differently?)
 	lbeq	.no_external_vqt_extent,8	; Not really allowed!
 	move.l	d2,a3
-	
+
 	move.l	a7,d2				; Give external renderer
 	move.l	_vdi_stack_top,a7		;  extra stack space!
 	move.l	d2,-(a7)			; (Should be improved)
 
 	movem.l	d0-d1/a0-a2,-(a7)
-	move.l	_vdi_stack_size,-(a7)	
+	move.l	_vdi_stack_size,-(a7)
 	ext.l	d0
 	move.l	d0,-(a7)
 	move.l	a1,-(a7)
@@ -1162,7 +1162,7 @@ vqt_width:
 	add.w	d1,d1
 	move.w	2(a3,d1.w),d2
 	sub.w	0(a3,d1.w),d2
-	
+
 	moveq	#0,d0
 	move.w	d2,(a2)+
 	move.w	d0,(a2)+
@@ -1177,7 +1177,7 @@ vqt_width:
 	move.w	d0,(a2)+
 	move.w	d0,(a2)+		; Right hand offset?
 	move.w	d0,(a2)+
-	
+
 .end_vqt_width:	; .end:
 	movem.l	(a7)+,d2/a3
 	used_d1
@@ -1191,13 +1191,13 @@ vqt_width:
 	move.l	_external_vqt_width,d2		; (Handle differently?)
 	beq	.no_external_vqt_width		; Not really allowed!
 	move.l	d2,a3
-	
+
 	move.l	a7,d2				; Give external renderer
 	move.l	_vdi_stack_top,a7		;  extra stack space!
 	move.l	d2,-(a7)			; (Should be improved)
 
 	movem.l	d0-d1/a0-a2,-(a7)
-	move.l	_vdi_stack_size,-(a7)	
+	move.l	_vdi_stack_size,-(a7)
 	ext.l	d0
 	move.l	d0,-(a7)			; Character
 	move.l	vwk_text_current_font(a0),-(a7)	; Fontheader
@@ -1236,7 +1236,7 @@ lib_vqt_width:
 	sub.w	0(a2,d1.w),d2
 	move.l	(a1)+,a2
 	move.w	d2,(a2)
-	
+
 	move.w	font_flags(a0),d2
 	and.w	#$0002,d2
 	lbeq	.no_offset,1
@@ -1248,7 +1248,7 @@ lib_vqt_width:
 	move.w	d2,(a2)
 	move.l	(a1),a2
 	move.w	#0,(a2)			; Right hand offset?
-	
+
  label .end,2
 	movem.l	(a7)+,d2
 	rts
@@ -1312,7 +1312,7 @@ vst_height:
 	move.l	_external_vst_point,d2		; (Handle differently?)
 	beq	.no_external_vst_height		; Not really allowed!
 	move.l	d2,a3
-	
+
 	move.l	a7,d2				; Give external renderer
 	move.l	_vdi_stack_top,a7		;  extra stack space!
 	move.l	d2,-(a7)			; (Should be improved)
@@ -1422,7 +1422,7 @@ vst_arbpt:
 	move.l	_external_vst_point,d2		; (Handle differently?)
 	beq	.no_external_vst_arbpt		; Not really allowed!
 	move.l	d2,a3
-	
+
 	move.l	a7,d2				; Give external renderer
 	move.l	_vdi_stack_top,a7		;  extra stack space!
 	move.l	d2,-(a7)			; (Should be improved)
@@ -1570,7 +1570,7 @@ vst_point:
 	move.l	_external_vst_point,d2		; (Handle differently?)
 	beq	.no_external_vst_point		; Not really allowed!
 	move.l	d2,a3
-	
+
 	move.l	a7,d2				; Give external renderer
 	move.l	_vdi_stack_top,a7		;  extra stack space!
 	move.l	d2,-(a7)			; (Should be improved)

@@ -48,7 +48,7 @@ mv $file.gnu $file.tmp
 # Data
 sed "s%\\([ 	][ 	]*\\)dc.b%\1.byte%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
-sed "s%\\([ 	][ 	]*\\)dc.w%\1.word%" $file.tmp >$file.gnu
+sed "s%\\([ 	][ 	]*\\)dc.w%\1.short%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 sed "s%\\([ 	][ 	]*\\)dc.l%\1.long%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp

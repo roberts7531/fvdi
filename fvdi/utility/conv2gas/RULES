@@ -24,6 +24,7 @@ ifeq ($(CPU),v4e)
 	PORTASM = pacf
 	PORTASM_FLAGS = \
 	-blanks on  \
+	-case on \
 	-core v4 \
 	-hardware_divide \
 	-hardware_mac \
@@ -56,6 +57,7 @@ $(SSRC_GNU):$(SSRC_GNU_CF)
 # assembler source files get milled through pacf
 %.gnu:%.cf_gnu
 	$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
+	sed -ie '/\.section/d' $@
 
 else
 %.gnu: $(basename %.gnu) $(CONV2GAS)

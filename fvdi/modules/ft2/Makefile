@@ -35,10 +35,16 @@ subdir      = ft2
 
 include $(top_srcdir)/CONFIGVARS
 
-ifneq ($(stdlib_srcdir),)
-CFLAGS = -m68$(CPU) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
+ifneq ($(CPU),v4e)
+	CPUFLAGS = -m68$(CPU)
 else
-CFLAGS = -m68$(CPU) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
+	CPUFLAGS = -mcpu=547x
+endif
+
+ifneq ($(stdlib_srcdir),)
+CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
+else
+CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
 endif
 
 #
@@ -199,7 +205,7 @@ FONTDOBJ = cff.o type1.o type42.o type1cid.o truetype.o bdf.o pfr.o winfnt.o
 
 OBJS = $(BASEOBJ) $(AHINTOBJ) $(PSOBJ) $(RASTEROBJ) sfnt.o ftcache.o $(FONTDOBJ)
 
-$(TARGET): $(OBJS) 
+$(TARGET): $(OBJS)
 	$(AR) cr $@ $(OBJS); $(RANLIB) $@
 
 clean:

@@ -4,7 +4,7 @@
 *
 * $Id: fvdi.s,v 1.10 2005-11-21 23:38:05 johan Exp $
 *
-* Copyright 1997-2002, Johan Klockars 
+* Copyright 1997-2002, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -93,12 +93,12 @@ _init:
 	move.l	a6,-(a7)        ; Program size
 	move.w	#$31,-(a7)	; Ptermres
 	trap	#1
-	illegal
+	;illegal
 
 .error:
 	move.w	#$0,-(a7)	; Pterm0
 	trap	#1
-	illegal
+	;illegal
 
 
 * XBRA chain for Trap #2
@@ -154,13 +154,13 @@ _trap2_temp:
 
 
 	move.l	a2,-(a7)		; Some always needed
-	
+
 	move.l	d1,a2			; a2 - parameter block
 	move.l	control(a2),a2		; a2 - control
 
 	move.w	function(a2),d0		; d0 - function number
 
-	cmp.w	#1,d0			; Don't do anything until the 
+	cmp.w	#1,d0			; Don't do anything until the
 	bne	.no_interest		;  screen workstation is opened.
 
 ; Must not do this when it's only the fVDI startup code that's running
@@ -271,7 +271,7 @@ _vdi_dispatch:
 
 dispatch_entry:
 	save_regs			; Some always needed
-	
+
 	move.l	d1,a2			; a2 - parameter block
 	move.l	control(a2),a1		; a1 - control
 
