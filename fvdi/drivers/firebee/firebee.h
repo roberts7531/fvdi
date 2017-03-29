@@ -31,8 +31,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef SAGA_H
-#define SAGA_H
+#ifndef _FIREBEE_H_
+#define _FIREBEE_H_
 
 typedef unsigned char UBYTE;
 typedef unsigned short UWORD;
@@ -45,7 +45,6 @@ typedef ULONG IPTR;
 #define TRUE 1
 #define FALSE 0
 
-#define FIREBEE_VRAM_PHYS_OFFSET    0x40000000      /* physical offset FPGA RAM to ST RAM start (0x0) */
 
 struct Node
 {
@@ -78,6 +77,8 @@ struct ModeInfo
     ULONG       PixelClock;
 };
 
+
+#define FIREBEE_VRAM_PHYS_OFFSET    0x40000000      /* physical offset FPGA RAM to ST RAM start (0x0) */
 
 #define FBEE_VIDEO_PLL_CONFIG   (volatile unsigned long *) 0xff000600
 #define FBEE_VIDEO_PLL_CLK      (volatile unsigned long *) 0xff000604
@@ -155,4 +156,4 @@ void fbee_set_clock(const struct ModeInfo *mi);
 void fbee_set_modeline(const struct ModeInfo *mi, UBYTE Format);
 void fbee_set_panning(UBYTE *mem);
 
-#endif /* SAGA_H */
+#endif /* _FIREBEE_H_ */
