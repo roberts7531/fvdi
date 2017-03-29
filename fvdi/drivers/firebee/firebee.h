@@ -78,6 +78,31 @@ struct ModeInfo
     ULONG       PixelClock;
 };
 
+
+#define FBEE_VIDEO_PLL_CONFIG   (volatile unsigned long *) 0xff000600
+#define FBEE_VIDEO_PLL_CLK      (volatile unsigned long *) 0xff000604
+#define FBEE_VIDEO_PLL_RECONFIG (volatile unsigned long *) 0xff000800
+
+#define FBEE_VIDEO_ON       0x00000001
+#define FBEE_VDAC_ON        0x00000002
+#define FBEE_COLOR_24       0x00000004
+#define FBEE_COLOR_16       0x00000008
+#define FBEE_COLOR8         0x00000010
+#define FBEE_COLOR1         0x00000020
+#define FBEE_FALCON_SHIFT   0x00000040
+#define FBEE_ST_SHIFT_MODE  0x00000080
+#define FBEE_CLK_25         0x00000000
+#define FBEE_CLK_33         0x00000100
+#define FBEE_CLK_PLL        0x00000200
+
+#define FBEE_SYNC           0x00008000
+#define FBEE_VCKE           0x00010000
+#define FBEE_VCS            0x00020000
+#define FBEE_REFRESH_ON     0x00040000
+#define FBEE_CONFIG_ON      0x00080000
+#define FBEE_FIFO_ON        0x01000000
+#define FBEE_BORDER_ON      0x02000000
+
 #define GMB_DOUBLECLOCK         0       /* Clock is doubled after selection */
 #define GMB_INTERLACE           1       /* Mode is interlaced */
 #define GMB_DOUBLESCAN          2       /* Scanlines are doubled */

@@ -15,6 +15,7 @@
 
 #include "firebee.h"
 #include "video.h"
+#include <mint/osbind.h>
 
 #define SAGA_PLL_PAL       0
 #define SAGA_PLL_NTSC      1
@@ -1642,18 +1643,46 @@ static struct saga_pll_data {
                 0x01,0x40,0x60,0x00,0x08,0x00,0x02,0x00,0x00 } },
 };
 
-#define PLL_CLOCKS (sizeof(fbee_pll)/sizeof(fbee_pll[0]))
+#define PLL_NUM_CLOCKS (sizeof(fbee_pll) / sizeof(fbee_pll[0]))
+
+
+static unsigned long get_timer(void)
+{
+    return * (volatile unsigned long *) 0x4ba;
+}
+
+#define SYSTEM_CLOCK    264UL
+#define PLL_TIMEOUT     (1000 * SYSTEM_CLOCK)
+
+void fbee_wait_pll(void)
+{
+    unsigned long timeout = Supexec(get_timer);
+
+    while (*FBEE_VIDEO_PLL_RECONFIG < 0)
+    {
+        if (Supexec(get_timer) - timeout >= PLL_TIMEOUT)
+        {
+            // KDEBUG("wait for PLL not busy timed out\r\n");
+            break;
+        }
+    }
+}
+
+static long fbee_init_videl(void)
+{
+    unsigned long fbee_video_control = FBEE_FIFO_ON | FBEE_REFRESH_ON | FBEE_VCS | FBEE_VCKE | FBEE_VDAC_ON | FBEE_CLK_PLL;
+}
 
 int fbee_pll_clock_count(void)
 {
-    return PLL_CLOCKS;
+    return PLL_NUM_CLOCKS;
 }
 
 int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
 
-    if (id < 0 || id >= PLL_CLOCKS)
+    if (id < 0 || id >= PLL_NUM_CLOCKS)
         return -1;
 
     *freq = fbee_pll[id].freq[type];
@@ -1673,7 +1702,7 @@ int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
     freq = *freqp;
 
     /* Find the closest clock */
-    for (i = 0; i < PLL_CLOCKS-1; i++) {
+    for (i = 0; i < PLL_NUM_CLOCKS-1; i++) {
         ULONG split;
 
         if (freq <= fbee_pll[i].freq[type])
@@ -1697,7 +1726,7 @@ int fbee_pll_clock_program(int clock)
 {
     int i;
 
-    if (clock < 0 || clock >= PLL_CLOCKS)
+    if (clock < 0 || clock >= PLL_NUM_CLOCKS)
          return -1;
 
     for (i = 0; i < 18; i++) {
