@@ -38,18 +38,18 @@
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setclock.c
  */
-void saga_set_clock(const struct ModeInfo *mi)
+void fbee_set_clock(const struct ModeInfo *mi)
 {
     int clock_id = ((ULONG)mi->Numerator << 8) | mi->Denomerator;
 
-    saga_pll_clock_program(clock_id);
+    fbee_pll_clock_program(clock_id);
 }
 
 /*
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/initcard.c
  */
-void saga_fix_mode(struct ModeInfo *mi)
+void fbee_fix_mode(struct ModeInfo *mi)
 {
     BOOL is_NTSC = FALSE;
     int refresh;
@@ -66,7 +66,7 @@ void saga_fix_mode(struct ModeInfo *mi)
         mi->PixelClock *= 2;
 
     /* Fix up PixelClock to a 'sane' value */
-    clock_id = saga_pll_clock_lookup(is_NTSC, &mi->PixelClock);
+    clock_id = fbee_pll_clock_lookup(is_NTSC, &mi->PixelClock);
     mi->Numerator = (clock_id >> 8) & 0xff;
     mi->Denomerator = (clock_id >> 0) & 0xff;
 }
@@ -75,7 +75,7 @@ void saga_fix_mode(struct ModeInfo *mi)
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setgc.c
  */
-void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format)
+void fbee_set_modeline(const struct ModeInfo *mi, UBYTE Format)
 {
     UWORD width, hsstrt, hsstop, htotal;
     UWORD height, vsstrt, vsstop, vtotal;
@@ -113,7 +113,7 @@ void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format)
     }
 
     /* Monitor mode info */
-/*
+    /*
     debug("ModeLine \"%ldx%ld\" %ld, %ld %ld %ld %ld, %ld %ld %ld %ld, %sHSync %sVSync%s%s",
             width, height, mi->PixelClock / 1000000,
             width, hsstrt, hsstop, htotal,
@@ -134,17 +134,17 @@ void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format)
     Write16(SAGA_VIDEO_VTOTAL, vtotal);
 
     Write16(SAGA_VIDEO_HVSYNC, ((mi->Flags & GMF_HPOLARITY) ? (1 << 0) : 0) |
-                               ((mi->Flags & GMF_VPOLARITY) ? (1 << 1) : 0));
+            ((mi->Flags & GMF_VPOLARITY) ? (1 << 1) : 0));
 
     Write16(SAGA_VIDEO_MODE, SAGA_VIDEO_MODE_FORMAT(Format) |
-                             SAGA_VIDEO_MODE_DBLSCN(doublescan));
+            SAGA_VIDEO_MODE_DBLSCN(doublescan));
 }
 
 /*
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setgc.c
  */
-void saga_set_panning(UBYTE *mem)
+void fbee_set_panning(UBYTE *mem)
 {
     Write32(SAGA_VIDEO_PLANEPTR, (IPTR)mem);
 }

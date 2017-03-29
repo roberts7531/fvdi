@@ -45,6 +45,8 @@ typedef ULONG IPTR;
 #define TRUE 1
 #define FALSE 0
 
+#define FIREBEE_VRAM_PHYS_OFFSET    0x40000000      /* physical offset FPGA RAM to ST RAM start (0x0) */
+
 struct Node
 {
     char *ln_Name;
@@ -99,12 +101,12 @@ struct ModeInfo
 
 static inline VOID Write32(IPTR addr, ULONG value)
 {
-    *(volatile ULONG *)addr = value;
+    *(volatile ULONG *) addr = value;
 }
 
 static inline VOID Write16(IPTR addr, UWORD value)
 {
-    *(volatile UWORD *)addr = value;
+    *(volatile UWORD *) addr = value;
 }
 
 /* Test if width or height requires doublescan
@@ -113,19 +115,19 @@ static inline VOID Write16(IPTR addr, UWORD value)
 #define IS_DOUBLEY(h)   ((h) <= 300)
 
 /* saga_pll.c */
-int saga_pll_clock_count(void);
-int saga_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq);
-int saga_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp);
-int saga_pll_clock_program(int clock);
+int fbee_pll_clock_count(void);
+int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq);
+int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp);
+int fbee_pll_clock_program(int clock);
 
 /* from modeline_vesa.c */
 extern struct ModeInfo modeline_vesa_entry[];
 extern const int modeline_vesa_entries;
 
 /* from saga.c */
-void saga_fix_mode(struct ModeInfo *mi);
-void saga_set_clock(const struct ModeInfo *mi);
-void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format);
-void saga_set_panning(UBYTE *mem);
+void fbee_fix_mode(struct ModeInfo *mi);
+void fbee_set_clock(const struct ModeInfo *mi);
+void fbee_set_modeline(const struct ModeInfo *mi, UBYTE Format);
+void fbee_set_panning(UBYTE *mem);
 
 #endif /* SAGA_H */

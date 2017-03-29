@@ -22,7 +22,7 @@
 static struct saga_pll_data {
     ULONG freq[2];
     UBYTE data[18];
-} saga_pll[] = {
+} fbee_pll[] = {
     { .freq = { 20267942, 20454542 },
       .data = { 0x09,0xC0,0x60,0x00,0x01,0x90,0xC8,0x25,0x11,
                 0x02,0x40,0xE0,0x00,0x08,0x00,0x02,0x00,0x00 } },
@@ -1642,26 +1642,26 @@ static struct saga_pll_data {
                 0x01,0x40,0x60,0x00,0x08,0x00,0x02,0x00,0x00 } },
 };
 
-#define PLL_CLOCKS (sizeof(saga_pll)/sizeof(saga_pll[0]))
+#define PLL_CLOCKS (sizeof(fbee_pll)/sizeof(fbee_pll[0]))
 
-int saga_pll_clock_count(void)
+int fbee_pll_clock_count(void)
 {
     return PLL_CLOCKS;
 }
 
-int saga_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
+int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
 
     if (id < 0 || id >= PLL_CLOCKS)
         return -1;
 
-    *freq = saga_pll[id].freq[type];
+    *freq = fbee_pll[id].freq[type];
 
     return 0;
 }
 
-int saga_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
+int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
     int i;
@@ -1676,16 +1676,16 @@ int saga_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
     for (i = 0; i < PLL_CLOCKS-1; i++) {
         ULONG split;
 
-        if (freq <= saga_pll[i].freq[type])
+        if (freq <= fbee_pll[i].freq[type])
             break;
 
-        split = (saga_pll[i].freq[type] + saga_pll[i+1].freq[type])/2;
+        split = (fbee_pll[i].freq[type] + fbee_pll[i+1].freq[type])/2;
 
         if (freq < split)
             break;
     }
 
-    *freqp = saga_pll[i].freq[type];
+    *freqp = fbee_pll[i].freq[type];
 
     /* If we didn't find a match, we will return the largest
      * valid clock.
@@ -1693,7 +1693,7 @@ int saga_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
     return i;
 }
 
-int saga_pll_clock_program(int clock)
+int fbee_pll_clock_program(int clock)
 {
     int i;
 
@@ -1701,7 +1701,7 @@ int saga_pll_clock_program(int clock)
          return -1;
 
     for (i = 0; i < 18; i++) {
-        UBYTE byte = saga_pll[clock].data[17 - i];
+        UBYTE byte = fbee_pll[clock].data[17 - i];
         int j;
 
         Write32(SAGA_VIDEO_PLLW, SAGA_VIDEO_PLLW_MAGIC |

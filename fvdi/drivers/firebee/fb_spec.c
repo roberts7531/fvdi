@@ -34,23 +34,24 @@ char b_16[] = {5,  0,  1,  2,  3,  4};
 char none[] = {0};
 
 Mode mode[1] =
-	{{16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, {r_16, g_16, b_16, none, none, none}, 0,  2, 2, 1}};
+{{16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, {r_16, g_16, b_16, none, none, none}, 0,  2, 2, 1}};
 
 extern Device device;
 
-char driver_name[] = "SAGA";
+char driver_name[] = "FBee";
 
-struct {
-	short used; /* Whether the mode option was used or not. */
-	short width;
-	short height;
-	short bpp;
-	short freq;
+struct
+{
+    short used; /* Whether the mode option was used or not. */
+    short width;
+    short height;
+    short bpp;
+    short freq;
 } resolution = {0, 640, 480, 16, 60};
 
 struct {
-	short width;
-	short height;
+    short width;
+    short height;
 } pixel;
 
 extern Driver *me;
@@ -88,19 +89,19 @@ void *set_colours_r = &c_set_colours;
 void *get_colours_r = 0;
 void *get_colour_r  = &c_get_colour;
 
-static void saga_puts(const char* message)
+static void fbee_puts(const char* message)
 {
-	access->funcs.puts("SAGA: ");
-	access->funcs.puts(message);
-	access->funcs.puts("\x0d\x0a");
+    access->funcs.puts("FBee: ");
+    access->funcs.puts(message);
+    access->funcs.puts("\x0d\x0a");
 }
 
 static void panic(const char* message)
 {
-	/* Unfortunately, fVDI can't recover from driver initialization failure.
-	 * So we just wait forever. */
-	saga_puts(message);
-	for(;;);
+    /* Unfortunately, fVDI can't recover from driver initialization failure.
+     * So we just wait forever. */
+    fbee_puts(message);
+    for(;;);
 }
 
 long wk_extend = 0;
@@ -115,65 +116,65 @@ short debug = 0;
 long set_mode(const char **ptr);
 
 Option options[] = {
-	{"debug",      &debug,             2},  /* debug, turn on debugging aids */
-	{"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+    {"debug",      &debug,             2},  /* debug, turn on debugging aids */
+    {"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
 };
 
 char *get_num(char *token, short *num)
 {
-	char buf[10], c;
-	int i;
+    char buf[10], c;
+    int i;
 
-	*num = -1;
-	if (!*token)
-		return token;
-	for(i = 0; i < 10; i ++) {
-		c = buf[i] = *token++;
-		if ((c < '0') || (c > '9'))
-			break;
-	}
-	if (i > 5)
-		return token;
+    *num = -1;
+    if (!*token)
+        return token;
+    for(i = 0; i < 10; i ++) {
+        c = buf[i] = *token++;
+        if ((c < '0') || (c > '9'))
+            break;
+    }
+    if (i > 5)
+        return token;
 
-	buf[i] = '\0';
-	*num = access->funcs.atol(buf);
-	return token;
+    buf[i] = '\0';
+    *num = access->funcs.atol(buf);
+    return token;
 }
 
 int set_bpp(int bpp)
 {
-	switch (bpp) {
-	case -1:
-	case 16:
-		graphics_mode = &mode[0];
-		break;
-	default:
-		panic("Unsupported BPP.");
-		break;
-	}
+    switch (bpp) {
+        case -1:
+        case 16:
+            graphics_mode = &mode[0];
+            break;
+        default:
+            panic("Unsupported BPP.");
+            break;
+    }
 
-	return bpp;
+    return bpp;
 }
 
 long set_mode(const char **ptr)
 {
-	char token[80], *tokenptr;
+    char token[80], *tokenptr;
 
-	if (!(*ptr = access->funcs.skip_space(*ptr)))
-		;		/* *********** Error, somehow */
-	*ptr = access->funcs.get_token(*ptr, token, 80);
+    if (!(*ptr = access->funcs.skip_space(*ptr)))
+        ;		/* *********** Error, somehow */
+    *ptr = access->funcs.get_token(*ptr, token, 80);
 
-	tokenptr = token;
-	tokenptr = get_num(tokenptr, &resolution.width);
-	tokenptr = get_num(tokenptr, &resolution.height);
-	tokenptr = get_num(tokenptr, &resolution.bpp);
-	tokenptr = get_num(tokenptr, &resolution.freq);
+    tokenptr = token;
+    tokenptr = get_num(tokenptr, &resolution.width);
+    tokenptr = get_num(tokenptr, &resolution.height);
+    tokenptr = get_num(tokenptr, &resolution.bpp);
+    tokenptr = get_num(tokenptr, &resolution.freq);
 
-	resolution.used = 1;
+    resolution.used = 1;
 
-	resolution.bpp = set_bpp(resolution.bpp);
+    resolution.bpp = set_bpp(resolution.bpp);
 
-	return 1;
+    return 1;
 }
 
 /*
@@ -181,49 +182,49 @@ long set_mode(const char **ptr)
  */
 long check_token(char *token, const char **ptr)
 {
-   int i;
-   int normal;
-   char *xtoken;
+    int i;
+    int normal;
+    char *xtoken;
 
-   xtoken = token;
-   switch (token[0]) {
-   case '+':
-      xtoken++;
-      normal = 1;
-      break;
-   case '-':
-      xtoken++;
-      normal = 0;
-      break;
-   default:
-      normal = 1;
-      break;
-   }
-   for(i = 0; i < sizeof(options) / sizeof(Option); i++) {
-      if (access->funcs.equal(xtoken, options[i].name)) {
-         switch (options[i].type) {
-         case -1:     /* Function call */
-            return ((long (*)(const char **))options[i].varfunc)(ptr);
-         case 0:      /* Default 1, set to 0 */
-            *(short *)options[i].varfunc = 1 - normal;
-            return 1;
-         case 1:     /* Default 0, set to 1 */
-            *(short *)options[i].varfunc = normal;
-            return 1;
-         case 2:     /* Increase */
-            *(short *)options[i].varfunc += -1 + 2 * normal;
-            return 1;
-         case 3:
-           if (!(*ptr = access->funcs.skip_space(*ptr)))
-              ;  /* *********** Error, somehow */
-            *ptr = access->funcs.get_token(*ptr, token, 80);
-           *(short *)options[i].varfunc = token[0];
-           return 1;
-         }
-      }
-   }
+    xtoken = token;
+    switch (token[0]) {
+        case '+':
+            xtoken++;
+            normal = 1;
+            break;
+        case '-':
+            xtoken++;
+            normal = 0;
+            break;
+        default:
+            normal = 1;
+            break;
+    }
+    for(i = 0; i < sizeof(options) / sizeof(Option); i++) {
+        if (access->funcs.equal(xtoken, options[i].name)) {
+            switch (options[i].type) {
+                case -1:     /* Function call */
+                    return ((long (*)(const char **))options[i].varfunc)(ptr);
+                case 0:      /* Default 1, set to 0 */
+                    *(short *)options[i].varfunc = 1 - normal;
+                    return 1;
+                case 1:     /* Default 0, set to 1 */
+                    *(short *)options[i].varfunc = normal;
+                    return 1;
+                case 2:     /* Increase */
+                    *(short *)options[i].varfunc += -1 + 2 * normal;
+                    return 1;
+                case 3:
+                    if (!(*ptr = access->funcs.skip_space(*ptr)))
+                        ;  /* *********** Error, somehow */
+                    *ptr = access->funcs.get_token(*ptr, token, 80);
+                    *(short *)options[i].varfunc = token[0];
+                    return 1;
+            }
+        }
+    }
 
-   return 0;
+    return 0;
 }
 
 static struct ModeInfo *mi;
@@ -232,44 +233,44 @@ static UBYTE *screen_address;
 /* Fix all ModeInfo with PLL data */
 static void fix_all_mode_info(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < modeline_vesa_entries; i++) {
-		struct ModeInfo *mi = &modeline_vesa_entry[i];
-		saga_fix_mode(mi);
-	}
+    for (i = 0; i < modeline_vesa_entries; i++) {
+        struct ModeInfo *mi = &modeline_vesa_entry[i];
+        fbee_fix_mode(mi);
+    }
 }
 
 /* Find ModeInfo according to requested video mode */
 static struct ModeInfo *find_mode_info(void)
 {
-	int i;
+    int i;
 
-	for (i = 0; i < modeline_vesa_entries; i++) {
-		struct ModeInfo *p = &modeline_vesa_entry[i];
-		if (p->Width == resolution.width && p->Height == resolution.height)
-			return p;
-	}
+    for (i = 0; i < modeline_vesa_entries; i++) {
+        struct ModeInfo *p = &modeline_vesa_entry[i];
+        if (p->Width == resolution.width && p->Height == resolution.height)
+            return p;
+    }
 
-	panic("Requested video mode mode not available.");
-	return NULL;
+    panic("Requested video mode mode not available.");
+    return NULL;
 }
 
 /* Allocate screen buffer */
-UBYTE *saga_alloc_vram(UWORD width, UWORD height)
+UBYTE *fbee_alloc_vram(UWORD width, UWORD height)
 {
-	ULONG buffer;
-	ULONG vram_size = (ULONG)width * height * sizeof(short);
-	const int alignment = 32; /* Size of SAGA burst reads */
+    ULONG buffer;
+    ULONG vram_size = (ULONG)width * height * sizeof(short);
+    const int alignment = 32;
 
-	/* SAGA screen buffers reside in Alt-RAM */
-	buffer = (ULONG)Mxalloc(vram_size + alignment - 1, 1);
-	if (!buffer)
-		panic("Mxalloc() failed to allocate screen buffer.");
+    /* FireBee screen buffers live in ST RAM */
+    buffer = (ULONG) Mxalloc(vram_size + alignment - 1, 0);
+    if (!buffer)
+        panic("Mxalloc() failed to allocate screen buffer.");
 
-	buffer = (buffer + alignment - 1) & -alignment;
+    buffer = (buffer + alignment - 1) & -alignment;
 
-	return (UBYTE *)buffer;
+    return (UBYTE *) buffer + FIREBEE_VRAM_PHYS_OFFSET;
 }
 
 /*
@@ -279,63 +280,63 @@ UBYTE *saga_alloc_vram(UWORD width, UWORD height)
  */
 long CDECL initialize(Virtual *vwk)
 {
-	Workstation *wk;
-	int old_palette_size;
-	Colour *old_palette_colours;
+    Workstation *wk;
+    int old_palette_size;
+    Colour *old_palette_colours;
 
-	/* Display startup banner */
-	access->funcs.puts("\r\n");
-	access->funcs.puts("\ep SAGA driver for fVDI \eq\r\n");
-	access->funcs.puts("\xbd 2017 Vincent Rivi\x8are\r\n");
-	access->funcs.puts("Free Software distributed under GPLv2\r\n");
-	access->funcs.puts("\r\n");
+    /* Display startup banner */
+    access->funcs.puts("\r\n");
+    access->funcs.puts("\ep FireBee driver for fVDI \eq\r\n");
+    access->funcs.puts("\xbd 2017 Markus Fr\x94schle\r\n");
+    access->funcs.puts("Free Software distributed under GPLv2\r\n");
+    access->funcs.puts("\r\n");
 
-	/* Initialize the RTG card with the requested video mode */
-	fix_all_mode_info();
-	mi = find_mode_info();
-	screen_address = saga_alloc_vram(resolution.width, resolution.height);
+    /* Initialize the RTG card with the requested video mode */
+    fix_all_mode_info();
+    mi = find_mode_info();
+    screen_address = fbee_alloc_vram(resolution.width, resolution.height);
 
-	vwk = me->default_vwk;	/* This is what we're interested in */	
-	wk = vwk->real_address;
+    vwk = me->default_vwk;	/* This is what we're interested in */
+    wk = vwk->real_address;
 
-	wk->screen.look_up_table = 0;			/* Was 1 (???)  Shouldn't be needed (graphics_mode) */
-	wk->screen.mfdb.standard = 0;
-	if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
-		wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
-	else                                   /*   or fixed DPI (negative) */
-		wk->screen.pixel.width = 25400 / -wk->screen.pixel.width;
-	if (wk->screen.pixel.height > 0)        /* Starts out as screen height */
-		wk->screen.pixel.height = (wk->screen.pixel.height * 1000L) / wk->screen.mfdb.height;
-	else                                    /*   or fixed DPI (negative) */
-		wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
+    wk->screen.look_up_table = 0;			/* Was 1 (???)  Shouldn't be needed (graphics_mode) */
+    wk->screen.mfdb.standard = 0;
+    if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
+        wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
+    else                                   /*   or fixed DPI (negative) */
+        wk->screen.pixel.width = 25400 / -wk->screen.pixel.width;
+    if (wk->screen.pixel.height > 0)        /* Starts out as screen height */
+        wk->screen.pixel.height = (wk->screen.pixel.height * 1000L) / wk->screen.mfdb.height;
+    else                                    /*   or fixed DPI (negative) */
+        wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
 
 
-	/*	
-	 * This code needs more work.
-	 * Especially if there was no VDI started since before.
-	 */
+    /*
+     * This code needs more work.
+     * Especially if there was no VDI started since before.
+     */
 
-	if (loaded_palette)
-		access->funcs.copymem(loaded_palette, colours, 256 * 3 * sizeof(short));
-	if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
-		old_palette_colours = wk->screen.palette.colours;
-		wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
-		if (wk->screen.palette.colours) {
-			wk->screen.palette.size = 256;
-			if (old_palette_colours)
-				access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
-		} else
-			wk->screen.palette.colours = old_palette_colours;
-	}
-	c_initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
+    if (loaded_palette)
+        access->funcs.copymem(loaded_palette, colours, 256 * 3 * sizeof(short));
+    if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
+        old_palette_colours = wk->screen.palette.colours;
+        wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
+        if (wk->screen.palette.colours) {
+            wk->screen.palette.size = 256;
+            if (old_palette_colours)
+                access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
+        } else
+            wk->screen.palette.colours = old_palette_colours;
+    }
+    c_initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
 
-	device.byte_width = wk->screen.wrap;
-	device.address = wk->screen.mfdb.address;
+    device.byte_width = wk->screen.wrap;
+    device.address = wk->screen.mfdb.address;
 
-	pixel.width = wk->screen.pixel.width;
-	pixel.height = wk->screen.pixel.height;
+    pixel.width = wk->screen.pixel.width;
+    pixel.height = wk->screen.pixel.height;
 
-	return 1;
+    return 1;
 }
 
 /*
@@ -343,19 +344,19 @@ long CDECL initialize(Virtual *vwk)
  */
 long CDECL setup(long type, long value)
 {
-	long ret;
+    long ret;
 
-	ret = -1;
-	switch(type) {
-	case Q_NAME:
-		ret = (long)driver_name;
-		break;
-	case S_DRVOPTION:
-		ret = tokenize((char *)value);
-		break;
-	}
+    ret = -1;
+    switch(type) {
+        case Q_NAME:
+            ret = (long)driver_name;
+            break;
+        case S_DRVOPTION:
+            ret = tokenize((char *)value);
+            break;
+    }
 
-	return ret;
+    return ret;
 }
 
 /*
@@ -365,45 +366,45 @@ long CDECL setup(long type, long value)
  */
 Virtual* CDECL opnwk(Virtual *vwk)
 {
-	Workstation *wk;
-	vwk = me->default_vwk;  /* This is what we're interested in */
-	wk = vwk->real_address;
+    Workstation *wk;
+    vwk = me->default_vwk;  /* This is what we're interested in */
+    wk = vwk->real_address;
 
-	/* Switch to SAGA screen */
-	saga_set_clock(mi);
-	saga_set_modeline(mi, SAGA_VIDEO_FORMAT_RGB16);
-	saga_set_panning(screen_address);
+    /* Switch to SAGA screen */
+    fbee_set_clock(mi);
+    fbee_set_modeline(mi, SAGA_VIDEO_FORMAT_RGB16);
+    fbee_set_panning(screen_address);
 
-	/* update the settings */
-	wk->screen.mfdb.width = mi->Width;
-	wk->screen.mfdb.height = mi->Height;
-	wk->screen.mfdb.bitplanes = resolution.bpp;
+    /* update the settings */
+    wk->screen.mfdb.width = mi->Width;
+    wk->screen.mfdb.height = mi->Height;
+    wk->screen.mfdb.bitplanes = resolution.bpp;
 
-	/*
-	 * Some things need to be changed from the
-	 * default workstation settings.
-	 */
-	wk->screen.mfdb.address = (short *)screen_address;
-	wk->screen.mfdb.wdwidth = (wk->screen.mfdb.width + 15) / 16;
-	wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
+    /*
+     * Some things need to be changed from the
+     * default workstation settings.
+     */
+    wk->screen.mfdb.address = (short *)screen_address;
+    wk->screen.mfdb.wdwidth = (wk->screen.mfdb.width + 15) / 16;
+    wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
 
-	wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
-	wk->screen.coordinates.max_y = wk->screen.mfdb.height - 1;
+    wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
+    wk->screen.coordinates.max_y = wk->screen.mfdb.height - 1;
 
-	wk->screen.look_up_table = 0;			/* Was 1 (???)	Shouldn't be needed (graphics_mode) */
-	wk->screen.mfdb.standard = 0;
+    wk->screen.look_up_table = 0;			/* Was 1 (???)	Shouldn't be needed (graphics_mode) */
+    wk->screen.mfdb.standard = 0;
 
-	if (pixel.width > 0)			/* Starts out as screen width */
-		wk->screen.pixel.width = (pixel.width * 1000L) / wk->screen.mfdb.width;
-	else								   /*	or fixed DPI (negative) */
-		wk->screen.pixel.width = 25400 / -pixel.width;
+    if (pixel.width > 0)			/* Starts out as screen width */
+        wk->screen.pixel.width = (pixel.width * 1000L) / wk->screen.mfdb.width;
+    else								   /*	or fixed DPI (negative) */
+        wk->screen.pixel.width = 25400 / -pixel.width;
 
-	if (pixel.height > 0)		/* Starts out as screen height */
-		wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
-	else									/*	 or fixed DPI (negative) */
-		wk->screen.pixel.height = 25400 / -pixel.height;
+    if (pixel.height > 0)		/* Starts out as screen height */
+        wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
+    else									/*	 or fixed DPI (negative) */
+        wk->screen.pixel.height = 25400 / -pixel.height;
 
-	return 0;
+    return 0;
 }
 
 /*
