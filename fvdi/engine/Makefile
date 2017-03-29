@@ -150,7 +150,7 @@ $(LIBFT2):
 	cd $(top_srcdir)/modules/ft2; make
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(LD) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(LD) -o $@ -Map mapfile $(OBJECTS) $(LDFLAGS) $(LIBS)
 	$(FLAGS) -S $@
 
 $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h

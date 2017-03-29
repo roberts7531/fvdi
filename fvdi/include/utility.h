@@ -61,7 +61,7 @@ long str2long(const unsigned char *text);
 void *fmalloc(long size, long type);
 void *malloc(long size);
 void *realloc(void *addr, long new_size);
-void free(void *addr);
+long free(void *addr);
 long free_all(void);
 void allocate(long amount);
 

@@ -184,22 +184,47 @@ _cache_flush:
 	cmp.w	#30,d0
 	beq	.is_030
 
-  ifne lattice
-   ifeq mc68000
+ ifne lattice
+  ifeq mc68000
 	cpusha	bc		; This is an '040 or '060
-   else
-	dc.w	$f4f8		; cpusha bc
-   endc
   else
 	dc.w	$f4f8		; cpusha bc
   endc
+ else
+	ifeq	mcoldfire
+	dc.w	$f4f8		; cpusha bc
+	else
+	lea	-3 * 4(sp),sp
+	movem.l	d0-d1/a0,(sp)
+
+	; flush_and_invalidate_caches() stolen from BaS_gcc
+	clr.l	d0
+	clr.l	d1
+	move.l	d0,a0
+1:
+	;cpushl	bc,(a0)
+	.word	0xf4e8
+	lea	0x10(a0),a0
+	addq.l	#1,d1
+	cmpi.w	#512,d1
+	bne.s	1b
+	clr.l	d1
+	addq.l	#1,d0
+	move.l	d0,a0
+	cmpi.w	#4,d0
+	bne.s	1b
+
+	movem.l	(sp),d0-d1/a0
+	lea	3 * 4(sp),sp
+	endc ; mcoldfire
+ endc ; m68000
 .cache_end:
 	movem.l	(a7)+,d0-d1
 	rts
 
 .is_030:
   ifeq mc68000
-  ifeq	mcoldfire		; FIXME: ColdFire cache flush
+  ifeq mcoldfire
 	movec	cacr,d0
 	move.l	d0,d1
 	or.w	#$808,d1
