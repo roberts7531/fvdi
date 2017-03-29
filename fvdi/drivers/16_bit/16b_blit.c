@@ -77,8 +77,8 @@ void debug_out(char *text1, int w, int old_w, int h, int src_x, int src_y, int d
 #ifdef BOTH
 static void
 s_blit_copy(PIXEL *src_addr, int src_line_add,
-            PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-            int w, int h)
+	    PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+	    int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -102,8 +102,8 @@ s_blit_copy(PIXEL *src_addr, int src_line_add,
 
 static void
 s_blit_or(PIXEL *src_addr, int src_line_add,
-          PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-          int w, int h)
+	  PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+	  int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -134,7 +134,7 @@ s_blit(PIXEL *src_addr, int src_line_add,
        int w, int h, int operation)
 {
 	int i, j;
-	PIXEL v, vs, vd;
+	PIXEL v = 0, vs, vd;
 	
 	for(i = h - 1; i >= 0; i--) {
 		for(j = w - 1; j >= 0; j--) {
@@ -145,54 +145,54 @@ s_blit(PIXEL *src_addr, int src_line_add,
 			vd = *dst_addr;
 #endif
 			switch(operation) {
-			case 0:
-				v = 0;
-				break;
-			case 1:
-				v = vs & vd;
-				break;
-			case 2:
-				v = vs & ~vd;
-				break;
-			case 3:
-				v = vs;
-				break;
-			case 4:
-				v = ~vs & vd;
-				break;
-			case 5:
-				v = vd;
-				break;
-			case 6:
-				v = vs ^ vd;
-				break;
-			case 7:
-				v = vs | vd;
-				break;
-			case 8:
-				v = ~(vs | vd);
-				break;
-			case 9:
-				v = ~(vs ^ vd);
-				break;
-			case 10:
-				v = ~vd;
-				break;
-			case 11:
-				v = vs | ~vd;
-				break;
-			case 12:
-				v = ~vs;
-				break;
-			case 13:
-				v = ~vs | vd;
-				break;
-			case 14:
-				v = ~(vs & vd);
-				break;
-			case 15:
-				v = 0xffff;
-				break;
+				case 0:
+					v = 0;
+					break;
+				case 1:
+					v = vs & vd;
+					break;
+				case 2:
+					v = vs & ~vd;
+					break;
+				case 3:
+					v = vs;
+					break;
+				case 4:
+					v = ~vs & vd;
+					break;
+				case 5:
+					v = vd;
+					break;
+				case 6:
+					v = vs ^ vd;
+					break;
+				case 7:
+					v = vs | vd;
+					break;
+				case 8:
+					v = ~(vs | vd);
+					break;
+				case 9:
+					v = ~(vs ^ vd);
+					break;
+				case 10:
+					v = ~vd;
+					break;
+				case 11:
+					v = vs | ~vd;
+					break;
+				case 12:
+					v = ~vs;
+					break;
+				case 13:
+					v = ~vs | vd;
+					break;
+				case 14:
+					v = ~(vs & vd);
+					break;
+				case 15:
+					v = 0xffff;
+					break;
 			}
 #ifdef BOTH
 			*(volatile PIXEL *)dst_addr_fast++ = v, 0;   /* Silly compiler... */
@@ -210,8 +210,8 @@ s_blit(PIXEL *src_addr, int src_line_add,
 
 static void
 s_pan_backwards_copy(PIXEL *src_addr, int src_line_add,
-                     PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                     int w, int h)
+		     PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+		     int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -235,8 +235,8 @@ s_pan_backwards_copy(PIXEL *src_addr, int src_line_add,
 
 static void
 s_pan_backwards_or(PIXEL *src_addr, int src_line_add,
-                   PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                   int w, int h)
+		   PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+		   int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -263,11 +263,11 @@ s_pan_backwards_or(PIXEL *src_addr, int src_line_add,
 
 static void
 s_pan_backwards(PIXEL *src_addr, int src_line_add,
-                PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                int w, int h, int operation)
+		PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+		int w, int h, int operation)
 {
 	int i, j;
-	PIXEL v, vs, vd;
+	PIXEL v = 0, vs, vd;
 	
 	for(i = h - 1; i >= 0; i--) {
 		for(j = w - 1; j >= 0; j--) {
@@ -278,54 +278,54 @@ s_pan_backwards(PIXEL *src_addr, int src_line_add,
 			vd = *--dst_addr;
 #endif
 			switch(operation) {
-			case 0:
-				v = 0;
-				break;
-			case 1:
-				v = vs & vd;
-				break;
-			case 2:
-				v = vs & ~vd;
-				break;
-			case 3:
-				v = vs;
-				break;
-			case 4:
-				v = ~vs & vd;
-				break;
-			case 5:
-				v = vd;
-				break;
-			case 6:
-				v = vs ^ vd;
-				break;
-			case 7:
-				v = vs | vd;
-				break;
-			case 8:
-				v = ~(vs | vd);
-				break;
-			case 9:
-				v = ~(vs ^ vd);
-				break;
-			case 10:
-				v = ~vd;
-				break;
-			case 11:
-				v = vs | ~vd;
-				break;
-			case 12:
-				v = ~vs;
-				break;
-			case 13:
-				v = ~vs | vd;
-				break;
-			case 14:
-				v = ~(vs & vd);
-				break;
-			case 15:
-				v = 0xffff;
-				break;
+				case 0:
+					v = 0;
+					break;
+				case 1:
+					v = vs & vd;
+					break;
+				case 2:
+					v = vs & ~vd;
+					break;
+				case 3:
+					v = vs;
+					break;
+				case 4:
+					v = ~vs & vd;
+					break;
+				case 5:
+					v = vd;
+					break;
+				case 6:
+					v = vs ^ vd;
+					break;
+				case 7:
+					v = vs | vd;
+					break;
+				case 8:
+					v = ~(vs | vd);
+					break;
+				case 9:
+					v = ~(vs ^ vd);
+					break;
+				case 10:
+					v = ~vd;
+					break;
+				case 11:
+					v = vs | ~vd;
+					break;
+				case 12:
+					v = ~vs;
+					break;
+				case 13:
+					v = ~vs | vd;
+					break;
+				case 14:
+					v = ~(vs & vd);
+					break;
+				case 15:
+					v = 0xffff;
+					break;
 			}
 #ifdef BOTH
 			*(volatile PIXEL *)dst_addr_fast = v, 0;   /* Silly compiler... */
@@ -352,8 +352,8 @@ s_pan_backwards(PIXEL *src_addr, int src_line_add,
 
 static void
 blit_copy(PIXEL *src_addr, int src_line_add,
-          PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-          int w, int h)
+	  PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+	  int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -377,8 +377,8 @@ blit_copy(PIXEL *src_addr, int src_line_add,
 
 static void
 blit_or(PIXEL *src_addr, int src_line_add,
-        PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-        int w, int h)
+	PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+	int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -409,7 +409,7 @@ blit(PIXEL *src_addr, int src_line_add,
      int w, int h, int operation)
 {
 	int i, j;
-	PIXEL v, vs, vd;
+	PIXEL v = 0, vs, vd;
 	
 	for(i = h - 1; i >= 0; i--) {
 		for(j = w - 1; j >= 0; j--) {
@@ -420,54 +420,54 @@ blit(PIXEL *src_addr, int src_line_add,
 			vd = *dst_addr;
 #endif
 			switch(operation) {
-			case 0:
-				v = 0;
-				break;
-			case 1:
-				v = vs & vd;
-				break;
-			case 2:
-				v = vs & ~vd;
-				break;
-			case 3:
-				v = vs;
-				break;
-			case 4:
-				v = ~vs & vd;
-				break;
-			case 5:
-				v = vd;
-				break;
-			case 6:
-				v = vs ^ vd;
-				break;
-			case 7:
-				v = vs | vd;
-				break;
-			case 8:
-				v = ~(vs | vd);
-				break;
-			case 9:
-				v = ~(vs ^ vd);
-				break;
-			case 10:
-				v = ~vd;
-				break;
-			case 11:
-				v = vs | ~vd;
-				break;
-			case 12:
-				v = ~vs;
-				break;
-			case 13:
-				v = ~vs | vd;
-				break;
-			case 14:
-				v = ~(vs & vd);
-				break;
-			case 15:
-				v = 0xffff;
-				break;
+				case 0:
+					v = 0;
+					break;
+				case 1:
+					v = vs & vd;
+					break;
+				case 2:
+					v = vs & ~vd;
+					break;
+				case 3:
+					v = vs;
+					break;
+				case 4:
+					v = ~vs & vd;
+					break;
+				case 5:
+					v = vd;
+					break;
+				case 6:
+					v = vs ^ vd;
+					break;
+				case 7:
+					v = vs | vd;
+					break;
+				case 8:
+					v = ~(vs | vd);
+					break;
+				case 9:
+					v = ~(vs ^ vd);
+					break;
+				case 10:
+					v = ~vd;
+					break;
+				case 11:
+					v = vs | ~vd;
+					break;
+				case 12:
+					v = ~vs;
+					break;
+				case 13:
+					v = ~vs | vd;
+					break;
+				case 14:
+					v = ~(vs & vd);
+					break;
+				case 15:
+					v = 0xffff;
+					break;
 			}
 #ifdef BOTH
 			*dst_addr_fast++ = v;
@@ -485,8 +485,8 @@ blit(PIXEL *src_addr, int src_line_add,
 
 static void
 pan_backwards_copy(PIXEL *src_addr, int src_line_add,
-                   PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                   int w, int h)
+		   PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+		   int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -510,8 +510,8 @@ pan_backwards_copy(PIXEL *src_addr, int src_line_add,
 
 static void
 pan_backwards_or(PIXEL *src_addr, int src_line_add,
-                 PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                 int w, int h)
+		 PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+		 int w, int h)
 {
 	int i, j;
 	PIXEL v;
@@ -538,11 +538,11 @@ pan_backwards_or(PIXEL *src_addr, int src_line_add,
 
 static void
 pan_backwards(PIXEL *src_addr, int src_line_add,
-              PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-              int w, int h, int operation)
+	      PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+	      int w, int h, int operation)
 {
 	int i, j;
-	PIXEL v, vs, vd;
+	PIXEL v = 0, vs, vd;
 	
 	for(i = h - 1; i >= 0; i--) {
 		for(j = w - 1; j >= 0; j--) {
@@ -553,54 +553,54 @@ pan_backwards(PIXEL *src_addr, int src_line_add,
 			vd = *--dst_addr;
 #endif
 			switch(operation) {
-			case 0:
-				v = 0;
-				break;
-			case 1:
-				v = vs & vd;
-				break;
-			case 2:
-				v = vs & ~vd;
-				break;
-			case 3:
-				v = vs;
-				break;
-			case 4:
-				v = ~vs & vd;
-				break;
-			case 5:
-				v = vd;
-				break;
-			case 6:
-				v = vs ^ vd;
-				break;
-			case 7:
-				v = vs | vd;
-				break;
-			case 8:
-				v = ~(vs | vd);
-				break;
-			case 9:
-				v = ~(vs ^ vd);
-				break;
-			case 10:
-				v = ~vd;
-				break;
-			case 11:
-				v = vs | ~vd;
-				break;
-			case 12:
-				v = ~vs;
-				break;
-			case 13:
-				v = ~vs | vd;
-				break;
-			case 14:
-				v = ~(vs & vd);
-				break;
-			case 15:
-				v = 0xffff;
-				break;
+				case 0:
+					v = 0;
+					break;
+				case 1:
+					v = vs & vd;
+					break;
+				case 2:
+					v = vs & ~vd;
+					break;
+				case 3:
+					v = vs;
+					break;
+				case 4:
+					v = ~vs & vd;
+					break;
+				case 5:
+					v = vd;
+					break;
+				case 6:
+					v = vs ^ vd;
+					break;
+				case 7:
+					v = vs | vd;
+					break;
+				case 8:
+					v = ~(vs | vd);
+					break;
+				case 9:
+					v = ~(vs ^ vd);
+					break;
+				case 10:
+					v = ~vd;
+					break;
+				case 11:
+					v = vs | ~vd;
+					break;
+				case 12:
+					v = ~vs;
+					break;
+				case 13:
+					v = ~vs | vd;
+					break;
+				case 14:
+					v = ~(vs & vd);
+					break;
+				case 15:
+					v = 0xffff;
+					break;
 			}
 #ifdef BOTH
 			*dst_addr_fast = v;
@@ -623,8 +623,8 @@ pan_backwards(PIXEL *src_addr, int src_line_add,
 
 long CDECL
 c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
-            MFDB *dst, long dst_x, long dst_y,
-            long w, long h, long operation)
+	    MFDB *dst, long dst_x, long dst_y,
+	    long w, long h, long operation)
 {
 	Workstation *wk;
 	PIXEL *src_addr, *dst_addr, *dst_addr_fast;
@@ -689,27 +689,27 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 			src_line_add += 2 * w;
 			dst_line_add += 2 * w;
 			switch(operation) {
-			case 3:
-				pan_backwards_copy(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
-				break;
-			case 7:
-				pan_backwards_or(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
-				break;
-			default:
-				pan_backwards(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h, operation);
-				break;
+				case 3:
+					pan_backwards_copy(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
+					break;
+				case 7:
+					pan_backwards_or(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
+					break;
+				default:
+					pan_backwards(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h, operation);
+					break;
 			}
 		} else {
 			switch(operation) {
-			case 3:
-				blit_copy(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
-				break;
-			case 7:
-				blit_or(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
-				break;
-			default:
-				blit(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h, operation);
-				break;
+				case 3:
+					blit_copy(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
+					break;
+				case 7:
+					blit_or(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
+					break;
+				default:
+					blit(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h, operation);
+					break;
 			}
 		}
 #ifdef BOTH
@@ -722,27 +722,27 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 			src_line_add += 2 * w;
 			dst_line_add += 2 * w;
 			switch(operation) {
-			case 3:
-				s_pan_backwards_copy(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
-				break;
-			case 7:
-				s_pan_backwards_or(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
-				break;
-			default:
-				s_pan_backwards(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h, operation);
-				break;
+				case 3:
+					s_pan_backwards_copy(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
+					break;
+				case 7:
+					s_pan_backwards_or(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
+					break;
+				default:
+					s_pan_backwards(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h, operation);
+					break;
 			}
 		} else {
 			switch(operation) {
-			case 3:
-				s_blit_copy(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
-				break;
-			case 7:
-				s_blit_or(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
-				break;
-			default:
-				s_blit(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h, operation);
-				break;
+				case 3:
+					s_blit_copy(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
+					break;
+				case 7:
+					s_blit_or(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
+					break;
+				default:
+					s_blit(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h, operation);
+					break;
 			}
 		}
 	}

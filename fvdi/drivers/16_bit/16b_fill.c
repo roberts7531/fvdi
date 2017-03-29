@@ -487,7 +487,7 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
 	short *table;
 
 	table = 0;
-	if ((long)vwk & 1) {
+	if ((long) vwk & 1) {
 		if ((y & 0xffff) != 0)
 			return -1;		/* Don't know about this kind of table operation */
 		table = (short *)x;
