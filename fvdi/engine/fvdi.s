@@ -584,7 +584,12 @@ _trap14_address:
 _trap14:
 	tst.w	_xbiosfix
 	beq	.continue_trap14
-*	move	usp,a0    **** FIXME!!!
+  ifne mcoldfire
+	; move	usp,a0		; PortAsm doesn't swallow this although it's valid
+	.word	$4e68
+  else
+	move	usp,a0
+  endc
 	btst	#5,(a7)
 	beq	.correct_a0
 	lea	6(a7),a0
