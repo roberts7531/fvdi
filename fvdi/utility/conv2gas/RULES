@@ -19,7 +19,7 @@ $(CONV2GAS): $(top_srcdir)/utility/conv2gas/conv2gas.c
 SINCSRC_GNU = $(SINCSRC:=.gnu)
 SSRC_GNU    = $(SSRC:=.gnu)
 
-# special treatment of ColdFire target
+# special treatment for ColdFire target (uses Micro APL's PortAsm to convert the sources for ColdFire)
 ifeq ($(CPU),v4e)
 	PORTASM = pacf
 	PORTASM_FLAGS = \
@@ -29,44 +29,49 @@ ifeq ($(CPU),v4e)
 	-branch_external_long \
 	-hardware_divide \
 	-hardware_mac \
-    -implicit_externs \
+	-implicit_externs \
 	-a gnu \
 	-gnu_locals \
 	-out_syntax standard \
 	-nowarning 402,502,600,900,1111,1150 \
 	-noerrfile
 
+	# externally defined assembler symbols syntax to pacf style
 	PACF_SYMBOLS = $(subst --defsym,-define,$(SYMBOLS))
 	PORTASM_FLAGS += $(PACF_SYMBOLS)
+
+	# include paths. Better pass a variable suitable for gas _and_ pacf from toplevel?
 	PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include,$(top_srcdir)/drivers/1_plane
 
 	# intermediate filenames for PortAsm output
 	SSRC_GNU_CF := $(subst .gnu,.cf_gnu,$(SSRC_GNU))
 
+# dependencies for include files and PortAsm converted sources
 $(SINCSRC_GNU): $(SINCSRC)
 $(SSRC_GNU):$(SSRC_GNU_CF)
 
-# pattern rule for assembler sources
+# pattern rule for assembler sources (traditional assembler to gas syntax)
 %.cf_gnu: $(basename %.gnu) $(CONV2GAS)
 	$(CONV2GAS).sh $<
 	mv $<.gnu $@
 
 # assembler includes only need to go through conv2gas
+# (will be milled through PortAsm with the sources they include them)
 %.inc.gnu: $(basename %.inc.gnu) $(CONV2GAS)
 	$(CONV2GAS).sh $<
 
-# assembler source files get milled through pacf
+# assembler source files processed by PortAsm pacf (gas m68k sources to ColdFire).
+# need to delete one line with a section statement that m68k-atari-mint-as doesn't translate
 %.gnu:%.cf_gnu
 	$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
 	sed -ie '/\.section/d' $@
 
 else
+
+# straight m68k to gas syntax conversion
 %.gnu: $(basename %.gnu) $(CONV2GAS)
 	$(CONV2GAS).sh $<
 endif
-
-# -> .gnu conversion
-
 
 
 # Assember for .gnu
@@ -74,7 +79,7 @@ endif
 	$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ < $<
 
 clean_gnu:
-	rm -rf $(SINCSRC_GNU) $(SSRC_GNU)
+	rm -rf $(SINCSRC_GNU) $(SSRC_GNU) $(SSRC_GNU_CF)
 
 .PHONY:	clean_gnu
 
