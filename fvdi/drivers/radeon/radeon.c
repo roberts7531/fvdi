@@ -31,7 +31,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "firebee.h"
+#include "radeon.h"
 #include "video.h"
 
 /*

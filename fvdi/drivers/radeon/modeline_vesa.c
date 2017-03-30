@@ -31,14 +31,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "firebee.h"
+#include "radeon.h"
 #define MODELINE_VESA 1
 
 /* Originally adapted from AROS uaegfx.hidd timing data
  */
 struct ModeInfo modeline_vesa_entry[] = {
 #if MODELINE_VESA
-    { 
+    {
         .Node = { .ln_Name = "VESA: 320 x 240 60Hz" },
         .Width = 320, .Height = 240,
         .Flags = GMF_HPOLARITY | GMF_VPOLARITY | GMF_DOUBLESCAN | GMF_DOUBLEVERTICAL,

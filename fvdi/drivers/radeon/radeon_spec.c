@@ -22,7 +22,7 @@
 
 #include "fvdi.h"
 #include "relocate.h"
-#include "firebee.h"
+#include "radeon.h"
 #include "video.h"
 #include <os.h>
 

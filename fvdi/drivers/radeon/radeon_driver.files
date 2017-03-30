@@ -1,4 +1,4 @@
-fb_spec.c
+radeon_spec.c
 firebee.c
 firebee.h
 firebee_pll.c
@@ -9,3 +9,7 @@ modeline_vesa.c
 README.txt
 video.h
 firebee_mouse.c
+radeon_mouse.c
+radeon_pll.c
+radeon.c
+radeon.h

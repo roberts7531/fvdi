@@ -13,7 +13,7 @@
  *  PLL data set: Copyright 2016, Christoph Hoehne <ceaich@gmx.de>
  */
 
-#include "firebee.h"
+#include "radeon.h"
 #include "video.h"
 #include <mint/osbind.h>
 
