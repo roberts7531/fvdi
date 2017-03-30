@@ -13,3 +13,5 @@ radeon_mouse.c
 radeon_pll.c
 radeon.c
 radeon.h
+radeon_bas_interface.c
+radeon_bas_interface.h

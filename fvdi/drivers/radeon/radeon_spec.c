@@ -26,6 +26,9 @@
 #include "video.h"
 #include <os.h>
 
+#include "radeon_bas_interface.h"
+#include "stdint.h"
+#include "driver_vec.h"
 #include "driver.h"
 
 char r_16[] = {5, 11, 12, 13, 14, 15};
@@ -283,6 +286,10 @@ long CDECL initialize(Virtual *vwk)
     Workstation *wk;
     int old_palette_size;
     Colour *old_palette_colours;
+    struct fb_info *bas_if;
+    struct fb_ops *radeon_accel_ops;
+
+
 
     /* Display startup banner */
     access->funcs.puts("\r\n");
@@ -290,6 +297,22 @@ long CDECL initialize(Virtual *vwk)
     access->funcs.puts("\xbd 2017 Markus Fr\x94schle\r\n");
     access->funcs.puts("Free Software distributed under GPLv2\r\n");
     access->funcs.puts("\r\n");
+
+    /*
+     * try to get driver interface struct from BaS_gcc
+     */
+    bas_if = ** (struct fb_info ***) Supexec(get_driver);
+
+    if (bas_if == NULL)
+    {
+        access->funcs.puts("BaS driver interface not fount\r\n");
+        access->funcs.puts("fVDI Radeon driver cannot run\r\n");
+
+        return -1;
+    }
+
+    radeon_accel_ops = bas_if->fbops;
+
 
     /* Initialize the RTG card with the requested video mode */
     fix_all_mode_info();

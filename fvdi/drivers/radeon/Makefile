@@ -26,7 +26,9 @@ endif
 
 M68K_ATARI_MINT_LDFLAGS += -Map mapfile
 
-CFLAGS  = $(CPUFLAGS) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS) -Wall
+BAS_INCLUDE = $(top_srcdir)/../../BaS_gcc/include
+
+CFLAGS  = $(CPUFLAGS) -O2 -fomit-frame-pointer -I$(BAS_INCLUDE) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS) -Wall
 ASFLAGS = $(CPUFLAGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
@@ -47,6 +49,7 @@ SSRC = \
 CSRC = \
 	../common/init.c \
 	../common/colours.c \
+        radeon_bas_interface.c \
 	radeon_spec.c \
 	radeon.c \
 	modeline_vesa.c \
