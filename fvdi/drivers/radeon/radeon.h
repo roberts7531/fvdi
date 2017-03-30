@@ -141,19 +141,19 @@ static inline VOID Write16(IPTR addr, UWORD value)
 #define IS_DOUBLEY(h)   ((h) <= 300)
 
 /* saga_pll.c */
-int fbee_pll_clock_count(void);
+int radeon_pll_clock_count(void);
 int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq);
-int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp);
-int fbee_pll_clock_program(int clock);
+int radeon_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp);
+int radeon_pll_clock_program(int clock);
 
 /* from modeline_vesa.c */
 extern struct ModeInfo modeline_vesa_entry[];
 extern const int modeline_vesa_entries;
 
 /* from saga.c */
-void fbee_fix_mode(struct ModeInfo *mi);
-void fbee_set_clock(const struct ModeInfo *mi);
-void fbee_set_modeline(const struct ModeInfo *mi, UBYTE Format);
-void fbee_set_panning(UBYTE *mem);
+void radeon_fix_mode(struct ModeInfo *mi);
+void radeon_set_clock(const struct ModeInfo *mi);
+void radeon_set_modeline(const struct ModeInfo *mi, UBYTE Format);
+void radeon_set_panning(UBYTE *mem);
 
 #endif /* _FIREBEE_H_ */

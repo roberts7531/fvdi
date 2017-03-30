@@ -1654,7 +1654,7 @@ static unsigned long get_timer(void)
 #define SYSTEM_CLOCK    264UL
 #define PLL_TIMEOUT     (1000 * SYSTEM_CLOCK)
 
-void fbee_wait_pll(void)
+void radeon_wait_pll(void)
 {
     unsigned long timeout = Supexec(get_timer);
 
@@ -1668,12 +1668,8 @@ void fbee_wait_pll(void)
     }
 }
 
-static long fbee_init_videl(void)
-{
-    unsigned long fbee_video_control = FBEE_FIFO_ON | FBEE_REFRESH_ON | FBEE_VCS | FBEE_VCKE | FBEE_VDAC_ON | FBEE_CLK_PLL;
-}
 
-int fbee_pll_clock_count(void)
+int radeon_pll_clock_count(void)
 {
     return PLL_NUM_CLOCKS;
 }
@@ -1690,7 +1686,7 @@ int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
     return 0;
 }
 
-int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
+int radeon_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
     int i;
@@ -1722,7 +1718,7 @@ int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
     return i;
 }
 
-int fbee_pll_clock_program(int clock)
+int radeon_pll_clock_program(int clock)
 {
     int i;
 

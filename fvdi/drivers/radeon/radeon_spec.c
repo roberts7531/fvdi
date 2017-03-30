@@ -237,7 +237,7 @@ static void fix_all_mode_info(void)
 
     for (i = 0; i < modeline_vesa_entries; i++) {
         struct ModeInfo *mi = &modeline_vesa_entry[i];
-        fbee_fix_mode(mi);
+        radeon_fix_mode(mi);
     }
 }
 
@@ -371,9 +371,9 @@ Virtual* CDECL opnwk(Virtual *vwk)
     wk = vwk->real_address;
 
     /* Switch to SAGA screen */
-    fbee_set_clock(mi);
-    fbee_set_modeline(mi, SAGA_VIDEO_FORMAT_RGB16);
-    fbee_set_panning(screen_address);
+    radeon_set_clock(mi);
+    radeon_set_modeline(mi, SAGA_VIDEO_FORMAT_RGB16);
+    radeon_set_panning(screen_address);
 
     /* update the settings */
     wk->screen.mfdb.width = mi->Width;

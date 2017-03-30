@@ -38,18 +38,18 @@
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setclock.c
  */
-void fbee_set_clock(const struct ModeInfo *mi)
+void radeon_set_clock(const struct ModeInfo *mi)
 {
     int clock_id = ((ULONG)mi->Numerator << 8) | mi->Denomerator;
 
-    fbee_pll_clock_program(clock_id);
+    radeon_pll_clock_program(clock_id);
 }
 
 /*
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/initcard.c
  */
-void fbee_fix_mode(struct ModeInfo *mi)
+void radeon_fix_mode(struct ModeInfo *mi)
 {
     BOOL is_NTSC = FALSE;
     int refresh;
@@ -66,7 +66,7 @@ void fbee_fix_mode(struct ModeInfo *mi)
         mi->PixelClock *= 2;
 
     /* Fix up PixelClock to a 'sane' value */
-    clock_id = fbee_pll_clock_lookup(is_NTSC, &mi->PixelClock);
+    clock_id = radeon_pll_clock_lookup(is_NTSC, &mi->PixelClock);
     mi->Numerator = (clock_id >> 8) & 0xff;
     mi->Denomerator = (clock_id >> 0) & 0xff;
 }
@@ -75,7 +75,7 @@ void fbee_fix_mode(struct ModeInfo *mi)
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setgc.c
  */
-void fbee_set_modeline(const struct ModeInfo *mi, UBYTE Format)
+void radeon_set_modeline(const struct ModeInfo *mi, UBYTE Format)
 {
     UWORD width, hsstrt, hsstop, htotal;
     UWORD height, vsstrt, vsstop, vtotal;
@@ -144,7 +144,7 @@ void fbee_set_modeline(const struct ModeInfo *mi, UBYTE Format)
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setgc.c
  */
-void fbee_set_panning(UBYTE *mem)
+void radeon_set_panning(UBYTE *mem)
 {
     Write32(SAGA_VIDEO_PLANEPTR, (IPTR)mem);
 }
