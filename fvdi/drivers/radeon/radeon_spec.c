@@ -50,7 +50,7 @@ struct
     short height;
     short bpp;
     short freq;
-} resolution = {0, 640, 480, 16, 60};
+} res = {0, 640, 480, 16, 60};  /* needs to be renamed from "resolution" since we have that name already in fb.h */
 
 struct {
     short width;
@@ -168,14 +168,14 @@ long set_mode(const char **ptr)
     *ptr = access->funcs.get_token(*ptr, token, 80);
 
     tokenptr = token;
-    tokenptr = get_num(tokenptr, &resolution.width);
-    tokenptr = get_num(tokenptr, &resolution.height);
-    tokenptr = get_num(tokenptr, &resolution.bpp);
-    tokenptr = get_num(tokenptr, &resolution.freq);
+    tokenptr = get_num(tokenptr, &res.width);
+    tokenptr = get_num(tokenptr, &res.height);
+    tokenptr = get_num(tokenptr, &res.bpp);
+    tokenptr = get_num(tokenptr, &res.freq);
 
-    resolution.used = 1;
+    res.used = 1;
 
-    resolution.bpp = set_bpp(resolution.bpp);
+    res.bpp = set_bpp(res.bpp);
 
     return 1;
 }
@@ -251,7 +251,7 @@ static struct ModeInfo *find_mode_info(void)
 
     for (i = 0; i < modeline_vesa_entries; i++) {
         struct ModeInfo *p = &modeline_vesa_entry[i];
-        if (p->Width == resolution.width && p->Height == resolution.height)
+        if (p->Width == res.width && p->Height == res.height)
             return p;
     }
 
@@ -299,13 +299,13 @@ long CDECL initialize(Virtual *vwk)
     access->funcs.puts("\r\n");
 
     /*
-     * try to get driver interface struct from BaS_gcc
+     * get driver interface struct from BaS_gcc
      */
     bas_if = ** (struct fb_info ***) Supexec(get_driver);
 
     if (bas_if == NULL)
     {
-        access->funcs.puts("BaS driver interface not fount\r\n");
+        access->funcs.puts("BaS driver interface not found\r\n");
         access->funcs.puts("fVDI Radeon driver cannot run\r\n");
 
         return -1;
@@ -317,7 +317,7 @@ long CDECL initialize(Virtual *vwk)
     /* Initialize the RTG card with the requested video mode */
     fix_all_mode_info();
     mi = find_mode_info();
-    screen_address = fbee_alloc_vram(resolution.width, resolution.height);
+    screen_address = fbee_alloc_vram(res.width, res.height);
 
     vwk = me->default_vwk;	/* This is what we're interested in */
     wk = vwk->real_address;
@@ -401,7 +401,7 @@ Virtual* CDECL opnwk(Virtual *vwk)
     /* update the settings */
     wk->screen.mfdb.width = mi->Width;
     wk->screen.mfdb.height = mi->Height;
-    wk->screen.mfdb.bitplanes = resolution.bpp;
+    wk->screen.mfdb.bitplanes = res.bpp;
 
     /*
      * Some things need to be changed from the
