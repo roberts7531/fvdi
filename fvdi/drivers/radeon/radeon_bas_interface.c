@@ -3,14 +3,22 @@
 #include <stdint.h>
 #include <driver_vec.h>
 
+/*
+ * BaS_gcc driver API backdoor.
+ *
+ * This works similar (but not identical) to TOS' XBRA protocol. The BaS' side of the API reacts on trap #0 exceptions
+ * and checks for a valid signature word ("_BAS") immediately before the trap instruction. If the signature word
+ * is detected, BaS_gcc returns the API call's result (the address of the internal driver table) in d0.
+ * If it's not detected, the call gets forwarded to TOS as normal trap #0 exception.
+ */
 struct driver_table *get_bas_drivers(void)
 {
     struct driver_table *ret = NULL;
 
     __asm__ __volatile__(
         "   bra.s   1f              \n\t"
-        "   .dc.l   0x5f424153      \n\t"
-        "1: trap    #0              \n\t"
+        "   .dc.l   0x5f424153      \n\t"       /* "_BAS" - BaS_gcc will use to identify this as valid call, */
+        "1: trap    #0              \n\t"       /* otherwise it just gets passed to the TOS trap 0 vector */
         "   move.l  d0,%[ret]       \n\t"
         : [ret] "=m" (ret)  /* output */
         :                   /* no inputs */
@@ -44,11 +52,11 @@ long get_driver(void)
     char **sysbase = (char **) 0x4f2;
     unsigned long sig;
 
-    sig = * (long *) ((*sysbase) + 0x2c);
-
     /*
      * check if we are on EmuTOS; FireTOS does not provide this interface
      */
+    sig = * (long *) ((*sysbase) + 0x2c);
+
 
     if (sig == 0x45544f53)  /* "ETOS" */
     {

@@ -311,7 +311,7 @@ long CDECL initialize(Virtual *vwk)
         return -1;
     }
 
-    radeon_accel_ops = bas_if->fbops;
+    // radeon_accel_ops = bas_if->fbops;
 
 
     /* Initialize the RTG card with the requested video mode */
