@@ -8,7 +8,7 @@
  *
  * This works similar (but not identical) to TOS' XBRA protocol. The BaS' side of the API reacts on trap #0 exceptions
  * and checks for a valid signature word ("_BAS") immediately before the trap instruction. If the signature word
- * is detected, BaS_gcc returns the API call's result (the address of the internal driver table) in d0.
+ * matches, BaS_gcc returns the API call's result (the address of the internal driver table) in d0.
  * If it's not detected, the call gets forwarded to TOS as normal trap #0 exception.
  */
 struct driver_table *get_bas_drivers(void)
