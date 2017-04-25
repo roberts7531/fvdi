@@ -27,7 +27,7 @@ mouse_draw:
 	move.w	d0,d1
 	move.l	d1,_mouse_pos
 	
-	tas	here_already
+	bset.b	#7,here_already
 	bne	.in_use
 
 	swap	d0

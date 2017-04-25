@@ -545,7 +545,7 @@ _mouse_move:
 * In:	-
 mouse_timer:
 _mouse_timer:
-	tas	mouse_semaphore		; To prevent overruns
+	bset.b	#7,mouse_semaphore	; To prevent overruns
 	bne	.fast_return		; Already drawing - abort!
 
 	move.l	d0,-(sp)		; This is only useful to get rid of back and forth moves
