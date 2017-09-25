@@ -89,7 +89,7 @@ static void show_mouse(Virtual *vwk, short x, short y)
 {
 	/* If a mouse shape has not yet been set, just ignore */
 	if (!pmouse)
-		return 1;
+		return;
 
 	if (mouse_visible)
 		hide_mouse(vwk);
