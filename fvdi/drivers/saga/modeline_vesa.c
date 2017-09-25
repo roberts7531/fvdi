@@ -169,6 +169,51 @@ struct ModeInfo modeline_vesa_entry[] = {
         .HorSyncSize  = 32,     .VerSyncSize  = 4,
         .Numerator = 30,        /* Refresh rate */
     },
+    /* 16:9 modes */
+    {
+        /* umc 640 360 60 --rbt */ /* Pixel Clock = 17.75 MHz */
+        .Node = { .ln_Name = "HD:640 x 360 60" },
+        .Width = 640, .Height = 360,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 800,        .VerTotal = 373,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        /* umc 960 540 60 --rbt */ /* Pixel Clock = 37.25 MHz */
+        .Node = { .ln_Name = "HD:960 x 540 60" },
+        .Width = 960, .Height = 540,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 1120,       .VerTotal = 556,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 60,        /* Refresh rate */
+    },
+    {
+        /* umc 1280 720 24 --rbt */ /* Pixel Clock = 25.25 MHz */
+        .Node = { .ln_Name = "HD:1280 x 720 24" },
+        .Width = 1280, .Height = 720,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 1440,       .VerTotal = 733,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 24,        /* Refresh rate */
+    },
+    {
+        /* umc 1408 792 24 --rbt */ /* Pixel Clock = 30.25 MHz */
+        .Node = { .ln_Name = "HD:1408 x 792 24" },
+        .Width = 1408, .Height = 792,
+        .Flags = GMF_HPOLARITY,
+        .HorTotal = 1568,       .VerTotal = 805,
+        .HorBlankSize = 0,      .VerBlankSize = 0,
+        .HorSyncStart = 48,     .VerSyncStart = 3,
+        .HorSyncSize  = 32,     .VerSyncSize  = 4,
+        .Numerator = 24,        /* Refresh rate */
+    },
 };
 
 const int modeline_vesa_entries = sizeof(modeline_vesa_entry)/sizeof(modeline_vesa_entry[0]);
