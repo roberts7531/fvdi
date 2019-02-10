@@ -27,8 +27,8 @@ DEBUG  = no
 
 # CPU to compile for
 ifndef CPU
-CPU    = 020
-# CPU = v4e
+#CPU    = 020
+ CPU = v4e
 endif
 
 ifeq ($(CPU),v4e)
