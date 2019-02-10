@@ -1783,8 +1783,9 @@ vdi_colours:
 1a1b1c2a2b2c3a3b3c4a4b4c ***
  endc
 
-	end
 
+
+ ifne 0
 bacd
 dcba
 
@@ -1803,3 +1804,4 @@ abdc
 acbd
 acdb
 adbc
+ endc

@@ -76,7 +76,11 @@ _check_linea:
 	movem.l		d0-d3/a0-a4,-(a7)
 	move.l		4+9*4(a7),a4
 
+	ifeq mcoldfire
 	dc.w		$a000
+	else
+	dc.w		$A920
+	endc
 	move.l		a1,_font_table
 	move.l		a0,wk_screen_linea(a4)	; Needed?
 	move.w		2(a0),d0

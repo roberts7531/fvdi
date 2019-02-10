@@ -287,7 +287,7 @@ long CDECL initialize(Virtual *vwk)
     /* Display startup banner */
     access->funcs.puts("\r\n");
     access->funcs.puts("\ep FireBee driver for fVDI \eq\r\n");
-    access->funcs.puts("\xbd 2017 Markus Fr\x94schle\r\n");
+    access->funcs.puts("\xbd 2019 Markus Fr\x94schle\r\n");
     access->funcs.puts("Free Software distributed under GPLv2\r\n");
     access->funcs.puts("\r\n");
 

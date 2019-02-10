@@ -78,7 +78,7 @@ struct ModeInfo
 };
 
 
-#define FIREBEE_VRAM_PHYS_OFFSET    0x40000000      /* physical offset FPGA RAM to ST RAM start (0x0) */
+#define FIREBEE_VRAM_PHYS_OFFSET    0x00000000      /* physical offset FPGA RAM to ST RAM start (0x0) */
 
 #define FBEE_VIDEO_PLL_CONFIG   (volatile unsigned long *) 0xff000600
 #define FBEE_VIDEO_PLL_CLK      (volatile unsigned long *) 0xff000604
