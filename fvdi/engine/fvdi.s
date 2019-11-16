@@ -629,7 +629,7 @@ _lineA_address:
 _lineA:
 	move.l	2(a7),a1
 	move.w	(a1),d0
-	and.l	#$fff,d0
+	and.l	#$f,d0
 
   ifne debug
 	cmp.w	#2,_debug
