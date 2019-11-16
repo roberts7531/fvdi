@@ -16,8 +16,8 @@ top_srcdir = ../..
 
 include $(top_srcdir)/CONFIGVARS
 
-CFLAGS  = -m68$(CPU) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS)
-ASFLAGS = -m68$(CPU) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+CFLAGS  = $(CPUOPTS) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS)
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 #LDFLAGS = $(M68K_ATARI_MINT_LDFLAGS)
 #-L/usr/local/m68k-atari-mint/usr/lib
@@ -59,7 +59,7 @@ $(SSRC_GNU): $(SINCSRC_GNU)
 OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(LD) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(LD) -Map=mapfile -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 depend: $(CSRC)
 #	"$(CC) -MM" does not seem able to keep track of the directory of the
