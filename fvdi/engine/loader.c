@@ -1048,7 +1048,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
 
    copy("*.*", pathtail);
    
-#if 0
+#if 1
    puts("Fonts: ");
    puts_nl(fonts);
 #else
@@ -1071,7 +1071,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
       copy(info.d_fname, pathtail);
 #endif
 
-#if 0
+#if 1
       puts("   Load font: ");
       puts_nl(fonts);
 #endif
@@ -1085,7 +1085,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
       error = Fsnext();
    }
 
-#if 0
+#if 1
    {
       char buf[10];
       puts("   Load fonts done: ");
@@ -1093,6 +1093,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
       puts_nl(buf);
    }
 #endif
+   return vwk->real_address->writing.fonts;
 }
 
 
