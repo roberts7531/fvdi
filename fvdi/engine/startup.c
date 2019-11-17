@@ -28,8 +28,6 @@
 #define VERmaj	(VERSION >> 12)
 #define VERmin	(((VERSION & 0x0f00) >> 8) * 100 + ((VERSION & 0x00f0) >> 4) * 10 + (VERSION & 0x000f))
 
-#define STACK_SIZE	4096		/* Used to be 2048 */
-
 #define fvdi_magic	1969
 #define ACTIVE		1		/* fVDI installed */
 #define BOOTED		2		/* fVDI can't be removed */

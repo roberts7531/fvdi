@@ -673,145 +673,145 @@ long retry_line(Virtual *vwk, DrvLine *pars)
 void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                       RECT16 *src_rect, RECT16 *dst_rect, long mode)
 {
-  char buf[10];
-  char *error;
+  	char buf[10];
+  	char *error;
 
-  error = 0;
+  	error = 0;
 
-  do {
-    if ((src_rect->x2 - src_rect->x1 != dst_rect->x2 - dst_rect->x1) ||
-        (src_rect->y2 - src_rect->y1 != dst_rect->y2 - dst_rect->y1)) {
-	error = "No support yet for scaling";
-	break;
+  	do {
+    	if ((src_rect->x2 - src_rect->x1 != dst_rect->x2 - dst_rect->x1) ||
+        	(src_rect->y2 - src_rect->y1 != dst_rect->y2 - dst_rect->y1)) {
+			error = "No support yet for scaling";
+		break;
     }
 
     if (!src_bm) {
-	error = "No support yet for screen->memory/screen";
-	break;
+		error = "No support yet for screen->memory/screen";
+		break;
     }
 
     if (dst_bm) {
-      if (src_bm->px_format != dst_bm->px_format) {
-	if ((src_bm->px_format == 0x01020101) &&
-            (dst_bm->px_format == 0x01020808)) {
-	  int x, y;
+      	if (src_bm->px_format != dst_bm->px_format) {
+			if ((src_bm->px_format == 0x01020101) &&
+            	(dst_bm->px_format == 0x01020808)) {
+	  			int x, y;
 
-	  for(y = src_rect->y1; y <= src_rect->y2; y++) {
-	    long *src;
-	    char *dst;
-	    unsigned long v, mask;
+	  			for (y = src_rect->y1; y <= src_rect->y2; y++) {
+	    			long *src;
+	    			char *dst;
+	    			unsigned long v, mask;
 
-	    src = (long *)(src_bm->addr + src_bm->width * y + (src_rect->x1 / 32) * 4);
-	    mask = 1 << (31 - src_rect->x1 % 32);
-	    dst = dst_bm->addr +
-	      dst_bm->width * (dst_rect->y1 - src_rect->y1 + y) +
-	      dst_rect->x1;
-	    v = *src++;
-	    if (mode == 33) {
-	      for(x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
-		if (v & mask)
-		  *dst = ~0;
-		dst++;
-		mask = (mask >> 1) | (mask << 31);
-		if ((long)mask < 0)
-		  v = *src++;
-	      }
-	    } else {
-	      for(x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
-		if (v & mask)
-		  *dst++ = ~0;
-		else
-		  *dst++ = 0;
-		mask = (mask >> 1) | (mask << 31);
-		if ((long)mask < 0)
-		  v = *src++;
-	      }
-	    }
-	  }
-	  mode = 0;  /* Just to skip error printout at the end */
-	} else if ((src_bm->px_format == 0x01020101) &&
-		   (dst_bm->px_format == 0x03421820)) {
-	  int x, y;
+	    			src = (long *)(src_bm->addr + src_bm->width * y + (src_rect->x1 / 32) * 4);
+	    			mask = 1 << (31 - src_rect->x1 % 32);
+	    			dst = dst_bm->addr +
+	      			dst_bm->width * (dst_rect->y1 - src_rect->y1 + y) +
+	      			dst_rect->x1;
+	    			v = *src++;
+	    			if (mode == 33) {
+	      				for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+							if (v & mask)
+		  						*dst = ~0;
+							dst++;
+							mask = (mask >> 1) | (mask << 31);
+							if ((long)mask < 0)
+		  						v = *src++;
+	      				}
+	    			} else {
+	      				for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+							if (v & mask)
+		  						*dst++ = ~0;
+							else
+		  						*dst++ = 0;
+							mask = (mask >> 1) | (mask << 31);
+							if ((long)mask < 0)
+		  						v = *src++;
+	      				}
+	    			}
+	  			}
+	  			mode = 0;  /* Just to skip error printout at the end */
+			} else if ((src_bm->px_format == 0x01020101) &&
+		   			   (dst_bm->px_format == 0x03421820)) {
+	  			int x, y;
 
-	  for(y = src_rect->y1; y <= src_rect->y2; y++) {
-	    long *src, *dst;
-	    unsigned long v, mask;
+	  			for (y = src_rect->y1; y <= src_rect->y2; y++) {
+	    			long *src, *dst;
+	    			unsigned long v, mask;
 
-	    src = (long *)(src_bm->addr + src_bm->width * y + (src_rect->x1 / 32) * 4);
-	    mask = 1 << (31 - src_rect->x1 % 32);
-	    dst = (long *)(dst_bm->addr +
-			   dst_bm->width * (dst_rect->y1 - src_rect->y1 + y)) +
-	      dst_rect->x1;
-	    v = *src++;
-	    if (mode == 33) {
-	      for(x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
-		if (v & mask)
-		  *dst = ~0;
-		dst++;
-		mask = (mask >> 1) | (mask << 31);
-		if ((long)mask < 0)
-		  v = *src++;
-	      }
-	    } else {
-	      for(x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
-		if (v & mask)
-		  *dst++ = ~0;
-		else
-		  *dst++ = 0;
-		mask = (mask >> 1) | (mask << 31);
-		if ((long)mask < 0)
-		  v = *src++;
-	      }
-	    }
-	  }
-	  mode = 0;  /* Just to skip error printout at the end */
-	} else {
-	  error = "No support yet for memory->memory between these different pixmap formats";
-	  break;
-	}
-      } else {
-	if (src_bm->px_format == 0x01020101) { /* PX_PREF1 */
-	  error = "No support yet for 1 bit memory->memory";
-	  break;
-	} else if (src_bm->px_format == 0x01020808) { /* PX_PREF8 */
-	  int x, y;
+	    			src = (long *)(src_bm->addr + src_bm->width * y + (src_rect->x1 / 32) * 4);
+	    			mask = 1 << (31 - src_rect->x1 % 32);
+	    			dst = (long *)(dst_bm->addr +
+			   		dst_bm->width * (dst_rect->y1 - src_rect->y1 + y)) +
+	      			dst_rect->x1;
+	    			v = *src++;
+	    			if (mode == 33) {
+	      				for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+							if (v & mask)
+		  						*dst = ~0;
+							dst++;
+							mask = (mask >> 1) | (mask << 31);
+							if ((long)mask < 0)
+		  						v = *src++;
+	      				}
+	    			} else {
+	      				for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+							if (v & mask)
+		  						*dst++ = ~0;
+							else
+		  						*dst++ = 0;
+							mask = (mask >> 1) | (mask << 31);
+							if ((long)mask < 0)
+		  						v = *src++;
+	      				}
+	    			}
+	  			}
+	  			mode = 0;  /* Just to skip error printout at the end */
+			} else {
+	  			error = "No support yet for memory->memory between these different pixmap formats";
+	  			break;
+			}
+      	} else {
+			if (src_bm->px_format == 0x01020101) { /* PX_PREF1 */
+	  			error = "No support yet for 1 bit memory->memory";
+	  			break;
+			} else if (src_bm->px_format == 0x01020808) { /* PX_PREF8 */
+	  			int x, y;
 
-	  for(y = src_rect->y1; y <= src_rect->y2; y++) {
-	    char *src, *dst;
-	    src = src_bm->addr + src_bm->width * y + src_rect->x1;
-	    dst = dst_bm->addr +
-	      dst_bm->width * (dst_rect->y1 - src_rect->y1 + y) +
-	      dst_rect->x1;
-	    for(x = src_rect->x2 - src_rect->x1; x >= 0; x--)
-	      *dst++ = *src++;
-	  }
-	} else if (src_bm->px_format == 0x03421820) { /* PX_PREF32 */
-	  int x, y;
+	  			for (y = src_rect->y1; y <= src_rect->y2; y++) {
+	    			char *src, *dst;
+	    			src = src_bm->addr + src_bm->width * y + src_rect->x1;
+	    			dst = dst_bm->addr +
+	      				dst_bm->width * (dst_rect->y1 - src_rect->y1 + y) +
+	      			dst_rect->x1;
+	    			for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+	      				*dst++ = *src++;
+	  			}
+			} else if (src_bm->px_format == 0x03421820) { /* PX_PREF32 */
+	  			int x, y;
 
-	  for(y = src_rect->y1; y <= src_rect->y2; y++) {
-	    long *src, *dst;
-	    src = (long *)(src_bm->addr + src_bm->width * y) + src_rect->x1;
-	    dst = (long *)(dst_bm->addr +
-			   dst_bm->width * (dst_rect->y1 - src_rect->y1 + y)) +
-	      dst_rect->x1;
-	    for(x = src_rect->x2 - src_rect->x1; x >= 0; x--)
-	      *dst++ = *src++;
-	  }
-	} else {
-	  puts("Unsupported pixel format ($");
-	  ltoa(buf, src_bm->px_format, 16);
-	  puts(buf);
-	  error = ") for memory->memory";
-	  break;
-	}
-      }
+	  			for (y = src_rect->y1; y <= src_rect->y2; y++) {
+	    			long *src, *dst;
+	    			src = (long *)(src_bm->addr + src_bm->width * y) + src_rect->x1;
+	    			dst = (long *)(dst_bm->addr +
+			   		dst_bm->width * (dst_rect->y1 - src_rect->y1 + y)) +
+	      			dst_rect->x1;
+	    			for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+	      				*dst++ = *src++;
+	  			}
+			} else {
+	  			puts("Unsupported pixel format ($");
+	  			ltoa(buf, src_bm->px_format, 16);
+	  			puts(buf);
+	  			error = ") for memory->memory";
+	  			break;
+			}
+      	}
     } else {
-      if (src_bm->px_format == 0x01020101) { /* PX_PREF1 */
-	int x, y, i;
-	char *block;
-	long *palette;
-	MFDB mfdb;
-	short coords[8];
+      	if (src_bm->px_format == 0x01020101) { /* PX_PREF1 */
+			int x, y, i;
+			char *block;
+			long *palette;
+			MFDB mfdb;
+			short coords[8];
 
 #if 0
 	if (!src_bm->ctab) {
@@ -824,10 +824,10 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
 	}
 #endif
 	
-	if (!(block = (char *)allocate_block(0))) {
-	  error = "Could not allocate memory block";
-	  break;
-	}
+			if (!(block = (char *)allocate_block(0))) {
+	  			error = "Could not allocate memory block";
+	  			break;
+			}
 	
 #if 0
 	palette = (long *)block;
@@ -838,155 +838,155 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
 	}
 #endif
 	
-	mfdb.address   = (short *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
-	mfdb.width     = src_rect->x2 - src_rect->x1 + 1;
-	mfdb.height    = 1;
-	mfdb.wdwidth   = (mfdb.width + 15) / 16;
-	mfdb.standard  = 0;
-	mfdb.bitplanes = 32;
+			mfdb.address   = (short *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
+			mfdb.width     = src_rect->x2 - src_rect->x1 + 1;
+			mfdb.height    = 1;
+			mfdb.wdwidth   = (mfdb.width + 15) / 16;
+			mfdb.standard  = 0;
+			mfdb.bitplanes = 32;
 	
-	coords[0] = 0;
-	coords[1] = 0;
-	coords[2] = src_rect->x2 - src_rect->x1 + 1;
-	coords[3] = 0;
+			coords[0] = 0;
+			coords[1] = 0;
+			coords[2] = src_rect->x2 - src_rect->x1 + 1;
+			coords[3] = 0;
 	
-	coords[4] = dst_rect->x1;
-	coords[5] = dst_rect->y1;
-	coords[6] = dst_rect->x2;
-	coords[7] = dst_rect->y1;
+			coords[4] = dst_rect->x1;
+			coords[5] = dst_rect->y1;
+			coords[6] = dst_rect->x2;
+			coords[7] = dst_rect->y1;
 	
-	for(y = src_rect->y1; y <= src_rect->y2; y++) {
-	  long *src, *dst;
-	  unsigned long v, mask;
+			for (y = src_rect->y1; y <= src_rect->y2; y++) {
+	  			long *src, *dst;
+	  			unsigned long v, mask;
 	  
-	  src = (long *)(src_bm->addr + src_bm->width * y) + (src_rect->x1 / 32);
-	  mask = 1 << (31 - src_rect->x1 % 32);
-	  dst = (long *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
-	  v = *src++;
-	  if (mode == 33) {
-	    short coords2[8];
-	    for(i = 0; i < 4; i++) {
-	      coords2[i] = coords[i + 4];
-	      coords2[i + 4] = coords[i];
-	    }
-	    lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords2, 0, &mfdb, 0);
-	    for(x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
-	      if (v & mask)
-		*dst = ~0;
-	      dst++;
-	      mask = (mask >> 1) | (mask << 31);
-	      if ((long)mask < 0)
-		v = *src++;
-	    }
-	  } else {
-	    for(x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
-	      if (v & mask)
-		*dst++ = ~0;
-	      else
-		*dst++ = 0;
-	      mask = (mask >> 1) | (mask << 31);
-	      if ((long)mask < 0)
-		v = *src++;
-	    }
-	  }
-	  lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
-	  coords[5]++;
-	  coords[7]++;
-	}
+	  			src = (long *)(src_bm->addr + src_bm->width * y) + (src_rect->x1 / 32);
+	  			mask = 1 << (31 - src_rect->x1 % 32);
+	  			dst = (long *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
+	  			v = *src++;
+	  			if (mode == 33) {
+	    			short coords2[8];
+	    			for (i = 0; i < 4; i++) {
+	      				coords2[i] = coords[i + 4];
+	      				coords2[i + 4] = coords[i];
+	    			}
+	    			lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords2, 0, &mfdb, 0);
+	    			for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+	      				if (v & mask)
+							*dst = ~0;
+	      				dst++;
+	      				mask = (mask >> 1) | (mask << 31);
+	      				if ((long)mask < 0)
+							v = *src++;
+	    			}
+	  			} else {
+	    			for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+	      				if (v & mask)
+						*dst++ = ~0;
+	      			else
+						*dst++ = 0;
+	      				mask = (mask >> 1) | (mask << 31);
+	      				if ((long)mask < 0)
+							v = *src++;
+	    		}
+	  		}
+	  		lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
+	  		coords[5]++;
+	  		coords[7]++;
+		}
 	
-	free_block(block);
+		free_block(block);
 #if 0
 	mode = 0;  /* Just to skip error printout at the end */
 #else
-	error = "OK?";
+		error = "OK?";
 #endif
-      } else if (src_bm->px_format == 0x01020808) { /* PX_PREF8 */
-	char *block;
-	long *palette;
-	unsigned char *src;
-	long *dst;
-	MFDB mfdb;
-	short coords[8];
-	int x, y, i;
+    } else if (src_bm->px_format == 0x01020808) { /* PX_PREF8 */
+		char *block;
+		long *palette;
+		unsigned char *src;
+		long *dst;
+		MFDB mfdb;
+		short coords[8];
+		int x, y, i;
 
-	if (!src_bm->ctab) {
-	  error = "Need a colour table for 8 bit->TC";
-	  break;
-	}
-	if (src_bm->ctab->color_space != 1) {
-	  error = "Need an RGB colour table for 8 bit->TC";
-	  break;
-	}
+		if (!src_bm->ctab) {
+	  		error = "Need a colour table for 8 bit->TC";
+	  		break;
+		}
+		if (src_bm->ctab->color_space != 1) {
+	  		error = "Need an RGB colour table for 8 bit->TC";
+	  		break;
+		}
 	
-	if (!(block = (char *)allocate_block(0))) {
-	  error = "Could not allocate memory block";
-	  break;
-	}
+		if (!(block = (char *)allocate_block(0))) {
+	  		error = "Could not allocate memory block";
+	  		break;
+		}
 	
-	palette = (long *)block;
-	for(i = 0; i < src_bm->ctab->no_colors; i++) {
-	  palette[i] = ((long)(src_bm->ctab->colors[i].rgb.red & 0xff) << 16) |
-	    ((long)(src_bm->ctab->colors[i].rgb.green & 0xff) << 8) |
-	    ((long)(src_bm->ctab->colors[i].rgb.blue & 0xff));
-	}
+		palette = (long *)block;
+		for (i = 0; i < src_bm->ctab->no_colors; i++) {
+	  		palette[i] = ((long)(src_bm->ctab->colors[i].rgb.red & 0xff) << 16) |
+	    				 ((long)(src_bm->ctab->colors[i].rgb.green & 0xff) << 8) |
+	    				 ((long)(src_bm->ctab->colors[i].rgb.blue & 0xff));
+		}
 	
-	mfdb.address   = (short *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
-	mfdb.width     = src_rect->x2 - src_rect->x1 + 1;
-	mfdb.height    = 1;
-	mfdb.wdwidth   = (mfdb.width + 15) / 16;
-	mfdb.standard  = 0;
-	mfdb.bitplanes = 32;
+		mfdb.address   = (short *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
+		mfdb.width     = src_rect->x2 - src_rect->x1 + 1;
+		mfdb.height    = 1;
+		mfdb.wdwidth   = (mfdb.width + 15) / 16;
+		mfdb.standard  = 0;
+		mfdb.bitplanes = 32;
 	
-	coords[0] = 0;
-	coords[1] = 0;
-	coords[2] = src_rect->x2 - src_rect->x1 + 1;
-	coords[3] = 0;
+		coords[0] = 0;
+		coords[1] = 0;
+		coords[2] = src_rect->x2 - src_rect->x1 + 1;
+		coords[3] = 0;
 	
-	coords[4] = dst_rect->x1;
-	coords[5] = dst_rect->y1;
-	coords[6] = dst_rect->x2;
-	coords[7] = dst_rect->y1;
+		coords[4] = dst_rect->x1;
+		coords[5] = dst_rect->y1;
+		coords[6] = dst_rect->x2;
+		coords[7] = dst_rect->y1;
 	
-	for(y = src_rect->y1; y <= src_rect->y2; y++) {
-	  src = src_bm->addr + src_bm->width * y + src_rect->x1;
-	  dst = (long *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
-	  for(x = src_rect->x2 - src_rect->x1; x >= 0; x--)
-	    *dst++ = palette[*src++];
-	  lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
-	  coords[5]++;
-	  coords[7]++;
-	}
+		for (y = src_rect->y1; y <= src_rect->y2; y++) {
+	  		src = src_bm->addr + src_bm->width * y + src_rect->x1;
+	  		dst = (long *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
+	  		for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+	    		*dst++ = palette[*src++];
+	  		lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
+	  		coords[5]++;
+	  		coords[7]++;
+		}
 	
-	free_block(block);
-      } else if (src_bm->px_format == 0x03421820) { /* PX_PREF32 */
-	MFDB mfdb;
-	short coords[8];
+		free_block(block);
+    } else if (src_bm->px_format == 0x03421820) { /* PX_PREF32 */
+		MFDB mfdb;
+		short coords[8];
 
-	mfdb.address   = (short *)src_bm->addr;
-	mfdb.width     = src_bm->xmax - src_bm->xmin;
-	mfdb.height    = src_bm->ymax - src_bm->ymin;
-	mfdb.wdwidth   = (mfdb.width + 15) / 16;
-	mfdb.standard  = 0;
-	mfdb.bitplanes = 32;
+		mfdb.address   = (short *)src_bm->addr;
+		mfdb.width     = src_bm->xmax - src_bm->xmin;
+		mfdb.height    = src_bm->ymax - src_bm->ymin;
+		mfdb.wdwidth   = (mfdb.width + 15) / 16;
+		mfdb.standard  = 0;
+		mfdb.bitplanes = 32;
 	
-	coords[0] = src_rect->x1;
-	coords[1] = src_rect->y1;
-	coords[2] = src_rect->x2;
-	coords[3] = src_rect->y2;
+		coords[0] = src_rect->x1;
+		coords[1] = src_rect->y1;
+		coords[2] = src_rect->x2;
+		coords[3] = src_rect->y2;
 	
-	coords[4] = dst_rect->x1;
-	coords[5] = dst_rect->y1;
-	coords[6] = dst_rect->x2;
-	coords[7] = dst_rect->y2;
+		coords[4] = dst_rect->x1;
+		coords[5] = dst_rect->y1;
+		coords[6] = dst_rect->x2;
+		coords[7] = dst_rect->y2;
 	
-	lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
-      } else {
-	puts("Unsupported source pixel format ($");
-	ltoa(buf, src_bm->px_format, 16);
-	puts(buf);
-	error = ") for !TC->TC";
-	break;
-      }
+		lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
+    } else {
+		puts("Unsupported source pixel format ($");
+		ltoa(buf, src_bm->px_format, 16);
+		puts(buf);
+		error = ") for !TC->TC";
+		break;
+    }
     }
   } while(0);
 

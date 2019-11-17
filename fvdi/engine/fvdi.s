@@ -25,7 +25,11 @@ SCREENDEV	equ	7		; Any better ideas?
 xbra_chain	equ	1		; Don't want xref for vdi_address
 stack		equ	1		; nor for vdi_stack and stack_address
 
+ ifne mcoldfire
+STACK_SIZE	equ	8192		; allow more stack for pacf converted routines
+ else
 STACK_SIZE	equ	4096		; Used to be 2048
+ endc
 
 fvdi_magic	equ	1969
 
@@ -627,9 +631,15 @@ _lineA_address:
 * lineA - LineA interceptor
 * Todo:	?
 _lineA:
+ ifne mcoldfire
 	move.l	2(a7),a1
+ else
+	move.l 	4(a7),a1		; get linea opcode address
+ endc
 	move.w	(a1),d0
+ ifne mcoldfire				; make sure we map out ColdFire specific bits
 	and.l	#$f,d0
+ endc
 
   ifne debug
 	cmp.w	#2,_debug
@@ -650,7 +660,11 @@ _lineA:
 	move.l	d0,a0
 	move.l	wk_screen_linea(a0),a0
 	addq.l	#2,a1
+ ifne mcoldfire
+	move.l 	a1,4(a7)
+ else
 	move.l	a1,2(a7)
+ endc
 	rte
 
 .continue_lineA:

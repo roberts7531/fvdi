@@ -190,10 +190,10 @@ _cache_flush:
   else
 	dc.w	$f4f8		; cpusha bc
   endc
- else
-	ifeq	mcoldfire
+  else
+  ifeq	mcoldfire
 	dc.w	$f4f8		; cpusha bc
-	else
+  else
 	lea	-3 * 4(sp),sp
 	movem.l	d0-d1/a0,(sp)
 
@@ -202,21 +202,21 @@ _cache_flush:
 	clr.l	d1
 	move.l	d0,a0
 1:
-	;cpushl	bc,(a0)
-	.word	0xf4e8
-	lea	0x10(a0),a0
-	addq.l	#1,d1
-	cmpi.w	#512,d1
-	bne.s	1b
-	clr.l	d1
-	addq.l	#1,d0
-	move.l	d0,a0
-	cmpi.w	#4,d0
+	; push cache line in a0
+	.word	0xf4e8		; cpushl bc,(a0) - portasm does not accept this instruction
+	lea	0x10(a0),a0	; increment index by 1
+	addq.l	#1,d1		; increment counter
+	cmpi.w	#512,d1		; sets done?
+	bne.s	1b		; no
+	clr.l	d1		; set counter to zero again
+	addq.l	#1,d0		; increment to next way
+	move.l	d0,a0		; 
+	cmpi.w	#4,d0		; finished flushing all 4 ways?
 	bne.s	1b
 
 	movem.l	(sp),d0-d1/a0
 	lea	3 * 4(sp),sp
-	endc ; mcoldfire
+	endc 			; mcoldfire
  endc ; m68000
 .cache_end:
 	movem.l	(a7)+,d0-d1

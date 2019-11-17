@@ -8,6 +8,7 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
+
 transparent	equ	1		; Fall through?
 
 ;max_arc_count	equ	256
