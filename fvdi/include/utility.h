@@ -10,6 +10,8 @@
  * Please, see LICENSE.TXT for further information.
  */
 
+typedef long unsigned int size_t;
+
 long init_utility(void);
 
 /*
@@ -45,6 +47,8 @@ void copy(const char *src, char *dest);
 void cat(const char *src, char *dest);
 long length(const char *text);
 long equal(const char *str1, const char *str2);
+long strlen(const char *s);
+void *memset(void *s, int c, size_t n);
 
 /*
  * Character numerics

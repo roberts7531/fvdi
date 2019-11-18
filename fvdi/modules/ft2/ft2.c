@@ -368,7 +368,7 @@ static Fontheader *ft2_load_metrics(Virtual *vwk, Fontheader *font, FT_Face face
 
 static int ft2_load_spdchar_map(Virtual *vwk, const char *filename)
 {
-   long r;
+   long r = 0;
    int file;
 	
    if ((file = Fopen(filename, 0)) < 0)

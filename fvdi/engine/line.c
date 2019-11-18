@@ -548,9 +548,9 @@ void arrow(Virtual *vwk, short *xy, short inc, int numpts, int colour, short *po
 {
     short i, arrow_len, arrow_wid, line_len;
     short *xybeg;
-    short dx, dy;
+    short dx = 0, dy = 0;
     short base_x, base_y, ht_x, ht_y;
-    long arrow_len2, line_len2;
+    long arrow_len2, line_len2 = 0;
     int xsize, ysize;
 
     xsize = vwk->real_address->screen.pixel.width;
@@ -582,21 +582,13 @@ void arrow(Virtual *vwk, short *xy, short inc, int numpts, int colour, short *po
         /* Get the length of the vector connecting the point with the end point.
          * If the vector is of sufficient length, the search is over.
          */
-#if 0
-        if ((line_len = vec_len(ABS(dx), ABS(dy))) >= arrow_len)
-#else
         line_len2 = (long)dx * dx + (long)dy * dy;
         if (line_len2 >= arrow_len2)
-#endif
             break;
     }
 
     /* If the longest vector is insufficiently long, don't draw an arrow. */
-#if 0
-    if (line_len < arrow_len)
-#else
     if (line_len2 < arrow_len2)
-#endif
         return;
 
     line_len = isqrt(line_len2);

@@ -64,7 +64,7 @@ Virtual *initialize_vdi(void)
     if (!(tmp = (char *)malloc(sizeof(Workstation *) + sizeof(short) + 257 * sizeof(Function))))
         return 0;
 
-    func_tab_start = (long)&((Workstation *)tmp)->function[-1] - (long)tmp;
+    func_tab_start = (long) &((Workstation *) tmp)->function[-1] - (long) tmp;
     dummy_wk = (Workstation *)(tmp + sizeof(Workstation *) + sizeof(short) - func_tab_start);
     dummy_vwk = (Virtual *)tmp;
     dummy_vwk->real_address = (void *)dummy_wk;

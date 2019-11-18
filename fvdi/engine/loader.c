@@ -204,6 +204,8 @@ static Option options[] = {
 };
 
 
+int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts);        /* forward declare */
+
 /* Allocate for size of Driver since the module might be one. */
 Module *init_module(Virtual *vwk, const char **ptr, List **list)
 {
@@ -484,8 +486,8 @@ long echo_text(Virtual *vwk, const char **ptr)
     if (!(*ptr = skip_space(*ptr)))
         ;  /* *********** Error, somehow */
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
-    Cconws(token);
-    Cconws("\x0d\x0a");
+    (void) Cconws(token);
+    (void) Cconws("\x0d\x0a");
 
     return 1;
 }
@@ -910,7 +912,7 @@ long tokenize(const char *buffer)
         extern struct Super_data *super;
 
         if (debug && !super->fvdi_log.start) {   /* Set up log table if there isn't one */
-            if (super->fvdi_log.start = malloc(log_size * sizeof(long))) {
+            if ((super->fvdi_log.start = malloc(log_size * sizeof(long)))) {
                 super->fvdi_log.active = 1;
                 super->fvdi_log.current = super->fvdi_log.start;
                 super->fvdi_log.end = &super->fvdi_log.start[log_size - 8];
@@ -965,7 +967,7 @@ void relocate(unsigned char *prog_addr, Prgheader *header)
     rtab += 4;
 
     *(long *)code += (long)prog_addr;
-    while (rval = *rtab++) {
+    while ((rval = *rtab++)) {
         if (rval == 1)
             code += 254;
         else {
@@ -996,7 +998,7 @@ int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
     Fread(file, sizeof(header), &header);
     program_size = header.tsize + header.dsize + header.bsize;
 
-    if (!(addr = (char *)malloc(MAX(file_size, program_size)))) {
+    if (!(addr = malloc(MAX(file_size, program_size)))) {
         Fclose(file);
         return 0;
     }

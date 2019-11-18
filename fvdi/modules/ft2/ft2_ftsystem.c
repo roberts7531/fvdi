@@ -329,7 +329,7 @@ ft_ansi_stream_io(FT_Stream      stream,
   #endif
   if (!count)
     return 0;
-  if (ret = fc_io(stream, offset, buffer, count))
+  if ((ret = fc_io(stream, offset, buffer, count)))
     return ret;
   if ((stream->descriptor.value & FC_MASK) == FC_CODE) {
     int file;
@@ -706,7 +706,7 @@ static int fc_open(FT_Stream stream,
 
   oldname = stream->pathname.pointer;
   stream->pathname.pointer = (char *)filepathname;
-  if (ret = fc_find(stream)) {
+  if ((ret = fc_find(stream))) {
     stream->pos   = 0;
   
     stream->read  = ft_ansi_stream_io;

@@ -119,7 +119,7 @@ static short find_free_handle(Virtual ***handle_entry)
 
     link = &handle_link;
     last = link;
-    while (handle_table = *link) {
+    while ((handle_table = *link)) {
         if (debug) {
             puts("Looking for free handle in extra table\x0d\x0a");
         }
@@ -201,11 +201,16 @@ void v_opnvwk(Virtual *vwk, VDIpars *pars)
 
         bitplanes = mfdb->bitplanes;
         if ((bitplanes != 1) &&
-                (bitplanes != wk->screen.mfdb.bitplanes))
+                (bitplanes != wk->screen.mfdb.bitplanes)) {
             if (bitplanes)			/* Only same as physical or one allowed */
+            {
                 return;
+            }
             else
+            {
                 bitplanes = wk->screen.mfdb.bitplanes;
+            }
+        }
 
         lwidth = (width >> 3) * bitplanes;	/* >> 4 in assembly file */
         size = (long)lwidth * height;
@@ -364,9 +369,9 @@ void v_opnwk(VDIpars *pars)
         pars->control->handle = 0;	/* Assume failure */
         vwk = 0;
         if (old_gdos != -2) {		/* No pass-through without old GDOS */
-            if (hnd = find_free_handle(&handle_entry)) {
-                if (vwk = malloc(6)) {
-                    if (oldhnd = call_other(pars, 0)) {	/* Dummy handle for call */
+            if ((hnd = find_free_handle(&handle_entry))) {
+                if ((vwk = malloc(6))) {
+                    if ((oldhnd = call_other(pars, 0))) {	/* Dummy handle for call */
                         failed = 0;
                         vwk->real_address = non_fvdi_wk;
                         /* Mark as pass-through handle */
@@ -409,7 +414,7 @@ void v_opnwk(VDIpars *pars)
     if (driver->flags & 1)
 #endif
 
-        if (vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual))
+        if ((vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual)))
             ;				/* Should probably do something */
         else
             vwk = driver->default_vwk;
