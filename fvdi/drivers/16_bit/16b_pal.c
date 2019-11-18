@@ -83,7 +83,7 @@ c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested,
             tc_word |= colour;
 #if NOVA
             tc_word = ((tc_word & 0x000000ff) << 24) | ((tc_word & 0x0000ff00) <<  8) |
-                      ((tc_word & 0x00ff0000) >>  8) | ((tc_word & 0xff000000) >> 24);
+                    ((tc_word & 0x00ff0000) >>  8) | ((tc_word & 0xff000000) >> 24);
 #endif
             *(short *)&palette[start + i].real = tc_word;
         }

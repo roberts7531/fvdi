@@ -1,7 +1,7 @@
 /*
  * fVDI device driver specific setup
  *
- * Copyright 1998-2000, Johan Klockars 
+ * Copyright 1998-2000, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.
  */
@@ -20,7 +20,7 @@ char none[] = {0};
 unsigned char tos_colours[] = {0, 1};
 
 Mode mode[1] =
-	{{1, CHECK_PREVIOUS, {red, green, blue, none, none, none}, 0, 0, 1, 1}};
+{{1, CHECK_PREVIOUS, {red, green, blue, none, none, none}, 0, 0, 1, 1}};
 
 extern Device device;
 
@@ -76,26 +76,26 @@ void check_token(char *token, const char **ptr)
  */
 long initialize(Virtual *vwk)
 {
-	Workstation *wk;
+    Workstation *wk;
 
-	debug = access->funcs.misc(0, 1, 0);
-	
-	vwk = me->default_vwk;	/* This is what we're interested in */
-	wk = vwk->real_address;
+    debug = access->funcs.misc(0, 1, 0);
 
-        if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
-                wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
-        else                                   /*   or fixed DPI (negative) */
-                wk->screen.pixel.width = 25400 / -wk->screen.pixel.width;
-        if (wk->screen.pixel.height > 0)        /* Starts out as screen height */
-                wk->screen.pixel.height = (wk->screen.pixel.height * 1000L) / wk->screen.mfdb.height;
-        else                                    /*   or fixed DPI (negative) */
-                wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
+    vwk = me->default_vwk;	/* This is what we're interested in */
+    wk = vwk->real_address;
 
-	device.byte_width = wk->screen.wrap;
-	device.address = wk->screen.mfdb.address;
+    if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
+        wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
+    else                                   /*   or fixed DPI (negative) */
+        wk->screen.pixel.width = 25400 / -wk->screen.pixel.width;
+    if (wk->screen.pixel.height > 0)        /* Starts out as screen height */
+        wk->screen.pixel.height = (wk->screen.pixel.height * 1000L) / wk->screen.mfdb.height;
+    else                                    /*   or fixed DPI (negative) */
+        wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
 
-	return 1;
+    device.byte_width = wk->screen.wrap;
+    device.address = wk->screen.mfdb.address;
+
+    return 1;
 }
 
 /*
@@ -103,16 +103,16 @@ long initialize(Virtual *vwk)
  */
 long setup(long type, long value)
 {
-	long ret;
+    long ret;
 
-	ret = -1;
-	switch(type) {
-	case Q_NAME:
-		ret = (long)driver_name;
-		break;
-	}
+    ret = -1;
+    switch(type) {
+    case Q_NAME:
+        ret = (long)driver_name;
+        break;
+    }
 
-	return ret;
+    return ret;
 }
 
 /*
@@ -122,7 +122,7 @@ long setup(long type, long value)
  */
 Virtual *opnwk(Virtual *vwk)
 {
-	return 0;
+    return 0;
 }
 
 /*

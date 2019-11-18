@@ -3,7 +3,7 @@
  *
  * $Id: colour.c,v 1.4 2006-05-25 22:44:18 johan Exp $
  *
- * Copyright 2005, Johan Klockars 
+ * Copyright 2005, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.
  */
@@ -35,13 +35,13 @@ static Colour *get_clut(Virtual *vwk)
             puts("Could not allocate space for palette!\x0d\x0a");
         } else {
             if (!palette) {                         /* No palette allocated? */
-	            palette = vwk->palette = (Colour *)(addr + neg_pal_n * sizeof(Colour));   /* Point to index 0 */
+                palette = vwk->palette = (Colour *)(addr + neg_pal_n * sizeof(Colour));   /* Point to index 0 */
             } else {                                /* Only negative palette allocated so far? */
-	            palette = (Colour *)((long)palette & ~1);  /* Copy the negative side first and free it */
-	            vwk->palette = (Colour *)(addr + neg_pal_n * sizeof(Colour));
-	            copymem_aligned(palette - neg_pal_n, addr, neg_pal_n * sizeof(Colour));
-	            free(palette);
-	            palette = vwk->palette;
+                palette = (Colour *)((long)palette & ~1);  /* Copy the negative side first and free it */
+                vwk->palette = (Colour *)(addr + neg_pal_n * sizeof(Colour));
+                copymem_aligned(palette - neg_pal_n, addr, neg_pal_n * sizeof(Colour));
+                free(palette);
+                palette = vwk->palette;
             }
             copymem_aligned(wk->screen.palette.colours, palette, wk->screen.palette.size * sizeof(Colour));
         }
@@ -53,7 +53,7 @@ static Colour *get_clut(Virtual *vwk)
 
 void lib_vs_color(Virtual *vwk, long pen, RGB *values)
 {
-    Workstation *wk = vwk->real_address; 
+    Workstation *wk = vwk->real_address;
     Colour *palette;
     DrvPalette palette_pars;
 
@@ -117,7 +117,7 @@ static int vdi2idx(Workstation *wk, int vdi_pen)
     else {
         ret = tos_colours[vdi_pen];
         if (ret < 0)
-        ret = wk->screen.palette.size - 1;
+            ret = wk->screen.palette.size - 1;
     }
 
     return ret;
@@ -159,27 +159,27 @@ static int fg_bg_index(Virtual *vwk, int subfunction, short **fg, short **bg)
             *fg = &vwk->text.colour.foreground;
             *bg = &vwk->text.colour.background;
             break;
-    
+
         case 1:
             *fg = &vwk->fill.colour.foreground;
             *bg = &vwk->fill.colour.background;
             break;
-    
+
         case 2:
             *fg = &vwk->line.colour.foreground;
             *bg = &vwk->line.colour.background;
             break;
-    
+
         case 3:
             *fg = &vwk->marker.colour.foreground;
             *bg = &vwk->marker.colour.background;
             break;
-    
+
         case 4:
             /* This will be for bitmaps */
             return 0;
             break;
-    
+
         default:
             return 0;
     }
@@ -212,7 +212,7 @@ int lib_vs_fg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENT
         palette = vwk->palette = (Colour *)(((long)addr + neg_pal_n * sizeof(Colour)) | 1);   /* Point to index 0 */
     }
     palette = (Colour *)((long)palette & ~1);
-  
+
     palette_pars.first_pen = index;
     palette_pars.count     = 1;         /* One colour to set up */
     palette_pars.requested = (short *)((long)values | 1);    /* Odd for new style entries */
@@ -320,21 +320,21 @@ int colour_entry(Virtual *vwk, long subfunction, short *intin, short *intout)
         case 0:     /* v_color2value */
             puts("v_color2value not yet supported\x0d\x0a");
             return 2;
-        
+
         case 1:     /* v_value2color */
             puts("v_value2color not yet supported\x0d\x0a");
             return 6;
-  
+
         case 2:     /* v_color2nearest */
             puts("v_color2nearest not yet supported\x0d\x0a");
             return 6;
-        
+
         case 3:     /* vq_px_format */
             puts("vq_px_format not yet supported\x0d\x0a");
             *(long *)&intout[0] = 1;
             *(long *)&intout[2] = 0x03421820;
             return 4;
-  
+
         default:
             puts("Unknown colour entry operation\x0d\x0a");
             return 0;
@@ -385,38 +385,38 @@ int set_colour_table(Virtual *vwk, long subfunction, short *intin)
 
                 lptr = (long *)ctab;
                 for (i = 0; i < 6; i++) {
-	                ltoa(buf, *lptr++, 16);
-	                puts(buf);
-	                puts(" ");
+                    ltoa(buf, *lptr++, 16);
+                    puts(buf);
+                    puts(" ");
                 }
                 puts("\x0d\x0a");
                 for (i = 0; i < 6; i++) {
-	                ltoa(buf, *lptr++, 16);
-	                puts(buf);
-	                puts(" ");
+                    ltoa(buf, *lptr++, 16);
+                    puts(buf);
+                    puts(" ");
                 }
                 puts("\x0d\x0a");
                 sptr = (short *)&ctab->colors;
                 for (j = 0; j < 64; j++) {
-	                for (i = 0; i < 16; i++) {
-	                    ltoa(buf, *sptr++ & 0xffffL, 16);
-	                    puts(buf);
-	                    puts(" ");
-	                }
-	                puts("\x0d\x0a");
+                    for (i = 0; i < 16; i++) {
+                        ltoa(buf, *sptr++ & 0xffffL, 16);
+                        puts(buf);
+                        puts(" ");
+                    }
+                    puts("\x0d\x0a");
                 }
             }
 #endif
             return set_col_table(vwk, ctab->no_colors, 0, ctab->colors);
-        
+
         case 1:     /* vs_ctab_entry */
             puts("vs_ctab_entry not yet supported\x0d\x0a");
             return 1;      /* Seems to be the only possible value for non-failure */
-  
+
         case 2:     /* vs_dflt_ctab */
             puts("vs_dflt_ctab not yet supported\x0d\x0a");
             return 256;    /* Not really correct */
-  
+
         default:
             puts("Unknown set colour table operation\x0d\x0a");
             return 0;
@@ -433,7 +433,7 @@ int colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
                 int i;
 #if 1
                 long length = (int)((char *)&ctab->colors - (char *)&ctab->magic) +
-                   256 * sizeof(COLOR_ENTRY);
+                        256 * sizeof(COLOR_ENTRY);
 #else
                 long length = 48 + 256 * 8;
 #endif
@@ -447,15 +447,15 @@ int colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
                 puts("vq_ctab not yet really supported\x0d\x0a");
 #endif
                 if (length > *(long *)&intin[0]) {
-	                char buf[10];
-	                puts("Too little space available for ctab (");
-	                ltoa(buf, *(long *)&intin[0], 10);
-	                puts(buf);
-	                puts(" when ctab needs ");
-	                ltoa(buf, length, 10);
-	                puts(buf);
-	                puts(")!\x0d\x0a");
-	                return 0;
+                    char buf[10];
+                    puts("Too little space available for ctab (");
+                    ltoa(buf, *(long *)&intin[0], 10);
+                    puts(buf);
+                    puts(" when ctab needs ");
+                    ltoa(buf, length, 10);
+                    puts(buf);
+                    puts(")!\x0d\x0a");
+                    return 0;
                 }
                 ctab->magic = str2long("ctab");
                 ctab->length = length;
@@ -471,93 +471,93 @@ int colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
                 ctab->reserved4 = 0;
 
                 for (i = 0; i < 256; i++) {
-	                ctab->colors[i].rgb.red    = (palette[i].vdi.red   * 255L) / 1000;
-	                ctab->colors[i].rgb.green  = (palette[i].vdi.green * 255L) / 1000;
-	                ctab->colors[i].rgb.blue   = (palette[i].vdi.blue  * 255L) / 1000;
-	                ctab->colors[i].rgb.red   |= ctab->colors[i].rgb.red   << 8;
-	                ctab->colors[i].rgb.green |= ctab->colors[i].rgb.green << 8;
-	                ctab->colors[i].rgb.blue  |= ctab->colors[i].rgb.blue  << 8;
+                    ctab->colors[i].rgb.red    = (palette[i].vdi.red   * 255L) / 1000;
+                    ctab->colors[i].rgb.green  = (palette[i].vdi.green * 255L) / 1000;
+                    ctab->colors[i].rgb.blue   = (palette[i].vdi.blue  * 255L) / 1000;
+                    ctab->colors[i].rgb.red   |= ctab->colors[i].rgb.red   << 8;
+                    ctab->colors[i].rgb.green |= ctab->colors[i].rgb.green << 8;
+                    ctab->colors[i].rgb.blue  |= ctab->colors[i].rgb.blue  << 8;
 #if 0
-	                {
-	                    char buf[10];
-	                    puts("[");
-	                    ltoa(buf, i, 10);
-	                    puts(buf);
-	                    puts("] = ");
-	                    ltoa(buf, ctab->colors[i].rgb.red & 0xffff, 16);
-	                    puts(buf);
-	                    puts(",");
-	                    ltoa(buf, ctab->colors[i].rgb.green & 0xffff, 16);
-	                    puts(buf);
-	                    puts(",");
-	                    ltoa(buf, ctab->colors[i].rgb.blue & 0xffff, 16);
-	                    puts(buf);
-	                    puts("  ");
-	                    ltoa(buf, palette[i].vdi.red & 0xffff, 16);
-	                    puts(buf);
-	                    puts(",");
-	                    ltoa(buf, palette[i].vdi.green & 0xffff, 16);
-	                    puts(buf);
-	                    puts(",");
-	                    ltoa(buf, palette[i].vdi.blue & 0xffff, 16);
-	                    puts(buf);
-	                    puts("  ");
-	                    ltoa(buf, palette[i].hw.red & 0xffff, 16);
-	                    puts(buf);
-	                    puts(",");
-	                    ltoa(buf, palette[i].hw.green & 0xffff, 16);
-	                    puts(buf);
-	                    puts(",");
-	                    ltoa(buf, palette[i].hw.blue & 0xffff, 16);
-	                    puts(buf);
-	                    puts("\x0d\x0a");
-	                }
+                    {
+                        char buf[10];
+                        puts("[");
+                        ltoa(buf, i, 10);
+                        puts(buf);
+                        puts("] = ");
+                        ltoa(buf, ctab->colors[i].rgb.red & 0xffff, 16);
+                        puts(buf);
+                        puts(",");
+                        ltoa(buf, ctab->colors[i].rgb.green & 0xffff, 16);
+                        puts(buf);
+                        puts(",");
+                        ltoa(buf, ctab->colors[i].rgb.blue & 0xffff, 16);
+                        puts(buf);
+                        puts("  ");
+                        ltoa(buf, palette[i].vdi.red & 0xffff, 16);
+                        puts(buf);
+                        puts(",");
+                        ltoa(buf, palette[i].vdi.green & 0xffff, 16);
+                        puts(buf);
+                        puts(",");
+                        ltoa(buf, palette[i].vdi.blue & 0xffff, 16);
+                        puts(buf);
+                        puts("  ");
+                        ltoa(buf, palette[i].hw.red & 0xffff, 16);
+                        puts(buf);
+                        puts(",");
+                        ltoa(buf, palette[i].hw.green & 0xffff, 16);
+                        puts(buf);
+                        puts(",");
+                        ltoa(buf, palette[i].hw.blue & 0xffff, 16);
+                        puts(buf);
+                        puts("\x0d\x0a");
+                    }
 #endif
                 }
                 return 256;    /* Depending on palette size */
             }
-        
+
         case 1:     /* vq_ctab_entry */
             puts("vq_ctab_entry not yet supported\x0d\x0a");
             return 6;
-  
+
         case 2:     /* vq_ctab_id */
             puts("vq_ctab_id not yet supported\x0d\x0a");
             *(long *)&intout[0] = 0xbadc0de1;   /* Not really correct */
             return 2;
-  
+
         case 3:     /* v_ctab_idx2vdi */
             intout[0] = idx2vdi(vwk->real_address, intin[0]);
             return 1;
-  
+
         case 4:     /* v_ctab_vdi2idx */
             intout[0] = vdi2idx(vwk->real_address, intin[0]);
             return 1;
-  
+
         case 5:     /* v_ctab_idx2value */
             puts("v_ctab_idx2value not yet supported\x0d\x0a");
             return 2;
-  
+
         case 6:     /* v_get_ctab_id */
             puts("v_get_ctab_id not yet supported\x0d\x0a");
             *(long *)&intout[0] = 0xbadc0de1;   /* Should always be different */
-    
+
             return 2;
-        
+
         case 7:     /* vq_dflt_ctab */
             puts("vq_dflt_ctan not yet supported\x0d\x0a");
             return 256;    /* Depending on palette size */
-  
+
         case 8:     /* v_create_ctab */
             puts("v_create_ctab not yet supported\x0d\x0a");
             return 2;
-  
+
         case 9:     /* v_delete_ctab */
             puts("v_delete_ctab not yet supported\x0d\x0a");
             intout[0] = 1;   /* OK */
-    
+
             return 1;
-  
+
         default:
             puts("Unknown colour table operation\x0d\x0a");
             return 0;
@@ -577,13 +577,13 @@ int inverse_table(Virtual *vwk, long subfunction, short *intin, short *intout)
                 
                 return 2;
             }
-        
+
         case 1:     /* v_delete_itab */
             puts("v_delete_itab not yet supported\x0d\x0a");
             intout[0] = 1;   /* OK */
             
             return 1;
-  
+
         default:
             puts("Unknown inverse colour table operation\x0d\x0a");
             return 0;
@@ -593,243 +593,243 @@ int inverse_table(Virtual *vwk, long subfunction, short *intin, short *intout)
 
 #if 0
 v_get_pixel:
-        uses_d1
-	move.l	d2,-(a7)
-        sub.w   #12,a7
-        move.l  ptsin(a1),a2
-        move.l  (a2),0(a7)              ; Coordinates
-        move.l  intout(a1),a2
-        move.l  a2,4(a7)
-        addq.l  #2,a2
-        move.l  a2,8(a7)
-        move.l  a7,a1
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-        bsr     _lib_v_get_pixel
-        add.w   #12+8,a7
-	move.l	(a7)+,d2
-        used_d1
-        done_return                     ; Should be real_return
+uses_d1
+move.l	d2,-(a7)
+sub.w   #12,a7
+move.l  ptsin(a1),a2
+move.l  (a2),0(a7)              ; Coordinates
+move.l  intout(a1),a2
+move.l  a2,4(a7)
+addq.l  #2,a2
+move.l  a2,8(a7)
+move.l  a7,a1
+move.l	a1,-(a7)
+move.l	a0,-(a7)
+bsr     _lib_v_get_pixel
+add.w   #12+8,a7
+move.l	(a7)+,d2
+used_d1
+done_return                     ; Should be real_return
 
 * lib_v_get_pixel - Standard Library function
 * Todo: Convert when in bitplane modes
-* In:   a1      Parameters   lib_v_get_pixel(x, y, &colour, &index)
-*       a0      VDI struct
-lib_v_get_pixel:
-	move.l	d2,-(a7)
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-	bsr	_lib_v_get_pixel
-	addq.l	#8,a7
-	move.l	(a7)+,d2
-	rts
+        * In:   a1      Parameters   lib_v_get_pixel(x, y, &colour, &index)
+  *       a0      VDI struct
+  lib_v_get_pixel:
+  move.l	d2,-(a7)
+  move.l	a1,-(a7)
+  move.l	a0,-(a7)
+  bsr	_lib_v_get_pixel
+  addq.l	#8,a7
+               move.l	(a7)+,d2
+                              rts
 
-void lib_v_get_pixel(Virtual *vwk, *pars)
+                              void lib_v_get_pixel(Virtual *vwk, *pars)
 {
-	unsigned long ret;
+    unsigned long ret;
 
-	gp_pars->mfdb = 0;
-	gp_pars->x = pars->x;
-	gp_pars->y = pars->y;
-	ret = vwk->real_address->r_get_pixel(vwk, gp_pars);
-	*pars->colour = ret;   // word
-	if (vwk->real_address->driver->device->clut == 1)  // Hardware CLUT? (used to test look_up_table)
-		// This should of course convert!
-	else
-	{
-		if (vwk->real_address->screen.mfdb.bitplanes > 16)
-			*pars->index = ret >> 16;
-		else
-			*pars->index = -1;
-	}
+    gp_pars->mfdb = 0;
+    gp_pars->x = pars->x;
+    gp_pars->y = pars->y;
+    ret = vwk->real_address->r_get_pixel(vwk, gp_pars);
+    *pars->colour = ret;   // word
+    if (vwk->real_address->driver->device->clut == 1)  // Hardware CLUT? (used to test look_up_table)
+        // This should of course convert!
+        else
+    {
+        if (vwk->real_address->screen.mfdb.bitplanes > 16)
+            *pars->index = ret >> 16;
+        else
+            *pars->index = -1;
+    }
 
 
 v_bar:
-;       use_special_stack
-        uses_d1
-	movem.l	d2/a2,-(a7)
-        move.l  ptsin(a1),a1
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-        jsr     _lib_v_bar
-	addq.l	#8,a7
-	movem.l	(a7)+,d2/a2
-        used_d1
-        done_return                     ; Should be real_return
+    ;       use_special_stack
+            uses_d1
+            movem.l	d2/a2,-(a7)
+            move.l  ptsin(a1),a1
+            move.l	a1,-(a7)
+            move.l	a0,-(a7)
+            jsr     _lib_v_bar
+            addq.l	#8,a7
+            movem.l	(a7)+,d2/a2
+            used_d1
+            done_return                     ; Should be real_return
 
 
-* lib_v_bar - Standard Library function
-* Todo: -
-* In:   a1      Parameters   lib_v_bar(points)
-*       a0      VDI struct
-lib_v_bar:
-	movem.l	d2/a2,-(a7)
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-	jsr	_lib_v_bar
-	addq.l	#8,a7
-	movem.l	(a7)+,d2/a2
-	rts
+            * lib_v_bar - Standard Library function
+            * Todo: -
+        * In:   a1      Parameters   lib_v_bar(points)
+      *       a0      VDI struct
+      lib_v_bar:
+      movem.l	d2/a2,-(a7)
+      move.l	a1,-(a7)
+      move.l	a0,-(a7)
+      jsr	_lib_v_bar
+      addq.l	#8,a7
+                   movem.l	(a7)+,d2/a2
+                                  rts
 
-void lib_v_bar(Virtual *vwk, short *points)
-{
-	short buf[4];
+                                  void lib_v_bar(Virtual *vwk, short *points)
+    {
+        short buf[4];
 
-	// Not hollow, so draw,   or   hollow and perimeter, so don't draw (right?)
-	if (vwk->fill.interior || !vwk->fill_perimeter)
-	{
-		lib_vr_recfl
-		if (!vwk->fill_perimeter)
-			return;
-	}
+        // Not hollow, so draw,   or   hollow and perimeter, so don't draw (right?)
+        if (vwk->fill.interior || !vwk->fill_perimeter)
+        {
+            lib_vr_recfl
+                    if (!vwk->fill_perimeter)
+                    return;
+        }
 
-	fill_pars->mode = vwk->mode;
-	fill_pars->what??? = 0x00010000;    // solid (d7)
-	fill_pars->
-	fill_pars->colours = vwk->fill.colour;
-	fill_pars->points = buf;
+        fill_pars->mode = vwk->mode;
+        fill_pars->what??? = 0x00010000;    // solid (d7)
+        fill_pars->
+                fill_pars->colours = vwk->fill.colour;
+        fill_pars->points = buf;
 
         move.l  _pattern_ptrs,d5
 
-	// Draw top/bottom perimeter
-	buf[0] = points[0];
-	buf[1] = points[1];
-	buf[2] = points[2];
-	buf[3] = points[1];
-	if (clip(buf))
-		vwk->real_address->r_fill();
+                // Draw top/bottom perimeter
+                buf[0] = points[0];
+        buf[1] = points[1];
+        buf[2] = points[2];
+        buf[3] = points[1];
+        if (clip(buf))
+            vwk->real_address->r_fill();
 
-	if (points[1] == points[3])
-		return;
+        if (points[1] == points[3])
+            return;
 
-	// Draw bottom/top perimeter
-	buf[0] = points[0];
-	buf[1] = points[3];
-	buf[2] = points[2];
-	buf[3] = points[3];
-	if (clip(buf))
-		vwk->real_address->r_fill();
+        // Draw bottom/top perimeter
+        buf[0] = points[0];
+        buf[1] = points[3];
+        buf[2] = points[2];
+        buf[3] = points[3];
+        if (clip(buf))
+            vwk->real_address->r_fill();
 
-	// Draw left perimeter
-	buf[0] = points[0];
-	buf[2] = points[0];
-	if (points[3] < points[1]) {     // Bug compatibility
-		buf[1] = points[3] + 1;
-		buf[3] = points[1] - 1;
-	} else {
-		buf[1] = points[1] + 1;
-		buf[3] = points[3] - 1;
-	}
-	if (clip(buf))
-		vwk->real_address->r_fill();
+        // Draw left perimeter
+        buf[0] = points[0];
+        buf[2] = points[0];
+        if (points[3] < points[1]) {     // Bug compatibility
+            buf[1] = points[3] + 1;
+            buf[3] = points[1] - 1;
+        } else {
+            buf[1] = points[1] + 1;
+            buf[3] = points[3] - 1;
+        }
+        if (clip(buf))
+            vwk->real_address->r_fill();
 
-	// Draw right perimeter
-	buf[0] = points[2];
-	buf[2] = points[2];
-	if (points[3] < points[1]) {     // Bug compatibility
-		buf[1] = points[3] + 1;
-		buf[3] = points[1] - 1;
-	} else {
-		buf[1] = points[1] + 1;
-		buf[3] = points[3] - 1;
-	}
-	if (clip_rect(buf))
-		vwk->real_address->r_fill();
-}
+        // Draw right perimeter
+        buf[0] = points[2];
+        buf[2] = points[2];
+        if (points[3] < points[1]) {     // Bug compatibility
+            buf[1] = points[3] + 1;
+            buf[3] = points[1] - 1;
+        } else {
+            buf[1] = points[1] + 1;
+            buf[3] = points[3] - 1;
+        }
+        if (clip_rect(buf))
+            vwk->real_address->r_fill();
+    }
 
 
 vr_recfl:
-;       use_special_stack
-        uses_d1
-	movem.l	d2/a2,-(a7)
-        move.l  ptsin(a1),a1
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-        bsr     _lib_vr_recfl
-	addq.l	#8,a7
-	movem.l	(a7)+,d2/a2
-        used_d1
-        done_return                     ; Should be real_return
+    ;       use_special_stack
+            uses_d1
+            movem.l	d2/a2,-(a7)
+            move.l  ptsin(a1),a1
+            move.l	a1,-(a7)
+            move.l	a0,-(a7)
+            bsr     _lib_vr_recfl
+            addq.l	#8,a7
+            movem.l	(a7)+,d2/a2
+            used_d1
+            done_return                     ; Should be real_return
 
 
-* lib_vr_recfl - Standard Library function
-* Todo: -
-* In:   a1      Parameters   lib_vr_recfl(points)
-*       a0      VDI struct
-lib_vr_recfl:
-	movem.l	d2/a2,-(a7)
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-	jsr	_lib_vr_recfl
-	addq.l	#8,a7
-	movem.l	(a7)+,d2/a2
-	rts
+            * lib_vr_recfl - Standard Library function
+            * Todo: -
+        * In:   a1      Parameters   lib_vr_recfl(points)
+      *       a0      VDI struct
+      lib_vr_recfl:
+      movem.l	d2/a2,-(a7)
+      move.l	a1,-(a7)
+      move.l	a0,-(a7)
+      jsr	_lib_vr_recfl
+      addq.l	#8,a7
+                   movem.l	(a7)+,d2/a2
+                                  rts
 
-void lib_vr_recfl(Virtual *vwk, short *points)
-{
-	// Need clear upper word for compatibility with current
-	// span fill implementation (990704)
-	unsigned long buf[4];
+                                  void lib_vr_recfl(Virtual *vwk, short *points)
+    {
+        // Need clear upper word for compatibility with current
+        // span fill implementation (990704)
+        unsigned long buf[4];
 
-	// Bug compatibility
-	if (points[2] < points[0]) {
-		buf[0] = points[2];
-		buf[2] = points[0];
-	} else {
-		buf[0] = points[0];
-		buf[2] = points[2];
-	}
-	// (only seen in NVDI polygon code)
-	if (points[3] < points[1]) {
-		buf[1] = points[3];
-		buf[3] = points[1];
-	} else {
-		buf[1] = points[1];
-		buf[3] = points[3];
-	}
+        // Bug compatibility
+        if (points[2] < points[0]) {
+            buf[0] = points[2];
+            buf[2] = points[0];
+        } else {
+            buf[0] = points[0];
+            buf[2] = points[2];
+        }
+        // (only seen in NVDI polygon code)
+        if (points[3] < points[1]) {
+            buf[1] = points[3];
+            buf[3] = points[1];
+        } else {
+            buf[1] = points[1];
+            buf[3] = points[3];
+        }
 
-	if (!clip_rect(buf))
-		return;
+        if (!clip_rect(buf))
+            return;
 
-	// Interior/0 (style set below, if any)
-	fill_pars->interior_style = vwk->fill.interior << 16;
-	if (vwk->fill.interior)
-		fill_pars->colour = vwk->fill.colour;
-	else
-		fill_pars->colour = rot16(vwk->fill.colour);  // Hollow, so background colour
+        // Interior/0 (style set below, if any)
+        fill_pars->interior_style = vwk->fill.interior << 16;
+        if (vwk->fill.interior)
+            fill_pars->colour = vwk->fill.colour;
+        else
+            fill_pars->colour = rot16(vwk->fill.colour);  // Hollow, so background colour
 
-	if (vwk->fill.interior == 4)
-		fill_pars->pattern = vwk->fill.user_pattern_in_use;
-	else {
-		fill_pars->pattern = pattern_ptrs[vwk->fill.interior];
-		if (vwk->fill.interior & 2) {  // interior 2 or 3
-			fill_pars->interior_style |= vwk->fill.style;
-			fill_pars->pattern += vwk->fill.interior - 1) * 8; // Add style index
-		}
-	}
-	fill_pars->mode = vwk->mode;
+        if (vwk->fill.interior == 4)
+            fill_pars->pattern = vwk->fill.user_pattern_in_use;
+        else {
+            fill_pars->pattern = pattern_ptrs[vwk->fill.interior];
+            if (vwk->fill.interior & 2) {  // interior 2 or 3
+                fill_pars->interior_style |= vwk->fill.style;
+                fill_pars->pattern += vwk->fill.interior - 1) * 8; // Add style index
+            }
+        }
+        fill_pars->mode = vwk->mode;
 
-	vwk->real_address->r_fill(vwk, fill_pars);
-}
+        vwk->real_address->r_fill(vwk, fill_pars);
+    }
 
 
-void fill_area(Virtual *vwk, short *points)
-{
-	unsigned long buf[4];
+    void fill_area(Virtual *vwk, short *points)
+    {
+        unsigned long buf[4];
 
-	buf[0] = points[0];
-	buf[1] = points[1];
-	buf[2] = points[2];
-	buf[3] = points[3];
+        buf[0] = points[0];
+        buf[1] = points[1];
+        buf[2] = points[2];
+        buf[3] = points[3];
 
-	if (!clip_rect(buf))
-		return;
+        if (!clip_rect(buf))
+            return;
 
-	fill_pars->whatmmm.. = 20(a1);   colour?
-	fill_pars->points = buf;
-	fill_pars->patterns = pattern_ptrs;
-	fill_parts->mode = 1;                 // replace mode
-	fill_pars->whatever.. = 0x00010000;   // solid
-	vwk->real_address->r_fill(vwk, fill_pars);
-}
+        fill_pars->whatmmm.. = 20(a1);   colour?
+                    fill_pars->points = buf;
+        fill_pars->patterns = pattern_ptrs;
+        fill_parts->mode = 1;                 // replace mode
+        fill_pars->whatever.. = 0x00010000;   // solid
+        vwk->real_address->r_fill(vwk, fill_pars);
+    }
 #endif
