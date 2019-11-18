@@ -1,4 +1,4 @@
-#
+﻿#
 # to build from the builds/freemint directory call
 #
 #  make
@@ -209,6 +209,6 @@ $(TARGET): $(OBJS)
 	$(AR) cr $@ $(OBJS); $(RANLIB) $@
 
 clean:
-	rm -rf $(OBJS)
-	rm $(TARGET)
+	- rm -rf $(OBJS)
+	- rm $(TARGET)
 
