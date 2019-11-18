@@ -1,5 +1,5 @@
-M68K_ATARI_MINT_CROSS:=yes
-CPU=020
+﻿M68K_ATARI_MINT_CROSS:=yes
+CPU=v4e
 DEBUG=yes
 
 SUBDIRS := engine modules/ft2 drivers/bitplane

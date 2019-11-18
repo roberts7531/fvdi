@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI circle/ellipse/pie/arc code
  *
  * $Id: conic.c,v 1.8 2005-07-10 00:06:24 johan Exp $
@@ -12,11 +12,11 @@
  */
 
 /*************************************************************************
-**       Copyright 1999, Caldera Thin Clients, Inc.                     ** 
+**       Copyright 1999, Caldera Thin Clients, Inc.                     **
 **       This software is licenced under the GNU Public License.        **
-**       Please see LICENSE.TXT for further information.                ** 
-**                                                                      ** 
-**                  Historical Copyright                                ** 
+**       Please see LICENSE.TXT for further information.                **
+**                                                                      **
+**                  Historical Copyright                                **
 **                                                                      **
 **  Copyright (c) 1987, Digital Research, Inc. All Rights Reserved.     **
 **  The Software Code contained in this listing is proprietary to       **
@@ -90,21 +90,11 @@ void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, long yrad
         c_pline(vwk, n_steps + 1,
                 *(long *)&border_colour, points - (n_steps + 1) * 2);
     else {
-#if 0
-        filled_poly(vwk, points - (n_steps + 1) * 2, n_steps + 1,
-                    *(long *)&fill_colour, pattern, points, mode, interior_style);
-#else
         fill_poly(vwk, points - (n_steps + 1) * 2, n_steps + 1,
                   *(long *)&fill_colour, pattern, points, mode, interior_style);
-#endif
         if (vwk->fill.perimeter)
-#if 0
             c_pline(vwk, n_steps + 1,
                     *(long *)&border_colour, points - (n_steps + 1) * 2);
-#else
-            c_pline(vwk, n_steps + 1,
-                    *(long *)&border_colour, points - (n_steps + 1) * 2);
-#endif
     }
 }
 
@@ -143,66 +133,15 @@ long clc_nsteps(long xrad, long yrad)
     else
         n_steps = yrad;
 
-#if 0
-    n_steps = n_steps >> 2;
-
-    if (n_steps < 16)
-        n_steps = 16;
-    else if (n_steps > MAX_ARC_CT)
-        n_steps = MAX_ARC_CT;
-#else
     n_steps = (n_steps * arc_split) >> 16;
 
     if (n_steps < arc_min)
         n_steps = arc_min;
     else if (n_steps > arc_max)
         n_steps = arc_max;
-#endif
 
     return n_steps;
 }
-
-
-#if 0
-void circle(Virtual *vwk, int xc, int yc, int xrad, short *points)
-{
-    int yrad, n_steps;
-
-    yrad = SMUL_DIV(xrad, xsize, ysize);
-    n_steps = clc_nsteps(xrad, yrad);
-    clc_arc(vwk, 4, xc, yc, xrad, yrad, 0, 3600, 3600, n_steps, points);
-}
-
-
-void ellipse(Virtual *vwk, int xc, int yc, int xrad, int yrad, short *points)
-{
-    int n_steps;
-#if 0
-    if (xfm_mode < 2) /* if xform != raster then flip */
-        yrad = yres - yrad;
-#endif
-    n_steps = clc_nsteps(xrad, yrad);
-    clc_arc(vwk, 5, xc, yc, xrad, yrad, 0, 0, 3600, n_steps, points);
-}
-
-
-void arc(Virtual *vwk, int xc, int yc, int xrad, int beg_ang, int end_ang, short *points)
-{
-    int del_ang, yrad, n_steps;
-
-    del_ang = end_ang - beg_ang;
-    if (del_ang < 0)
-        del_ang += 3600;
-
-    yrad = SMUL_DIV(xrad, xsize, ysize);
-    n_steps = clc_nsteps(xrad, yrad);
-    n_steps = SMUL_DIV(del_ang, n_steps, 3600);
-    if (n_steps == 0)
-        return;
-
-    clc_arc(vwk, 2, xc, yc, xrad, yrad, beg_ang, end_ang, del_ang, n_steps, points);
-}
-#endif
 
 
 void ellipsearc(Virtual *vwk, long gdp_code,
@@ -216,11 +155,6 @@ void ellipsearc(Virtual *vwk, long gdp_code,
     del_ang = end_ang - beg_ang;
     if (del_ang <= 0)
         del_ang += 3600;
-
-#if 0
-    if (xfm_mode < 2)	/* If xform != raster then flip */
-        yrad = yres - yrad;
-#endif
 
     n_steps = clc_nsteps(xrad, yrad);
     n_steps = SMUL_DIV(del_ang, n_steps, 3600);
@@ -248,51 +182,6 @@ void ellipsearc(Virtual *vwk, long gdp_code,
 }
 
 
-#if 0
-void arb_corner(WORD * corners, WORD type)
-{
-    /* Local declarations. */
-    REG WORD temp, typ;
-    REG WORD *xy1, *xy2;
-
-    /* Fix the x coordinate values, if necessary. */
-
-    xy1 = corners;
-    xy2 = corners + 2;
-    if (*xy1 > *xy2) {
-        temp = *xy1;
-        *xy1 = *xy2;
-        *xy2 = temp;
-    }
-
-
-
-    /* End if:  "x" values need to be swapped. */
-    /* Fix y values based on whether traditional (ll, ur) or raster-op */
-    /* (ul, lr) format is desired.                                     */
-    xy1++;                      /* they now point to corners[1] and
-                                   corners[3] */
-    xy2++;
-
-    typ = type;
-
-    if (((typ == LLUR) && (*xy1 < *xy2)) ||
-            ((typ == ULLR) && (*xy1 > *xy2))) {
-        temp = *xy1;
-        *xy1 = *xy2;
-        *xy2 = temp;
-    }                           /* End if:  "y" values need to be swapped. */
-}                               /* End "arb_corner". */
-#endif
-
-
-#if 0
-case 7: /* GDP Rounded Box */
-ltmp_end = line_beg;
-line_beg = SQUARED;
-rtmp_end = line_end;
-line_end = SQUARED;
-#endif
 void rounded_box(Virtual *vwk, long gdp_code, short *coords)
 /* long x1, long y1, long x2, long y2) */
 {
@@ -332,9 +221,6 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
         y1 = coords[3];
     }
 
-#if 0
-    arb_corner(PTSIN, LLUR);
-#endif
     rdeltax = (x2 - x1) / 2;
     rdeltay = (y2 - y1) / 2;
 
@@ -351,23 +237,10 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
 
     (void) clc_nsteps(xrad, yrad);
 
-#if 0
-    PTSIN[0] = 0;
-    PTSIN[1] = yrad;
-    PTSIN[2] = SMUL_DIV(Icos(675), xrad, 32767);
-    PTSIN[3] = SMUL_DIV(Isin(675), yrad, 32767);
-    PTSIN[4] = SMUL_DIV(Icos(450), xrad, 32767);
-    PTSIN[5] = SMUL_DIV(Isin(450), yrad, 32767);
-    PTSIN[6] = SMUL_DIV(Icos(225), xrad, 32767);
-    PTSIN[7] = SMUL_DIV(Isin(225), yrad, 32767);
-    PTSIN[8] = xrad;
-    PTSIN[9] = 0;
-#else
     for(i = 0; i < 5; i++) {
         points[i * 2]     = SMUL_DIV(Icos(900 - 225 * i), xrad, 32767);
         points[i * 2 + 1] = SMUL_DIV(Isin(900 - 225 * i), yrad, 32767);
     }
-#endif
 
     xc = x2 - xrad;
     yc = y1 - yrad;
@@ -400,55 +273,12 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
     points[41] = points[1];
 
     if (gdp_code == 8) {
-#if 0
-        c_pline(vwk, n_steps + 1, *(long *)&border_colour, points - (n_steps + 1) * 2);
-#else
         c_pline(vwk, 21, *(long *)&border_colour, points);
-#endif
     } else {
-#if 0
-        filled_poly(vwk, points, 21, *(long *)&fill_colour, pattern, &points[42], vwk->mode, interior_style);
-#else
         fill_poly(vwk, points, 21, *(long *)&fill_colour, pattern, &points[42], vwk->mode, interior_style);
-#endif
         if (vwk->fill.perimeter)
-#if 0
-            c_pline(vwk, 21, *(long *)&border_colour, points - (n_steps + 1) * 2);
-#else
-#if 0
             c_pline(vwk, 21, *(long *)&border_colour, points);
-#else
-            c_pline(vwk, 21, *(long *)&border_colour, points);
-#endif
-#endif
     }
 
     free_block(points);
 }
-
-
-#if 0
-/* This is the fill pattern setup */
-case 2:
-if (fill_index < 8) {
-    patmsk = DITHRMSK;
-    patptr = &DITHER[fill_index * (patmsk + 1)];
-} else {
-patmsk = OEMMSKPAT;
-patptr = &OEMPAT[(fill_index - 8) * (patmsk + 1)];
-}
-break;
-case 3:
-if (fill_index < 6) {
-    patmsk = HAT_0_MSK;
-    patptr = &HATCH0[fill_index * (patmsk + 1)];
-} else {
-patmsk = HAT_1_MSK;
-patptr = &HATCH1[(fill_index - 6) * (patmsk + 1)];
-}
-break;
-case 4:
-patmsk = 0x000f;
-patptr = &UD_PATRN;
-break;
-#endif

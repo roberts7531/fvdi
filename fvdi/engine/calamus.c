@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI Calamus functions
  *
  * $Id: calamus.c,v 1.7 2005-12-15 15:05:30 standa Exp $
@@ -65,40 +65,11 @@ static void CDECL dcsd_init(void)
             dcsd_offscreen_mfdb.height * dcsd_offscreen_mfdb.bitplanes;
 
     dcsd_offscreen_mfdb.address = (void *)malloc(size);
-
-#if 0
-    {
-        char buf[10];
-        puts("dcsd_init: ");
-        ltoa(buf, (long)dcsd_offscreen_mfdb.address, 16);
-        puts(buf);
-        puts(" [");
-        ltoa(buf, dcsd_offscreen_mfdb.width, 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, dcsd_offscreen_mfdb.height, 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, dcsd_offscreen_mfdb.wdwidth, 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, dcsd_offscreen_mfdb.bitplanes, 10);
-        puts(buf);
-        puts(" -> ");
-        ltoa(buf, size, 10);
-        puts(buf);
-        puts_nl("]");
-    }
-#endif
 }
 
 
 static void CDECL dcsd_exit(void)
 {
-#if 0
-    puts_nl("dcsd_exit");
-#endif
-
     /* Do nothing if inactive:
      * - faulty state (Calamus crashed badly or something) */
     if (!is_active)
@@ -106,10 +77,6 @@ static void CDECL dcsd_exit(void)
 
     /* Mark inactive */
     is_active = 0;
-
-#if 0
-    puts_nl("dcsd_exit: destroy");
-#endif
 
     /* Delete the allocated offscreen buffer */
     free(dcsd_offscreen_mfdb.address);
@@ -122,11 +89,6 @@ static void CDECL dcsd_exit(void)
  */
 static long CDECL dcsd_active(void)
 {
-#if 0
-    puts("dcsd_active: ");
-    puts_nl(is_active ? "yes" : "no");
-#endif
-
     return is_active;
 }
 
@@ -136,13 +98,6 @@ static long CDECL dcsd_active(void)
  */
 void * CDECL dcsd_getbase(void)
 {
-#if 0
-    char buf[10];
-    ltoa(buf, (long)dcsd_offscreen_mfdb.address, 16);
-    puts("dcsd_getbase: ");
-    puts_nl(buf);
-#endif
-
     return dcsd_offscreen_mfdb.address;
 }
 
@@ -153,10 +108,6 @@ void * CDECL dcsd_getbase(void)
 void CDECL dcsd_gettlt(unsigned char tlt[256])
 {
     int i;
-
-#if 0
-    puts_nl("dcsd_gettlt");
-#endif
 
     /* FIXME: TODO give the driver translation table if necessary */
     for(i = 0; i < 256; i++)
@@ -180,26 +131,6 @@ void CDECL dcsd_blit_from_screen(struct DCSD_BLITARGS *args)
     coords[5] = coords[1];
     coords[6] = coords[2];
     coords[7] = coords[3];
-
-#if 0
-    {
-        char buf[10];
-
-        puts("dcsd_blit_S2M: ");
-        ltoa(buf, coords[0], 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, coords[1], 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, coords[2] - coords[0], 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, coords[3] - coords[1], 10);
-        puts(buf);
-        puts_nl("");
-    }
-#endif
 
     /* FIXME: BPP transformations are necessary (now BPP 32bit only) */
 
@@ -229,29 +160,6 @@ void CDECL dcsd_blit_to_screen(struct DCSD_BLITARGS *args)
     coords[5] = coords[1];
     coords[6] = coords[2];
     coords[7] = coords[3];
-
-#if 0
-    {
-        char buf[10];
-
-        puts("dcsd_blit_M2S: m=");
-        ltoa(buf, args->mode, 10);
-        puts(buf);
-        puts(" ");
-        ltoa(buf, coords[0], 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, coords[1], 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, coords[2] - coords[0], 10);
-        puts(buf);
-        puts(",");
-        ltoa(buf, coords[3] - coords[1], 10);
-        puts(buf);
-        puts_nl("");
-    }
-#endif
 
     /* FIXME: BPP transformations are necessary (now BPP 32bit only)
      *

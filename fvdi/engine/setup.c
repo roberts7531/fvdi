@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI workstation setup functions
  *
  * $Id: setup.c,v 1.13 2006-02-28 21:21:51 standa Exp $
@@ -177,13 +177,8 @@ Virtual *initialize_vdi(void)
     wk->mouse.hide = 0;
     wk->mouse.buttons = 0;
     wk->mouse.forced = 0;
-#if 0
-    wk->mouse.position.x = 0;
-    wk->mouse.position.y = 0;
-#else
     wk->mouse.position.x = 64;
     wk->mouse.position.y = 64;
-#endif
     wk->vector.motion = mouse_move;
     wk->vector.draw   = do_nothing;
     wk->vector.button = do_nothing;
@@ -306,11 +301,7 @@ void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
     vwk->standard_handle = vwk_no;
     handle[vwk_no] = vwk;
 
-#if 0
-    if ((vwk_no == old_wk_handle) || !vwk->real_address->screen.look_up_table)
-#else
     if ((vwk_no == old_wk_handle) || (vwk->real_address->driver->device->clut == 2))
-#endif
         setup_colours(vwk);
 
     set_inout(0, 0, intout, ptsout);
@@ -445,10 +436,6 @@ void setup_vbl_handler(void)
     addr = get_l(0x456);           /* vblqueue */
     for(; n > 0; n--) {
         if (get_l(addr) == 0) {
-#if 0
-            if (n != 1)            /* What about the last slot? Must be 0? */
-                set_l(addr + 4, 0);
-#endif
             old_timv = do_nothing;
             set_l(addr, (long)vbl_handler);
             vbl_handler_installed = 1;
@@ -472,12 +459,6 @@ void shutdown_vbl_handler(void)
         addr += 4;
     }
     if (n) {
-#if 0
-        for(; n > 1; n--) {
-            set_l(addr, get_l(addr + 4));
-            addr += 4;
-        }
-#endif
         set_l(addr, 0L);
         vbl_handler_installed = 0;
     }
@@ -519,13 +500,8 @@ void copy_workstations(Virtual *def, long really_copy)
     * and make dummy virtuals for everything else.
     */
 
-#if 0     /* This needs some more thinking [010324] */
-    if (!really_copy && (n <= MAX_OLD_HANDLE))                      /* This is for the dummy virtuals */
-        tmp = (char *)malloc((sizeof(Workstation *) + sizeof(short)) * (MAX_OLD_HANDLE - n + 1), 3);
-#else
     if (n <= MAX_OLD_HANDLE)                      /* This is for the dummy virtuals */
         tmp = (char *)malloc((sizeof(Workstation *) + sizeof(short)) * (MAX_OLD_HANDLE - n + 1));
-#endif
 
     last_handle = 0;
     for(j = 0; j < n; j++) {
@@ -578,22 +554,6 @@ void setup_fallback(void)
     short intout[45], ptsout[12];
 
     sub_call = get_sub_call();
-#if 1
-#if 1
     old_wk_handle = call_v_opnwk(1, intout, ptsout);
-#else
-    old_wk_handle = scall_v_opnwk(1, intout, ptsout);
-#endif
-#else
     intout[0] = ptsout[0];
-#endif
-#if 0
-    pts_in[0] = 50;
-    pts_in[1] = 50;
-    pts_in[2] = 100;
-    pts_in[3] = 100;
-    vdi(old_wk_handle, 114, 4, 0);   /* vr_recfl */
-    int_in[0] = 0;
-    vdi(old_wk_handle, 122, 0, 1);   /* v_show_c */
-#endif
 }

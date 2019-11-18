@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI line code
  *
  * $Id: line.c,v 1.4 2004-10-17 17:52:55 johan Exp $
@@ -12,11 +12,11 @@
  */
 
 /*************************************************************************
-**       Copyright 1999, Caldera Thin Clients, Inc.                     ** 
+**       Copyright 1999, Caldera Thin Clients, Inc.                     **
 **       This software is licenced under the GNU Public License.        **
-**       Please see LICENSE.TXT for further information.                ** 
-**                                                                      ** 
-**                  Historical Copyright                                ** 
+**       Please see LICENSE.TXT for further information.                **
+**                                                                      **
+**                  Historical Copyright                                **
 **                                                                      **
 **  Copyright (c) 1987, Digital Research, Inc. All Rights Reserved.     **
 **  The Software Code contained in this listing is proprietary to       **
@@ -51,7 +51,7 @@ int SMUL_DIV(int, int, int);   //   d0d1d0d2
 static signed char row1[] = { 1, 2, 0, 0, 0, 0 };
 static signed char row2[] = { 2, 2, 0, -3, 0, 3, 2, -4, 0, 4, 0 };
 static signed char row3[] = { 3, 2, 0, -3, 0, 3, 2, 3, 2, -3, -2, 2, 3, -2, -3, 2};
-static signed char row4[] = { 1, 5, -4, -3, 4, -3, 4, 3, -4, 3, -4, -3}; 
+static signed char row4[] = { 1, 5, -4, -3, 4, -3, 4, 3, -4, 3, -4, -3};
 static signed char row5[] = { 2, 2, -4, -3, 4, 3, 2, -4, 3, 4, -3 };
 static signed char row6[] = { 1, 5, -4, 0, 0, -3, 4, 0, 0, 3, -4, 0 };
 static signed char *marker[] = {row1, row2, row3, row4, row5, row6};
@@ -79,11 +79,7 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
     /* Set the line width internals and the return parameters.
      * Return if the line width is being set to one.
      */
-#if 0
-    if ((line_qw = width) == 1)
-#else
     if (width == 1)
-#endif
         return 0;
 
     /* Initialize the circle DDA.  "y" is set to the radius. */
@@ -224,15 +220,7 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
 {
     int i, j, k;
     int wx1, wy1, wx2, wy2, vx, vy;
-#if 0
-# if Y_ASPECT >= X_ASPECT
-    short q_circle[MAX_L_WIDTH];
-# else
-    short q_circle[(MAX_L_WIDTH * X_ASPECT / Y_ASPECT) / 2 + 1];
-# endif
-#else
     short *q_circle;
-#endif
     int num_qc_lines;
     int xsize, ysize;
 
@@ -257,12 +245,6 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
     j = 0;
     wx1 = pts[j++];
     wy1 = pts[j++];
-
-#if 0
-    /* If the end style for the first point is not squared, output a circle. */
-    if (vwk->line.ends.beginning != SQUARED)
-        do_circ(wx1, wy1);
-#endif
 
     /* Loop over the number of points passed in. */
     for(i = 1; i < numpts; i++) {
@@ -313,14 +295,6 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
         points[7] = wy2 + vy;
         fill_poly(vwk, points, 4, colour, &solid, &points[8], mode, 0x00010000L);
 
-#if 0
-        /* If the terminal point of the line segment is an internal joint,
-         * or the end style is not squared, output a filled circle.
-         */
-        if ((vwk->line.ends.end != SQUARED) || (i < numpts - 1))
-            do_circ(wx2, wy2);
-#endif
-
         /* The line segment end point becomes the starting point for the next
          * line segment.
          */
@@ -329,30 +303,6 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
     }
 }
 
-
-#if 0
-v_pline()
-{
-    SHORT pln_sts;
-
-    if (HIDE_CNT == 0) {
-        pln_sts = 1;
-        HIDE_CUR();
-    } else
-        pln_sts = 0;
-    LN_MASK = LINE_STYL[line_index];
-    FG_BP_1 = line_color;
-
-    if (line_width == 1) {
-        pline();
-        if ((line_beg | line_end ) & ARROWED)
-            do_arrow(vwk, pts, numpts, colour, points, mode);
-    } else
-        wline();
-    if (pln_sts == 1)
-        DIS_CUR();
-}
-#endif
 
 
 static void
@@ -406,8 +356,7 @@ draw_line(int x1, int y1, int x2, int y2, int w, char* addr)
 }
 
 
-void
-pmarker(int type, int size, int w_in, int h_in, char *buf)
+void pmarker(int type, int size, int w_in, int h_in, char *buf)
 {
     short i, j, num_lines;
     int x_center, y_center;
@@ -420,11 +369,7 @@ pmarker(int type, int size, int w_in, int h_in, char *buf)
 
     for(i = 0; i <= 4; i++) {
         if (!w_in) {
-#if 0
-            tmp = (short)((short)(((short)size * 30 + 11) / 22) * i * 4 + 15) / 30 + 1;
-#else
             tmp = (short)((short)size * i * 4 + 11) / 22 + 1;
-#endif
         } else
             tmp = ((short)w_in * i + 2) / 4;
         nwidth[i] = -(tmp / 2);
@@ -468,81 +413,6 @@ pmarker(int type, int size, int w_in, int h_in, char *buf)
         }
     }
 }
-
-
-#if 0
-void pline(void)
-{
-    short i, j;
-
-    j = 0;
-    LSTLIN = FALSE;
-    for(i = CONTRL[1] - 1; i > 0; i--) {
-        if (i == 1)
-            LSTLIN = TRUE;
-        X1 = PTSIN[j++];
-        Y1 = PTSIN[j++];
-        X2 = PTSIN[j];
-        Y2 = PTSIN[j+1];
-        if (!CLIP || clip_line())
-            ABLINE();
-    }
-}
-
-
-short clip_line(void)
-{
-    short deltax, deltay, x1y1_clip_flag, x2y2_clip_flag, line_clip_flag;
-    short *x, *y;
-
-    while ((x1y1_clip_flag = code(X1, Y1)) | (x2y2_clip_flag = code(X2, Y2))) {
-        if ((x1y1_clip_flag & x2y2_clip_flag))
-            return FALSE ;
-        if (x1y1_clip_flag) {
-            line_clip_flag = x1y1_clip_flag;
-            x = &X1;
-            y = &Y1;
-        } else {
-            line_clip_flag = x2y2_clip_flag;
-            x = &X2;
-            y = &Y2;
-        }
-        deltax = X2 - X1; deltay = Y2 - Y1;
-        if (line_clip_flag & 1) {		/* Left? */
-            *y = Y1 + SMUL_DIV(deltay, (XMN_CLIP - X1), deltax);
-            *x = XMN_CLIP;
-        } else if (line_clip_flag & 2) {	/* Right? */
-            *y = Y1 + SMUL_DIV(deltay, (XMX_CLIP - X1), deltax);
-            *x = XMX_CLIP;
-        } else if (line_clip_flag & 4) {	/* Top? */
-            *x = X1 + SMUL_DIV(deltax, (YMN_CLIP - Y1), deltay);
-            *y = YMN_CLIP;
-        } else if (line_clip_flag & 8) {	/* Bottom? */
-            *x = X1 + SMUL_DIV(deltax, (YMX_CLIP-Y1), deltay);
-            *y = YMX_CLIP;
-        }
-    }
-    return TRUE;		/* Segment now cliped  */
-}
-
-
-short code(short x, short y)
-{
-    short clip_flag;
-
-    clip_flag = 0;
-    if (x < XMN_CLIP)
-        clip_flag = 1;
-    else if (x > XMX_CLIP)
-        clip_flag = 2;
-    if ( y < YMN_CLIP )
-        clip_flag += 4;
-    else if (y > YMX_CLIP)
-        clip_flag += 8;
-    return clip_flag;
-}
-#endif
-
 
 void arrow(Virtual *vwk, short *xy, short inc, int numpts, int colour, short *points, long mode)
 {
@@ -652,38 +522,4 @@ void do_arrow(Virtual *vwk, short *pts, int numpts, int colour, short *points, l
     }
 }
 
-
-#if 0
-void do_circ(short cx, short cy)
-{
-    short k;
-
-    /* Only perform the act if the circle has radius. */
-    if (num_qc_lines > 0) {
-        /* Do the horizontal line through the center of the circle. */
-        X1 = cx - q_circle[0];
-        X2 = cx + q_circle[0];
-        Y1 = Y2 = cy;
-        if (clip_line())
-            ABLINE();
-
-        /* Do the upper and lower semi-circles. */
-        for(k = 1; k < num_qc_lines; k++) {
-            /* Upper semi-circle. */
-            X1 = cx - q_circle[k];
-            X2 = cx + q_circle[k];
-            Y1 = Y2 = cy - k;
-            if (clip_line())
-                ABLINE();
-
-            /* Lower semi-circle. */
-            X1 = cx - q_circle[k];
-            X2 = cx + q_circle[k];
-            Y1 = Y2 = cy + k;
-            if (clip_line())
-                ABLINE();
-        }
-    }
-}
-#endif
 

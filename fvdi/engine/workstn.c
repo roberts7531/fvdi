@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI workstation functions
  *
  * $Id: workstn.c,v 1.19 2006-11-28 12:14:36 johan Exp $
@@ -68,9 +68,6 @@ linea_setup(Workstation *wk)
         linea[-1] = linea_orig[7];
     }
 
-#if 0
-    linea[-0x256 / 2] = 0;	/* Fix for ImageCopy (requires LineA drawing to be disabled) */
-#endif
     linea[-0x304 / 2] = wk->screen.look_up_table;		/* 1/0 */
     linea[-0x266 / 2] = wk->screen.palette.possibilities;	/* 0 */
     linea[-0x26e / 2] = wk->screen.colour;			/* 1 */
@@ -279,57 +276,26 @@ void v_opnvwk(Virtual *vwk, VDIpars *pars)
     vwk->fill.user.pattern.extra = 0;
     vwk->fill.user.multiplane = 0;
 
-#if 0
-    opnvwk_values(vwk, pars);		/* Return information about workstation */
-#else
     /* Return information about workstation */
     lib_vq_extnd(vwk, 0, 0, pars->intout, pars->ptsout);
-#endif
 
     pars->control->handle = vwk->standard_handle = hnd;
     *handle_entry = vwk;
 
     /* Call various setup functions (most with supplied data) */
-#if 0
-    lib_vsl_type(vwk, pars->intin[1]);
-    lib_vsl_colour(vwk, pars->intin[2]);
-    lib_vsm_type(vwk, pars->intin[3]);
-    lib_vsm_colour(vwk, pars->intin[4]);
-    lib_vst_font(vwk, pars->intin[5]);
-    /* Default to 10 point font (or less) (should really depend on resolution) */
-    lib_vst_point(vwk, 10, &dummy, &dummy, &dummy, &dummy);
-    lib_vst_colour(vwk, pars->intin[6]);
-    lib_vsf_interior(vwk, pars->intin[7]);
-    lib_vsf_style(vwk, pars->intin[8]);
-    lib_vsf_colour(vwk, pars->intin[9]);
-    lib_vs_clip(vwk, 0, 0);			/* No clipping (set to max size) */
-    /* Should also take care of the coordinate values that come now */
-#else
-#if 0
-    dummy = 0;
-#else
     lib_vdi_s(&lib_vsl_type, vwk, pars->intin[1]);
     lib_vdi_s(&lib_vsl_color, vwk, pars->intin[2]);
     lib_vdi_s(&lib_vsm_type, vwk, pars->intin[3]);
     lib_vdi_s(&lib_vsm_color, vwk, pars->intin[4]);
-#if 0
-    lib_vdi_s(&lib_vst_font, vwk, pars->intin[5]);
-    /* Default to 10 point font (or less) (should really depend on resolution) */
-    lib_vdi_spppp(&lib_vst_point, vwk, 10, &dummy, &dummy, &dummy, &dummy);
-    lib_vdi_s(&lib_vst_color, vwk, pars->intin[6]);
-#else
     lib_vst_font(vwk, pars->intin[5]);
     /* Default to 10 point font (or less) (should really depend on resolution) */
     lib_vst_point(vwk, 10, &dummy, &dummy, &dummy, &dummy);
     lib_vst_color(vwk, pars->intin[6]);
-#endif
     lib_vdi_s(&lib_vsf_interior, vwk, pars->intin[7]);
     lib_vdi_s(&lib_vsf_style, vwk, pars->intin[8]);
     lib_vdi_s(&lib_vsf_color, vwk, pars->intin[9]);
     lib_vdi_sp(&lib_vs_clip, vwk, 0, 0);			/* No clipping (set to max size) */
     /* Should also take care of the coordinate values that come now */
-#endif
-#endif
 
     return;
 }
@@ -340,31 +306,12 @@ void v_opnwk(VDIpars *pars)
     Driver *driver;
     Virtual *vwk, **handle_entry;
     Workstation *wk;
-#if 0
-    unsigned short *linea, width, height, bitplanes, hnd, oldhnd;
-#else
     unsigned short hnd, oldhnd;
-#endif
 
     /* For now, just assume that any
      * workstation handle >10 is non-fVDI
      */
     if (pars->intin[0] > 10) {
-#if 0
-        pars->control->handle = 0;	/* Assume failure */
-        vwk = 0;
-        if ((old_gdos != -2) &&		/* No pass-through without old GDOS */
-                (hnd = find_free_handle(&handle_entry)) &&
-                (vwk = malloc(6)) &&
-                (oldhnd = call_other(pars, 0))) {	/* Dummy handle for call */
-            vwk->real_address = non_fvdi_wk;
-            /* Mark as pass-through handle */
-            vwk->standard_handle = oldhnd | 0x8000;
-            *handle_entry = vwk;
-            pars->control->handle = hnd;
-        } else if (vwk)
-            free(vwk);		/* Couldn't open */
-#else
         int failed = 1;
         pars->control->handle = 0;	/* Assume failure */
         vwk = 0;
@@ -396,7 +343,7 @@ void v_opnwk(VDIpars *pars)
             if (vwk)
                 free(vwk);		/* Couldn't open */
         }
-#endif
+
         return;
     }
 
@@ -406,62 +353,23 @@ void v_opnwk(VDIpars *pars)
         old_wk_handle = scall_v_opnwk(1, intout, ptsout);
     }
 
-#if 0
-    if (driver_list->type != ...)		/* Sanity check */
-#endif
-        driver = (Driver *)driver_list->value;
-#if 0
-    if (driver->flags & 1)
-#endif
+    driver = (Driver *)driver_list->value;
 
-        if ((vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual)))
-            ;				/* Should probably do something */
-        else
-            vwk = driver->default_vwk;
+    if ((vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual)))
+        ;				/* Should probably do something */
+    else
+        vwk = driver->default_vwk;
 
     /* To accomodate mouse drawing (only for one screen wk) */
     screen_wk = wk = vwk->real_address;
 
-#if 0
-    /* Copy a few things into the lineA variables */
-    linea = wk->screen.linea;
-    width = wk->screen.mfdb.width;
-    height = wk->screen.mfdb.height;
-    linea[-0x2b4 / 2] = width - 1;
-    linea[-0x2b2 / 2] = height - 1;
-    linea[-0x00c / 2] = width;
-    linea[-0x004 / 2] = height;
-    if (lineafix) {			/* Should cover more really */
-        bitplanes = wk->screen.mfdb.bitplanes;
-        linea[-0x306 / 2] = bitplanes;
-        linea[0] = bitplanes;	/* Can this perhaps be done always? */
-        width = (width * bitplanes) >> 3;	/* Bug (<8 planes) here in original */
-        linea[1] = width;
-        linea[-1] = width;	/* Really the same? */
-    }
-
-    linea[-0x304 / 2] = wk->screen.look_up_table;		/* 1/0 */
-    linea[-0x266 / 2] = wk->screen.palette.possibilities;	/* 0 */
-    linea[-0x26e / 2] = wk->screen.colour;			/* 1 */
-    linea[-0x29a / 2] = wk->screen.palette.size;		/* 0x100 */
-#else
     linea_setup(wk);
-#endif
 
     if (wk->mouse.type && !stand_alone)	/* Old mouse? */
         link_mouse_routines();
 
     if (stand_alone)
         setup_vbl_handler();
-
-#if 0
-    {
-        unsigned short *linea;
-        linea = wk->screen.linea;
-        linea[-0x154] = 0;
-        linea[-0x256 / 2] = 0;	/* Fix for ImageCopy (requires LineA drawing to be disabled) */
-    }
-#endif
 
     v_opnvwk(vwk, pars);
 
@@ -507,27 +415,6 @@ void v_clsvwk(Virtual *vwk, VDIpars *pars)
 // Needs to be able to deal with multiple fVDI workstations!
 void v_clswk(Virtual *vwk, VDIpars *pars)
 {
-#if 0
-    Driver *driver;
-
-    v_clsvwk(vwk, pars);
-
-    unlink_mouse_routines();
-
-    screen_wk = 0;
-#if 0
-    if (driver_list->type != ...)		/* Sanity check */
-#endif
-        driver = (Driver *)driver_list->value;
-#if 0
-    if (driver->flags & 1)
-#endif
-
-        ((void (*)(Virtual *))(driver->clswk))(vwk);
-
-    if (old_wk_handle)
-        scall_v_clswk(old_wk_handle);
-#else
     Driver *driver;
     Workstation *wk;
 
@@ -539,21 +426,13 @@ void v_clswk(Virtual *vwk, VDIpars *pars)
         shutdown_vbl_handler();
 
         screen_wk = 0;
-#if 0
-        if (driver_list->type != ...)		/* Sanity check */
-#endif
-            driver = (Driver *)driver_list->value;
-#if 0
-        if (driver->flags & 1)
-#endif
+        driver = (Driver *)driver_list->value;
 
-            ((void (*)(Virtual *))(driver->clswk))(vwk);
+        ((void (*)(Virtual *))(driver->clswk))(vwk);
 
         if (old_wk_handle)
             scall_v_clswk(old_wk_handle);
     }
-#endif
-
     return;
 }
 
@@ -568,12 +447,6 @@ void vq_devinfo(VDIpars *pars)
      * workstation handle >10 is non-fVDI
      */
     if (pars->intin[0] > 10) {
-#if 0
-        if ((old_gdos != -2) &&		/* No pass-through without old GDOS */
-                (oldhnd = call_other(pars, 0))) {	/* Dummy handle for call */
-        } else if (vwk)
-            free(vwk);		/* Couldn't open */
-#else
         int failed = 1;
         if (old_gdos != -2) {		/* No pass-through without old GDOS */
             char buf[10];
@@ -588,29 +461,13 @@ void vq_devinfo(VDIpars *pars)
             puts("\x0d\x0a");
         } else
             puts("no old GDOS (vq_devinfo)\x0d\x0a");
-#endif
+
         return;
     }
 
     pars->intout[0] = 1;
     pars->intout[1] = 1;
     puts("fVDI handles currently don't support vq_devinfo\x0d\x0a");
-
-#if 0
-#if 0
-    if (driver_list->type != ...)		/* Sanity check */
-#endif
-        driver = (Driver *)driver_list->value;
-#if 0
-    if (driver->flags & 1)
-#endif
-
-        if (vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual))
-            ;				/* Should probably do something */
-        else
-            vwk = driver->default_vwk;
-
-#endif
 }
 
 

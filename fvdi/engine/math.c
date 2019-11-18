@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI integer sin/cos/sqrt code
  *
  * $Id: math.c,v 1.3 2004-10-17 17:52:55 johan Exp $
@@ -12,11 +12,11 @@
  */
 
 /*************************************************************************
-**       Copyright 1999, Caldera Thin Clients, Inc.                     ** 
+**       Copyright 1999, Caldera Thin Clients, Inc.                     **
 **       This software is licenced under the GNU Public License.        **
-**       Please see LICENSE.TXT for further information.                ** 
-**                                                                      ** 
-**                  Historical Copyright                                ** 
+**       Please see LICENSE.TXT for further information.                **
+**                                                                      **
+**                  Historical Copyright                                **
 **                                                                      **
 **                                                                      **
 **                                                                      **
@@ -35,13 +35,13 @@
  * Integer sine and cosine functions.
  */
 
-#define HALFPI	900 
+#define HALFPI	900
 #define PI	1800
 #define TWOPI	3600
 
 /* Sines of angles 1 - 90 degrees normalized between 0 and 32767. */
 
-static short sin_tbl[92] = {    
+static short sin_tbl[92] = {
     0,   572,  1144,  1716,  2286,  2856,  3425,  3993,
     4560,  5126,  5690,  6252,  6813,  7371,  7927,  8481,
     9032,  9580, 10126, 10668, 11207, 11743, 12275, 12803,
@@ -62,7 +62,7 @@ static short sin_tbl[92] = {
  * Expects angle in tenths of degree 0 - 3600.
  * Assumes positive angles only.
  */
-short Isin(unsigned short angle) 
+short Isin(unsigned short angle)
 {
     short index;
     unsigned short remainder, tmpsin;	/* Holder for sin. */
@@ -94,46 +94,12 @@ short Isin(unsigned short angle)
 /*
  * Return integer cos between -32767 and 32767.
  */
-short Icos(short angle) 
+short Icos(short angle)
 {
     return Isin(angle + HALFPI);
 }
 
 
-#if 0
-/* Quick integer square root using binomial theorem (from Dr. Dobbs journal) */
-static ulong_t isqrt(ulong_t N)
-{
-    unsigned long l2, u, v, u2, n;
-
-    if (N < 2)
-        return N;
-
-    u = N;
-    l2 = 0;
-    /* 1/2 * log_2 N = highest bit in the result */
-    while ((u >>= 2))
-        l2++;
-
-    u = 1L << l2;
-    v = u;
-    u2 = u << l2;
-    while (l2--) {
-        v >>= 1;
-        n = (u + u + v) << l2;
-        n += u2;
-        if (n <= N) {
-            u += v;
-            u2 = n;
-        }
-    }
-
-    return u;
-}
-#endif
-
-
-#if 1
 short isqrt(unsigned long x)
 {
     unsigned long s1, s2;
@@ -157,4 +123,3 @@ short isqrt(unsigned long x)
 
     return (short)s1;
 }
-#endif

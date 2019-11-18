@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI utility functions
  *
  * $Id: utility.c,v 1.35 2006-12-06 14:34:46 standa Exp $
@@ -30,12 +30,7 @@ typedef struct _Circle {
     long size;
 } Circle;
 
-#if 0
-Circle list_head = {0, 0, 0};
-Circle *mblocks = &list_head;
-#else
 static Circle *mblocks = 0;
-#endif
 
 short Falcon = 0;
 short TT = 0;
@@ -50,23 +45,12 @@ long mint = 0;
 long magic = 0;
 
 /* NatFeat functions defined */
-#if 1
 static long _NF_getid = 0x73004e75L;
 static long _NF_call  = 0x73014e75L;
 #define nfGetID(n)  (((long __CDECL (*)(const char *))&_NF_getid)n)
 #define nfCall(n)   (((long __CDECL (*)(long, ...))&_NF_call)n)
 
 long nf_print_id = 0;
-#else
-typedef struct {  /* NatFeat code */
-    long magic;
-    long CDECL(*nfGetID) (const char *);
-    long CDECL(*nfCall) (long ID, ...);
-} NatFeatCookie;
-
-NatFeatCookie *nf_ptr = 0;
-long nf_printf_id = 0;
-#endif
 
 long pid_addr = 0;        /* Copied into 'pid' when fVDI is installed */
 long *pid = 0;
@@ -141,13 +125,6 @@ long get_cookie(const char *cname, long super)
     long (*get)(long addr);
 
     cname_l = str2long(cname);
-
-#if 0
-    if (gemdos(340, -1, 0L, 0L) == 0) {
-        /* Ssystem is available */
-        return gemdos(340, 8, cname_l, 0L);
-    }
-#endif
 
     get = super ? get_l : get_protected_l;
 
@@ -1109,40 +1086,6 @@ long sprintf(char *str, const char *format, ...)
 
 
 
-/* This is really a Shell sort. */
-/* Not the best, but short and decent. */
-#if 0
-void fvdi_qsort(void *base, long nmemb, long size,
-                long (*compar)(const void *, const void *))
-{
-    long gap, i, j, k, gap_size;
-    char *p, *pt, *q, c, *cbase;
-
-    for(gap = nmemb / 2; gap > 0; gap /= 2) {
-        gap_size = gap * size;
-        cbase = (char *)base + gap_size;
-        for(i = gap; i < nmemb; i++) {
-            q = cbase;
-            p = q - gap_size;
-            for(j = i - gap; j >= 0; j -= gap) {
-                if ((*compar)(p, q) <= 0)
-                    break;
-                else {
-                    pt = p;
-                    for(k = size - 1; k >= 0; k--) {
-                        c    = *q;
-                        *q++ = *pt;
-                        *pt++ = c;
-                    }
-                }
-                q = p;
-                p -= gap_size;
-            }
-            cbase += size;
-        }
-    }
-}
-#else
 void qsort(void *base, long nmemb, long size,
            long (*compar)(const void *, const void *))
 {
@@ -1189,7 +1132,6 @@ void qsort(void *base, long nmemb, long size,
         free(v);
 }
 #endif
-#endif
 
 
 void *fmalloc(long size, long type)
@@ -1231,20 +1173,11 @@ void *fmalloc(long size, long type)
             if (mblocks) {
                 new->prev = mblocks->prev;
                 new->next = mblocks;
-#if 0
-                mblocks->prev->next = new;
-                mblocks->prev = new;
-#else
                 ((Circle *)((long)mblocks->prev & ~1))->next = new;
                 mblocks->prev = (Circle *)((long)new | 1);
-#endif
             } else {
                 mblocks = new;
-#if 0
-                new->prev = new;
-#else
                 new->prev = (Circle *)((long)new | 1);
-#endif
                 new->next = new;
             }
         }
@@ -1256,21 +1189,9 @@ void *fmalloc(long size, long type)
 }
 
 
-#if 0
-static short block_space[] = {32, 76, 156, 316, 1008, 2028, 4068, 8148, 16308};
-#else
 static short block_space[] = {16, 48, 112, 240, 496, 1008, 2028, 4068, 8148, 16308};
-#endif
 static char *block_free[]  = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
-#if 0
-static char *block_used[]  = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
-#else
-#if 0
-static Circle block_used[]  = { {0,0,0},  {0,0,0},   {0,0,0},   {0,0,0},   {0,0,0},    {0,0,0},    {0,0,0},    {0,0,0},    {0,0,0},     {0,0,0}};
-#else
 static Circle *block_used[]  = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
-#endif
-#endif
 static short free_blocks[] = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
 static short used_blocks[] = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
 static short allocated = 0;
@@ -1462,14 +1383,6 @@ void check_memory(void)
                 puts("Bad free list linkage at ");
                 error = 1;
             }
-#if 0
-            else if ((unsigned int)(link->size & 0xffff) >=
-                     sizeof(block_space) / sizeof(block_space[0]) ||
-                     !(link->size >> 16)) {
-                puts("Bad free list size at ");
-                error = 1;
-            }
-#endif
             if (error) {
                 ltoa(buf, (long)link, 16);
                 puts(buf);
@@ -1480,9 +1393,6 @@ void check_memory(void)
                 ltoa(buf, n, 10);
                 puts(buf);
                 puts(")\x0\x0d");
-#if 0
-                display_links(block_free[n]);
-#endif
                 break;
             }
 
@@ -1497,9 +1407,6 @@ void check_memory(void)
             ltoa(buf, free_blocks[n], 10);
             puts(buf);
             puts(")\x0d\x0a");
-#if 0
-            display_links(block_free[n]);
-#endif
             error = 1;
         }
 
@@ -1596,21 +1503,8 @@ void *malloc(long size)
 
     size += ext_malloc;
 
-#if 0
-    debug_out = -1;
-#endif
-
     if (check_mem)
         check_memory();
-
-#if 0
-    if (!block_space[0]) {
-        block_space[0] = MIN_BLOCK;
-        i = 0;
-        while (block_space[i++] < MIN_KB_BLOCK)
-            block_space[i] = (block_space[i - 1] + LINK_SIZE) * 2;
-    }
-#endif
 
     if (old_malloc || (size > 16 * 1024 - OS_MARGIN - LINK_SIZE))
         return fmalloc(size, 3);
@@ -1694,7 +1588,6 @@ void *malloc(long size)
 
     ((Circle *)block)->size = (((Circle *)block)->size & 0xffff) + (size << 16);
 
-#if 1
     if (1 || memlink) {
         Circle *new = (Circle *)block;
         if (block_used[n]) {
@@ -1708,21 +1601,6 @@ void *malloc(long size)
             new->next = new;
         }
     }
-#if 0
-    if (debug > 2) {
-        char buf[10];
-        ltoa(buf, (long)block_used[n], 16);
-        puts(buf);
-        puts(" ");
-        ltoa(buf, (long)block_used[n]->prev, 16);
-        puts(buf);
-        puts(" ");
-        ltoa(buf, (long)block_used[n]->next, 16);
-        puts(buf);
-        puts("\x0d\x0a");
-    }
-#endif
-#endif
 
     free_blocks[n]--;
     used_blocks[n]++;
@@ -1731,12 +1609,8 @@ void *malloc(long size)
         memory_statistics();
     }
 
-#if 1
     *(long *)(block + sizeof(Circle)) = block_space[n];
     return block + sizeof(Circle);
-#else
-    return fmalloc(size, 3);
-#endif
 }
 
 
@@ -1757,11 +1631,7 @@ void *realloc(void *addr, long new_size)
     if ((long)new <= 0)
         return 0;
     current = &((Circle *)addr)[-1];
-#if 0
-    if (current->prev)
-#else
     if ((long)current->prev & 1)
-#endif
         old_size = current->size - sizeof(Circle);
     else
         old_size = current->size >> 16;
@@ -1796,11 +1666,7 @@ long free(void *addr)
 
     current = &((Circle *) addr)[-1];
 
-#if 0
-    if (!current->prev) {
-#else
     if (!((long)current->prev & 1)) {
-#endif
         size = current->size & 0xffff;
         if (((debug > 2) && !(silentx[0] & 0x02)) ||
                 (unsigned int)size >= sizeof(block_space) / sizeof(block_space[0]) ||
@@ -1809,7 +1675,6 @@ long free(void *addr)
             puts("Freeing at ");
             ltoa(buf, (long)current, 16);
             puts(buf);
-#if 1
             puts(" (");
             ltoa(buf, (long)current->size, 16);
             puts(buf);
@@ -1820,10 +1685,8 @@ long free(void *addr)
             ltoa(buf, (long)current->next, 16);
             puts(buf);
             puts(")");
-#endif
             puts("\x0d\x0a");
         }
-#if 1
         /*
              * FIXME:
              * memlink is forced here in free(). It is also forced in malloc().
@@ -1846,7 +1709,6 @@ long free(void *addr)
             current->prev->next = current->next;
             current->next->prev = current->prev;
         }
-#endif
         current->next = (Circle *)block_free[size];
         block_free[size] = (char *)current;
         free_blocks[size]++;
@@ -1942,13 +1804,8 @@ long puts(const char *text)
     }
     else if (debug_out == -2)
         (void) Cconws(text);
-#if 1
     else if ((debug_out == -1) && nf_print_id)
         nfCall((nf_print_id, text));
-#else
-    else if ((debug_out == -1) && nf_printf_id)
-        nf_ptr->nfCall(nf_printf_id, text);
-#endif
     else
         while (*text)
             Bconout(debug_out, *text++);
@@ -2202,11 +2059,6 @@ long init_utility(void)
 
     if (!mint && !magic)     /* Probably a bad idea under multitasking */
         pid_addr = tmp;
-
-#if 0
-    mblocks->prev = mblocks;
-    mblocks->next = mblocks;
-#endif
 
     real_access.funcs.copymem = copymem;
     real_access.funcs.next_line = next_line;

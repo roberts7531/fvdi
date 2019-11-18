@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI preferences and driver loader
  *
  * $Id: loader.c,v 1.35 2006-11-28 12:18:14 johan Exp $
@@ -8,7 +8,7 @@
  * Please, see LICENSE.TXT for further information.
  */
 
-#include "os.h" 
+#include "os.h"
 #include "fvdi.h"
 #include "relocate.h"
 #include "utility.h"
@@ -975,7 +975,7 @@ void relocate(unsigned char *prog_addr, Prgheader *header)
             *(long *)code += (long)prog_addr;
         }
     }
-}      
+}
 
 
 /*
@@ -1050,12 +1050,8 @@ long load_fonts(Virtual *vwk, const char **ptr)
 
     copy("*.*", pathtail);
 
-#if 1
     puts("Fonts: ");
     puts_nl(fonts);
-#else
-    puts_nl("");
-#endif
 
     /* Initialize FreeType2 module */
     external_init();
@@ -1073,10 +1069,8 @@ long load_fonts(Virtual *vwk, const char **ptr)
         copy(info.d_fname, pathtail);
 #endif
 
-#if 1
         puts("   Load font: ");
         puts_nl(fonts);
-#endif
 
         if ((new_font = external_load_font(vwk, fonts))) {
             /* It's assumed that a device has been initialized (driver exists) */
@@ -1087,14 +1081,13 @@ long load_fonts(Virtual *vwk, const char **ptr)
         error = Fsnext();
     }
 
-#if 1
     {
         char buf[10];
         puts("   Load fonts done: ");
         ltoa(buf, vwk->real_address->writing.fonts, 10);
         puts_nl(buf);
     }
-#endif
+
     return vwk->real_address->writing.fonts;
 }
 
@@ -1251,18 +1244,6 @@ int load_prefs(Virtual *vwk, char *sysname)
             tmp = tmp->next;
         }
     }
-
-#if 0
-    if (font_loaded) {
-        first_font = vwk->real_address->writing.first_font;
-        vwk->text.font = first_font->id;
-        vwk->text.current_font = first_font;
-        vwk->text.character.width = first_font->widest.character;
-        vwk->text.character.height = first_font->distance.top;
-        vwk->text.cell.width = first_font->widest.cell;
-        vwk->text.cell.height = first_font->distance.top + 1 + first_font->distance.bottom;
-    }
-#endif
 
     free(buffer);
 

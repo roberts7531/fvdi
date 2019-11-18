@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI console functions
  *
  * $Id: escape.c,v 1.4 2005-10-03 22:51:42 johan Exp $
@@ -203,55 +203,4 @@ vq_curaddress(Virtual* vwk, short *row, short *column)
     *column = (vwk->console.pos.x - wk->screen.coordinates.min_x) / vwk->text.cell.width;
 }
 
-
-#if 0
-void
-vq_tabstatus(Virtual *vwk, short *tablet)
-{
-    *tablet = 0;
-}
-
-
-void
-v_hardcopy(Virtual *vwk)
-{
-}
-
-
-void
-v_dspcur(Virtual *vwk, long x, long y)
-{
-}
-
-
-void
-v_rmcur(Virtual *vwk)
-{
-}
-
-
-void
-v_form_adv(Virtual *vwk)
-{
-}
-
-
-void
-v_output_window(Virtual *vwk, long x1, long y1, long x2, long y2)
-{
-}
-
-
-void
-v_clear_display_list(Virtual *vwk)
-{
-}
-
-
-void
-v_bit_image(Virtual *vwk, char* filename, long aspect,
-            long scaling, long num_pts, short points[])
-{
-}
-#endif
 

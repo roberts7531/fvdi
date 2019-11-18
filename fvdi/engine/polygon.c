@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI polygon fill functions
  *
  * $Id: polygon.c,v 1.4 2004-10-17 21:44:11 johan Exp $
@@ -47,9 +47,6 @@ short *pattern, short *points, long mode, long interior_style)
     miny = maxy = p[0][1];
     coords = &p[1][1];
     for(i = 1; i < n; i++) {
-#if 0
-        y = p[i][1];
-#endif
         y = *coords;
         coords += 2;		/* Skip to next y */
         if (y < miny) {
@@ -73,28 +70,15 @@ short *pattern, short *points, long mode, long interior_style)
         ints = 0;
         x1 = p[n - 1][0];
         y1 = p[n - 1][1];
-#if 0
-        coords = &p[0][0];
-#endif
         for(i = 0; i < n; i++) {
             x2 = p[i][0];
             y2 = p[i][1];
-#if 0
-            x2 = *coords++;
-            y2 = *coords++;
-#endif
             if (y1 < y2) {
                 if ((y >= y1) && (y < y2)) {
-#if 0
-                    points[ints++] = (long)(y - y1) * (x2 - x1) / (y2 - y1) + x1;
-#endif
                     points[ints++] = SMUL_DIV((y - y1), (x2 - x1), (y2 - y1)) + x1;
                 }
             } else if (y1 > y2) {
                 if ((y >= y2) && (y < y1)) {
-#if 0
-                    points[ints++] = (long)(y - y2) * (x1 - x2) / (y1 - y2) + x2;
-#endif
                     points[ints++] = SMUL_DIV((y - y2), (x1 - x2), (y1 - y2)) + x2;
                 }
             }
@@ -139,29 +123,6 @@ short *pattern, short *points, long mode, long interior_style)
         fill_spans(vwk, &points[n], spans, colour, pattern, mode, interior_style);
 }
 
-#if 0
-void filled_poly_m(Virtual *vwk, short p[][2], long n, long colour, short *pattern,
-short *points, short index[], long moves, long mode, long interior_style)
-{
-    short movepnt, pos;
-
-    moves--;
-    if (index[moves] == -4)
-        moves--;
-    if (index[moves] == -2)
-        moves--;
-
-    pos = 0;
-    do {
-        movepnt = (index[moves] + 4) / 2;
-        filled_poly(vwk, &p[pos], movepnt - pos, colour, pattern, points);
-        pos = movepnt;
-    } while (--moves >= 0);
-
-    if (pos < n)
-        filled_poly(vwk, &p[pos], n - pos, colour, pattern, points);
-}
-#else
 void filled_poly_m(Virtual *vwk, short p[][2], long n, long colour, short *pattern,
 short *points, short index[], long moves, long mode, long interior_style)
 {
@@ -178,11 +139,6 @@ short *points, short index[], long moves, long mode, long interior_style)
     if (!n)
         return;
 
-#if 0
-    if ((p[0][0] == p[n - 1][0]) && (p[0][1] == p[n - 1][1]))
-        n--;
-#endif
-
     moves--;
     if (index[moves] == -4)
         moves--;
@@ -192,9 +148,6 @@ short *points, short index[], long moves, long mode, long interior_style)
     miny = maxy = p[0][1];
     coords = &p[1][1];
     for(i = 1; i < n; i++) {
-#if 0
-        y = p[i][1];
-#endif
         y = *coords;
         coords += 2;		/* Skip to next y */
         if (y < miny) {
@@ -218,21 +171,9 @@ short *points, short index[], long moves, long mode, long interior_style)
         move_n = moves;
         movepnt = (index[move_n] + 4) / 2;
         ints = 0;
-#if 0
-        x1 = p[n - 1][0];
-        y1 = p[n - 1][1];
-#else
         x2 = p[0][0];
         y2 = p[0][1];
-#endif
-#if 0
-        coords = &p[0][0];
-#endif
-#if 0
-        for(i = 0; i < n; i++) {
-#else
         for(i = 1; i < n; i++) {
-#endif
             x1 = x2;
             y1 = y2;
             x2 = p[i][0];
@@ -244,38 +185,17 @@ short *points, short index[], long moves, long mode, long interior_style)
                     movepnt = -1;		/* Never again equal to n */
                 continue;
             }
-#if 0
-            if (!index && (n == length - 1)) {
-                table -= length * 2;		/* Back to beginning */
-                if ((table[0] != x2) || (table[1] != y2)) {
-                    n--;					/* An extra point */
-                    index = (short *)-1;	/* Don't check this 'if' again */
-                }
-            }
-#endif
-#if 0
             x2 = *coords++;
             y2 = *coords++;
-#endif
             if (y1 < y2) {
                 if ((y >= y1) && (y < y2)) {
-#if 0
-                    points[ints++] = (long)(y - y1) * (x2 - x1) / (y2 - y1) + x1;
-#endif
                     points[ints++] = SMUL_DIV((y - y1), (x2 - x1), (y2 - y1)) + x1;
                 }
             } else if (y1 > y2) {
                 if ((y >= y2) && (y < y1)) {
-#if 0
-                    points[ints++] = (long)(y - y2) * (x1 - x2) / (y1 - y2) + x2;
-#endif
                     points[ints++] = SMUL_DIV((y - y2), (x1 - x2), (y1 - y2)) + x2;
                 }
             }
-#if 0
-            x1 = x2;
-            y1 = y2;
-#endif
         }
 
         for(i = 0; i < ints - 1; i++) {
@@ -314,4 +234,3 @@ short *points, short index[], long moves, long mode, long interior_style)
     if (spans)
         fill_spans(vwk, &points[n], spans, colour, pattern, mode, interior_style);
 }
-#endif

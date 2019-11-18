@@ -1,4 +1,4 @@
-/*
+﻿/*
  * fVDI startup
  *
  * $Id: startup.c,v 1.61 2006-12-04 07:53:55 johan Exp $
@@ -193,11 +193,7 @@ long startup(void)
     } else {
         vdi_address = (long)Setexc(34, (void (*)())&vdi_dispatch);	/*   otherwise the dispatcher directly */
     }
-
-#if 0
-    if (xbiosfix)
-#endif
-        trap14_address = (long)Setexc(46, (void (*)())&trap14);	/* Install an XBIOS handler */
+    trap14_address = (long)Setexc(46, (void (*)())&trap14);	/* Install an XBIOS handler */
 #else
     if (booted && !fakeboot && !singlebend) {
         trap2_address = (long)Setexc(34, (void *)&trap2_temp);	/* Install a temporary trap handler if real boot (really necessary?) */
@@ -205,10 +201,7 @@ long startup(void)
         vdi_address = (long)Setexc(34, (void *)&vdi_dispatch);	/*   otherwise the dispatcher directly */
     }
 
-#if 0
-    if (xbiosfix)
-#endif
-        trap14_address = (long)Setexc(46, (void *)&trap14);	/* Install an XBIOS handler */
+    trap14_address = (long)Setexc(46, (void *)&trap14);	/* Install an XBIOS handler */
 #endif
 
 #ifdef __PUREC__
@@ -278,11 +271,7 @@ long startup(void)
     first_vwk = 0;
     element = driver_list;
     while (element) {
-#if 0
-        if (element->type != 1)
-            ****			bad list type
-        #endif
-                driver = (Driver *)element->value;
+        driver = (Driver *)element->value;
         if (driver->module.flags & 1) {
             if (!first_vwk)
                 first_vwk = driver->default_vwk;
@@ -401,7 +390,7 @@ long remove_fvdi(void)
 }
 
 
-/* 
+/*
  * If (n > 0) return driver n
  * else return next driver after -n.
  */
@@ -412,11 +401,7 @@ Driver *find_driver(long n)
 
     element = driver_list;
     while(element) {
-#if 0
-        if (element->type != 1)
-            ****			bad list type
-        #endif
-                driver = (Driver *)element->value;
+        driver = (Driver *)element->value;
         if (((n > 0) && (driver->module.id == n)) || ((n <= 0) && (driver->module.id > -n)))
             return driver;
         element = element->next;
