@@ -238,7 +238,7 @@ Module *init_module(Virtual *vwk, const char **ptr, List **list)
     module->file_name = tmp + sizeof(List) + sizeof(Driver);
     copy(name, module->file_name);
 
-    if (!load_driver(name, module, vwk, token)) {
+    if (!load_driver(name, (Driver *) module, vwk, token)) {        /* FIXME: this cast appears strange to me */
         error("Failed to load module: ", name);
         free(tmp);
         return 0;
