@@ -134,6 +134,7 @@ include/relocate.h
 include/types.inc
 include/utility.h
 include/vdi.inc
+modules/ft2/Makefile
 modules/ft2/atari2bics.c
 modules/ft2/atari2unicode.c
 modules/ft2/bics2unicode.c
