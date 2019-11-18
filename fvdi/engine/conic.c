@@ -301,7 +301,6 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
     short xc, yc, xrad, yrad;
     short x1, y1, x2, y2;
     Workstation *wk = vwk->real_address;
-    long n_steps;
     short *points, *pattern;
     Fgbg fill_colour, border_colour;
     long interior_style;
@@ -350,7 +349,7 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
     }
     yrad = -yrad;
 
-    n_steps = clc_nsteps(xrad, yrad);
+    (void) clc_nsteps(xrad, yrad);
 
 #if 0
     PTSIN[0] = 0;

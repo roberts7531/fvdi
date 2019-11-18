@@ -94,11 +94,13 @@ engine/conic.c
 engine/default.c
 engine/draw.s
 engine/escape.c
+engine/escape.h
 engine/expand.s
 engine/fonts.c
 engine/fvdi.s
 engine/gnu.s
 engine/line.c
+engine/line.h
 engine/line_sq.s
 engine/loader.c
 engine/mark_sq.s

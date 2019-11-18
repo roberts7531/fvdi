@@ -42,8 +42,8 @@ typedef struct _Funcs {
 	long CDECL (*free)(void *addr);
 	long CDECL (*puts)(const char *text);
 	void CDECL (*ltoa)(char *buf, long n, unsigned long base);
-	long CDECL (*get_cookie)(const unsigned char *cname, long super);
-	long CDECL (*set_cookie)(const unsigned char *cname, long value);
+    long CDECL (*get_cookie)(const char *cname, long super);
+    long CDECL (*set_cookie)(const char *cname, long value);
 	long CDECL (*fixup_font)(Fontheader *font, char *buffer, long flip);
 	long CDECL (*unpack_font)(Fontheader *header, long format);
 	long CDECL (*insert_font)(Fontheader **first_font, Fontheader *new_font);

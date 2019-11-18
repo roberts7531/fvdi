@@ -23,9 +23,9 @@ void set_l(long addr, long value);
 /*
  * Cookie and XBRA access
  */
-long get_cookie(const unsigned char *cname, long super);
-long set_cookie(const unsigned char *name, long value);
-long remove_xbra(long vector, const unsigned char *name);
+long get_cookie(const char *cname, long super);
+long set_cookie(const char *name, long value);
+long remove_xbra(long vector, const char *name);
 void check_cookies(void);
 
 /*
@@ -53,7 +53,7 @@ long numeric(long ch);
 long check_base(char ch, long base);
 long atol(const char *text);
 void ltoa(char *buf, long n, unsigned long base);
-long str2long(const unsigned char *text);
+long str2long(const char *text);
 
 /*
  * General memory allocation
@@ -64,6 +64,7 @@ void *realloc(void *addr, long new_size);
 long free(void *addr);
 long free_all(void);
 void allocate(long amount);
+void check_memory(void);
 
 /*
  * Text output

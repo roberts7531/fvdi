@@ -42,6 +42,7 @@
 #include "fvdi.h"
 #include "utility.h"
 #include "function.h"
+#include "line.h"
 
 #define BIG_ENDIAN
 
@@ -140,8 +141,8 @@ short	max_poly_points = 1024;
 /**** New structures added by CLT *****/
 
 struct coords {
-    long x;
-    long y;
+    short x;
+    short y;
 }; /* All co-ordinate pairs are longs */
 
 struct node {
@@ -209,7 +210,7 @@ lib_v_bez(Virtual *vwk, struct v_bez_pars *par)
         num_points = result;
         points = xpts;
         if ((vwk->line.width > 1) && (block = (short *)allocate_block(0))) {
-            wide_line(vwk, points, num_points, vwk->line.colour, block, vwk->mode);
+            wide_line(vwk, points, num_points, vwk->line.colour.l, block, vwk->mode);
             free_block(block);
         } else {
             pattern = vwk->line.user_mask;

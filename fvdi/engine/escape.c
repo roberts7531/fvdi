@@ -8,6 +8,7 @@
  * Please, see LICENSE.TXT for further information.
  */
 
+
 /*
  * Currently only works as it should when text alignment for the
  * virtual workstation is set to left/top and no rotation is set.
@@ -18,6 +19,7 @@
 
 #include "fvdi.h"
 #include "function.h"
+#include "escape.h"
 
 
 static long

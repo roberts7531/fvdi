@@ -169,7 +169,7 @@ long startup(void)
     }
 
     if (debug) {				/* Set up log table if asked for */
-        if (super->fvdi_log.start = malloc(log_size * sizeof(long))) {
+        if ((super->fvdi_log.start = malloc(log_size * sizeof(long)))) {
             super->fvdi_log.active = 1;
             super->fvdi_log.current = super->fvdi_log.start;
             super->fvdi_log.end = &super->fvdi_log.start[log_size - 8];
@@ -359,7 +359,7 @@ long startup(void)
      * to allocate and release memory under TOS.
      */
 
-    if (pid = (long *)pid_addr) {
+    if ((pid = (long *) pid_addr)) {
         copymem((void *)basepage, fake_bp, 256);
         *pid = (long)fake_bp;
     }
@@ -442,11 +442,11 @@ long setup_fvdi(unsigned long type, long value)
     } else {
         switch(type) {
             case Q_NEXT_DRIVER:
-                if (driver = find_driver(-value))
+                if ((driver = find_driver(-value)))
                     ret = driver->module.id;
                 break;
             case Q_FILE:
-                if (driver = find_driver(value))
+                if ((driver = find_driver(value)))
                     ret = (long)driver->module.file_name;
                 break;
             case S_DEBUG:
@@ -775,7 +775,6 @@ void display_output(VDIpars *pars)
 void trap2_debug(long type, VDIpars *pars, long *stack)
 {
     char buf[10];
-    char key;
     int i;
 
     stack = (long *)((long)stack + 10);
@@ -799,7 +798,7 @@ void trap2_debug(long type, VDIpars *pars, long *stack)
         access->funcs.puts(buf);
         access->funcs.puts(")\x0d\x0a");
 
-        key = key_wait(10);
+        (void) key_wait(10);
     }
 }
 
