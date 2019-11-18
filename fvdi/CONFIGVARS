@@ -38,7 +38,7 @@ else
 endif
 
 # General compilation and optimization options (CFLAGS)
-OPTS   = -O2 -fomit-frame-pointer
+OPTS   = --freestanding -nostdlib -O2 -fomit-frame-pointer
 # OPTS   = -O2 -fomit-frame-pointer -mshort
 
 # If building for 68000 (no long multiply instruction),

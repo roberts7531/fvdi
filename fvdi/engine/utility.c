@@ -1802,7 +1802,7 @@ void check_cookies(void)
         if (!addr)
             return 0;
 
-        current = &((Circle *)addr)[-1];
+        current = &((Circle *) addr)[-1];
 
 #if 0
         if (!current->prev) {
@@ -1833,13 +1833,13 @@ void check_cookies(void)
             }
 #if 1
             /*
-    * FIXME:
-    * memlink is forced here in free(). It is also forced in malloc().
-    * But it is not forced in fmalloc(), so current->prev may be 0.
-    * This can happen because real_access.funcs.malloc == fmalloc,
-    * so drivers indirectly call fmalloc(), hence current->prev is set to 0
-    * if nomemlink is used.
-    */
+             * FIXME:
+             * memlink is forced here in free(). It is also forced in malloc().
+             * But it is not forced in fmalloc(), so current->prev may be 0.
+             * This can happen because real_access.funcs.malloc == fmalloc,
+             * so drivers indirectly call fmalloc(), hence current->prev is set to 0
+             * if nomemlink is used.
+             */
             if (1 || memlink) {
                 if (block_used[size] == current) {
                     block_used[size] = current->next;

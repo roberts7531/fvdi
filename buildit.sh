@@ -3,7 +3,7 @@
 CPU=v4e
 #CPU=020
 
-FVDI_DIR=/home/mfro/Dokumente/Development/atari/fvdi/fvdi
+FVDI_DIR=fvdi
 
 FT2_DIR=$FVDI_DIR/modules/ft2
 BPL_DIR=$FVDI_DIR/drivers/bitplane

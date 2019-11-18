@@ -465,7 +465,7 @@ Fontheader *ft2_load_font(Virtual *vwk, const char *filename)
 	   error = FT_New_Face(library, filename, 0, &face);
 	   if (error) {
 		   ft_keep_closed();
-		   free(font);
+           free(font);
 		   return NULL;
 	   }
 
@@ -1263,11 +1263,11 @@ static void ft2_flush_glyph(c_glyph *glyph)
 	glyph->stored = 0;
 	glyph->index = 0;
 	if (glyph->bitmap.buffer) {
-		free(glyph->bitmap.buffer);
+        free(glyph->bitmap.buffer);
 		glyph->bitmap.buffer = 0;
 	}
 	if (glyph->pixmap.buffer) {
-		free(glyph->pixmap.buffer);
+        free(glyph->pixmap.buffer);
 		glyph->pixmap.buffer = 0;
 	}
 	glyph->cached = 0;
@@ -1298,10 +1298,10 @@ static void ft2_dispose_font(Fontheader *font)
 	ft2_flush_cache(font);
 
 	/* Dispose of the data */
-	free(font->extra.filename);
-	free(font->extra.cache);
-	free(font->extra.scratch);
-	free(font);
+    free(font->extra.filename);
+    free(font->extra.cache);
+    free(font->extra.scratch);
+    free(font);
 }
 
 static FT_Error ft2_find_glyph(Virtual *vwk, Fontheader *font, short ch, int want)
@@ -1592,7 +1592,7 @@ MFDB *ft2_text_render_antialias(Virtual *vwk, Fontheader *font, short x, short y
 		pxy[7] = pxy[5] + tb.height - 1;
 		lib_vdi_spppp(&lib_vrt_cpyfm_nocheck, vwk, vwk->mode, pxy, &tb, NULL, colors);
 
-		free(tb.address);
+        free(tb.address);
 	}
 
 	return NULL;
@@ -2024,7 +2024,7 @@ Fontheader *ft2_find_fontsize(Virtual *vwk, Fontheader *font, short ptsize)
 
 			listRemove((LINKABLE *)x);
 			ft2_dispose_font(x->font); /* Remove the whole font */
-			free(x);
+            free(x);
 		}
 		font_count--;
 	}
@@ -2099,7 +2099,7 @@ long ft2_text_render_default(Virtual *vwk, unsigned long coords, short *s, long 
 			pxy[7] = y + t->height - 1;
 
 			lib_vdi_spppp(&lib_vrt_cpyfm_nocheck, vwk, vwk->mode, pxy, t, NULL, colors);
-			free(t->address);
+            free(t->address);
 		}
 	}
 

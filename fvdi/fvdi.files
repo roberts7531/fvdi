@@ -1,3 +1,5 @@
+CONFIGVARS
+Makefile
 drivers/16_bit/16b_blit.c
 drivers/16_bit/16b_exp.c
 drivers/16_bit/16b_fill.c
@@ -79,6 +81,8 @@ drivers/uaegfx/uaegfx.c
 drivers/uaegfx/uaegfx.h
 drivers/uaegfx/uaelib.c
 drivers/uaegfx/uaelib.h
+engine/Makefile
+engine/Makefile
 engine/bconout.c
 engine/bconstub.s
 engine/bezier.c

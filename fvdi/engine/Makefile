@@ -227,4 +227,4 @@ mrproper:
 	make clean
 	cd $(top_srcdir)/modules/ft2; make clean
 
-include depend
+-include depend
