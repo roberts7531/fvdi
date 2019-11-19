@@ -632,9 +632,9 @@ _lineA_address:
 * Todo:	?
 _lineA:
  ifne mcoldfire
-	move.l	2(a7),a1
+	move.l	4(a7),a1
  else
-	move.l 	4(a7),a1		; get linea opcode address
+	move.l 	2(a7),a1		; get linea opcode address
  endc
 	move.w	(a1),d0
  ifne mcoldfire				; make sure we map out ColdFire specific bits
