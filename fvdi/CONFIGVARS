@@ -27,8 +27,7 @@ DEBUG  = no
 
 # CPU to compile for
 ifndef CPU
-#CPU    = 020
- CPU = v4e
+CPU    = 020
 endif
 
 ifeq ($(CPU),v4e)
@@ -38,7 +37,7 @@ else
 endif
 
 # General compilation and optimization options (CFLAGS)
-OPTS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
+OPTS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall -g
 # OPTS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -mshort
 
 # If building for 68000 (no long multiply instruction),
