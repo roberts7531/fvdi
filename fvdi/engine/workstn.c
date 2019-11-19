@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI workstation functions
  *
  * $Id: workstn.c,v 1.19 2006-11-28 12:14:36 johan Exp $
@@ -447,6 +447,7 @@ void vq_devinfo(VDIpars *pars)
      * workstation handle >10 is non-fVDI
      */
     if (pars->intin[0] > 10) {
+#ifdef DEBUG
         int failed = 1;
         if (old_gdos != -2) {		/* No pass-through without old GDOS */
             char buf[10];
@@ -461,7 +462,7 @@ void vq_devinfo(VDIpars *pars)
             puts("\x0d\x0a");
         } else
             puts("no old GDOS (vq_devinfo)\x0d\x0a");
-
+#endif
         return;
     }
 

@@ -24,8 +24,12 @@ else
 endif
 
 CFLAGS  = $(CPUOPTS) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
+
+ifeq ($(DEBUG),yes)
+M68K_ATARI_MINT_CFLAGS+=-DDEBUG
+endif
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include \
-          -I$(top_srcdir)/drivers/1_plane
+	  -I$(top_srcdir)/drivers/1_plane
 
 # FreeType2 things
 ifneq ($(ft2_srcdir),)
@@ -36,7 +40,7 @@ ifneq ($(ft2_srcdir),)
   LDFLAGS = -L$(top_srcdir)/modules/ft2 -L$(libkern_srcdir)
   CFLAGS += -DUSE_LIBKERN
  else
-  LIBKERN = 
+  LIBKERN =
   LIBS   := -lft2 $(LIBS)
   LDFLAGS = -L$(top_srcdir)/modules/ft2
  endif
@@ -44,7 +48,7 @@ ifneq ($(ft2_srcdir),)
  LIBFT2  = $(top_srcdir)/modules/ft2/libft2.a
  LIBFILES= $(LIBFT2) $(LIBKERN)
  CFLAGS += -DFT2 -I$(top_srcdir)/modules/ft2/include $(FT2_DEBUG_OPTS) \
-           -I$(ft2_srcdir)/include 
+	   -I$(ft2_srcdir)/include
 endif
 
 

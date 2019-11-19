@@ -15,7 +15,7 @@
 #include "function.h"
 #include "calamus.h"
 
-#define DEBUG
+// #define DEBUG
 
 #ifdef DEBUG
 #include "relocate.h"

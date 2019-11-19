@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
-CPU=v4e
-#CPU=020
+#CPU=v4e
+CPU=020
+DEBUG=yes
 
 FVDI_DIR=fvdi
 
@@ -11,15 +12,17 @@ ENG_DIR=$FVDI_DIR/engine
 
 TARGET_DIR=/home/mfro/Dokumente/Development/atari/fvdi_test
 
-(cd $FT2_DIR; CPU=$CPU M68K_ATARI_MINT_CROSS=yes make clean)
-(cd $FT2_DIR; CPU=$CPU M68K_ATARI_MINT_CROSS=yes make -j)
+(cd $FT2_DIR; DEBUG=$DEBUG CPU=$CPU M68K_ATARI_MINT_CROSS=yes make clean) || exit
+(cd $FT2_DIR; DEBUG=$DEBUG CPU=$CPU M68K_ATARI_MINT_CROSS=yes make -j) || exit
 
-(cd $ENG_DIR; CPU=$CPU M68K_ATARI_MINT_CROSS=yes make clean)
-(cd $ENG_DIR; CPU=$CPU M68K_ATARI_MINT_CROSS=yes make -j)
+(cd $ENG_DIR; DEBUG=$DEBUG CPU=$CPU M68K_ATARI_MINT_CROSS=yes make clean) || exit
+(cd $ENG_DIR; DEBUG=$DEBUG CPU=$CPU M68K_ATARI_MINT_CROSS=yes make -j) || exit
 
-(cd $BPL_DIR; CPU=$CPU M68K_ATARI_MINT_CROSS=yes make clean)
-(cd $BPL_DIR; CPU=$CPU M68K_ATARI_MINT_CROSS=yes make -j)
+(cd $BPL_DIR; DEBUG=$DEBUG CPU=$CPU M68K_ATARI_MINT_CROSS=yes make clean) || exit
+(cd $BPL_DIR; DEBUG=$DEBUG CPU=$CPU M68K_ATARI_MINT_CROSS=yes make -j) || exit
 
+rm bitplane.sys
+rm fvdi_gnu.prg
 cp $BPL_DIR/bitplane.sys .
 cp $ENG_DIR/fvdi_gnu.prg .
 m68k-atari-mint-strip bitplane.sys
