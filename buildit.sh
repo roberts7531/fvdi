@@ -33,7 +33,7 @@ cp ${ENG_DIR}/fvdi_gnu.prg .
 #m68k-atari-mint-strip fvdi_gnu.prg
 
 # copy files to test directory if existing and if CPU is supported by hatari
-if [ ${CPU} = '020' ]; then
+if [ ${CPU} = '020' -o ${CPU} = '000' ]; then
     cp bitplane.sys ${TARGET_DIR}/gemsys
     cp fvdi_gnu.prg ${TARGET_DIR}/auto
 fi
