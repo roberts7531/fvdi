@@ -19,11 +19,6 @@ include $(top_srcdir)/CONFIGVARS
 CFLAGS  = $(CPUOPTS) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS)
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
-#LDFLAGS = $(M68K_ATARI_MINT_LDFLAGS)
-#-L/usr/local/m68k-atari-mint/usr/lib
-#CFLAGS += -I/usr/local/m68k-atari-mint/usr/include
-#LIBS    = -L/lib/gcc-lib/m68k-atari-mint/2.95.3/ -lgcc
-
 SINCSRC = \
 	$(top_srcdir)/include/compiler.inc \
 	$(top_srcdir)/include/macros.inc \

@@ -3,7 +3,7 @@
  *
  * $Id: blit.c,v 1.8 2006-01-19 19:18:58 johan Exp $
  *
- * Copyright 2005, Johan Klockars 
+ * Copyright 2005, Johan Klockars
  * Copyright 2003 The EmuTOS development team
  * Copyright 2002 Joachim Hoenig (blitter)
  *
@@ -114,7 +114,7 @@ do_blit(blit * blt)
 #if DBG_BLIT
     kprintf ("bitblt: Start\n");
     kprintf ("HALFT[] 0x%04x-%04x-%04x-%04x\n", (UWORD) blt->halftone[0], blt->h
-alftone[1], blt->halftone[2], blt->halftone[3]);
+            alftone[1], blt->halftone[2], blt->halftone[3]);
     kprintf ("X COUNT 0x%04x\n", (UWORD) blt->x_cnt);
     kprintf ("Y COUNT 0x%04x\n", (UWORD) blt->y_cnt);
     kprintf ("X S INC 0x%04x\n", (UWORD) blt->src_x_inc);
@@ -122,14 +122,14 @@ alftone[1], blt->halftone[2], blt->halftone[3]);
     kprintf ("X D INC 0x%04x\n", (UWORD) blt->dst_x_inc);
     kprintf ("Y D INC 0x%04x\n", (UWORD) blt->dst_y_inc);
     kprintf ("ENDMASK 0x%04x-%04x-%04x\n", (UWORD) blt->end_1, (UWORD) blt->end_
-2, (UWORD) blt->end_3);
+             2, (UWORD) blt->end_3);
     kprintf ("S_ADDR  0x%08lx\n", blt->src_addr);
     kprintf ("D_ADDR  0x%08lx\n", blt->dst_addr);
     kprintf ("HOP=%01d, OP=%02d\n", blt->hop & 0x3, blt->op & 0xf);
     kprintf ("HOPline=%02d\n", blt->status & 0xf);
     kprintf ("NFSR=%d, FXSR=%d, SKEW=%02d\n", (blt->skew & NFSR) != 0,
-                                              (blt->skew & FXSR) != 0,
-                                              (blt->skew & SKEW));
+             (blt->skew & FXSR) != 0,
+             (blt->skew & SKEW));
 #endif
     if (blt->x_cnt == 0) blt->x_cnt = 65535;
     if (blt->y_cnt == 0) blt->y_cnt = 65535;
@@ -183,54 +183,54 @@ alftone[1], blt->halftone[2], blt->halftone[3]);
             blt_dst_in = GetMemW (blt->dst_addr);
             /* op into blt_dst_out */
             switch (blt->op & 0xf) {
-            case 0:
-                blt_dst_out = 0;
-                break;
-            case 1:
-                blt_dst_out = blt_src_out & blt_dst_in;
-                break;
-            case 2:
-                blt_dst_out = blt_src_out & ~blt_dst_in;
-                break;
-            case 3:
-                blt_dst_out = blt_src_out;
-                break;
-            case 4:
-                blt_dst_out = ~blt_src_out & blt_dst_in;
-                break;
-            case 5:
-                blt_dst_out = blt_dst_in;
-                break;
-            case 6:
-                blt_dst_out = blt_src_out ^ blt_dst_in;
-                break;
-            case 7:
-                blt_dst_out = blt_src_out | blt_dst_in;
-                break;
-            case 8:
-                blt_dst_out = ~blt_src_out & ~blt_dst_in;
-                break;
-            case 9:
-                blt_dst_out = ~blt_src_out ^ blt_dst_in;
-                break;
-            case 0xa:
-                blt_dst_out = ~blt_dst_in;
-                break;
-            case 0xb:
-                blt_dst_out = blt_src_out | ~blt_dst_in;
-                break;
-            case 0xc:
-                blt_dst_out = ~blt_src_out;
-                break;
-            case 0xd:
-                blt_dst_out = ~blt_src_out | blt_dst_in;
-                break;
-            case 0xe:
-                blt_dst_out = ~blt_src_out | ~blt_dst_in;
-                break;
-            case 0xf:
-                blt_dst_out = 0xffff;
-                break;
+                case 0:
+                    blt_dst_out = 0;
+                    break;
+                case 1:
+                    blt_dst_out = blt_src_out & blt_dst_in;
+                    break;
+                case 2:
+                    blt_dst_out = blt_src_out & ~blt_dst_in;
+                    break;
+                case 3:
+                    blt_dst_out = blt_src_out;
+                    break;
+                case 4:
+                    blt_dst_out = ~blt_src_out & blt_dst_in;
+                    break;
+                case 5:
+                    blt_dst_out = blt_dst_in;
+                    break;
+                case 6:
+                    blt_dst_out = blt_src_out ^ blt_dst_in;
+                    break;
+                case 7:
+                    blt_dst_out = blt_src_out | blt_dst_in;
+                    break;
+                case 8:
+                    blt_dst_out = ~blt_src_out & ~blt_dst_in;
+                    break;
+                case 9:
+                    blt_dst_out = ~blt_src_out ^ blt_dst_in;
+                    break;
+                case 0xa:
+                    blt_dst_out = ~blt_dst_in;
+                    break;
+                case 0xb:
+                    blt_dst_out = blt_src_out | ~blt_dst_in;
+                    break;
+                case 0xc:
+                    blt_dst_out = ~blt_src_out;
+                    break;
+                case 0xd:
+                    blt_dst_out = ~blt_src_out | blt_dst_in;
+                    break;
+                case 0xe:
+                    blt_dst_out = ~blt_src_out | ~blt_dst_in;
+                    break;
+                case 0xf:
+                    blt_dst_out = 0xffff;
+                    break;
             }
 
             /* and endmask */
@@ -270,9 +270,9 @@ do_blit_0(blit *blt)
 
 #if 1
     if (blt->x_cnt == 0)
-       blt->x_cnt = 65535;
+        blt->x_cnt = 65535;
     if (blt->y_cnt == 0)
-       blt->y_cnt = 65535;
+        blt->y_cnt = 65535;
 #endif
 
     x_cnt = blt->x_cnt;
@@ -281,59 +281,59 @@ do_blit_0(blit *blt)
     end_1 = ~end_1;
     end_2 = (long)yc >> 16;    // Force compiler to use 0 in a register!
     if (x_cnt > 1) {
-	end_3 = ~end_3;
-	x_cnt -= 3;
-	for(; yc >= 0; yc--) {
-	    *(UWORD *)dst_addr &= end_1;
-	    dst_addr += dst_x_inc;
-		
+        end_3 = ~end_3;
+        x_cnt -= 3;
+        for(; yc >= 0; yc--) {
+            *(UWORD *)dst_addr &= end_1;
+            dst_addr += dst_x_inc;
+
 #if 1
-	    for(xc = x_cnt; xc >= 0; xc--) {
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-	    }
+            for(xc = x_cnt; xc >= 0; xc--) {
+                SetMemW(dst_addr, end_2);
+                dst_addr += dst_x_inc;
+            }
 #else
-	    if (x_cnt >= 0) {
-     xc = ((x_cnt + 1 + 7) >> 3) - 1;
-     switch ((x_cnt + 1) & 0x07) {
-     case 0:
-         do {
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 7:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 6:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 5:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 4:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 3:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 2:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-     case 1:
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-	 } while (--xc >= 0);
-     }
-}
+            if (x_cnt >= 0) {
+                xc = ((x_cnt + 1 + 7) >> 3) - 1;
+                switch ((x_cnt + 1) & 0x07) {
+                    case 0:
+                        do {
+                            SetMemW(dst_addr, end_2);
+                            dst_addr += dst_x_inc;
+                    case 7:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                            case 6:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                            case 5:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                            case 4:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                            case 3:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                            case 2:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                            case 1:
+                                SetMemW(dst_addr, end_2);
+                                dst_addr += dst_x_inc;
+                        } while (--xc >= 0);
+                }
+            }
 #endif
-	    
-	    *(UWORD *)dst_addr &= end_3;	
-	    dst_addr += dst_y_inc;
-	}
+
+            *(UWORD *)dst_addr &= end_3;
+            dst_addr += dst_y_inc;
+        }
     } else {
-	for(; yc >= 0; yc--) {
-	    *(UWORD *)dst_addr &= end_1;
-	    dst_addr += dst_y_inc;
-	}
+        for(; yc >= 0; yc--) {
+            *(UWORD *)dst_addr &= end_1;
+            dst_addr += dst_y_inc;
+        }
     }
 }
 
@@ -350,9 +350,9 @@ do_blit_15(blit * blt)
 
 #if 1
     if (blt->x_cnt == 0)
-       blt->x_cnt = 65535;
+        blt->x_cnt = 65535;
     if (blt->y_cnt == 0)
-       blt->y_cnt = 65535;
+        blt->y_cnt = 65535;
 #endif
 
     x_cnt = blt->x_cnt;
@@ -361,24 +361,24 @@ do_blit_15(blit * blt)
     end_2 = ~((long)yc >> 16);    // Force compiler to use 0xffff in a register!
 
     if (x_cnt > 1) {
-	x_cnt -= 3;
-	for(; yc >= 0; yc--) {
-	    *(UWORD *)dst_addr |= end_1;
-	    dst_addr += dst_x_inc;
-		
-	    for(xc = x_cnt; xc >= 0; xc--) {
-		SetMemW(dst_addr, end_2);
-		dst_addr += dst_x_inc;
-	    }
-	    
-	    *(UWORD *)dst_addr |= end_3;
-	    dst_addr += dst_y_inc;
-	}
+        x_cnt -= 3;
+        for(; yc >= 0; yc--) {
+            *(UWORD *)dst_addr |= end_1;
+            dst_addr += dst_x_inc;
+
+            for(xc = x_cnt; xc >= 0; xc--) {
+                SetMemW(dst_addr, end_2);
+                dst_addr += dst_x_inc;
+            }
+
+            *(UWORD *)dst_addr |= end_3;
+            dst_addr += dst_y_inc;
+        }
     } else {
-	for(; yc >= 0; yc--) {
-	    *(UWORD *)dst_addr |= end_1;
-	    dst_addr += dst_y_inc;
-	}
+        for(; yc >= 0; yc--) {
+            *(UWORD *)dst_addr |= end_1;
+            dst_addr += dst_y_inc;
+        }
     }
 }
 #endif
@@ -396,8 +396,8 @@ do_blit_short_32(blit *blt)
     WORD end_1;
     void *my_op;
     static void *ops[] = {
-	&&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
-	&&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
+        &&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
+        &&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
     };
 
     skew      = blt->skew;
@@ -411,21 +411,21 @@ do_blit_short_32(blit *blt)
     yc = blt->y_cnt;
 #if 1
     if (yc == 0)
-	yc = 65535;
+        yc = 65535;
 #endif
 
     if (blt->op < 2)
-	end_1 = ~end_1;
+        end_1 = ~end_1;
     my_op = ops[blt->op];
 
 #if 1
     do {
-	blt_src_in = GetMemW(src_addr);
-	blt_src_in <<= 16;
-	src_addr += src_x_inc;
-	blt_src_in |= GetMemW(src_addr);
-	if (src_x_inc < 0)
-	    blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
+        blt_src_in = GetMemW(src_addr);
+        blt_src_in <<= 16;
+        src_addr += src_x_inc;
+        blt_src_in |= GetMemW(src_addr);
+        if (src_x_inc < 0)
+            blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
 #else
     if (src_x_inc < 0) {
         src_addr += src_x_inc;
@@ -433,82 +433,82 @@ do_blit_short_32(blit *blt)
     }
     src_y_inc += src_x_inc;
     do {
-	blt_src_in = GetMemW(src_addr);
-	blt_src_in <<= 16;
-	blt_src_in |= GetMemW(src_addr + src_x_inc);
+        blt_src_in = GetMemW(src_addr);
+        blt_src_in <<= 16;
+        blt_src_in |= GetMemW(src_addr + src_x_inc);
 #endif
 
-	/* Shift blt->skew times into blt_src_out */
-	blt_src_out = blt_src_in >> skew;
+        /* Shift blt->skew times into blt_src_out */
+        blt_src_out = blt_src_in >> skew;
 
-	goto *my_op;
+        goto *my_op;
 
 op0:
-	*(UWORD *)dst_addr &= end_1;
-	goto op_end;
+        *(UWORD *)dst_addr &= end_1;
+        goto op_end;
 
 op1:
-	*(UWORD *)dst_addr &= blt_src_out | end_1;
-	goto op_end;
+        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        goto op_end;
 
 op2:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op8:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 op3:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 op4:
-	*(UWORD *)dst_addr &= ~(blt_src_out & end_1);
-	goto op_end;
+        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        goto op_end;
 
 op5:
-	goto op_end;
+        goto op_end;
 
 op9:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op6:
-	*(UWORD *)dst_addr ^= (blt_src_out & end_1);
-	goto op_end;
+        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        goto op_end;
 
 opd:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op7:
-	*(UWORD *)dst_addr |= (blt_src_out & end_1);
-	goto op_end;
+        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        goto op_end;
 
 opa:
-	*(UWORD *)dst_addr ^= end_1;
-	goto op_end;
+        *(UWORD *)dst_addr ^= end_1;
+        goto op_end;
 
 ope:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 opb:
-	blt_dst_in = GetMemW(dst_addr) ^ end_1;
-	blt_src_out = (blt_src_out & end_1) | blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr) ^ end_1;
+        blt_src_out = (blt_src_out & end_1) | blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 opc:
-	blt_dst_in = GetMemW(dst_addr) | end_1;
-	blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr) | end_1;
+        blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 opf:
-	*(UWORD *)dst_addr |= end_1;
-	goto op_end;
+        *(UWORD *)dst_addr |= end_1;
+        goto op_end;
 op_end:
 
-	src_addr += src_y_inc;
-	dst_addr += dst_y_inc;
+        src_addr += src_y_inc;
+        dst_addr += dst_y_inc;
     } while (--yc > 0);
 }
 
@@ -529,13 +529,13 @@ do_blit_short(blit *blt)
     WORD end_1;
     void *my_op;
     static void *ops[] = {
-	&&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
-	&&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
+        &&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
+        &&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
     };
 
     if (blt->hop & FXSR) {
-	do_blit_short_32(blt);
-	return;
+        do_blit_short_32(blt);
+        return;
     }
 
     skew      = blt->skew;
@@ -551,93 +551,93 @@ do_blit_short(blit *blt)
     yc = blt->y_cnt;
 #if 1
     if (yc == 0)
-	yc = 65535;
+        yc = 65535;
 #endif
 
     if (blt->op < 2)
-	end_1 = ~end_1;
+        end_1 = ~end_1;
     my_op = ops[blt->op];
 
     do {
-	blt_src_in = GetMemW(src_addr);
+        blt_src_in = GetMemW(src_addr);
 #if 0
-	if (src_x_inc < 0)
-	    blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
+        if (src_x_inc < 0)
+            blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
 #else
-	blt_src_in = (blt_src_in << 16) | blt_src_in;
+        blt_src_in = (blt_src_in << 16) | blt_src_in;
 #endif
 
-	/* Shift blt->skew times into blt_src_out */
-	blt_src_out = blt_src_in >> skew;
+        /* Shift blt->skew times into blt_src_out */
+        blt_src_out = blt_src_in >> skew;
 
-	goto *my_op;
+        goto *my_op;
 
 op0:
-	*(UWORD *)dst_addr &= end_1;
-	goto op_end;
+        *(UWORD *)dst_addr &= end_1;
+        goto op_end;
 
 op1:
-	*(UWORD *)dst_addr &= blt_src_out | end_1;
-	goto op_end;
+        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        goto op_end;
 
 op2:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op8:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 op3:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 op4:
-	*(UWORD *)dst_addr &= ~(blt_src_out & end_1);
-	goto op_end;
+        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        goto op_end;
 
 op5:
-	goto op_end;
+        goto op_end;
 
 op9:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op6:
-	*(UWORD *)dst_addr ^= (blt_src_out & end_1);
-	goto op_end;
+        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        goto op_end;
 
 opd:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op7:
-	*(UWORD *)dst_addr |= (blt_src_out & end_1);
-	goto op_end;
+        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        goto op_end;
 
 opa:
-	*(UWORD *)dst_addr ^= end_1;
-	goto op_end;
+        *(UWORD *)dst_addr ^= end_1;
+        goto op_end;
 
 ope:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 opb:
-	blt_dst_in = GetMemW(dst_addr) ^ end_1;
-	blt_src_out = (blt_src_out & end_1) | blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr) ^ end_1;
+        blt_src_out = (blt_src_out & end_1) | blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 opc:
-	blt_dst_in = GetMemW(dst_addr) | end_1;
-	blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op_end;
+        blt_dst_in = GetMemW(dst_addr) | end_1;
+        blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op_end;
 
 opf:
-	*(UWORD *)dst_addr |= end_1;
-	goto op_end;
+        *(UWORD *)dst_addr |= end_1;
+        goto op_end;
 op_end:
 
-	src_addr += src_y_inc;
-	dst_addr += dst_y_inc;
+        src_addr += src_y_inc;
+        dst_addr += dst_y_inc;
     } while (--yc > 0);
 }
 
@@ -656,16 +656,16 @@ do_blit(blit *blt)
     ULONG end_1;
     void *my_op, *my_op1, *my_op2, *my_op3;
     static void *ops1[] = {
-	&&op1_0, &&op1_1, &&op1_2, &&op1_3, &&op1_4, &&op1_5, &&op1_6, &&op1_7,
-	&&op1_8, &&op1_9, &&op1_a, &&op1_b, &&op1_c, &&op1_d, &&op1_e, &&op1_f
+        &&op1_0, &&op1_1, &&op1_2, &&op1_3, &&op1_4, &&op1_5, &&op1_6, &&op1_7,
+        &&op1_8, &&op1_9, &&op1_a, &&op1_b, &&op1_c, &&op1_d, &&op1_e, &&op1_f
     };
     static void *ops2[] = {
-	&&op2_0, &&op2_1, &&op2_2, &&op2_end, &&op2_4, &&op2_5, &&op2_6, &&op2_7,
-	&&op2_8, &&op2_9, &&op2_a, &&op2_b, &&op2_c, &&op2_d, &&op2_e, &&op2_f
+        &&op2_0, &&op2_1, &&op2_2, &&op2_end, &&op2_4, &&op2_5, &&op2_6, &&op2_7,
+        &&op2_8, &&op2_9, &&op2_a, &&op2_b, &&op2_c, &&op2_d, &&op2_e, &&op2_f
     };
     static void *ops3[] = {
-	&&op3_0, &&op3_1, &&op3_2, &&op3_3, &&op3_4, &&op3_5, &&op3_6, &&op3_7,
-	&&op3_8, &&op3_9, &&op3_a, &&op3_b, &&op3_c, &&op3_d, &&op3_e, &&op3_f
+        &&op3_0, &&op3_1, &&op3_2, &&op3_3, &&op3_4, &&op3_5, &&op3_6, &&op3_7,
+        &&op3_8, &&op3_9, &&op3_a, &&op3_b, &&op3_c, &&op3_d, &&op3_e, &&op3_f
     };
 
 #if DBG_BLIT
@@ -683,19 +683,19 @@ do_blit(blit *blt)
     kprintf ("HOP=%01d, OP=%02d\n", blt->hop & 0x3, blt->op);
     kprintf ("HOPline=%02d\n", blt->status & 0xf);
     kprintf ("NFSR=%d, FXSR=%d, SKEW=%02d\n", (blt->skew & NFSR) != 0,
-                                              (blt->skew & FXSR) != 0,
-                                              (blt->skew & SKEW));
+             (blt->skew & FXSR) != 0,
+             (blt->skew & SKEW));
 #endif
 
     if (blt->x_cnt == 1) {
-	do_blit_short(blt);
-	return;
+        do_blit_short(blt);
+        return;
     }
 
 #if 0
     if (blt->op == 7 && dbg) {
-      dbg = 2;
-      //        blt->op = 3;
+        dbg = 2;
+        //        blt->op = 3;
     }
 #endif
 
@@ -709,7 +709,7 @@ do_blit(blit *blt)
     end_1     = ((ULONG)blt->end_3 << 16) | (UWORD)blt->end_1;
 
     if (blt->op < 2)
-	end_1 = ~end_1;
+        end_1 = ~end_1;
     my_op1 = ops1[blt->op];
     my_op2 = ops2[blt->op];
     my_op3 = ops3[blt->op];
@@ -717,19 +717,19 @@ do_blit(blit *blt)
     yc = blt->y_cnt;
 #if 1
     if (blt->x_cnt == 0)
-       blt->x_cnt = 65535;
+        blt->x_cnt = 65535;
     if (yc == 0)
-       yc = 65535;
+        yc = 65535;
 #endif
 
     if (dbg) {
-      char buf[10];
-      access->funcs.ltoa(buf, end_1, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts(" (");
-      access->funcs.ltoa(buf, (long)blt->op, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts(")\x0a\x0d");
+        char buf[10];
+        access->funcs.ltoa(buf, end_1, 16);
+        access->funcs.puts(buf);
+        access->funcs.puts(" (");
+        access->funcs.ltoa(buf, (long)blt->op, 16);
+        access->funcs.puts(buf);
+        access->funcs.puts(")\x0a\x0d");
     }
 
     do {
@@ -738,90 +738,90 @@ do_blit(blit *blt)
         /* Next line to get rid of obnoxious compiler warnings */
         blt_src_out = blt_dst_out = 0;
 
-	xc--;
-	/* Read source into blt_src_in */
-	if (blt->hop & FXSR) {
-	    blt_src_in = GetMemW(src_addr) << 16;
-	    src_addr += src_x_inc;
-	}
-	blt_src_in |= GetMemW(src_addr);
-	src_addr += src_x_inc;
-	if (src_x_inc < 0)
-	    blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
+        xc--;
+        /* Read source into blt_src_in */
+        if (blt->hop & FXSR) {
+            blt_src_in = GetMemW(src_addr) << 16;
+            src_addr += src_x_inc;
+        }
+        blt_src_in |= GetMemW(src_addr);
+        src_addr += src_x_inc;
+        if (src_x_inc < 0)
+            blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
 
-	/* Shift blt->skew times into blt_src_out */
-	blt_src_out = blt_src_in >> skew;
+        /* Shift blt->skew times into blt_src_out */
+        blt_src_out = blt_src_in >> skew;
 
-	goto *my_op1;
+        goto *my_op1;
 op1_0:
-	*(UWORD *)dst_addr &= end_1;
-	goto op1_end;
+        *(UWORD *)dst_addr &= end_1;
+        goto op1_end;
 
 op1_1:
-	*(UWORD *)dst_addr &= blt_src_out | end_1;
-	goto op1_end;
+        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        goto op1_end;
 
 op1_2:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op1_8:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
-	SetMemW(dst_addr, blt_src_out);
-	goto op1_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
+        SetMemW(dst_addr, blt_src_out);
+        goto op1_end;
 
 op1_3:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op1_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op1_end;
 
 op1_4:
-	*(UWORD *)dst_addr &= ~(blt_src_out & end_1);
-	goto op1_end;
+        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        goto op1_end;
 
 op1_5:
-	goto op1_end;
+        goto op1_end;
 
 op1_9:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op1_6:
-	*(UWORD *)dst_addr ^= (blt_src_out & end_1);
-	goto op1_end;
+        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        goto op1_end;
 
 op1_d:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op1_7:
-	*(UWORD *)dst_addr |= (blt_src_out & end_1);
-	goto op1_end;
+        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        goto op1_end;
 
 op1_a:
-	*(UWORD *)dst_addr ^= end_1;
-	goto op1_end;
+        *(UWORD *)dst_addr ^= end_1;
+        goto op1_end;
 
 op1_e:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op1_b:
-	blt_dst_in = GetMemW(dst_addr) ^ end_1;
-	blt_src_out = (blt_src_out & end_1) | blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op1_end;
+        blt_dst_in = GetMemW(dst_addr) ^ end_1;
+        blt_src_out = (blt_src_out & end_1) | blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op1_end;
 
 op1_c:
-	blt_dst_in = GetMemW(dst_addr) | end_1;
-	blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op1_end;
+        blt_dst_in = GetMemW(dst_addr) | end_1;
+        blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op1_end;
 
 op1_f:
-	*(UWORD *)dst_addr |= end_1;
-	goto op1_end;
+        *(UWORD *)dst_addr |= end_1;
+        goto op1_end;
 op1_end:
 
-	if (xc) {
-	    dst_addr += dst_x_inc;
-	}
+        if (xc) {
+            dst_addr += dst_x_inc;
+        }
 
-	my_op = my_op2;
+        my_op = my_op2;
         while (--xc > 0) {
             if (src_x_inc >= 0) {
                 blt_src_in <<= 16;
@@ -835,161 +835,161 @@ op1_end:
             /* Shift blt->skew times into blt_src_out */
             blt_src_out = blt_src_in >> skew;
 
-	    goto *my_op;
+            goto *my_op;
 op2_0:
-	    blt_src_out = 0;
-	    goto op2_end;
+            blt_src_out = 0;
+            goto op2_end;
 
 op2_4:
-	    blt_src_out = ~blt_src_out;
+            blt_src_out = ~blt_src_out;
 op2_1:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = blt_src_out & blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = blt_src_out & blt_dst_in;
+            goto op2_end;
 
 op2_2:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = blt_src_out & ~blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = blt_src_out & ~blt_dst_in;
+            goto op2_end;
 
 op2_3:
-	    goto op2_end;
+            goto op2_end;
 
 op2_5:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = blt_dst_in;
+            goto op2_end;
 
 op2_9:
-	    blt_src_out = ~blt_src_out;
+            blt_src_out = ~blt_src_out;
 op2_6:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = blt_src_out ^ blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = blt_src_out ^ blt_dst_in;
+            goto op2_end;
 
 op2_d:
-	    blt_src_out = ~blt_src_out;
+            blt_src_out = ~blt_src_out;
 op2_7:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = blt_src_out | blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = blt_src_out | blt_dst_in;
+            goto op2_end;
 
 op2_8:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = ~(blt_src_out | blt_dst_in);
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = ~(blt_src_out | blt_dst_in);
+            goto op2_end;
 
 op2_a:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = ~blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = ~blt_dst_in;
+            goto op2_end;
 
 op2_e:
-	    blt_src_out = ~blt_src_out;
+            blt_src_out = ~blt_src_out;
 op2_b:
-	    blt_dst_in = GetMemW(dst_addr);
-	    blt_src_out = blt_src_out | ~blt_dst_in;
-	    goto op2_end;
+            blt_dst_in = GetMemW(dst_addr);
+            blt_src_out = blt_src_out | ~blt_dst_in;
+            goto op2_end;
 
 op2_c:
-	    blt_src_out = ~blt_src_out;
-	    goto op2_end;
+            blt_src_out = ~blt_src_out;
+            goto op2_end;
 
 op2_f:
-	    blt_src_out = 0xffff;
-	    goto op2_end;
+            blt_src_out = 0xffff;
+            goto op2_end;
 op2_end:
 
             SetMemW(dst_addr, blt_src_out);
-	    dst_addr += dst_x_inc;
+            dst_addr += dst_x_inc;
         }
 
-	/* Read source into blt_src_in */
-	if (src_x_inc >= 0) {
-	  blt_src_in <<= 16;
-	  if (blt->hop & NFSR) {
-	    src_addr -= src_x_inc;
-	  } else {
-	    blt_src_in |= GetMemW(src_addr);
-	  }
-	} else {
-	  blt_src_in >>= 16;
-	  if (blt->hop & NFSR) {
-	    src_addr -= src_x_inc;
-	  } else {
-	    blt_src_in |= (GetMemW(src_addr) << 16);
-	  }
-	}
+        /* Read source into blt_src_in */
+        if (src_x_inc >= 0) {
+            blt_src_in <<= 16;
+            if (blt->hop & NFSR) {
+                src_addr -= src_x_inc;
+            } else {
+                blt_src_in |= GetMemW(src_addr);
+            }
+        } else {
+            blt_src_in >>= 16;
+            if (blt->hop & NFSR) {
+                src_addr -= src_x_inc;
+            } else {
+                blt_src_in |= (GetMemW(src_addr) << 16);
+            }
+        }
 
-	/* Shift blt->skew times into blt_src_out */
-	blt_src_out = blt_src_in >> skew;
+        /* Shift blt->skew times into blt_src_out */
+        blt_src_out = blt_src_in >> skew;
 
-	end_1 = (end_1 >> 16) | (end_1 << 16);
-	goto *my_op3;
+        end_1 = (end_1 >> 16) | (end_1 << 16);
+        goto *my_op3;
 op3_0:
-	*(UWORD *)dst_addr &= end_1;
-	goto op3_end;
+        *(UWORD *)dst_addr &= end_1;
+        goto op3_end;
 
 op3_1:
-	*(UWORD *)dst_addr &= blt_src_out | end_1;
-	goto op3_end;
+        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        goto op3_end;
 
 op3_2:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op3_8:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
-	SetMemW(dst_addr, blt_src_out);
-	goto op3_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out & end_1) | blt_dst_in) ^ end_1;
+        SetMemW(dst_addr, blt_src_out);
+        goto op3_end;
 
 op3_3:
-	blt_dst_in = GetMemW(dst_addr);
-	blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op3_end;
+        blt_dst_in = GetMemW(dst_addr);
+        blt_src_out = ((blt_src_out ^ blt_dst_in) & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op3_end;
 
 op3_4:
-	*(UWORD *)dst_addr &= ~(blt_src_out & end_1);
-	goto op3_end;
+        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        goto op3_end;
 
 op3_5:
-	goto op3_end;
+        goto op3_end;
 
 op3_9:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op3_6:
-	*(UWORD *)dst_addr ^= (blt_src_out & end_1);
-	goto op3_end;
+        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        goto op3_end;
 
 op3_d:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op3_7:
-	*(UWORD *)dst_addr |= (blt_src_out & end_1);
-	goto op3_end;
+        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        goto op3_end;
 
 op3_a:
-	*(UWORD *)dst_addr ^= end_1;
-	goto op3_end;
+        *(UWORD *)dst_addr ^= end_1;
+        goto op3_end;
 
 op3_e:
-	blt_src_out ^= end_1;
+        blt_src_out ^= end_1;
 op3_b:
-	blt_dst_in = GetMemW(dst_addr) ^ end_1;
-	blt_src_out = (blt_src_out & end_1) | blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op3_end;
+        blt_dst_in = GetMemW(dst_addr) ^ end_1;
+        blt_src_out = (blt_src_out & end_1) | blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op3_end;
 
 op3_c:
-	blt_dst_in = GetMemW(dst_addr) | end_1;
-	blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
-	SetMemW(dst_addr, blt_src_out);
-	goto op3_end;
+        blt_dst_in = GetMemW(dst_addr) | end_1;
+        blt_src_out = (blt_src_out & end_1) ^ blt_dst_in;
+        SetMemW(dst_addr, blt_src_out);
+        goto op3_end;
 
 op3_f:
-	*(UWORD *)dst_addr |= end_1;
-	goto op3_end;
+        *(UWORD *)dst_addr |= end_1;
+        goto op3_end;
 op3_end:
-	end_1 = (end_1 >> 16) | (end_1 << 16);
+        end_1 = (end_1 >> 16) | (end_1 << 16);
 
         src_addr += src_y_inc;
         dst_addr += dst_y_inc;
@@ -1118,7 +1118,7 @@ bit_blt(struct blit_frame *info)
         /* Merge both end masks into Endmask1. */
         lendmask &= rendmask;           /* Single word end mask */
 #if 0
-	rendmask = lendmask;
+        rendmask = lendmask;
 #endif
         skew_idx |= 0x0004;             /* Single word dst */
         /* The other end masks will be ignored by the BLiTTER */
@@ -1126,54 +1126,54 @@ bit_blt(struct blit_frame *info)
 
     /* Calculate starting addresses */
     s_addr = (ULONG)info->s_form +
-             (ULONG)info->s_ymin * (ULONG)info->s_nxln +
-             (ULONG)s_xmin_off   * (ULONG)info->s_nxwd;
+            (ULONG)info->s_ymin * (ULONG)info->s_nxln +
+            (ULONG)s_xmin_off   * (ULONG)info->s_nxwd;
     d_addr = (ULONG)info->d_form +
-             (ULONG)info->d_ymin * (ULONG)info->d_nxln +
-             (ULONG)d_xmin_off   * (ULONG)info->d_nxwd;
+            (ULONG)info->d_ymin * (ULONG)info->d_nxln +
+            (ULONG)d_xmin_off   * (ULONG)info->d_nxwd;
 
 #if 0
-      if (info->b_ht != 1)
+    if (info->b_ht != 1)
     {
-      char buf[10];
-      access->funcs.ltoa(buf, (long)s_addr, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts("->");
-      access->funcs.ltoa(buf, (long)d_addr, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts(" : ");
-      access->funcs.ltoa(buf, (long)info->s_nxwd, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(" , ");
-      access->funcs.ltoa(buf, (long)info->d_nxwd, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(" ; ");
-      access->funcs.ltoa(buf, (long)(info->s_nxln - info->s_nxwd * s_span), 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(" , ");
-      access->funcs.ltoa(buf, (long)(info->d_nxln - info->d_nxwd * d_span), 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(" * ");
-      access->funcs.ltoa(buf, (long)info->b_ht, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts("\x0a\x0d");
+        char buf[10];
+        access->funcs.ltoa(buf, (long)s_addr, 16);
+        access->funcs.puts(buf);
+        access->funcs.puts("->");
+        access->funcs.ltoa(buf, (long)d_addr, 16);
+        access->funcs.puts(buf);
+        access->funcs.puts(" : ");
+        access->funcs.ltoa(buf, (long)info->s_nxwd, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(" , ");
+        access->funcs.ltoa(buf, (long)info->d_nxwd, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(" ; ");
+        access->funcs.ltoa(buf, (long)(info->s_nxln - info->s_nxwd * s_span), 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(" , ");
+        access->funcs.ltoa(buf, (long)(info->d_nxln - info->d_nxwd * d_span), 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(" * ");
+        access->funcs.ltoa(buf, (long)info->b_ht, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts("\x0a\x0d");
     }
 #endif
 
 #if 1
     if (s_addr < d_addr) {
 #else
-      //    if ((info->s_form == info->d_form) && (s_addr < d_addr)) {
-      //    if ((info->s_form != info->d_form) || (s_addr < d_addr)) {
+    //    if ((info->s_form == info->d_form) && (s_addr < d_addr)) {
+    //    if ((info->s_form != info->d_form) || (s_addr < d_addr)) {
     if (1) {
 #endif
         /* Start from lower right corner, so add width+length */
-        s_addr = (ULONG)info->s_form + 
-                 (ULONG)info->s_ymax * (ULONG)info->s_nxln +
-                 (ULONG)s_xmax_off   * (ULONG)info->s_nxwd;
+        s_addr = (ULONG)info->s_form +
+                (ULONG)info->s_ymax * (ULONG)info->s_nxln +
+                (ULONG)s_xmax_off   * (ULONG)info->s_nxwd;
         d_addr = (ULONG)info->d_form +
-                 (ULONG)info->d_ymax * (ULONG)info->d_nxln +
-                 (ULONG)d_xmax_off   * (ULONG)info->d_nxwd;
+                (ULONG)info->d_ymax * (ULONG)info->d_nxln +
+                (ULONG)d_xmax_off   * (ULONG)info->d_nxwd;
 
         /* Offset between consecutive words in planes */
         blt->src_x_inc = -info->s_nxwd;
@@ -1193,10 +1193,10 @@ bit_blt(struct blit_frame *info)
             skew_idx |= 0x0001;         /* d6[bit0]<- Alignment flag */
     } else {
 #if 0
-      if (info->b_ht != 1)
-    {
-      access->funcs.puts("******* Top to bottom **********\x0a\x0d");
-    }
+        if (info->b_ht != 1)
+        {
+            access->funcs.puts("******* Top to bottom **********\x0a\x0d");
+        }
 #endif
         /* Offset between consecutive words in planes */
         blt->src_x_inc = info->s_nxwd;
@@ -1216,36 +1216,36 @@ bit_blt(struct blit_frame *info)
             skew_idx |= 0x0001;         /* Alignment flag */
 
 #if 0
-    {
-      char buf[10];
-      access->funcs.ltoa(buf, (long)s_addr, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts("->");
-      access->funcs.ltoa(buf, (long)d_addr, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts(" : ");
-      access->funcs.ltoa(buf, (long)lendmask, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts(" , ");
-      access->funcs.ltoa(buf, (long)rendmask, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts("\x0a\x0d");
-    }
+        {
+            char buf[10];
+            access->funcs.ltoa(buf, (long)s_addr, 16);
+            access->funcs.puts(buf);
+            access->funcs.puts("->");
+            access->funcs.ltoa(buf, (long)d_addr, 16);
+            access->funcs.puts(buf);
+            access->funcs.puts(" : ");
+            access->funcs.ltoa(buf, (long)lendmask, 16);
+            access->funcs.puts(buf);
+            access->funcs.puts(" , ");
+            access->funcs.ltoa(buf, (long)rendmask, 16);
+            access->funcs.puts(buf);
+            access->funcs.puts("\x0a\x0d");
+        }
 #endif
 
     }
 
 #if 0
-      if (info->b_ht != 1)
+    if (info->b_ht != 1)
     {
-      char buf[10];
-      access->funcs.ltoa(buf, (long)s_addr, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts("->");
-      access->funcs.ltoa(buf, (long)d_addr, 16);
-      access->funcs.puts(buf);
-      access->funcs.puts("\x0a\x0d");
-      access->funcs.puts("\x0a\x0d");
+        char buf[10];
+        access->funcs.ltoa(buf, (long)s_addr, 16);
+        access->funcs.puts(buf);
+        access->funcs.puts("->");
+        access->funcs.ltoa(buf, (long)d_addr, 16);
+        access->funcs.puts(buf);
+        access->funcs.puts("\x0a\x0d");
+        access->funcs.puts("\x0a\x0d");
     }
 #endif
 
@@ -1488,34 +1488,34 @@ c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 #if 0
     /* Try to get everything to display! */
     if (dst_x && !(dst_x % 16))
- #if 0
+#if 0
         dst_x -= 1;
- #else
+#else
         dbg = 1;
- #endif
+#endif
 #endif
 #if 0
     if ((w != 1) || (h != 1))
     {
-      char buf[10];
-      access->funcs.ltoa(buf, src_x, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(",");
-      access->funcs.ltoa(buf, src_y, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(" ");
-      access->funcs.ltoa(buf, dst_x, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(",");
-      access->funcs.ltoa(buf, dst_y, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(" ");
-      access->funcs.ltoa(buf, w, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts(",");
-      access->funcs.ltoa(buf, h, 10);
-      access->funcs.puts(buf);
-      access->funcs.puts("\x0a\x0d");
+        char buf[10];
+        access->funcs.ltoa(buf, src_x, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(",");
+        access->funcs.ltoa(buf, src_y, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(" ");
+        access->funcs.ltoa(buf, dst_x, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(",");
+        access->funcs.ltoa(buf, dst_y, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(" ");
+        access->funcs.ltoa(buf, w, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts(",");
+        access->funcs.ltoa(buf, h, 10);
+        access->funcs.puts(buf);
+        access->funcs.puts("\x0a\x0d");
     }
 #endif
 
@@ -1536,38 +1536,38 @@ c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
     info.s_nxpl = 0;            /* Use only one plane of source */
 
     switch(operation) {
-    case 2:
-        info.op_tab[0] = 04;    /* fg:0 bg:0  D' <- [not S] and D */
-        info.op_tab[2] = 07;    /* fg:1 bg:0  D' <- S or D */
-        info.fg_col = foreground;       /* We're only interested in one color */
-        info.bg_col = 0;                /* Save the color of interest */
-        break;
+        case 2:
+            info.op_tab[0] = 04;    /* fg:0 bg:0  D' <- [not S] and D */
+            info.op_tab[2] = 07;    /* fg:1 bg:0  D' <- S or D */
+            info.fg_col = foreground;       /* We're only interested in one color */
+            info.bg_col = 0;                /* Save the color of interest */
+            break;
 
-    case 1:
-        /* CHECK: bug, that colors are reversed? */
-        info.op_tab[0] = 00;    /* fg:0 bg:0  D' <- 0 */
-        info.op_tab[1] = 12;    /* fg:0 bg:1  D' <- not S */
-        info.op_tab[2] = 03;    /* fg:1 bg:0  D' <- S */
-        info.op_tab[3] = 15;    /* fg:1 bg:1  D' <- 1 */
-        info.bg_col = background;      /* Save fore and background colors */
-        info.fg_col = foreground;
-        break;
+        case 1:
+            /* CHECK: bug, that colors are reversed? */
+            info.op_tab[0] = 00;    /* fg:0 bg:0  D' <- 0 */
+            info.op_tab[1] = 12;    /* fg:0 bg:1  D' <- not S */
+            info.op_tab[2] = 03;    /* fg:1 bg:0  D' <- S */
+            info.op_tab[3] = 15;    /* fg:1 bg:1  D' <- 1 */
+            info.bg_col = background;      /* Save fore and background colors */
+            info.fg_col = foreground;
+            break;
 
-    case 3:
-        info.op_tab[0] = 06;    /* fg:0 bg:0  D' <- S xor D */
-        info.bg_col = 0;
-        info.fg_col = 0;
-        break;
+        case 3:
+            info.op_tab[0] = 06;    /* fg:0 bg:0  D' <- S xor D */
+            info.bg_col = 0;
+            info.fg_col = 0;
+            break;
 
-    case 4:
-        info.op_tab[0] = 01;    /* fg:0 bg:0  D' <- S and D */
-        info.op_tab[1] = 13;    /* fg:0 bg:1  D' <- [not S] or D */
-        info.fg_col = 0;                /* We're only interested in one color */
-        info.bg_col = background;       /* Save the color of interest */
-        break;
+        case 4:
+            info.op_tab[0] = 01;    /* fg:0 bg:0  D' <- S and D */
+            info.op_tab[1] = 13;    /* fg:0 bg:1  D' <- [not S] or D */
+            info.fg_col = 0;                /* We're only interested in one color */
+            info.bg_col = background;       /* Save the color of interest */
+            break;
 
-    default:
-        return 1;                   /* Unsupported mode */
+        default:
+            return 1;                   /* Unsupported mode */
     }
 
     bit_blt(&info);
@@ -1620,38 +1620,38 @@ x_expand_area(Workstation *wk, MFDB *src, long src_x, long src_y,
     info.s_nxpl = 0;            /* Use only one plane of source */
 
     switch(operation) {
-    case 2:
-        info.op_tab[0] = 04;    /* fg:0 bg:0  D' <- [not S] and D */
-        info.op_tab[2] = 07;    /* fg:1 bg:0  D' <- S or D */
-        info.fg_col = foreground;       /* We're only interested in one color */
-        info.bg_col = 0;                /* Save the color of interest */
-        break;
+        case 2:
+            info.op_tab[0] = 04;    /* fg:0 bg:0  D' <- [not S] and D */
+            info.op_tab[2] = 07;    /* fg:1 bg:0  D' <- S or D */
+            info.fg_col = foreground;       /* We're only interested in one color */
+            info.bg_col = 0;                /* Save the color of interest */
+            break;
 
-    case 1:
-        /* CHECK: bug, that colors are reversed? */
-        info.op_tab[0] = 00;    /* fg:0 bg:0  D' <- 0 */
-        info.op_tab[1] = 12;    /* fg:0 bg:1  D' <- not S */
-        info.op_tab[2] = 03;    /* fg:1 bg:0  D' <- S */
-        info.op_tab[3] = 15;    /* fg:1 bg:1  D' <- 1 */
-        info.bg_col = background;      /* Save fore and background colors */
-        info.fg_col = foreground;
-        break;
+        case 1:
+            /* CHECK: bug, that colors are reversed? */
+            info.op_tab[0] = 00;    /* fg:0 bg:0  D' <- 0 */
+            info.op_tab[1] = 12;    /* fg:0 bg:1  D' <- not S */
+            info.op_tab[2] = 03;    /* fg:1 bg:0  D' <- S */
+            info.op_tab[3] = 15;    /* fg:1 bg:1  D' <- 1 */
+            info.bg_col = background;      /* Save fore and background colors */
+            info.fg_col = foreground;
+            break;
 
-    case 3:
-        info.op_tab[0] = 06;    /* fg:0 bg:0  D' <- S xor D */
-        info.bg_col = 0;
-        info.fg_col = 0;
-        break;
+        case 3:
+            info.op_tab[0] = 06;    /* fg:0 bg:0  D' <- S xor D */
+            info.bg_col = 0;
+            info.fg_col = 0;
+            break;
 
-    case 4:
-        info.op_tab[0] = 01;    /* fg:0 bg:0  D' <- S and D */
-        info.op_tab[1] = 13;    /* fg:0 bg:1  D' <- [not S] or D */
-        info.fg_col = 0;                /* We're only interested in one color */
-        info.bg_col = background;       /* Save the color of interest */
-        break;
+        case 4:
+            info.op_tab[0] = 01;    /* fg:0 bg:0  D' <- S and D */
+            info.op_tab[1] = 13;    /* fg:0 bg:1  D' <- [not S] or D */
+            info.fg_col = 0;                /* We're only interested in one color */
+            info.bg_col = background;       /* Save the color of interest */
+            break;
 
-    default:
-        return 1;                     /* Unsupported mode */
+        default:
+            return 1;                     /* Unsupported mode */
     }
 
     bit_blt(&info);
@@ -1663,53 +1663,53 @@ x_expand_area(Workstation *wk, MFDB *src, long src_x, long src_y,
 long CDECL
 c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
 {
-  MFDB dst;
-  short pixel[8], *ptr;
-  int colour, i;
+    MFDB dst;
+    short pixel[8], *ptr;
+    int colour, i;
 
-  dst.address   = pixel;
-  dst.width     = 16;
-  dst.height    = 1;
-  dst.wdwidth   = 1;
-  dst.standard  = 0;
-  dst.bitplanes = mfdb->bitplanes;
+    dst.address   = pixel;
+    dst.width     = 16;
+    dst.height    = 1;
+    dst.wdwidth   = 1;
+    dst.standard  = 0;
+    dst.bitplanes = mfdb->bitplanes;
 
-  /* Fetch one pixel in D=S mode */
-  c_blit_area(vwk, mfdb, x, y, &dst, 15, 0, 1, 1, 3);
+    /* Fetch one pixel in D=S mode */
+    c_blit_area(vwk, mfdb, x, y, &dst, 15, 0, 1, 1, 3);
 
-  colour = 0;
-  ptr = pixel;
-  for(i = mfdb->bitplanes - 1; i >= 0; --i) {
-    colour *= 2;
-    colour += *ptr++ & 1;
-  }
+    colour = 0;
+    ptr = pixel;
+    for(i = mfdb->bitplanes - 1; i >= 0; --i) {
+        colour *= 2;
+        colour += *ptr++ & 1;
+    }
 
-  return colour;
+    return colour;
 }
 
 
 long CDECL
 c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour)
 {
-  MFDB src;
-  short pixel;
+    MFDB src;
+    short pixel;
 
-  /* Don't understand any table operations yet. */
-  if ((long)vwk & 1)
-    return -1;
+    /* Don't understand any table operations yet. */
+    if ((long)vwk & 1)
+        return -1;
 
-  pixel = 0x8000;
-  src.address   = &pixel;
-  src.width     = 16;
-  src.height    = 1;
-  src.wdwidth   = 1;
-  src.standard  = 0;
-  src.bitplanes = 1;
+    pixel = 0x8000;
+    src.address   = &pixel;
+    src.width     = 16;
+    src.height    = 1;
+    src.wdwidth   = 1;
+    src.standard  = 0;
+    src.bitplanes = 1;
 
-  /* Blit a transparent (could as well have been replace mode) pixel */
-  c_expand_area(vwk, &src, 0L, 0L, mfdb, x, y, 1L, 1L, 2L, colour);
+    /* Blit a transparent (could as well have been replace mode) pixel */
+    c_expand_area(vwk, &src, 0L, 0L, mfdb, x, y, 1L, 1L, 2L, colour);
 
-  return 1;
+    return 1;
 }
 
 
@@ -1722,28 +1722,28 @@ short set_mouse_colours(Workstation *wk)
     background = x_get_colour(wk, wk->mouse.colour.background);
 
     switch (wk->screen.mfdb.bitplanes) {
-    case 1:
-	foreground = (foreground << 1) | foreground;
-	background = (background << 1) | background;
-    case 2:
-	foreground = (foreground << 2) | foreground;
-	background = (background << 2) | background;
-    case 4:
-	foreground = (foreground << 4) | foreground;
-	background = (background << 4) | background;
-	break;
+        case 1:
+            foreground = (foreground << 1) | foreground;
+            background = (background << 1) | background;
+        case 2:
+            foreground = (foreground << 2) | foreground;
+            background = (background << 2) | background;
+        case 4:
+            foreground = (foreground << 4) | foreground;
+            background = (background << 4) | background;
+            break;
     }
     foreground <<= 7;
     background <<= 7;
     for(i = 7; i >= 0; i--) {
-	colours <<= 1;
-	foreground <<= 1;
-	if (foreground & 0x8000)
-	    colours |= 1;
-	colours <<= 1;
-	background <<= 1;
-	if (background & 0x8000)
-	    colours |= 1;
+        colours <<= 1;
+        foreground <<= 1;
+        if (foreground & 0x8000)
+            colours |= 1;
+        colours <<= 1;
+        background <<= 1;
+        if (background & 0x8000)
+            colours |= 1;
     }
 
     return colours;
@@ -1754,8 +1754,8 @@ void set_mouse_shape(Mouse *mouse, short *masks)
     int i;
 
     for(i = 0; i < 16; i++) {
-	*masks++ = mouse->mask[i];
-	*masks++ = mouse->data[i];
+        *masks++ = mouse->mask[i];
+        *masks++ = mouse->data[i];
     }
 }
 
@@ -1779,10 +1779,10 @@ void set_mouse_shape(Mouse *mouse, short *masks)
 long CDECL
 c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse)
 {
-  static long CDECL (*mouse_draw[])(Workstation *, long, long, Mouse *) = {
-    0, c_mouse_draw_1, c_mouse_draw_2, 0, c_mouse_draw_4,
-    0, 0, 0, c_mouse_draw_8
-  };
-  
-  return mouse_draw[wk->screen.mfdb.bitplanes](wk, x, y, mouse);
+    static long CDECL (*mouse_draw[])(Workstation *, long, long, Mouse *) = {
+            0, c_mouse_draw_1, c_mouse_draw_2, 0, c_mouse_draw_4,
+            0, 0, 0, c_mouse_draw_8
+};
+
+    return mouse_draw[wk->screen.mfdb.bitplanes](wk, x, y, mouse);
 }

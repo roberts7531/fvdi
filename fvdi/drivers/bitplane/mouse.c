@@ -105,7 +105,7 @@ c_mouse_draw_8(Workstation *wk, long x, long y, Mouse *mouse)
     if ((long)mouse > 7) {   /* New mouse shape */
         if (fix_shape)
             return 0;
-        if (*(long *)&wk->mouse.colour != old_colours) {
+        if (* (long *) &wk->mouse.colour != old_colours) {
             colours = set_mouse_colours(wk);
             old_colours = *(long *)&wk->mouse.colour;
         }
@@ -226,7 +226,7 @@ c_mouse_draw_8(Workstation *wk, long x, long y, Mouse *mouse)
         save_state = 0;
     }
 
-    if (((long)mouse == 0) || ((long)mouse == 3)) { /* Move or Show */
+    if (((long) mouse == 0) || ((long) mouse == 3)) { /* Move or Show */
 #if LOCAL_PTR
         UWORD *dst, *save_w, *mask_start;
 #endif

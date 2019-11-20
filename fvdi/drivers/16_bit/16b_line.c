@@ -745,33 +745,33 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 #endif
         if ((pattern & 0xffff) == 0xffff) {
             switch (mode) {
-            case 1:				/* Replace */
-                s_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 2:				/* Transparent */
-                s_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 3:				/* XOR */
-                s_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 4:				/* Reverse transparent */
-                s_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
+                case 1:				/* Replace */
+                    s_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 2:				/* Transparent */
+                    s_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 3:				/* XOR */
+                    s_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 4:				/* Reverse transparent */
+                    s_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
             }
         } else {
             switch (mode) {
-            case 1:				/* Replace */
-                s_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 2:				/* Transparent */
-                s_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 3:				/* XOR */
-                s_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 4:				/* Reverse transparent */
-                s_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
+                case 1:				/* Replace */
+                    s_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 2:				/* Transparent */
+                    s_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 3:				/* XOR */
+                    s_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 4:				/* Reverse transparent */
+                    s_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
             }
         }
     } else {
@@ -779,33 +779,33 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
         addr += pos >> 1;
         if ((pattern & 0xffff) == 0xffff) {
             switch (mode) {
-            case 1:				/* Replace */
-                replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 2:				/* Transparent */
-                transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 3:				/* XOR */
-                xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 4:				/* Reverse transparent */
-                revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
+                case 1:				/* Replace */
+                    replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 2:				/* Transparent */
+                    transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 3:				/* XOR */
+                    xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 4:				/* Reverse transparent */
+                    revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
             }
         } else {
             switch (mode) {
-            case 1:				/* Replace */
-                replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 2:				/* Transparent */
-                transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 3:				/* XOR */
-                xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
-            case 4:				/* Reverse transparent */
-                revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                break;
+                case 1:				/* Replace */
+                    replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 2:				/* Transparent */
+                    transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 3:				/* XOR */
+                    xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
+                case 4:				/* Reverse transparent */
+                    revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    break;
             }
         }
 #ifdef BOTH

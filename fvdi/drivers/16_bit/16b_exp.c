@@ -383,35 +383,35 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *
     if (!to_screen || !dst_addr_fast) {
 #endif
         switch (operation) {
-        case 1:				/* Replace */
-            replace(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
-            break;
-        case 2:				/* Transparent */
-            transparent(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
-            break;
-        case 3:				/* XOR */
-            xor(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
-            break;
-        case 4:				/* Reverse transparent */
-            revtransp(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
-            break;
+            case 1:				/* Replace */
+                replace(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
+                break;
+            case 2:				/* Transparent */
+                transparent(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
+                break;
+            case 3:				/* XOR */
+                xor(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
+                break;
+            case 4:				/* Reverse transparent */
+                revtransp(src_addr, src_line_add, dst_addr, 0, dst_line_add, src_x, w, h, foreground, background);
+                break;
         }
 #ifdef BOTH
     } else {
         dst_addr_fast += dst_pos / PIXEL_SIZE;
         switch (operation) {
-        case 1:				/* Replace */
-            s_replace(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
-            break;
-        case 2:				/* Transparent */
-            s_transparent(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
-            break;
-        case 3:				/* XOR */
-            s_xor(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
-            break;
-        case 4:				/* Reverse transparent */
-            s_revtransp(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
-            break;
+            case 1:				/* Replace */
+                s_replace(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
+                break;
+            case 2:				/* Transparent */
+                s_transparent(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
+                break;
+            case 3:				/* XOR */
+                s_xor(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
+                break;
+            case 4:				/* Reverse transparent */
+                s_revtransp(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, src_x, w, h, foreground, background);
+                break;
         }
     }
 #endif

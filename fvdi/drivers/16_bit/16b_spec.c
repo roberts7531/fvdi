@@ -233,38 +233,38 @@ long check_token(char *token, const char **ptr)
 
     xtoken = token;
     switch (token[0]) {
-    case '+':
-        xtoken++;
-        normal = 1;
-        break;
-    case '-':
-        xtoken++;
-        normal = 0;
-        break;
-    default:
-        normal = 1;
-        break;
+        case '+':
+            xtoken++;
+            normal = 1;
+            break;
+        case '-':
+            xtoken++;
+            normal = 0;
+            break;
+        default:
+            normal = 1;
+            break;
     }
     for(i = 0; i < sizeof(options) / sizeof(Option); i++) {
         if (access->funcs.equal(xtoken, options[i].name)) {
             switch (options[i].type) {
-            case -1:     /* Function call */
-                return ((long (*)(const char **))options[i].varfunc)(ptr);
-            case 0:      /* Default 1, set to 0 */
-                *(short *)options[i].varfunc = 1 - normal;
-                return 1;
-            case 1:     /* Default 0, set to 1 */
-                *(short *)options[i].varfunc = normal;
-                return 1;
-            case 2:     /* Increase */
-                *(short *)options[i].varfunc += -1 + 2 * normal;
-                return 1;
-            case 3:
-                if (!(*ptr = access->funcs.skip_space(*ptr)))
-                    ;  /* *********** Error, somehow */
-                *ptr = access->funcs.get_token(*ptr, token, 80);
-                *(short *)options[i].varfunc = token[0];
-                return 1;
+                case -1:     /* Function call */
+                    return ((long (*)(const char **))options[i].varfunc)(ptr);
+                case 0:      /* Default 1, set to 0 */
+                    *(short *)options[i].varfunc = 1 - normal;
+                    return 1;
+                case 1:     /* Default 0, set to 1 */
+                    *(short *)options[i].varfunc = normal;
+                    return 1;
+                case 2:     /* Increase */
+                    *(short *)options[i].varfunc += -1 + 2 * normal;
+                    return 1;
+                case 3:
+                    if (!(*ptr = access->funcs.skip_space(*ptr)))
+                        ;  /* *********** Error, somehow */
+                    *ptr = access->funcs.get_token(*ptr, token, 80);
+                    *(short *)options[i].varfunc = token[0];
+                    return 1;
             }
         }
     }
@@ -410,12 +410,12 @@ long CDECL setup(long type, long value)
 
     ret = -1;
     switch(type) {
-    case Q_NAME:
-        ret = (long)driver_name;
-        break;
-    case S_DRVOPTION:
-        ret = tokenize((char *)value);
-        break;
+        case Q_NAME:
+            ret = (long)driver_name;
+            break;
+        case S_DRVOPTION:
+            ret = tokenize((char *)value);
+            break;
     }
 
     return ret;

@@ -7,6 +7,7 @@ drivers/16_bit/16b_line.c
 drivers/16_bit/16b_pal.c
 drivers/16_bit/16b_scr.c
 drivers/16_bit/16b_spec.c
+drivers/16_bit/Makefile
 drivers/1_dummy/1_pixel.s
 drivers/1_dummy/1_spec.c
 drivers/1_plane/1_blit.inc
@@ -28,11 +29,18 @@ drivers/aranym/fvdidrv_nfapi.h
 drivers/aranym/irq.s
 drivers/aranym/palette.c
 drivers/aranym/spec.c
+drivers/bitplane/Makefile
+drivers/bitplane/blit.c
 drivers/bitplane/blit.c
 drivers/bitplane/fill.c
+drivers/bitplane/fill.c
+drivers/bitplane/line.c
 drivers/bitplane/line.c
 drivers/bitplane/mouse.c
+drivers/bitplane/mouse.c
 drivers/bitplane/palette.c
+drivers/bitplane/palette.c
+drivers/bitplane/spec.c
 drivers/bitplane/spec.c
 drivers/common/c_common.s
 drivers/common/clip.s
