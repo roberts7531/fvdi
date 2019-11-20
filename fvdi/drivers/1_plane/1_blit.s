@@ -8,7 +8,7 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
-both		set	1	; Write in both FastRAM and on screen
+both		set	0	; Write in both FastRAM and on screen
 longs		equ	1
 get		equ	1
 mul		equ	1	; Multiply rather than use table

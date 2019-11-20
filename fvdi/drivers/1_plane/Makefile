@@ -1,118 +1,83 @@
-#!/bin/sh
-
-# This is obviously not yet an actual Makefile.
-# For now, use:
-# source Makefile
-# or something equivalent.
+#!make -f
 #
-# Look at the end for compiler version dependent things.
+# This software is licensed under the GNU General Public License.
+# Please, see LICENSE.TXT for further information.
+#
 
-gcc -o ../../utility/conv2gas/conv2gas ../../utility/conv2gas/conv2gas.c
+#
+# gcc >= 2.95.3 (sparemint) version
+#
 
-for file in ../../include/*.inc ../include/*.inc *.inc *.s ; do
-echo Converting $file $file.gnu;
+TARGET = 1_plane.sys
 
-# Comments with * in the first position on the line
-sed "s%^\*.*%%" $file >$file.gnu
-mv $file.gnu $file.tmp
+all: $(TARGET)
 
-# Comments after ; separator
-sed "s%;.*$%%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+top_srcdir = ../..
 
-# Conditional compilation
-sed "s%^\\([ \t]\+\\)ifne%\1.ifne%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^\\([ \t]\+\\)ifeq%\1.ifeq%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^\\([ \t]\+\\)else%\1.else%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^\\([ \t]\+\\)endc%\1.endif%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+include $(top_srcdir)/CONFIGVARS
 
-# Constants
-sed "s%^\\([^ \t]*\\)[ \t]\+equ[ \t]\+%\t.equiv\t\\1,%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^\\([^ \t]*\\)[ \t]\+set[ \t]\+%\t.set\t\\1,%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+CFLAGS  = $(CPUOPTS) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS)
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
-# Sections
-sed "s%^\\([ \t]\+\\)text%\1.text%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^\\([ \t]\+\\)data%\1.data%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^\\([ \t]\+\\)bss%\1.bss%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+SINCSRC = \
+	$(top_srcdir)/include/compiler.inc \
+	$(top_srcdir)/include/macros.inc \
+	$(top_srcdir)/include/types.inc \
+	$(top_srcdir)/include/vdi.inc \
+	$(top_srcdir)/drivers/include/linea.inc \
+	$(top_srcdir)/drivers/include/pixelmac.inc \
+	1_expand.inc \
+	1_fill.inc \
+	1_blit.inc
 
-# Includes
-sed "s%\.inc\"%.inc.gnu\"%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ \t]\+\\)include%\1.include%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+SSRC = \
+	../common/c_common.s \
+	../common/common.s \
+	../common/clip.s \
+	../common/lineachk.s \
+	1_blit.s \
+	1_expand.s \
+	1_fill.s \
+	1_line.s \
+	1_mouse.s \
+	1_pixel.s \
+	1_text.s
 
-# Hexadecimal numbers
-sed "s%\\$%0x%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+CSRC = \
+	../common/init.c \
+	1_spec.c
 
-# Data
-sed "s%\\([ \t]\+\\)dc.b%\1.byte%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ \t]\+\\)dc.w%\1.word%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ \t]\+\\)dc.l%\1.long%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+# handle DevPac -> gas conversions
+# defines SSRC_GNU and SINCSRC_GNU variables
+include $(top_srcdir)/utility/conv2gas/RULES
 
-# Miscellaneous directives
-sed "s%\.end\\([ \t]\+\|$\|\:\\)%.end___fix\1%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ \t]\+\\)end\\(\\([ \t]\+\\)\|$\\)%\1.end%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+# need to convert the .inc file as well
+$(SSRC_GNU): $(SINCSRC_GNU)
 
+# engine binary objects
+OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
-sed "s%^.loop1:$%1:%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^.loop2:$%2:%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%^.loop2_end:$%3:%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%,.loop1$%,1b%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%,.loop2$%,2b%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%.loop2_end$%3f%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
+$(TARGET): depend $(OBJECTS) $(LIBFILES)
+	$(LD) -Map=mapfile -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
-# Things that would be hard do deal with using sed
-../../utility/conv2gas/conv2gas $file.tmp >$file.gnu
+depend: $(CSRC)
+#	"$(CC) -MM" does not seem able to keep track of the directory of the
+#	object file, so dependencies of files outside this directory are
+#	never taken into account later. makedepend does this correctly.
+#	Unfortunately, makedepend includes system headers in its
+#	dependency lists, but you can't get everything...
+#	$(CC) -MM $(CFLAGS) $(CSRC) > depend
+	makedepend -f- -- $(CFLAGS) $(CSRC) > depend 2> /dev/null
+	sed "s#\/usr[^ ]*\.h##g" < depend  > depend2
+	sed "s#^.*: *\$$##"      < depend2 > depend
+	rm depend2
 
-# Remove temporary file
-rm $file.tmp
+strip:
+	$(STRIP) --strip-all $(TARGET)
 
-# Compile
-#m68k-atari-mint-gcc -Wa,-m68040,--defsym,gas=1,--defsym,lattice=0,-I../include,-I../drivers/include,-I../drivers/1_plane,-alh=utfil -c <$file.gnu
-#m68k-atari-mint-as -m68040 --defsym gas=1 --defsym lattice=0 -I../include -I../drivers/include -I../drivers/1_plane -alh=utfil <$file.gnu
+clean: clean_gnu
+	rm -rf $(OBJECTS)
+	rm depend
 
-done
+include depend
 
-for file in *.s.gnu ; do
-echo Assembling $file ;
-m68k-atari-mint-as -m68040 --defsym gas=1 --defsym lattice=0 -I../../include -I../include -I. -o $file.o <$file ;
-done
-
-m68k-atari-mint-gcc -O2 -c -I../../include/ 1_spec.c ../common/init.c 
-
-m68k-atari-mint-ld -o fvdi_gnu.prg -L/usr/lib/gcc-lib/m68k-atari-mint/2.95.3 \
-init.o \
-1_spec.o \
-1_expand.o \
-1_fill.o \
-1_line.o \
-1_text.o \
-1_pixel.o \
--lgcc
-
-m68k-atari-mint-strip --strip-all 1_plane.sys
-
-for file in ../../include/*.inc.gnu ../include/*.inc.gnu *.inc.gnu *.s.gnu ; do
-rm $file;
-done

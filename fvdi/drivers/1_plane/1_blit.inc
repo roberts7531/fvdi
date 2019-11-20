@@ -42,7 +42,7 @@
 	move.w		d0,d6			; Good idea?
 	beq		.loop2_end
 	lsr.w		#1,d6
-	bcc		.no_word
+	bcc		1f
 	move.w		(a0)+,d7
 	ifeq	both
         move.w		d7,(a1)+
@@ -51,8 +51,8 @@
         move.w		d7,(a4)+
         move.w		d7,(a1)+
 	endc
-	bra		.loop_start
-.no_word:
+	bra		1f
+1:
 	subq.w		#1,d6
 .loop2:
 ;	addq.l		#2,a0
@@ -70,7 +70,7 @@
 ;	move.w		d7,(a1)+
 	move.l		d7,(a1)+
 	endc
-.loop_start:
+1:
 	dbra		d6,.loop2
 .loop2_end:
 
@@ -638,7 +638,7 @@
 	move.w		d0,d6			; Good idea?
 	beq		.loop2_end
 	lsr.w		#1,d6
-	bcc		.no_word
+	bcc		1f
 	move.w		(a0)+,d7
 	ifeq	both
 	move.w		(a1),d4			; new
@@ -654,8 +654,8 @@
         move.w		d7,(a4)+
         move.w		d7,(a1)+
 	endc
-	bra		.loop_start
-.no_word:
+	bra		1f
+1:
 	subq.w		#1,d6
 .loop2:
 ;	addq.l		#2,a0
@@ -687,7 +687,7 @@
 ;	move.w		d7,(a1)+
 	move.l		d7,(a1)+
 	endc
-.loop_start:
+1:
 	dbra		d6,.loop2
 .loop2_end:
 

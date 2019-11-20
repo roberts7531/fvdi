@@ -21,6 +21,7 @@ drivers/1_plane/1_mouse.s
 drivers/1_plane/1_pixel.s
 drivers/1_plane/1_spec.c
 drivers/1_plane/1_text.s
+drivers/1_plane/Makefile
 drivers/aranym/16b_pal.c
 drivers/aranym/32b_pal.c
 drivers/aranym/8b_pal.c

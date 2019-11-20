@@ -12,7 +12,7 @@
 
 
 	lsr.w		#4,d0
-	beq		.single
+	beq		1f
 	subq.w		#1,d0			; d0.w - number of 16 pixel blocks to blit
 
 	moveq		#-1,d6
@@ -77,7 +77,7 @@
 	moveq		#1,d0
 	rts
 
-.single:
+1:
 	swap		d0
 	moveq		#-1,d6
 	lsr.w		d1,d6
@@ -88,7 +88,7 @@
 
 	move.l		d5,d2
 	swap		d2
-.sloop1:
+2:
 	move.l		a2,d7
 	move.w		(a0,d5.w),d1
 	and.w		d1,d7
@@ -112,7 +112,7 @@
 	add.w		#2,d5
 	and.w		#$001e,d5
 
-	dbra		d0,.sloop1
+	dbra		d0,1b
 
 	moveq		#1,d0
 	rts
@@ -121,7 +121,7 @@
 	label	transparent
 	addq.l		#4,a7
 	lsr.w		#4,d0
-	beq		.single
+	beq		1f
 	subq.w		#1,d0			; d0.w - number of 16 pixel blocks to blit
 
 	moveq		#-1,d3
@@ -186,7 +186,7 @@
 	moveq		#1,d0
 	rts
 
-.single:
+1:
 	swap		d0
 	moveq		#-1,d3
 	lsr.w		d1,d3
@@ -197,7 +197,7 @@
 
 	move.l		d5,d2
 	swap		d2
-.sloop1:
+1:
 	move.l		a2,d7
 	move.w		(a0,d5.w),d6
 	and.w		d3,d6
@@ -214,7 +214,7 @@
 	add.w		#2,d5
 	and.w		#$001e,d5
 
-	dbra		d0,.sloop1
+	dbra		d0,1b
 
 	moveq		#1,d0
 	rts
@@ -223,7 +223,7 @@
 	label	xor
 	addq.l		#4,a7
 	lsr.w		#4,d0
-	beq		.single
+	beq		.3f
 	subq.w		#1,d0			; d0.w - number of 16 pixel blocks to blit
 
 	moveq		#-1,d6
@@ -278,7 +278,7 @@
 	moveq		#1,d0
 	rts
 
-.single:
+1:
 	swap		d0
 	moveq		#-1,d6
 	lsr.w		d1,d6
@@ -289,7 +289,7 @@
 
 	move.l		d5,d2
 	swap		d2
-.sloop1:
+1:
 	move.w		(a0,d5.w),d7
 
 	and.w		d6,d7
@@ -303,7 +303,7 @@
 	add.w		#2,d5
 	and.w		#$001e,d5
 
-	dbra		d0,.sloop1
+	dbra		d0,1b
 
 	moveq		#1,d0
 	rts
@@ -312,7 +312,7 @@
 	label	revtransp
 	addq.l		#4,a7
 	lsr.w		#4,d0
-	beq		.single
+	beq		1b
 	subq.w		#1,d0			; d0.w - number of 16 pixel blocks to blit
 
 	moveq		#-1,d3
@@ -378,7 +378,7 @@
 	moveq		#1,d0
 	rts
 
-.single:
+3:
 	swap		d0
 	moveq		#-1,d3
 	lsr.w		d1,d3
@@ -389,7 +389,7 @@
 
 	move.l		d5,d2
 	swap		d2
-.sloop1:
+1:
 	move.l		a2,d7
 	move.w		(a0,d5.w),d6
 	not.w		d3
@@ -407,7 +407,7 @@
 	add.w		#2,d5
 	and.w		#$001e,d5
 
-	dbra		d0,.sloop1
+	dbra		d0,1b
 
 	moveq		#1,d0
 	rts
