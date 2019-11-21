@@ -40,30 +40,30 @@ fvdi_magic	equ	1969
 	xref	_basepage
 ;	xref	_fvdi_log
 	xref	_super
-	xref	default_functions,default_opcode5,default_opcode11
+	xref	default_functions, default_opcode5, default_opcode11
 	xref	clip_table
-	xref	_handle,_handle_link
-	xref	_booted,_fakeboot
-	xref	_screen_virtual,_default_virtual,_screen_wk
+	xref	_handle, _handle_link
+	xref	_booted, _fakeboot
+	xref	_screen_virtual, _default_virtual, _screen_wk
 	xref	redirect_d0
-	xref	start_unimpl,end_unimpl
+	xref	start_unimpl, end_unimpl
 	xref	_initialized
 	xref	_recheck_mtask
-	xref	_debug,_xbiosfix
-	xref	_vdi_debug,_trap2_debug,_lineA_debug
+	xref	_debug, _xbiosfix
+	xref	_vdi_debug, _trap2_debug, _lineA_debug
 	xref	_vq_gdos_value
 
 	xdef	_init
-	xdef	_trap2_address,_trap2_temp
+	xdef	_trap2_address, _trap2_temp
 	xdef	_vdi_dispatch
 	xdef	_eddi_dispatch
-	xdef	_data_start,_bss_start
-	xdef	vdi_address,_vdi_address
-	xdef	opcode5,opcode11
+	xdef	_data_start, _bss_start
+	xdef	vdi_address, _vdi_address
+	xdef	opcode5, opcode11
 	xdef	_bad_or_non_fvdi_handle
-	xdef	sub_call,_sub_call
-	xdef	_trap14_address,_trap14
-	xdef	_lineA_address,_lineA
+	xdef	sub_call, _sub_call
+	xdef	_trap14_address, _trap14
+	xdef	_lineA_address, _lineA
 
 
 	text
