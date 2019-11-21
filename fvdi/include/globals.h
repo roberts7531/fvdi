@@ -34,7 +34,7 @@ extern long trap2_address;
 extern long vdi_address;
 extern long trap14_address;
 extern long lineA_address;
-extern long bconout_address;
+extern void *bconout_address;
 
 extern void *trap2_temp;
 extern void *trap14;
@@ -46,7 +46,7 @@ extern void *init;
 extern void *data_start;
 extern void *bss_start;
 
-extern long bconout_address;
+extern void *bconout_address;
 extern void *bconout_stub;
 
 extern long mint;
