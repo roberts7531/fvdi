@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI startup
  *
  * $Id: startup.c,v 1.61 2006-12-04 07:53:55 johan Exp $
@@ -43,17 +43,17 @@
  */
 
 long basepage;
-char fake_bp[256];
+static char fake_bp[256];
 
 long old_gdos = -2;
 
-short initialized = 0;
+static short initialized = 0;
 
 short int_is_short = sizeof(int) == sizeof(short);
 
-long remove_fvdi(void);
-long setup_fvdi(unsigned long, long);
-int nvdi_patch(void);
+static long remove_fvdi(void);
+static long setup_fvdi(unsigned long, long);
+static int nvdi_patch(void);
 
 struct fVDI_cookie {
     short version;
@@ -75,7 +75,7 @@ struct NVDI_cookie {
     short flags;    /* 9*reserved, alert, reserved, linea, mouse, gemdos, error, gdos */
 };
 
-struct Readable_data {
+static struct Readable_data {
     struct fVDI_cookie cookie;
     struct FSMC_cookie fsmc_cookie;
     struct NVDI_cookie nvdi_cookie;
@@ -84,18 +84,17 @@ struct Readable_data {
 
 struct Super_data *super = 0;
 
-long old_eddi = 0;
-long old_fsmc = 0;
-long old_nvdi = 0;
+static long old_eddi = 0;
+static long old_fsmc = 0;
+static long old_nvdi = 0;
 
-long base_page;
 
 /* Stack should probably be allocated dynamically */
-char vdi_stack[8192];   /* Used to be 2048, but Standa wants 8192 for FreeType */
+static char vdi_stack[8192];   /* Used to be 2048, but Standa wants 8192 for FreeType */
 char *vdi_stack_top = &vdi_stack[sizeof(vdi_stack)];
 long vdi_stack_size = sizeof(vdi_stack);
 
-long stack_address;
+static long stack_address;
 
 static long bconout_hook(void)
 {
@@ -366,7 +365,7 @@ long startup(void)
  * Shutdown support
  * Unlinks fVDI and releases all allocated memory.
  */
-long remove_fvdi(void)
+static long remove_fvdi(void)
 {
     long ret;
 
@@ -394,7 +393,7 @@ long remove_fvdi(void)
  * If (n > 0) return driver n
  * else return next driver after -n.
  */
-Driver *find_driver(long n)
+static Driver *find_driver(long n)
 {
     List *element;
     Driver *driver;
@@ -414,7 +413,7 @@ Driver *find_driver(long n)
 /*
  * Post-install setup
  */
-long setup_fvdi(unsigned long type, long value)
+static long setup_fvdi(unsigned long type, long value)
 {
     Driver *driver;
     long ret;
@@ -453,7 +452,7 @@ long setup_fvdi(unsigned long type, long value)
  * Modify a loaded NVDI so that it will never try
  * to move itself forward in the Trap #2 chain.
  */
-int nvdi_patch(void)
+static int nvdi_patch(void)
 {
     long xbra_v, nvdi_v;
     long *addr, link, *nvdi, *test;
