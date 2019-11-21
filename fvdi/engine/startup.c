@@ -98,8 +98,8 @@ static long stack_address;
 
 static long bconout_hook(void)
 {
-    bconout_address = *(long *)0x586;
-    *(long *)0x586 = (long)&bconout_stub;
+    bconout_address = * (void  **) 0x586;
+    * (void **) 0x586 = &bconout_stub;
 
     return 0;
 }
