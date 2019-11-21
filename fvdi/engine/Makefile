@@ -23,13 +23,13 @@ else
  STDLIB_CFLAGS = -I$(top_srcdir)/modules/include $(M68K_ATARI_MINT_CFLAGS)
 endif
 
-CFLAGS  = -g $(CPUOPTS) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
+CFLAGS  = $(CPUOPTS) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
 
 ifeq ($(DEBUG),yes)
 M68K_ATARI_MINT_CFLAGS += -DDEBUG
 endif
-ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include \
-	  -I$(top_srcdir)/drivers/1_plane
+
+ASFLAGS := $(ASFLAGS) -I$(top_srcdir)/drivers/1_plane
 
 # FreeType2 things
 ifneq ($(ft2_srcdir),)
@@ -37,12 +37,12 @@ ifneq ($(ft2_srcdir),)
   LIBKERN = $(libkern_srcdir)/libkern$(CPU).a
   #LIBS  := -lft2 -lkern$(CPU) $(LIBS)
   LIBS   := -lft2 -lkern020-60 $(LIBS)
-  LDFLAGS = -g -L$(top_srcdir)/modules/ft2 -L$(libkern_srcdir)
+  LDFLAGS = -L$(top_srcdir)/modules/ft2 -L$(libkern_srcdir)
   CFLAGS += -DUSE_LIBKERN
  else
   LIBKERN =
   LIBS   := -lft2 $(LIBS)
-  LDFLAGS = -g -L$(top_srcdir)/modules/ft2
+  LDFLAGS = -L$(top_srcdir)/modules/ft2
  endif
 
  LIBFT2  = $(top_srcdir)/modules/ft2/libft2.a
@@ -145,7 +145,7 @@ ifneq ($(stdlib_srcdir),)
 endif
 
 %.S.o: %.S
-	$(CC) -g $(ASFLAGS) -Dgas=1 -Dlattice=0 -D__cpu__=$(CPU) -o $@ -c $<
+	$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 -D__cpu__=$(CPU) -o $@ -c $<
 
 $(LIBKERN):
 	cd $(libkern_srcdir); make 020-60
@@ -154,7 +154,7 @@ $(LIBFT2):
 	cd $(top_srcdir)/modules/ft2; make
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(LD) -g -o $@ -Map mapfile $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(LD) -nostdlib --freestanding -o $@ -Map mapfile $(OBJECTS) $(LDFLAGS) $(LIBS)
 	$(FLAGS) -S $@
 
 $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
