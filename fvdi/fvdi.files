@@ -105,6 +105,7 @@ engine/draw.s
 engine/escape.c
 engine/escape.h
 engine/expand.s
+engine/fill_sq.s
 engine/fonts.c
 engine/fvdi.s
 engine/gnu.s
