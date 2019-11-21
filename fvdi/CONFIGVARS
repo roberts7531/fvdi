@@ -23,7 +23,9 @@ else
 endif
 
 # Debug build (mainly FreeType2 debugs here)
+ifndef DEBUG
 DEBUG  = no
+endif
 
 # CPU to compile for
 ifndef CPU
@@ -36,9 +38,14 @@ else
 	CPUOPS = -m68$(CPU)
 endif
 
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+
 # General compilation and optimization options (CFLAGS)
-OPTS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall -g
-# OPTS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -mshort
+CFLAGS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
+ifdef DEBUG
+CFLAGS += -g
+ASFLAGS += -g
+endif
 
 # If building for 68000 (no long multiply instruction),
 # we need to link with libgcc.
