@@ -1,8 +1,8 @@
-﻿M68K_ATARI_MINT_CROSS:=yes
+M68K_ATARI_MINT_CROSS:=yes
 CPU=020
 DEBUG=no
 
-SUBDIRS := engine modules/ft2 drivers/bitplane
+SUBDIRS := engine modules/ft2 drivers/bitplane utility/structer
 TARGETS := all clean
 
 .PHONY: all clean $(SUBDIRS)

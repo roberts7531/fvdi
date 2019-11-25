@@ -562,6 +562,7 @@ modules/include/setjmp.h
 modules/include/stdio.h
 modules/include/stdlib.h
 modules/include/string.h
+utility/acc/Makefile
 utility/acc/dloghndl.c
 utility/acc/dlogtble.c
 utility/acc/dodialog.c
