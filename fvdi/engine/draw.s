@@ -351,7 +351,7 @@ c_v_pline:
 
 
 .wide_line:
-	move.l	d0,d1
+	move.l	d0,d1		; this is the line color
 	clr.l	-(a7)
 	bsr	allocate_block
 	addq.l	#4,a7

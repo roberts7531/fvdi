@@ -145,6 +145,7 @@ include/types.inc
 include/utility.h
 include/vdi.inc
 modules/ft2/Makefile
+modules/ft2/Makefile
 modules/ft2/atari2bics.c
 modules/ft2/atari2unicode.c
 modules/ft2/bics2unicode.c
@@ -580,6 +581,7 @@ utility/conv2gas/RULES
 utility/conv2gas/conv2gas.c
 utility/profiler/analyzer.c
 utility/profiler/reset.c
+utility/structer/Makefile
 utility/structer/dos2unix/dos2unix.c
 utility/structer/expr.c
 utility/structer/expr.h

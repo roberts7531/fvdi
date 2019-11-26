@@ -41,10 +41,14 @@ else
 	CPUFLAGS = -mcpu=547x
 endif
 
+# we do not intend to fix any warnings we inherit from the FreeType2 sources
+# consequently, we suppress all warnings here
+NOWARN_CFLAGS := $(filter-out -Wall,$(M68K_ATARI_MINT_CFLAGS)) -w
+
 ifneq ($(stdlib_srcdir),)
-CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
+CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include $(NOWARN_CFLAGS)
 else
-CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
+CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include $(NOWARN_CFLAGS)
 endif
 
 #

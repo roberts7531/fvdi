@@ -27,6 +27,7 @@ CFLAGS  = $(CPUOPTS) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
 
 ifeq ($(DEBUG),yes)
 M68K_ATARI_MINT_CFLAGS += -DDEBUG
+CFLAGS += -DDEBUG
 endif
 
 ASFLAGS := $(ASFLAGS) -I$(top_srcdir)/drivers/1_plane

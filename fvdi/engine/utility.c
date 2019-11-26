@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI utility functions
  *
  * $Id: utility.c,v 1.35 2006-12-06 14:34:46 standa Exp $
@@ -226,7 +226,7 @@ long set_cookie(const char *name, long value)
  * Initialize an internal memory pool.
  * Returns zero on error.
  */
-long initialize_pool(long size, long n)
+long initialize_pool(size_t size, long n)
 {
     char *addr, *ptr;
 
@@ -252,7 +252,7 @@ long initialize_pool(long size, long n)
 /*
  * Allocate a block from the internal memory pool.
  */
-char *allocate_block(long size)
+char *allocate_block(size_t size)
 {
     char *addr;
 
@@ -260,7 +260,7 @@ char *allocate_block(long size)
         return 0;
 
     addr = block_chain;
-    block_chain = *(char **)addr;
+    block_chain = * (char **) addr;
     *(long *)addr = block_size;    /* Make size info available */
 
     return addr;

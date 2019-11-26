@@ -74,4 +74,4 @@ clean: clean_gnu
 	rm -rf $(OBJECTS)
 	rm depend
 
-include depend
+-include depend

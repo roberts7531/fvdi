@@ -1,4 +1,4 @@
-﻿/* No debugging right now! */
+/* No debugging right now! */
 #undef DEB
 /*
  * fVDI text handling
@@ -10,6 +10,7 @@
  * Please, see LICENSE.TXT for further information.
  */
 
+#include <stdlib.h>
 #include "fvdi.h"
 #include "function.h"
 #include "globals.h"

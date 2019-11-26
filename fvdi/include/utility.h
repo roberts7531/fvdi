@@ -33,8 +33,8 @@ void check_cookies(void);
 /*
  * Memory pool allocation (from set of same sized blocks)
  */
-long initialize_pool(long size, long n);
-char *allocate_block(long size);
+long initialize_pool(size_t size, long n);
+char *allocate_block(size_t size);
 void free_block(void *addr);
 
 

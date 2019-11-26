@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI preferences and driver loader
  *
  * $Id: loader.c,v 1.35 2006-11-28 12:18:14 johan Exp $
@@ -87,7 +87,7 @@ short xbiosfix = 0;
 short singlebend = 0;
 short memlink = 1;
 short blocks = BLOCKS;
-long block_size = BLOCK_SIZE * 1024;
+size_t block_size = BLOCK_SIZE * 1024L;
 long log_size = 1000;
 short arc_split = 16384;  /* 1/4 as many lines as largest ellipse axel radius in pixels */
 short arc_min = 16;       /* Minimum number of lines in an ellipse */

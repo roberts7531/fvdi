@@ -38,4 +38,4 @@ $(BISONOUT):	struct.y
 $(FLEXOUT):	struct.lex
 	flex $(FLEXFLAGS) struct.lex
 
-include depend
+-include depend
