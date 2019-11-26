@@ -5,7 +5,7 @@
  *
  * $Id: globals.h,v 1.14 2006-02-21 20:16:44 standa Exp $
  *
- * Copyright 2003, Johan Klockars 
+ * Copyright 2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.
  */
@@ -54,7 +54,7 @@ extern long magic;
 
 extern void* dummy_vdi;
 
-extern Function default_functions[];
+extern Function *default_functions;
 extern void *default_opcode5[];
 extern void *default_opcode11[];
 

@@ -37,7 +37,7 @@ short vbl_handler_installed = 0;
 
 Workstation *screen_wk  = 0;
 Virtual     *screen_vwk = 0;
-void *old_curv = 0;
+static void *old_curv = 0;
 void *old_timv = 0;
 
 
@@ -66,26 +66,29 @@ Virtual *initialize_vdi(void)
 
     func_tab_start = &((Workstation *) tmp)->function[-1] - (long) tmp;
     dummy_wk = (Workstation *)(tmp + sizeof(Workstation *) + sizeof(short) - func_tab_start);
-    dummy_vwk = (Virtual *)tmp;
-    dummy_vwk->real_address = (void *)dummy_wk;
+    dummy_vwk = (Virtual *) tmp;
+    dummy_vwk->real_address = (void *) dummy_wk;
     dummy_vwk->standard_handle = -1;
-    for(i = -1; i < 256; i ++) {
+    for (i = -1; i < 256; i ++)
+    {
         dummy_wk->function[i].retvals[0] = 0;
         dummy_wk->function[i].retvals[1] = 0;
         dummy_wk->function[i].code = bad_or_non_fvdi_handle;
     }
     non_fvdi_wk = dummy_wk;
     non_fvdi_vwk = dummy_vwk;
-    for(i = 0; i < HANDLES; i++)
+    for (i = 0; i < HANDLES; i++)
         handle[i] = dummy_vwk;
 
 
-    if (!(wk = (Workstation *) malloc(sizeof(Workstation)))) {
+    if (!(wk = malloc(sizeof(Workstation))))
+    {
         free(tmp);
         return 0;
     }
 
-    if (!(vwk = (Virtual *) malloc(sizeof(Virtual)))) {
+    if (!(vwk = malloc(sizeof(Virtual))))
+    {
         free(wk);
         free(tmp);
         return 0;
@@ -198,8 +201,8 @@ Virtual *initialize_vdi(void)
     wk->r.text     = &default_text;
     wk->r.mouse    = 0;
 
-    copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function));
-    wk->opcode5_count = *(short *)((long)default_opcode5 - 2);
+    copymem(default_functions - 1, wk->function - 1, 257 * sizeof(Function));
+    wk->opcode5_count = *(short *)((long) default_opcode5 - 2);
     copymem(default_opcode5, wk->opcode5, (wk->opcode5_count + 1) * sizeof(void *));
     wk->opcode11_count = *(short *)((long)default_opcode11 - 2);
     copymem(default_opcode11, wk->opcode11, (wk->opcode11_count + 1) * sizeof(void *));
@@ -209,6 +212,7 @@ Virtual *initialize_vdi(void)
     vwk->clip.rectangle.y1 = 0;
     vwk->clip.rectangle.x2 = 0;
     vwk->clip.rectangle.y2 = 0;
+
     vwk->text.colour.background = WHITE;
     vwk->text.colour.foreground = BLACK;
     vwk->text.effects = 0;
@@ -218,6 +222,7 @@ Virtual *initialize_vdi(void)
     vwk->text.charmap = 1;	      /* ASCII words mapping */
     vwk->text.font = 0;
     vwk->text.current_font = 0;        /* Address will be set on first call to vst_font */
+
     vwk->line.colour.background = WHITE;
     vwk->line.colour.foreground = BLACK;
     vwk->line.width = 1;
@@ -225,13 +230,16 @@ Virtual *initialize_vdi(void)
     vwk->line.ends.beginning = 0;
     vwk->line.ends.end = 0;
     vwk->line.user_mask = 0xffff;
+
     vwk->bezier.on = 0;                /* Should these really be per vwk? */
     vwk->bezier.depth_scale = 0;
+
     vwk->marker.colour.background = WHITE;
     vwk->marker.colour.foreground = BLACK;
     vwk->marker.size.height = 11;
     vwk->marker.size.width = 15;
     vwk->marker.type = 3;
+
     vwk->fill.colour.background = WHITE;
     vwk->fill.colour.foreground = BLACK;
     vwk->fill.interior = 0;
@@ -240,10 +248,13 @@ Virtual *initialize_vdi(void)
     vwk->fill.user.pattern.in_use = 0;
     vwk->fill.user.pattern.extra = 0;
     vwk->fill.user.multiplane = 0;
+
     vwk->mode = 1;
 
     vwk->real_address = (void *)wk;
+
     vwk->standard_handle = 1;
+
     vwk->palette = 0;
 
     default_virtual = vwk;     /* handle[0]? */
@@ -267,9 +278,11 @@ void setup_colours(Virtual *vwk)
 
     wk = vwk->real_address;
     size = wk->screen.palette.size;
-    for(i = 0; i < size; i++) {
+    for (i = 0; i < size; i++)
+    {
         vq_color(handle, i, 0, intout);
-        if (intout[0] == -1) {
+        if (intout[0] == -1)
+        {
             size = i;           /* Should not really happen */
             break;
         }
@@ -290,12 +303,12 @@ void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
     Virtual *vwk;
     short tmp;
 
-    vwk = (Virtual *)malloc(sizeof(Virtual) + 32);  /* Extra for fill pattern */
+    vwk = malloc(sizeof(Virtual) + 32);  /* Extra for fill pattern */
     if (!vwk)
         return;
 
     copymem(def, vwk, sizeof(Virtual));
-    vwk->fill.user.pattern.in_use = (short *)&vwk[1];  /* Right behind vwk */
+    vwk->fill.user.pattern.in_use = (short *) &vwk[1];  /* Right behind vwk */
     vwk->fill.user.pattern.extra = 0;
     vwk->fill.user.multiplane = 0;
     vwk->standard_handle = vwk_no;
@@ -399,29 +412,31 @@ void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
 
 void link_mouse_routines(void)
 {
-    *(long *)&control[7] = (long)mouse_move;
+    * (long *) &control[7] = (long) mouse_move;
     if (booted && !fakeboot)
         sub_vdi(old_wk_handle, 127, 0, 0);
     else
         vdi(old_wk_handle, 127, 0, 0);
-    old_curv = (void *)*(long *)&control[9];
-    *(long *)&control[7] = (long)mouse_timer;
+    old_curv = (void *) * (long *) &control[9];
+    * (long *) &control[7] = (long) mouse_timer;
     if (booted && !fakeboot)
         sub_vdi(old_wk_handle, 118, 0, 0);
     else
         vdi(old_wk_handle, 118, 0, 0);
-    old_timv = (void *)*(long *)&control[9];
+    old_timv = (void *) * (long *) &control[9];
 }
 
 
 void unlink_mouse_routines(void)
 {
-    if (old_curv) {
-        *(long *)&control[7] = (long)old_curv;
+    if (old_curv)
+    {
+        * (long *) &control[7] = (long) old_curv;
         vdi(old_wk_handle, 127, 0, 0);
     }
-    if (old_timv) {
-        *(long *)&control[7] = (long)old_timv;
+    if (old_timv)
+    {
+        * (long *) &control[7] = (long) old_timv;
         vdi(old_wk_handle, 118, 0, 0);
     }
 }
@@ -434,8 +449,10 @@ void setup_vbl_handler(void)
 
     n = get_l(0x452L) & 0xffffL;   /* nvbls */
     addr = get_l(0x456);           /* vblqueue */
-    for(; n > 0; n--) {
-        if (get_l(addr) == 0) {
+    for (; n > 0; n--)
+    {
+        if (get_l(addr) == 0)
+        {
             old_timv = do_nothing;
             set_l(addr, (long)vbl_handler);
             vbl_handler_installed = 1;
@@ -453,12 +470,14 @@ void shutdown_vbl_handler(void)
 
     n = get_l(0x452L) & 0xffffL;   /* nvbls */
     addr = get_l(0x456);           /* vblqueue */
-    for(; n > 0; n--) {
-        if (get_l(addr) == (long)vbl_handler)
+    for (; n > 0; n--)
+    {
+        if (get_l(addr) == (long) vbl_handler)
             break;
         addr += 4;
     }
-    if (n) {
+    if (n)
+    {
         set_l(addr, 0L);
         vbl_handler_installed = 0;
     }
@@ -473,7 +492,8 @@ void copy_workstations(Virtual *def, long really_copy)
 {
     short new_handle, last_handle, i, j, n;
     short handles[MAX_OLD_HANDLE];
-    short intout[45], ptsout[12];
+    short intout[45];
+    short ptsout[12];
     char *tmp;
 
     screen_virtual = def;
@@ -488,11 +508,12 @@ void copy_workstations(Virtual *def, long really_copy)
     */
 
     n = 0;
-    do {
+    do
+    {
         new_handle = call_v_opnvwk(old_wk_handle, intout, ptsout);
         handles[n++] = new_handle;
     } while (new_handle <= MAX_OLD_HANDLE);
-    for(i = n - 1; i >= 0; i--)
+    for (i = n - 1; i >= 0; i--)
         call_v_clsvwk(handles[i]);
 
     /*
@@ -501,33 +522,38 @@ void copy_workstations(Virtual *def, long really_copy)
     */
 
     if (n <= MAX_OLD_HANDLE)                      /* This is for the dummy virtuals */
-        tmp = (char *)malloc((sizeof(Workstation *) + sizeof(short)) * (MAX_OLD_HANDLE - n + 1));
+        tmp = malloc((sizeof(Workstation *) + sizeof(short)) * (MAX_OLD_HANDLE - n + 1));
 
     last_handle = 0;
-    for(j = 0; j < n; j++) {
+    for (j = 0; j < n; j++)
+    {
         new_handle = handles[j];
-        for(i = last_handle + 1; i < new_handle; i++) {
+        for (i = last_handle + 1; i < new_handle; i++)
+        {
             vq_extnd(i, 1, intout, ptsout);
-            if (!intout[0]) {                                         /* Not a screen device? */
-                handle[i] = (Virtual *)tmp;
+            if (!intout[0])
+            {                                         /* Not a screen device? */
+                handle[i] = (Virtual *) tmp;
                 tmp += sizeof(Workstation *) + sizeof(short);
-                handle[i]->real_address = (void *)non_fvdi_wk;
+                handle[i]->real_address = (void *) non_fvdi_wk;
                 handle[i]->standard_handle = i | 0x8000;               /* Don't try to open virtuals for this one */
                 continue;
             }
             if (really_copy)
                 copy_setup(def, i, intout, ptsout);
-            else {
-                handle[i] = (Virtual *)tmp;                            /* If we're not copying, */
+            else
+            {
+                handle[i] = (Virtual *) tmp;                            /* If we're not copying, */
                 tmp += sizeof(Workstation *) + sizeof(short);          /*  set up dummies for pass-through. */
-                handle[i]->real_address = (void *)non_fvdi_wk;
+                handle[i]->real_address = (void *) non_fvdi_wk;
                 handle[i]->standard_handle = i;
             }
         }
         last_handle = new_handle;
     }
 
-    if (!disabled && !oldmouse && really_copy) {
+    if (!disabled && !oldmouse && really_copy)
+    {
         screen_wk = handle[1]->real_address;
         screen_vwk = handle[1];
         link_mouse_routines();
@@ -551,7 +577,8 @@ void shut_down(void)
  */
 void setup_fallback(void)
 {
-    short intout[45], ptsout[12];
+    short intout[45];
+    short ptsout[12];
 
     sub_call = get_sub_call();
     old_wk_handle = call_v_opnwk(1, intout, ptsout);

@@ -3,7 +3,7 @@
 *
 * $Id: traptabl.s,v 1.13 2006-03-05 22:39:48 johan Exp $
 *
-* Copyright 1997-2002, Johan Klockars 
+* Copyright 1997-2002, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -64,11 +64,11 @@ default_functions:
 	dc.w	0,0
 	dc.l	nothing			; 0
 	dc.w	6,45
-	dc.l	v_opnwk
+	dc.l	v_opnwk			; function number 1
 	dc.w	0,0
-	dc.l	v_clswk
+	dc.l	v_clswk			; function number 2
 	dc.w	0,0
-	dc.l	v_clrwk
+	dc.l	v_clrwk			; function number 3
 	dc.w	0,0
 	dc.l	v_updwk
 	dc.w	0,0
