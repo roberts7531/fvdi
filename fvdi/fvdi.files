@@ -576,6 +576,7 @@ utility/acc/objcedit.c
 utility/acc/popup.c
 utility/acc/wind.c
 utility/acc/wind.h
+utility/conv2gas/RULES
 utility/conv2gas/conv2gas.c
 utility/profiler/analyzer.c
 utility/profiler/reset.c

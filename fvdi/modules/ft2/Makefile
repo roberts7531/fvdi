@@ -1,4 +1,4 @@
-﻿#
+#
 # to build from the builds/freemint directory call
 #
 #  make
@@ -36,7 +36,7 @@ subdir      = ft2
 include $(top_srcdir)/CONFIGVARS
 
 ifneq ($(CPU),v4e)
-	CPUFLAGS = -m68$(CPU)
+	CPUFLAGS = -mcpu=68$(CPU)
 else
 	CPUFLAGS = -mcpu=547x
 endif

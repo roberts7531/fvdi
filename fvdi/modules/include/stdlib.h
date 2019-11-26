@@ -1,6 +1,6 @@
 #include "libkern.h"
 
 /* From fvdi/engine/utility.c */
-extern void *malloc(long size);
-extern void *realloc(void *addr, long new_size);
-extern long free(void *addr);
+void *malloc(long size);
+void *realloc(void *addr, long new_size);
+long free(void *addr);

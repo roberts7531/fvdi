@@ -21,8 +21,8 @@ SSRC_GNU    = $(SSRC:=.gnu)
 
 # special treatment for ColdFire target (uses Micro APL's PortAsm to convert the sources for ColdFire)
 ifeq ($(CPU),v4e)
-	PORTASM = pacf
-	PORTASM_FLAGS = \
+PORTASM = pacf
+PORTASM_FLAGS = \
 	-blanks on  \
 	-case on \
 	-core v4 \
@@ -36,21 +36,22 @@ ifeq ($(CPU),v4e)
 	-nowarning 402,502,600,900,1111,1150 \
 	-noerrfile
 
-	# externally defined assembler symbols syntax to pacf style
-	PACF_SYMBOLS = $(subst --defsym,-define,$(SYMBOLS))
-	PORTASM_FLAGS += $(PACF_SYMBOLS)
+# externally defined assembler symbols syntax to pacf style
+PACF_SYMBOLS = $(subst --defsym,-define,$(SYMBOLS))
+PORTASM_FLAGS += $(PACF_SYMBOLS)
 
-	# include paths. Better pass a variable suitable for gas _and_ pacf from toplevel?
-	PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include,$(top_srcdir)/drivers/1_plane
+# include paths. Better pass a variable suitable for gas _and_ pacf from toplevel?
+PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include,$(top_srcdir)/drivers/1_plane
 
-	# intermediate filenames for PortAsm output
-	SSRC_GNU_CF := $(subst .gnu,.cf_gnu,$(SSRC_GNU))
+# intermediate filenames for PortAsm output
+SSRC_GNU_CF := $(subst .gnu,.cf_gnu,$(SSRC_GNU))
 
 # dependencies for include files and PortAsm converted sources
 $(SINCSRC_GNU): $(SINCSRC)
 $(SSRC_GNU):$(SSRC_GNU_CF)
 
 # pattern rule for assembler sources (traditional assembler to gas syntax)
+# after conversion, move result file to the name originally expected
 %.cf_gnu: $(basename %.gnu) $(CONV2GAS)
 	$(CONV2GAS).sh $<
 	mv $<.gnu $@
@@ -65,7 +66,6 @@ $(SSRC_GNU):$(SSRC_GNU_CF)
 %.gnu:%.cf_gnu
 	$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
 	sed -ie '/\.section/d' $@
-
 else
 
 # straight m68k to gas syntax conversion

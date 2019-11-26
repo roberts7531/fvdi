@@ -35,13 +35,13 @@ endif
 ifeq ($(CPU),v4e)
 	CPUOPTS = -mcpu=547x
 else
-	CPUOPS = -m68$(CPU)
+	CPUOPS = -mcpu=68$(CPU)
 endif
 
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 # General compilation and optimization options (CFLAGS)
-CFLAGS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
+M68K_ATARI_MINT_CFLAGS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
 ifdef DEBUG
 CFLAGS += -g
 ASFLAGS += -g
@@ -64,7 +64,7 @@ ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype-2.2.1
 #libkern_srcdir =
 
 ifeq ($(DEBUG),yes)
- FT2_DEBUG_OPTS = -I$(top_srcdir)/modules/ft2/devel 
+ FT2_DEBUG_OPTS = -I$(top_srcdir)/modules/ft2/devel
 else
  FT2_DEBUG_OPTS =
 endif
