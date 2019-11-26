@@ -86,15 +86,17 @@ static Virtual** find_handle_entry(short hnd)
         return &handle[hnd];
 
     link = handle_link;
-    while (link) {
+    while ((handle_table = link))
+    {
         hnd -= handles;
-        if (debug) {
+        if (debug)
+        {
             puts("Looking for handle in extra table\x0d\x0a");
         }
-        handles = (long)handle_table[-2];
+        handles = (long) handle_table[-2];
         if (hnd < handles)
             return &handle_table[hnd];
-        link = (Virtual **)handle_table[-1];
+        link = (Virtual **) handle_table[-1];
     }
 
     return 0;
@@ -383,7 +385,7 @@ void v_clsvwk(Virtual *vwk, VDIpars *pars)
     short hnd;
 
     hnd = vwk->standard_handle;
-    if (!hnd)	/* Check if default VDI structure */
+    if (hnd == 0)	/* Check if default VDI structure */
         return;
     else if (hnd < 0) {
         call_other(pars, hnd & 0x7fff);
@@ -391,7 +393,7 @@ void v_clsvwk(Virtual *vwk, VDIpars *pars)
     } else {
         if (vwk->fill.user.pattern.extra)
             free(vwk->fill.user.pattern.extra);
-        if (vwk->palette)
+        if (vwk->palette != NULL)
             free((void *)(((long)vwk->palette & ~1) - NEG_PAL_N * sizeof(Colour)));
     }
 
@@ -439,10 +441,6 @@ void v_clswk(Virtual *vwk, VDIpars *pars)
 
 void vq_devinfo(VDIpars *pars)
 {
-    Driver *driver;
-    Workstation *wk;
-    unsigned short hnd, oldhnd;
-
     /* For now, just assume that any
      * workstation handle >10 is non-fVDI
      */
