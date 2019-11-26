@@ -1,5 +1,8 @@
 #ifndef UTILITY_H
 #define UTILITY_H
+
+#include "fvdi.h"
+
 /*
  * fVDI utility function declarations
  *
@@ -11,6 +14,10 @@
  */
 
 typedef long unsigned int size_t;
+
+#ifndef NULL
+#define NULL ((void *) 0L)
+#endif
 
 long init_utility(void);
 

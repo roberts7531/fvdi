@@ -14,7 +14,7 @@
 #include "os.h"
 #include "driver.h"
 
-#if 0
+#if 1
  #define FAST		/* Write in FastRAM buffer */
  #define BOTH		/* Write in both FastRAM and on screen */
 #else
@@ -31,7 +31,7 @@ char none[] = {0};
 unsigned char tos_colours[] = {0, 1};
 
 Mode mode[1] =
-	{{1, CHECK_PREVIOUS, {red, green, blue, none, none, none}, 0, 0, 1, 1}};
+    {{1, CHECK_PREVIOUS, {red, green, blue, none, none, none}, 0, 0, 1, 1}};
 
 extern Device device;
 
@@ -219,16 +219,16 @@ long initialize(Virtual *vwk)
 	{
 	char buf[10];
 
-	access->funcs.ltoa(buf, (long)wk->screen.mfdb.width, 10);
+    access->funcs.ltoa(buf, (long) wk->screen.mfdb.width, 10);
 	access->funcs.puts(buf);
 	access->funcs.puts("x");
-	access->funcs.ltoa(buf, (long)wk->screen.mfdb.height, 10);
+    access->funcs.ltoa(buf, (long) wk->screen.mfdb.height, 10);
 	access->funcs.puts(buf);
 	access->funcs.puts("x");
-	access->funcs.ltoa(buf, (long)wk->screen.mfdb.bitplanes, 10);
+    access->funcs.ltoa(buf, (long) wk->screen.mfdb.bitplanes, 10);
 	access->funcs.puts(buf);
 	access->funcs.puts(" screen at ");
-	access->funcs.ltoa(buf, (long)wk->screen.mfdb.address, 16);
+    access->funcs.ltoa(buf, (long) wk->screen.mfdb.address, 16);
 	access->funcs.puts(buf);
 	access->funcs.puts("\x0a\x0d");
 	}

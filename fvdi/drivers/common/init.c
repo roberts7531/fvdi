@@ -115,7 +115,7 @@ char err_msg[80];
 int accelerate, oldmouse;
 
 
-void copymem(void *s, void *d, long n)
+void copymem(const void *s, void *d, long n)
 {
 	char *src, *dest;
 
@@ -303,13 +303,13 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
 		wk->screen.logical = Logical();
 #endif
 
-		if (!(default_palette = (Colour *)access->funcs.malloc(wk->screen.palette.size * sizeof(Colour), 3))) {
+        if (!(default_palette = (Colour *) access->funcs.malloc(wk->screen.palette.size * sizeof(Colour), 3))) {
 			access->funcs.free(default_vwk);
 			access->funcs.free(default_wk);
 			return 0;
 		}
 		if (wk->screen.palette.colours)
-			loaded_palette = (short *)wk->screen.palette.colours;
+            loaded_palette = (short *) wk->screen.palette.colours;
 		wk->screen.palette.colours = default_palette;
 	}
 
@@ -320,7 +320,7 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
 	 
 	wk->driver = driver;
 	wk->screen.mfdb.standard = 0;
-	wk->screen.type = 4;
+    wk->screen.type = 4;
 	wk->screen.colour = 1;
 	wk->screen.bkg_colours = 0;			/* ? */
 #if 0

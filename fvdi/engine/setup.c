@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI workstation setup functions
  *
  * $Id: setup.c,v 1.13 2006-02-28 21:21:51 standa Exp $
@@ -49,9 +49,9 @@ Virtual *initialize_vdi(void)
 {
     Workstation *wk, *dummy_wk;
     Virtual *vwk, *dummy_vwk;
-    char *tmp;
+    void *tmp;
     int i;
-    long func_tab_start;
+    void *func_tab_start;
 
     /*
     * non_fvdi_wk  - A dummy workstation with all function pointers set to 'bad_or_non_vdi_handle'.
@@ -61,10 +61,10 @@ Virtual *initialize_vdi(void)
     *                Used for all unallocated entries in the handled table.
     */
 
-    if (!(tmp = (char *)malloc(sizeof(Workstation *) + sizeof(short) + 257 * sizeof(Function))))
+    if (!(tmp = malloc(sizeof(Workstation *) + sizeof(short) + 257 * sizeof(Function))))
         return 0;
 
-    func_tab_start = (long) &((Workstation *) tmp)->function[-1] - (long) tmp;
+    func_tab_start = &((Workstation *) tmp)->function[-1] - (long) tmp;
     dummy_wk = (Workstation *)(tmp + sizeof(Workstation *) + sizeof(short) - func_tab_start);
     dummy_vwk = (Virtual *)tmp;
     dummy_vwk->real_address = (void *)dummy_wk;
@@ -80,12 +80,12 @@ Virtual *initialize_vdi(void)
         handle[i] = dummy_vwk;
 
 
-    if (!(wk = (Workstation *)malloc(sizeof(Workstation)))) {
+    if (!(wk = (Workstation *) malloc(sizeof(Workstation)))) {
         free(tmp);
         return 0;
     }
 
-    if (!(vwk = (Virtual *)malloc(sizeof(Virtual)))) {
+    if (!(vwk = (Virtual *) malloc(sizeof(Virtual)))) {
         free(wk);
         free(tmp);
         return 0;

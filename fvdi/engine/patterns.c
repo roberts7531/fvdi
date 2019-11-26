@@ -1,4 +1,3 @@
-static char id[] = "patterns";
 
 short line_types[] = {0xffff, 0xfff0, 0xe0e0, 0xff18, 0xff00, 0xf198};
 

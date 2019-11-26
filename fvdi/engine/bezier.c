@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI Bezier code
  *
  * $Id: bezier.c,v 1.4 2004-10-17 21:44:11 johan Exp $
@@ -49,7 +49,6 @@
 #define	BEZIER_START	0x01
 #define	POINT_MOVE	0x02
 
-#define NULL 0
 #define TRUE 1
 #define FALSE 0
 

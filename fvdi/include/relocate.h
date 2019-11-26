@@ -9,7 +9,7 @@
  * the public domain. It's not copyrighted or under any sort
  * of license.
  */
-
+#include "utility.h"
 #include "fvdi.h"
 
 /*
@@ -48,7 +48,7 @@ typedef struct _Funcs {
 	long CDECL (*unpack_font)(Fontheader *header, long format);
 	long CDECL (*insert_font)(Fontheader **first_font, Fontheader *new_font);
 	long CDECL (*get_size)(const char *name);
-	char* CDECL (*allocate_block)(long size);
+    char* CDECL (*allocate_block)(size_t size);
 	void CDECL (*free_block)(void *address);
 	void CDECL (*cache_flush)(void);
 	long CDECL (*misc)(long func, long par, const char *token);

@@ -1105,7 +1105,7 @@ int load_prefs(Virtual *vwk, char *sysname)
     int driver_loaded, font_loaded, system_font;
     Fontheader *new_font;
     char *after_path;
-    Driver *driver;
+    Driver *driver = NULL;
     int ret;
 
     copy(sysname, path);
