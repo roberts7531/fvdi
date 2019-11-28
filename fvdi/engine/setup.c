@@ -14,7 +14,7 @@
 #include "utility.h"
 #include "function.h"
 #include "globals.h"
-
+#include <stddef.h>     /* for offsetof() macro */
 #define WHITE 0
 #define BLACK 1
 #define MAX_OLD_HANDLE 16
@@ -53,18 +53,28 @@ Virtual *initialize_vdi(void)
     int i;
     void *func_tab_start;
 
+    struct fake_wkst
+    {
+        struct Workstation *wkst;
+        short stdhandle;
+        Function functab[257];
+    };
+
     /*
     * non_fvdi_wk  - A dummy workstation with all function pointers set to 'bad_or_non_vdi_handle'.
     *                The function table is the only part that actually exists in memory.
     * non_fvdi_vwk - A dummy virtual workstation with the above as 'base'.
     *                Only the pointer to the above and the 'standard handle' (-1) actually exists.
-    *                Used for all unallocated entries in the handled table.
+    *                Used for all unallocated entries in the handle table.
     */
 
     if (!(tmp = malloc(sizeof(Workstation *) + sizeof(short) + 257 * sizeof(Function))))
         return 0;
 
+    /* func_tab_start is the offset of the function table in the block just allocated */
     func_tab_start = &((Workstation *) tmp)->function[-1] - (long) tmp;
+    func_tab_start = offsetof(struct fake_wkst, functab);
+
     dummy_wk = (Workstation *)(tmp + sizeof(Workstation *) + sizeof(short) - func_tab_start);
     dummy_vwk = (Virtual *) tmp;
     dummy_vwk->real_address = (void *) dummy_wk;
