@@ -9,7 +9,7 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
-debug		equ	0
+debug		equ	1
 stoplog		equ	0		; Log until no more room (not circular)
 
 off		equ	0		; Skip fVDI code via a branch?
