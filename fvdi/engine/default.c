@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI default drawing function code
  *
  * $Id: default.c,v 1.7 2006-02-19 01:13:58 johan Exp $
@@ -27,17 +27,20 @@ long retry_line(Virtual *vwk, DrvLine *pars)
 
     table = index = 0;
     length = moves = 0;
-    if ((long)vwk & 1) {
+    if ((long)vwk & 1)
+    {
         if ((unsigned long)(pars->y1 & 0xffff) > 1)
             return;		/* Don't know about this kind of table operation */
         table = (short *)pars->x1;
         length = (pars->y1 >> 16) & 0xffff;
-        if ((pars->y1 & 0xffff) == 1) {
+        if ((pars->y1 & 0xffff) == 1)
+        {
             index = (short *)pars->y2;
             moves = pars->x2 & 0xffff;
         }
         vwk = (Virtual *)((long)vwk - 1);
-    } else
+    }
+    else
         return;
 
     /* Clear high words of coordinate unions? */
@@ -49,7 +52,8 @@ long retry_line(Virtual *vwk, DrvLine *pars)
     init_y = line.y1 = *table++;
 
     movepnt = -1;
-    if (index) {
+    if (index)
+    {
         moves--;
         if (index[moves] == -4)
             moves--;
@@ -59,10 +63,12 @@ long retry_line(Virtual *vwk, DrvLine *pars)
             movepnt = (index[moves] + 4) / 2;
     }
 
-    for(n = 1; n < length; n++) {
+    for(n = 1; n < length; n++)
+    {
         x2 = *table++;
         y2 = *table++;
-        if (n == movepnt) {
+        if (n == movepnt)
+        {
             if (--moves >= 0)
                 movepnt = (index[moves] + 4) / 2;
             else
@@ -103,25 +109,31 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
 
     error = 0;
 
-    do {
+    do
+    {
         if ((src_rect->x2 - src_rect->x1 != dst_rect->x2 - dst_rect->x1) ||
-                (src_rect->y2 - src_rect->y1 != dst_rect->y2 - dst_rect->y1)) {
+                (src_rect->y2 - src_rect->y1 != dst_rect->y2 - dst_rect->y1))
+        {
             error = "No support yet for scaling";
             break;
         }
 
-        if (!src_bm) {
+        if (!src_bm)
+        {
             error = "No support yet for screen->memory/screen";
             break;
         }
 
         if (dst_bm) {
-            if (src_bm->px_format != dst_bm->px_format) {
+            if (src_bm->px_format != dst_bm->px_format)
+            {
                 if ((src_bm->px_format == 0x01020101) &&
-                        (dst_bm->px_format == 0x01020808)) {
+                        (dst_bm->px_format == 0x01020808))
+                {
                     int x, y;
 
-                    for (y = src_rect->y1; y <= src_rect->y2; y++) {
+                    for (y = src_rect->y1; y <= src_rect->y2; y++)
+                    {
                         long *src;
                         char *dst;
                         unsigned long v, mask;
@@ -132,8 +144,10 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                                 dst_bm->width * (dst_rect->y1 - src_rect->y1 + y) +
                                 dst_rect->x1;
                         v = *src++;
-                        if (mode == 33) {
-                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+                        if (mode == 33)
+                        {
+                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+                            {
                                 if (v & mask)
                                     *dst = ~0;
                                 dst++;
@@ -141,8 +155,11 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                                 if ((long)mask < 0)
                                     v = *src++;
                             }
-                        } else {
-                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+                        }
+                        else
+                        {
+                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+                            {
                                 if (v & mask)
                                     *dst++ = ~0;
                                 else
@@ -154,11 +171,14 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                         }
                     }
                     mode = 0;  /* Just to skip error printout at the end */
-                } else if ((src_bm->px_format == 0x01020101) &&
-                           (dst_bm->px_format == 0x03421820)) {
+                }
+                else if ((src_bm->px_format == 0x01020101) &&
+                           (dst_bm->px_format == 0x03421820))
+                {
                     int x, y;
 
-                    for (y = src_rect->y1; y <= src_rect->y2; y++) {
+                    for (y = src_rect->y1; y <= src_rect->y2; y++)
+                    {
                         long *src, *dst;
                         unsigned long v, mask;
 
@@ -168,8 +188,10 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                                        dst_bm->width * (dst_rect->y1 - src_rect->y1 + y)) +
                                 dst_rect->x1;
                         v = *src++;
-                        if (mode == 33) {
-                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+                        if (mode == 33)
+                        {
+                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+                            {
                                 if (v & mask)
                                     *dst = ~0;
                                 dst++;
@@ -177,31 +199,44 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                                 if ((long)mask < 0)
                                     v = *src++;
                             }
-                        } else {
-                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+                        }
+                        else
+                        {
+                            for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+                            {
                                 if (v & mask)
                                     *dst++ = ~0;
                                 else
                                     *dst++ = 0;
                                 mask = (mask >> 1) | (mask << 31);
-                                if ((long)mask < 0)
+                                if ((long) mask < 0)
                                     v = *src++;
                             }
                         }
                     }
                     mode = 0;  /* Just to skip error printout at the end */
-                } else {
+                }
+                else
+                {
                     error = "No support yet for memory->memory between these different pixmap formats";
                     break;
                 }
-            } else {
-                if (src_bm->px_format == 0x01020101) { /* PX_PREF1 */
+            }
+            else
+            {
+                if (src_bm->px_format == 0x01020101)
+                {
+                    /* PX_PREF1 */
                     error = "No support yet for 1 bit memory->memory";
                     break;
-                } else if (src_bm->px_format == 0x01020808) { /* PX_PREF8 */
+                }
+                else if (src_bm->px_format == 0x01020808)
+                {
+                    /* PX_PREF8 */
                     int x, y;
 
-                    for (y = src_rect->y1; y <= src_rect->y2; y++) {
+                    for (y = src_rect->y1; y <= src_rect->y2; y++)
+                    {
                         char *src, *dst;
                         src = src_bm->addr + src_bm->width * y + src_rect->x1;
                         dst = dst_bm->addr +
@@ -210,10 +245,14 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                         for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
                             *dst++ = *src++;
                     }
-                } else if (src_bm->px_format == 0x03421820) { /* PX_PREF32 */
+                }
+                else if (src_bm->px_format == 0x03421820)
+                {
+                    /* PX_PREF32 */
                     int x, y;
 
-                    for (y = src_rect->y1; y <= src_rect->y2; y++) {
+                    for (y = src_rect->y1; y <= src_rect->y2; y++)
+                    {
                         long *src, *dst;
                         src = (long *)(src_bm->addr + src_bm->width * y) + src_rect->x1;
                         dst = (long *)(dst_bm->addr +
@@ -222,7 +261,9 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                         for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
                             *dst++ = *src++;
                     }
-                } else {
+                }
+                else
+                {
                     puts("Unsupported pixel format ($");
                     ltoa(buf, src_bm->px_format, 16);
                     puts(buf);
@@ -230,8 +271,12 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                     break;
                 }
             }
-        } else {
-            if (src_bm->px_format == 0x01020101) { /* PX_PREF1 */
+        }
+        else
+        {
+            if (src_bm->px_format == 0x01020101)
+            {
+                /* PX_PREF1 */
                 int x, y, i;
                 char *block;
                 long *palette;
@@ -249,7 +294,8 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 }
 #endif
 
-                if (!(block = (char *)allocate_block(0))) {
+                if (!(block = (char *)allocate_block(0)))
+                {
                     error = "Could not allocate memory block";
                     break;
                 }
@@ -280,7 +326,8 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 coords[6] = dst_rect->x2;
                 coords[7] = dst_rect->y1;
 
-                for (y = src_rect->y1; y <= src_rect->y2; y++) {
+                for (y = src_rect->y1; y <= src_rect->y2; y++)
+                {
                     long *src, *dst;
                     unsigned long v, mask;
 
@@ -288,14 +335,17 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                     mask = 1 << (31 - src_rect->x1 % 32);
                     dst = (long *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
                     v = *src++;
-                    if (mode == 33) {
+                    if (mode == 33)
+                    {
                         short coords2[8];
-                        for (i = 0; i < 4; i++) {
+                        for (i = 0; i < 4; i++)
+                        {
                             coords2[i] = coords[i + 4];
                             coords2[i + 4] = coords[i];
                         }
                         lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords2, 0, &mfdb, 0);
-                        for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+                        for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+                        {
                             if (v & mask)
                                 *dst = ~0;
                             dst++;
@@ -303,8 +353,11 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                             if ((long)mask < 0)
                                 v = *src++;
                         }
-                    } else {
-                        for (x = src_rect->x2 - src_rect->x1; x >= 0; x--) {
+                    }
+                    else
+                    {
+                        for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
+                        {
                             if (v & mask)
                                 *dst++ = ~0;
                             else
@@ -325,7 +378,10 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
 #else
                 error = "OK?";
 #endif
-            } else if (src_bm->px_format == 0x01020808) { /* PX_PREF8 */
+            }
+            else if (src_bm->px_format == 0x01020808)
+            {
+                /* PX_PREF8 */
                 char *block;
                 long *palette;
                 unsigned char *src;
@@ -334,22 +390,26 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 short coords[8];
                 int x, y, i;
 
-                if (!src_bm->ctab) {
+                if (!src_bm->ctab)
+                {
                     error = "Need a colour table for 8 bit->TC";
                     break;
                 }
-                if (src_bm->ctab->color_space != 1) {
+                if (src_bm->ctab->color_space != 1)
+                {
                     error = "Need an RGB colour table for 8 bit->TC";
                     break;
                 }
 
-                if (!(block = (char *)allocate_block(0))) {
+                if (!(block = (char *)allocate_block(0)))
+                {
                     error = "Could not allocate memory block";
                     break;
                 }
 
                 palette = (long *)block;
-                for (i = 0; i < src_bm->ctab->no_colors; i++) {
+                for (i = 0; i < src_bm->ctab->no_colors; i++)
+                {
                     palette[i] = ((long)(src_bm->ctab->colors[i].rgb.red & 0xff) << 16) |
                             ((long)(src_bm->ctab->colors[i].rgb.green & 0xff) << 8) |
                             ((long)(src_bm->ctab->colors[i].rgb.blue & 0xff));
@@ -372,7 +432,8 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 coords[6] = dst_rect->x2;
                 coords[7] = dst_rect->y1;
 
-                for (y = src_rect->y1; y <= src_rect->y2; y++) {
+                for (y = src_rect->y1; y <= src_rect->y2; y++)
+                {
                     src = src_bm->addr + src_bm->width * y + src_rect->x1;
                     dst = (long *)&block[src_bm->ctab->no_colors * sizeof(*palette)];
                     for (x = src_rect->x2 - src_rect->x1; x >= 0; x--)
@@ -383,7 +444,10 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 }
 
                 free_block(block);
-            } else if (src_bm->px_format == 0x03421820) { /* PX_PREF32 */
+            }
+            else if (src_bm->px_format == 0x03421820)
+            {
+                /* PX_PREF32 */
                 MFDB mfdb;
                 short coords[8];
 
@@ -405,7 +469,9 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 coords[7] = dst_rect->y2;
 
                 lib_vdi_spppp(&lib_vro_cpyfm, vwk, 3, coords, &mfdb, 0, 0);
-            } else {
+            }
+            else
+            {
                 puts("Unsupported source pixel format ($");
                 ltoa(buf, src_bm->px_format, 16);
                 puts(buf);
@@ -415,7 +481,8 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
         }
     } while(0);
 
-    if (error) {
+    if (error)
+    {
         int i;
 
         puts(error);
@@ -426,9 +493,11 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
         puts(buf);
         puts("\x0d\x0a");
 
-        for(i = 0; i < 2; i++) {
+        for(i = 0; i < 2; i++)
+        {
             GCBITMAP *bm = (i == 0) ? src_bm : dst_bm;
-            if (bm) {
+            if (bm)
+            {
                 puts((i == 0) ? "SRC" : "DST");
                 puts(" $");
                 ltoa(buf, (long)bm->addr, 16);
@@ -442,7 +511,8 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 puts("  Format: $");
                 ltoa(buf, bm->px_format, 16);
                 puts(buf);
-                if (bm->xmin || bm->ymin) {
+                if (bm->xmin || bm->ymin)
+                {
                     puts("  Base: ");
                     ltoa(buf, bm->xmin, 10);
                     puts(buf);
@@ -465,7 +535,8 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
                 ltoa(buf, (long)bm->itab, 16);
                 puts(buf);
 
-                if (bm->ctab) {
+                if (bm->ctab)
+                {
                     puts("  ID: $");
                     ltoa(buf, bm->ctab->map_id, 16);
                     puts(buf);
@@ -485,7 +556,9 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
         }
 
         puts("--------\x0d\x0a");
-    } else if ((mode != 0) && (mode != 32)) {
+    }
+    else if ((mode != 0) && (mode != 32))
+    {
         ltoa(buf, mode, 10);
         puts("\x0d\x0a");
         puts("vr_transform_bits mode ");

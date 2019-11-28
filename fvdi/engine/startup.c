@@ -419,25 +419,32 @@ static long setup_fvdi(unsigned long type, long value)
     long ret;
 
     ret = -1;
-    if (type >> 16) {
+    if (type >> 16)
+    {
         driver = find_driver(type >> 16);
         if (driver)
             ret = ((long (*)(unsigned long, long))driver->module.setup)(type & 0xffff, value);
-    } else {
-        switch(type) {
+    }
+    else
+    {
+        switch(type)
+        {
             case Q_NEXT_DRIVER:
                 if ((driver = find_driver(-value)))
                     ret = driver->module.id;
                 break;
+
             case Q_FILE:
                 if ((driver = find_driver(value)))
                     ret = (long)driver->module.file_name;
                 break;
+
             case S_DEBUG:
                 if (value != -1)
                     debug = value;
                 ret = debug;
                 break;
+
             case S_OPTION:
                 ret = tokenize((char *)value);
                 break;
@@ -467,7 +474,8 @@ static int nvdi_patch(void)
 
     link = 0x88;
     addr = (long *)get_protected_l(link);
-    while ((addr[-3] == xbra_v) && (addr[-2] != nvdi_v)) {
+    while ((addr[-3] == xbra_v) && (addr[-2] != nvdi_v))
+    {
         link = (long)&addr[-1];
         addr = *(long **)link;
     }
@@ -483,10 +491,12 @@ static int nvdi_patch(void)
 
     nvdi = addr;
     found = 0;
-    for(i = 0; i < MAX_NVDI_SEARCH; i++) {
+    for (i = 0; i < MAX_NVDI_SEARCH; i++)
+    {
         addr = (long *)((long)addr + 2);
         test = (long *)*addr;
-        if ((ABS(test - nvdi) < MAX_NVDI_DISTANCE / 4) && (test[-3] == xbra_v)) {
+        if ((ABS(test - nvdi) < MAX_NVDI_DISTANCE / 4) && (test[-3] == xbra_v))
+        {
             found = 1;
             break;
         }
@@ -496,7 +506,8 @@ static int nvdi_patch(void)
      * If the 'real' NVDI dispatch was found, bypass the initial one.
      */
 
-    if (found) {
+    if (found)
+    {
         set_protected_l(link, (long)test);
         test[-1] = nvdi[-1];
     }

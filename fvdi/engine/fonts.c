@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI font load and setup
  *
  * $Id: fonts.c,v 1.4 2006-11-15 23:20:06 standa Exp $
@@ -46,19 +46,25 @@ long unpack_font(Fontheader *header, long format)
     header->extra.unpacked.format = format;
 
     if (width == 8) {
-        for(n = 0; n < chars; n++) {
+        for(n = 0; n < chars; n++)
+        {
             tmp = &header->data[n];
-            for(m = height - 1; m >= 0; m--) {
+            for(m = height - 1; m >= 0; m--)
+            {
                 *buf++ = *tmp;
                 tmp += wrap;
             }
             buf += 16 - height;
         }
-    } else {
+    }
+    else
+    {
         shift = 24;
-        for(n = 0; n < chars; n++) {
+        for(n = 0; n < chars; n++)
+        {
             tmp = &header->data[(((unsigned)n * 6) / 16) * 2];
-            for(m = height - 1; m >= 0; m--) {
+            for(m = height - 1; m >= 0; m--)
+            {
                 *buf++ = ((char)(*(long *)tmp >> shift)) & 0xfc;
                 tmp += wrap;
             }
@@ -67,7 +73,6 @@ long unpack_font(Fontheader *header, long format)
             buf += 16 - height;
         }
     }
-
     return 1;
 }
 
@@ -82,7 +87,8 @@ long fixup_font(Fontheader *header, char *buffer, long flip)
 
     header_size = sizeof(Fontheader) - sizeof(Fontextra);
 
-    if (flip) {
+    if (flip)
+    {
         flip_words(&header->id, (&header->size - &header->id) + 1);
         flip_words(&header->code.low, (&header->flags - &header->code.low) + 1);
         flip_longs(&header->table.horizontal,
@@ -144,7 +150,8 @@ Fontheader *load_font(const char *name)
 
     Fread(file, header_size, header);
 
-    if (!(buffer = (char *)malloc(font_size))) {
+    if (!(buffer = (char *)malloc(font_size)))
+    {
         free(header);
         Fclose(file);
         return 0;
@@ -176,7 +183,8 @@ long insert_font(Fontheader **first_font, Fontheader *new_font)
     new_id = new_font->id;
     last_font = 0;
     current_font = *first_font;
-    while(current_font && (current_font->id < new_id)) {
+    while(current_font && (current_font->id < new_id))
+    {
         last_font = current_font;
         current_font = current_font->next;
     }
@@ -194,7 +202,8 @@ long insert_font(Fontheader **first_font, Fontheader *new_font)
     * Insert font with new ID
     */
 
-    if (!current_font || (current_font->id != new_id)) {
+    if (!current_font || (current_font->id != new_id))
+    {
         new_font->next = *previous;
         new_font->extra.next_size = 0;
         new_font->extra.first_size = new_font;
@@ -208,7 +217,8 @@ long insert_font(Fontheader **first_font, Fontheader *new_font)
 
     new_size = new_font->size;
     last_font = 0;
-    while(current_font && (current_font->size < new_size)) {
+    while(current_font && (current_font->size < new_size))
+    {
         last_font = current_font;
         current_font = current_font->extra.next_size;
     }
@@ -217,7 +227,8 @@ long insert_font(Fontheader **first_font, Fontheader *new_font)
     * Insert in the list (not first)
     */
 
-    if (last_font) {
+    if (last_font)
+    {
         new_font->extra.next_size = last_font->extra.next_size;
         new_font->next = 0;
         new_font->extra.first_size = last_font->extra.first_size;
@@ -241,7 +252,8 @@ long insert_font(Fontheader **first_font, Fontheader *new_font)
     */
 
     current_font = new_font->extra.next_size;
-    while(current_font) {
+    while(current_font)
+    {
         current_font->extra.first_size = new_font;
         current_font = current_font->extra.next_size;
     }

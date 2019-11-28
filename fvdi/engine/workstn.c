@@ -79,15 +79,16 @@ linea_setup(Workstation *wk)
 static Virtual** find_handle_entry(short hnd)
 {
     short handles;
-    Virtual **link, **handle_table;
+    Virtual ***link, **handle_table;
 
     handles = HANDLES;
     if (hnd < handles)
         return &handle[hnd];
 
-    link = handle_link;
-    while ((handle_table = link))
+    link = &handle_link;
+    while ((link))
     {
+        handle_table = *link;
         hnd -= handles;
         if (debug)
         {
@@ -109,7 +110,7 @@ static short find_free_handle(Virtual ***handle_entry)
     Virtual ***link, ***last, **handle_table;
 
     handles = HANDLES;
-    for(hnd = 1; hnd < handles; hnd++) {
+    for (hnd = 1; hnd < handles; hnd++) {
         if (handle[hnd] == non_fvdi_vwk) {
             *handle_entry = &handle[hnd];
             return hnd;

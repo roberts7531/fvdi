@@ -5,8 +5,7 @@ DEBUG=no
 SUBDIRS := \
 	modules/ft2 \
 	engine \
-	drivers/bitplane \
-	utility/structer
+	drivers/bitplane
 
 TARGETS := all clean
 

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI line code
  *
  * $Id: line.c,v 1.4 2004-10-17 17:52:55 johan Exp $
@@ -89,7 +89,8 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
     d = 3 - 2 * y;
 
 #if Y_ASPECT >= X_ASPECT
-    for(i = 0; i < MAX_L_WIDTH; i++) {
+    for(i = 0; i < MAX_L_WIDTH; i++)
+    {
         q_circle[i] = 0 ;
     }
 #else
@@ -102,13 +103,17 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
      * The values for the next octant (clockwise) will
      * be filled by transposing x and y.
      */
-    while (x < y) {
+    while (x < y)
+    {
         q_circle[y] = x;
         q_circle[x] = y;
 
-        if (d < 0) {
+        if (d < 0)
+        {
             d = d + (4 * x) + 6;
-        } else {
+        }
+        else
+        {
             d = d + (4 * (x - y)) + 10;
             y--;
         }
@@ -130,11 +135,13 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
 
 #if Y_ASPECT >= X_ASPECT
     low = 0;
-    for(i = 0; i < num_qc_lines; i++) {
+    for (i = 0; i < num_qc_lines; i++)
+    {
         high = ((2 * i + 1) * ysize / xsize) / 2;
         d = 0;
 
-        for (j = low; j <= high; j++) {
+        for (j = low; j <= high; j++)
+        {
             d += q_circle[j];
         }
 

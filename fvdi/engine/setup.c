@@ -201,7 +201,7 @@ Virtual *initialize_vdi(void)
     wk->r.text     = &default_text;
     wk->r.mouse    = 0;
 
-    copymem(default_functions - 1, wk->function - 1, 257 * sizeof(Function));
+    copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function));
     wk->opcode5_count = *(short *)((long) default_opcode5 - 2);
     copymem(default_opcode5, wk->opcode5, (wk->opcode5_count + 1) * sizeof(void *));
     wk->opcode11_count = *(short *)((long)default_opcode11 - 2);

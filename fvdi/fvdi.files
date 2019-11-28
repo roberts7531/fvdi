@@ -594,4 +594,7 @@ utility/structer/memory.c
 utility/structer/memory.h
 utility/structer/misc.h
 utility/structer/outequ.c
+utility/structer/struct.lex
+utility/structer/struct.y
+utility/structer/struct.y
 utility/structer/test.h

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI console functions
  *
  * $Id: escape.c,v 1.4 2005-10-03 22:51:42 johan Exp $
@@ -107,13 +107,15 @@ v_eeos(Virtual *vwk)
 {
     Workstation *wk = vwk->real_address;
     long colour = get_colour(vwk, !vwk->console.reversed);
-    if (vwk->console.pos.x) {
+    if (vwk->console.pos.x)
+    {
         v_eeol(vwk);
         if (vwk->console.pos.y <= wk->screen.coordinates.max_y - vwk->text.cell.height)
             fill_area(vwk, 0, vwk->console.pos.y + vwk->text.cell.height,
                       wk->screen.coordinates.max_x,
                       wk->screen.coordinates.max_y, colour);
-    } else
+    }
+    else
         fill_area(vwk, 0, vwk->console.pos.y, wk->screen.coordinates.max_x,
                   wk->screen.coordinates.max_y, colour);
 }

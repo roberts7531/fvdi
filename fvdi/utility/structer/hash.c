@@ -14,7 +14,7 @@
 #include <math.h>
 
 #include "hash.h"
-#include "memory.h" 
+#include "memory.h"
 
 #define IFHT       if (opt & 0x08)
 
@@ -35,7 +35,7 @@ static NTentry **nhash = NULL;
 static NTentry *find(char *str)
 {
    NTentry *np;
-  
+
    np = nhash[hash(str)];
    while (np && (strcmp(np->string, str)))
       np = np->link;
@@ -58,7 +58,7 @@ static int slow_hash(char *str)
    k2 = pow((k - 1), 2.0);
    c = sqrt(k2 / k);
 
-   while (*str != '\0') 
+   while (*str != '\0')
       key = mod((key + ((unsigned)*str++) * pow(128.0, abs(4 - i++) % 4)), k);
    return (int)mod((key * key / c), (double)(hashsize + 1));
 }
@@ -67,7 +67,7 @@ static unsigned int fast_hash(char *str)
 {
    unsigned int key;
 
-   key = 0;   
+   key = 0;
    while (*str) {
       key = (key << 5) ^ *str++ ^ key;
    }
@@ -79,10 +79,10 @@ static char *copy(char *str)
 {
    char *new;
    int len;
-   
-   len = strlen(str); 
 
-   if (!(new = (char *)malloc(len + 1))) {
+   len = strlen(str);
+
+   if (!(new = (char *) malloc(len + 1))) {
       printf("Can't allocate storage for new identifier!\n");
       exit(-1);
    }
@@ -125,7 +125,7 @@ void hash_stat(int *total, int *used, int *maxno)
    int i, count;
    NTentry *ptr;
 
-   *total = hashsize;   
+   *total = hashsize;
    *used = *maxno = 0;
    for(i = 0; i < hashsize; i++) {
       if (nhash[i]) {
