@@ -51,14 +51,13 @@ Virtual *initialize_vdi(void)
     Virtual *vwk, *dummy_vwk;
     void *tmp;
     int i;
-    void *func_tab_start;
 
-    struct fake_wkst
+    typedef struct fake_wkst
     {
         struct Workstation *wkst;
         short stdhandle;
         Function functab[257];
-    };
+    } FakeWkst;
 
     /*
     * non_fvdi_wk  - A dummy workstation with all function pointers set to 'bad_or_non_vdi_handle'.
@@ -68,25 +67,27 @@ Virtual *initialize_vdi(void)
     *                Used for all unallocated entries in the handle table.
     */
 
-    if (!(tmp = malloc(sizeof(Workstation *) + sizeof(short) + 257 * sizeof(Function))))
+    if ((tmp = malloc(sizeof(FakeWkst))) == NULL)
         return 0;
 
     /* func_tab_start is the offset of the function table in the block just allocated */
-    func_tab_start = &((Workstation *) tmp)->function[-1] - (long) tmp;
-    func_tab_start = offsetof(struct fake_wkst, functab);
-
-    dummy_wk = (Workstation *)(tmp + sizeof(Workstation *) + sizeof(short) - func_tab_start);
+    dummy_wk = (Workstation *) (tmp + offsetof(FakeWkst, functab) - offsetof(Workstation, dummy));
     dummy_vwk = (Virtual *) tmp;
     dummy_vwk->real_address = (void *) dummy_wk;
     dummy_vwk->standard_handle = -1;
+
+    puts("assign function ptrs\r\n");
     for (i = -1; i < 256; i ++)
     {
         dummy_wk->function[i].retvals[0] = 0;
         dummy_wk->function[i].retvals[1] = 0;
         dummy_wk->function[i].code = bad_or_non_fvdi_handle;
     }
+
     non_fvdi_wk = dummy_wk;
     non_fvdi_vwk = dummy_vwk;
+
+    puts("assign virtual workstation to handles\r\n");
     for (i = 0; i < HANDLES; i++)
         handle[i] = dummy_vwk;
 
@@ -211,9 +212,14 @@ Virtual *initialize_vdi(void)
     wk->r.text     = &default_text;
     wk->r.mouse    = 0;
 
-    copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function));
+    puts("assign default functions\r\n");
+    copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function *));
+
+    puts("assign default opcode5\'s\r\n");
     wk->opcode5_count = *(short *)((long) default_opcode5 - 2);
     copymem(default_opcode5, wk->opcode5, (wk->opcode5_count + 1) * sizeof(void *));
+
+    puts("assign default opcode11\'s\r\n);");
     wk->opcode11_count = *(short *)((long)default_opcode11 - 2);
     copymem(default_opcode11, wk->opcode11, (wk->opcode11_count + 1) * sizeof(void *));
 
