@@ -807,7 +807,7 @@ void lineA_debug(long opcode, long pc)
     entered = 1;
 
     access->funcs.puts("LineA call ($a00");
-    access->funcs.ltoa(buf, opcode, 16);
+    access->funcs.ltoa(buf, opcode & 0xffff, 16);
     access->funcs.puts(buf);
     access->funcs.puts(") at $");
     access->funcs.ltoa(buf, pc, 16);

@@ -54,7 +54,7 @@ extern long magic;
 
 extern void* dummy_vdi;
 
-extern Function *default_functions;
+extern Function default_functions[];
 extern void *default_opcode5[];
 extern void *default_opcode11[];
 
