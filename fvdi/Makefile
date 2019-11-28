@@ -1,6 +1,6 @@
 M68K_ATARI_MINT_CROSS := yes
 CPU=020
-DEBUG=no
+DEBUG=yes
 
 SUBDIRS := \
 	modules/ft2 \
