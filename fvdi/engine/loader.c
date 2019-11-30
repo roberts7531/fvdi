@@ -727,6 +727,8 @@ long load_palette(Virtual *vwk, const char **ptr)
         }
     }
 
+    size -= strlen("PA01");             // NVDI palette files have a "PA01" header)
+
     if (size % (3 * sizeof(short)))
     {
         error("Wrong palette file size!", 0);
@@ -759,6 +761,7 @@ long load_palette(Virtual *vwk, const char **ptr)
         return -1;
     }
 
+    Fread(file, 4, palette);            // skip the "PA01" header bytes)
     Fread(file, size, palette);
 
     Fclose(file);
