@@ -61,7 +61,11 @@ extern short solid;
 
 int wide_setup(Virtual *vwk, int width, short *q_circle)
 {
-    int i, j, x, y, d, low, high;
+    int i;
+    int j;
+    int x, y;
+    int d;
+    int low, high;
     int xsize, ysize;
     int num_qc_lines;
 
