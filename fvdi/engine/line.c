@@ -50,11 +50,11 @@ int SMUL_DIV(int, int, int);   //   d0d1d0d2
 /* m_dot, m_plus, m_star, m_square, m_cross, m_dmnd */
 static signed char row1[] = { 1, 2, 0, 0, 0, 0 };
 static signed char row2[] = { 2, 2, 0, -3, 0, 3, 2, -4, 0, 4, 0 };
-static signed char row3[] = { 3, 2, 0, -3, 0, 3, 2, 3, 2, -3, -2, 2, 3, -2, -3, 2};
-static signed char row4[] = { 1, 5, -4, -3, 4, -3, 4, 3, -4, 3, -4, -3};
+static signed char row3[] = { 3, 2, 0, -3, 0, 3, 2, 3, 2, -3, -2, 2, 3, -2, -3, 2 };
+static signed char row4[] = { 1, 5, -4, -3, 4, -3, 4, 3, -4, 3, -4, -3 };
 static signed char row5[] = { 2, 2, -4, -3, 4, 3, 2, -4, 3, 4, -3 };
 static signed char row6[] = { 1, 5, -4, 0, 0, -3, 4, 0, 0, 3, -4, 0 };
-static signed char *marker[] = {row1, row2, row3, row4, row5, row6};
+static signed char *marker[] = { row1, row2, row3, row4, row5, row6 };
 
 extern short solid;
 
@@ -89,7 +89,7 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
     d = 3 - 2 * y;
 
 #if Y_ASPECT >= X_ASPECT
-    for(i = 0; i < MAX_L_WIDTH; i++)
+    for (i = 0; i < MAX_L_WIDTH; i++)
     {
         q_circle[i] = 0 ;
     }
@@ -192,27 +192,36 @@ void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
     min_val = 32767;
     x_val = u = q_circle[0];		/* x_val/y_val new here */
     y_val = v = 0;
-    while (1) {
+    while (1)
+    {
         /* Check for new minimum, same minimum, or finished. */
         if (((magnitude = ABS(u * y - v * x)) < min_val ) ||
-                ((magnitude == min_val) && (ABS(x_val - y_val) > ABS(u - v)))) {
+                ((magnitude == min_val) && (ABS(x_val - y_val) > ABS(u - v))))
+        {
             min_val = magnitude;
             x_val = u;
             y_val = v;
-        } else
+        }
+        else
             break;
 
         /* Step to the next pixel. */
-        if (v == num_qc_lines - 1) {
+        if (v == num_qc_lines - 1)
+        {
             if (u == 1)
                 break;
             else
                 u--;
-        } else {
-            if (q_circle[v + 1] >= u - 1) {
+        }
+        else
+        {
+            if (q_circle[v + 1] >= u - 1)
+            {
                 v++;
                 u = q_circle[v];
-            } else {
+            }
+            else
+            {
                 u--;
             }
         }
@@ -254,7 +263,8 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
     wy1 = pts[j++];
 
     /* Loop over the number of points passed in. */
-    for(i = 1; i < numpts; i++) {
+    for (i = 1; i < numpts; i++)
+    {
         /* Get the ending point for the line segment and the vector from the
          * start to the end of the segment.
          */
@@ -271,13 +281,18 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
         /* Calculate offsets to fatten the line.  If the line segment is
          * horizontal or vertical, do it the simple way.
          */
-        if (vx == 0) {
+        if (vx == 0)
+        {
             vx = q_circle[0];
             vy = 0;
-        } else if (vy == 0) {
+        }
+        else if (vy == 0)
+        {
             vx = 0;
             vy = num_qc_lines - 1;
-        } else {
+        }
+        else
+        {
             /* Find the offsets in x and y for a point perpendicular to the line
              * segment at the appropriate distance.
              */
@@ -324,25 +339,30 @@ draw_line(int x1, int y1, int x2, int y2, int w, char* addr)
     int y_step = w;
 
     dx = x2 - x1;
-    if (dx < 0) {
+    if (dx < 0)
+    {
         dx = -dx;
         x_step = -x_step;
     }
 
     dy = y2 - y1;
-    if (dy < 0) {
+    if (dy < 0)
+    {
         dy = -dy;
         y_step = -y_step;
     }
 
-    if (dx > dy) {
+    if (dx > dy)
+    {
         count = dx;
         one_step = x_step;
         both_step = y_step;
         incrE = 2 * dy;
         incrNE = -2 * dx;
         d = -dx;
-    } else {
+    }
+    else
+    {
         count = dy;
         one_step = y_step;
         both_step = x_step;
@@ -351,10 +371,12 @@ draw_line(int x1, int y1, int x2, int y2, int w, char* addr)
         d = -dy;
     }
 
-    for(; count >= 0; count--) {
+    for (; count >= 0; count--)
+    {
         addr[pos / 8] |= 1 << (7 - pos % 8);
         d += incrE;
-        if (d >= 0) {
+        if (d >= 0)
+        {
             d += incrNE;
             pos += both_step;
         }
@@ -374,10 +396,13 @@ void pmarker(int type, int size, int w_in, int h_in, char *buf)
     short tmp;
     int x1, y1, x2, y2;
 
-    for(i = 0; i <= 4; i++) {
-        if (!w_in) {
+    for (i = 0; i <= 4; i++)
+    {
+        if (!w_in)
+        {
             tmp = (short)((short)size * i * 4 + 11) / 22 + 1;
-        } else
+        }
+        else
             tmp = ((short)w_in * i + 2) / 4;
         nwidth[i] = -(tmp / 2);
         width[i] = tmp + nwidth[i] - 1;
@@ -397,9 +422,11 @@ void pmarker(int type, int size, int w_in, int h_in, char *buf)
     m_ptr = marker[type];
     num_lines = *m_ptr++;
     x1 = y1 = 0;    /* To make the compiler happy */
-    for(i = 0; i < num_lines; i++) {
+    for (i = 0; i < num_lines; i++)
+    {
         num_points = *m_ptr++;
-        for(j = 0; j < num_points; j++) {
+        for(j = 0; j < num_points; j++)
+        {
             x2 = *m_ptr++;
             y2 = *m_ptr++;
 
@@ -447,7 +474,8 @@ void arrow(Virtual *vwk, short *xy, short inc, int numpts, int colour, short *po
     /* Find the first point which is not so close to the end point that it
      * will be obscured by the arrowhead.
      */
-    for(i = 1; i < numpts; i++) {
+    for (i = 1; i < numpts; i++)
+    {
         /* Find the deltas between the next point and the end point.
          * Transform to a space such that the aspect ratio is uniform
          * and the x axis distance is preserved.
@@ -496,7 +524,8 @@ void arrow(Virtual *vwk, short *xy, short inc, int numpts, int colour, short *po
     /* Adjust the end point and all points skipped. */
     *xy -= ht_x;
     *(xy + 1) -= ht_y;
-    while ((xybeg -= inc) != xy) {
+    while ((xybeg -= inc) != xy)
+    {
         *xybeg = *xy;
         *(xybeg + 1) = *(xy + 1);
     }
@@ -514,13 +543,15 @@ void do_arrow(Virtual *vwk, short *pts, int numpts, int colour, short *points, l
     new_x_start = x_start = pts[0];
     new_y_start = y_start = pts[1];
 
-    if (vwk->line.ends.beginning & ARROWED) {
+    if (vwk->line.ends.beginning & ARROWED)
+    {
         arrow(vwk, &pts[0], 2, numpts, colour, points, mode);
         new_x_start = pts[0];
         new_y_start = pts[1];
     }
 
-    if (vwk->line.ends.end & ARROWED) {
+    if (vwk->line.ends.end & ARROWED)
+    {
         pts[0] = x_start;
         pts[1] = y_start;
         arrow(vwk, &pts[2 * numpts - 2], -2, numpts, colour, points, mode);
