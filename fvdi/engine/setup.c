@@ -15,10 +15,10 @@
 #include "function.h"
 #include "globals.h"
 #include <stddef.h>     /* for offsetof() macro */
+
 #define WHITE 0
 #define BLACK 1
 #define MAX_OLD_HANDLE 16
-
 
 /*
  * Global variables
@@ -90,7 +90,6 @@ Virtual *initialize_vdi(void)
     puts("assign virtual workstation to handles\r\n");
     for (i = 0; i < HANDLES; i++)
         handle[i] = dummy_vwk;
-
 
     if (!(wk = malloc(sizeof(Workstation))))
     {
@@ -213,7 +212,7 @@ Virtual *initialize_vdi(void)
     wk->r.mouse    = 0;
 
     puts("assign default functions\r\n");
-    copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function *));
+    copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function));
 
     puts("assign default opcode5\'s\r\n");
     wk->opcode5_count = *(short *)((long) default_opcode5 - 2);
