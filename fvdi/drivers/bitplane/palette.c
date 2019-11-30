@@ -11,8 +11,7 @@
 #include "fvdi.h"
 
 
-long CDECL
-x_get_colour(Workstation *wk, long colour)
+long x_get_colour(Workstation *wk, long colour)
 {
     static signed char tos_colours[] = { 0, -1, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13 };
     int ret;
@@ -22,7 +21,8 @@ x_get_colour(Workstation *wk, long colour)
         ret = 15;
     else if (colour >= 16)
         ret = colour;
-    else {
+    else
+    {
         ret = tos_colours[colour];
         if (ret < 0)
             ret = wk->screen.palette.size - 1;
