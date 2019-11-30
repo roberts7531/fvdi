@@ -13,18 +13,12 @@
 
 #include "fvdi.h"
 #include "relocate.h"
+#include <stdbool.h>
 
 #define DBG_BLIT 0      /* See, what happens (a bit) */
 
-#define BOOL int
 #define TRUE 1
 #define FALSE 0
-#define BYTE char
-#define UBYTE unsigned char
-#define WORD short
-#define UWORD unsigned short
-#define LONG long
-#define ULONG unsigned long
 
 
 /* flag:1 SOURCE and PATTERN   flag:0 SOURCE only */
@@ -34,49 +28,49 @@
 extern Access *access;
 static long dbg = 0;
 
-extern void CDECL
-c_get_colours(Virtual *vwk, long colour, short *foreground, short* background);
-extern void CDECL
-x_get_colours(Workstation *wk, long colour, short *foreground, short* background);
-extern long CDECL clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
+long x_get_colour(Workstation *wk, long colour);
+void c_get_colours(Virtual *vwk, long colour, short *foreground, short* background);
+void x_get_colours(Workstation *wk, long colour, short *foreground, short* background);
+long clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
 
 
 /* Passes parameters to bitblt */
-struct blit_frame {
-    WORD b_wd;          // Width of block in pixels
-    WORD b_ht;          // Height of block in pixels
-    WORD plane_ct;      // Number of consequitive planes to blt
-    UWORD fg_col;       // Foreground color (logic op table index:hi bit)
-    UWORD bg_col;       // Background color (logic op table index:lo bit)
-    UBYTE op_tab[4];    // Logic ops for all fore and background combos
-    WORD s_xmin;        // Minimum X: source
-    WORD s_ymin;        // Minimum Y: source
-    UWORD *s_form;      // Source form base address
-    WORD s_nxwd;        // Offset to next word in line  (in bytes)
-    WORD s_nxln;        // Offset to next line in plane (in bytes)
-    WORD s_nxpl;        // Offset to next plane from start of current plane
-    WORD d_xmin;        // Minimum X: destination
-    WORD d_ymin;        // Minimum Y: destination
-    UWORD *d_form;      // Destination form base address
-    WORD d_nxwd;        // Offset to next word in line  (in bytes)
-    WORD d_nxln;        // Offset to next line in plane (in bytes)
-    WORD d_nxpl;        // Offset to next plane from start of current plane
-    UWORD *p_addr;      // Address of pattern buffer   (0:no pattern)
-    WORD p_nxln;        // Offset to next line in pattern  (in bytes)
-    WORD p_nxpl;        // Offset to next plane in pattern (in bytes)
-    WORD p_mask;        // Pattern index mask
+struct blit_frame
+{
+    short b_wd;                 // Width of block in pixels
+    short b_ht;                 // Height of block in pixels
+    short plane_ct;             // Number of consequitive planes to blt
+    unsigned short fg_col;      // Foreground color (logic op table index:hi bit)
+    unsigned short bg_col;      // Background color (logic op table index:lo bit)
+    unsigned char op_tab[4];    // Logic ops for all fore and background combos
+    short s_xmin;               // Minimum X: source
+    short s_ymin;               // Minimum Y: source
+    unsigned short *s_form;     // Source form base address
+    short s_nxwd;               // Offset to next short in line  (in chars)
+    short s_nxln;               // Offset to next line in plane (in chars)
+    short s_nxpl;               // Offset to next plane from start of current plane
+    short d_xmin;               // Minimum X: destination
+    short d_ymin;               // Minimum Y: destination
+    unsigned short *d_form;     // Destination form base address
+    short d_nxwd;               // Offset to next short in line  (in chars)
+    short d_nxln;               // Offset to next line in plane (in chars)
+    short d_nxpl;               // Offset to next plane from start of current plane
+    unsigned short *p_addr;     // Address of pattern buffer   (0:no pattern)
+    short p_nxln;               // Offset to next line in pattern  (in chars)
+    short p_nxpl;               // Offset to next plane in pattern (in chars)
+    short p_mask;               // Pattern index mask
 
     /* These frame parameters are internally set */
-    WORD p_indx;        // Initial pattern index
-    UWORD *s_addr;      // Initial source address
-    WORD s_xmax;        // Maximum X: source
-    WORD s_ymax;        // Maximum Y: source
-    UWORD *d_addr;      // Initial destination address
-    WORD d_xmax;        // Maximum X: destination
-    WORD d_ymax;        // Maximum Y: destination
-    WORD inner_ct;      // Blt inner loop initial count
-    WORD dst_wr;        // Destination form wrap (in bytes)
-    WORD src_wr;        // Source form wrap (in bytes)
+    short p_indx;               // Initial pattern index
+    unsigned short *s_addr;     // Initial source address
+    short s_xmax;               // Maximum X: source
+    short s_ymax;               // Maximum Y: source
+    unsigned short *d_addr;     // Initial destination address
+    short d_xmax;               // Maximum X: destination
+    short d_ymax;               // Maximum Y: destination
+    short inner_ct;             // Blt inner loop initial count
+    short dst_wr;               // Destination form wrap (in chars)
+    short src_wr;               // Source form wrap (in chars)
 };
 
 
@@ -84,21 +78,23 @@ struct blit_frame {
 #define NFSR    0x40
 #define SKEW    0x0f
 
-#define GetMemW(addr) ((ULONG)*(UWORD *)(addr))
-#define SetMemW(addr, val) *(UWORD *)(addr) = val
+#define GetMemW(addr) ((unsigned long) * (unsigned short *) (addr))
+#define SetMemW(addr, val) * (unsigned short *) (addr) = val
 
 
 /* Blitter registers */
 typedef struct blit blit;
-struct blit {
-    WORD  src_x_inc, src_y_inc;
-    ULONG src_addr;
-    WORD  end_1, end_2, end_3;
-    WORD  dst_x_inc, dst_y_inc;
-    ULONG dst_addr;
-    UWORD x_cnt, y_cnt;
-    BYTE  hop, op, status, skew;
-    //BYTE  ready;
+struct blit
+{
+    short  src_x_inc;
+    short src_y_inc;
+    unsigned long src_addr;
+    short  end_1, end_2, end_3;
+    short  dst_x_inc, dst_y_inc;
+    unsigned long dst_addr;
+    unsigned short x_cnt, y_cnt;
+    char  hop, op, status, skew;
+    //char  ready;
 };
 
 
@@ -107,22 +103,22 @@ struct blit {
 static inline void
 do_blit(blit * blt)
 {
-    ULONG   blt_src_in;
-    UWORD   blt_src_out, blt_dst_in, blt_dst_out, mask_out;
+    unsigned long   blt_src_in;
+    unsigned short   blt_src_out, blt_dst_in, blt_dst_out, mask_out;
     int  xc, yc, last, first;
 
 #if DBG_BLIT
     kprintf ("bitblt: Start\n");
-    kprintf ("HALFT[] 0x%04x-%04x-%04x-%04x\n", (UWORD) blt->halftone[0], blt->h
+    kprintf ("HALFT[] 0x%04x-%04x-%04x-%04x\n", (unsigned short) blt->halftone[0], blt->h
             alftone[1], blt->halftone[2], blt->halftone[3]);
-    kprintf ("X COUNT 0x%04x\n", (UWORD) blt->x_cnt);
-    kprintf ("Y COUNT 0x%04x\n", (UWORD) blt->y_cnt);
-    kprintf ("X S INC 0x%04x\n", (UWORD) blt->src_x_inc);
-    kprintf ("Y S INC 0x%04x\n", (UWORD) blt->src_y_inc);
-    kprintf ("X D INC 0x%04x\n", (UWORD) blt->dst_x_inc);
-    kprintf ("Y D INC 0x%04x\n", (UWORD) blt->dst_y_inc);
-    kprintf ("ENDMASK 0x%04x-%04x-%04x\n", (UWORD) blt->end_1, (UWORD) blt->end_
-             2, (UWORD) blt->end_3);
+    kprintf ("X COUNT 0x%04x\n", (unsigned short) blt->x_cnt);
+    kprintf ("Y COUNT 0x%04x\n", (unsigned short) blt->y_cnt);
+    kprintf ("X S INC 0x%04x\n", (unsigned short) blt->src_x_inc);
+    kprintf ("Y S INC 0x%04x\n", (unsigned short) blt->src_y_inc);
+    kprintf ("X D INC 0x%04x\n", (unsigned short) blt->dst_x_inc);
+    kprintf ("Y D INC 0x%04x\n", (unsigned short) blt->dst_y_inc);
+    kprintf ("ENDMASK 0x%04x-%04x-%04x\n", (unsigned short) blt->end_1, (unsigned short) blt->end_
+             2, (unsigned short) blt->end_3);
     kprintf ("S_ADDR  0x%08lx\n", blt->src_addr);
     kprintf ("D_ADDR  0x%08lx\n", blt->dst_addr);
     kprintf ("HOP=%01d, OP=%02d\n", blt->hop & 0x3, blt->op & 0xf);
@@ -261,12 +257,12 @@ static void
 do_blit_0(blit *blt)
 {
     int xc, yc, x_cnt;
-    ULONG dst_addr  = blt->dst_addr;
-    ULONG dst_x_inc = blt->dst_x_inc;
-    ULONG dst_y_inc = blt->dst_y_inc;
-    WORD end_1 = blt->end_1;
-    WORD end_2;
-    WORD end_3 = blt->end_3;
+    unsigned long dst_addr  = blt->dst_addr;
+    unsigned long dst_x_inc = blt->dst_x_inc;
+    unsigned long dst_y_inc = blt->dst_y_inc;
+    short end_1 = blt->end_1;
+    short end_2;
+    short end_3 = blt->end_3;
 
 #if 1
     if (blt->x_cnt == 0)
@@ -284,7 +280,7 @@ do_blit_0(blit *blt)
         end_3 = ~end_3;
         x_cnt -= 3;
         for(; yc >= 0; yc--) {
-            *(UWORD *)dst_addr &= end_1;
+            *(unsigned short *)dst_addr &= end_1;
             dst_addr += dst_x_inc;
 
 #if 1
@@ -326,12 +322,12 @@ do_blit_0(blit *blt)
             }
 #endif
 
-            *(UWORD *)dst_addr &= end_3;
+            *(unsigned short *)dst_addr &= end_3;
             dst_addr += dst_y_inc;
         }
     } else {
         for(; yc >= 0; yc--) {
-            *(UWORD *)dst_addr &= end_1;
+            *(unsigned short *)dst_addr &= end_1;
             dst_addr += dst_y_inc;
         }
     }
@@ -341,12 +337,12 @@ static void
 do_blit_15(blit * blt)
 {
     int xc, yc, x_cnt;
-    ULONG dst_addr  = blt->dst_addr;
-    ULONG dst_x_inc = blt->dst_x_inc;
-    ULONG dst_y_inc = blt->dst_y_inc;
-    WORD end_1 = blt->end_1;
-    WORD end_2;
-    WORD end_3 = blt->end_3;
+    unsigned long dst_addr  = blt->dst_addr;
+    unsigned long dst_x_inc = blt->dst_x_inc;
+    unsigned long dst_y_inc = blt->dst_y_inc;
+    short end_1 = blt->end_1;
+    short end_2;
+    short end_3 = blt->end_3;
 
 #if 1
     if (blt->x_cnt == 0)
@@ -363,7 +359,7 @@ do_blit_15(blit * blt)
     if (x_cnt > 1) {
         x_cnt -= 3;
         for(; yc >= 0; yc--) {
-            *(UWORD *)dst_addr |= end_1;
+            *(unsigned short *)dst_addr |= end_1;
             dst_addr += dst_x_inc;
 
             for(xc = x_cnt; xc >= 0; xc--) {
@@ -371,12 +367,12 @@ do_blit_15(blit * blt)
                 dst_addr += dst_x_inc;
             }
 
-            *(UWORD *)dst_addr |= end_3;
+            *(unsigned short *)dst_addr |= end_3;
             dst_addr += dst_y_inc;
         }
     } else {
         for(; yc >= 0; yc--) {
-            *(UWORD *)dst_addr |= end_1;
+            *(unsigned short *)dst_addr |= end_1;
             dst_addr += dst_y_inc;
         }
     }
@@ -384,18 +380,18 @@ do_blit_15(blit * blt)
 #endif
 
 
-static void
-do_blit_short_32(blit *blt)
+static void do_blit_short_32(blit *blt)
 {
-    ULONG blt_src_in;
-    UWORD blt_src_out, blt_dst_in;
+    unsigned long blt_src_in;
+    unsigned short blt_src_out, blt_dst_in;
     int yc;
-    ULONG skew;
-    ULONG dst_addr, src_addr;
-    LONG src_x_inc, src_y_inc, dst_y_inc;
-    WORD end_1;
+    unsigned long skew;
+    unsigned long dst_addr, src_addr;
+    long src_x_inc, src_y_inc, dst_y_inc;
+    short end_1;
     void *my_op;
-    static void *ops[] = {
+    static void *ops[] =
+    {
         &&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
         &&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
     };
@@ -444,11 +440,11 @@ do_blit_short_32(blit *blt)
         goto *my_op;
 
 op0:
-        *(UWORD *)dst_addr &= end_1;
+        *(unsigned short *)dst_addr &= end_1;
         goto op_end;
 
 op1:
-        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        *(unsigned short *)dst_addr &= blt_src_out | end_1;
         goto op_end;
 
 op2:
@@ -466,7 +462,7 @@ op3:
         goto op_end;
 
 op4:
-        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        *(unsigned short *)dst_addr &= ~(blt_src_out & end_1);
         goto op_end;
 
 op5:
@@ -475,17 +471,17 @@ op5:
 op9:
         blt_src_out ^= end_1;
 op6:
-        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        *(unsigned short *)dst_addr ^= (blt_src_out & end_1);
         goto op_end;
 
 opd:
         blt_src_out ^= end_1;
 op7:
-        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        *(unsigned short *)dst_addr |= (blt_src_out & end_1);
         goto op_end;
 
 opa:
-        *(UWORD *)dst_addr ^= end_1;
+        *(unsigned short *)dst_addr ^= end_1;
         goto op_end;
 
 ope:
@@ -503,7 +499,7 @@ opc:
         goto op_end;
 
 opf:
-        *(UWORD *)dst_addr |= end_1;
+        *(unsigned short *)dst_addr |= end_1;
         goto op_end;
 op_end:
 
@@ -514,19 +510,18 @@ op_end:
 
 
 
-static void
-do_blit_short(blit *blt)
+static void do_blit_short(blit *blt)
 {
-    ULONG blt_src_in;
-    UWORD blt_src_out, blt_dst_in;
+    unsigned long blt_src_in;
+    unsigned short blt_src_out, blt_dst_in;
     int yc;
-    ULONG skew;
-    ULONG dst_addr, src_addr;
+    unsigned long skew;
+    unsigned long dst_addr, src_addr;
 #if 1
-    LONG src_x_inc;
+    long src_x_inc;
 #endif
-    LONG src_y_inc, dst_y_inc;
-    WORD end_1;
+    long src_y_inc, dst_y_inc;
+    short end_1;
     void *my_op;
     static void *ops[] = {
         &&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
@@ -573,11 +568,11 @@ do_blit_short(blit *blt)
         goto *my_op;
 
 op0:
-        *(UWORD *)dst_addr &= end_1;
+        *(unsigned short *)dst_addr &= end_1;
         goto op_end;
 
 op1:
-        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        *(unsigned short *)dst_addr &= blt_src_out | end_1;
         goto op_end;
 
 op2:
@@ -595,7 +590,7 @@ op3:
         goto op_end;
 
 op4:
-        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        *(unsigned short *)dst_addr &= ~(blt_src_out & end_1);
         goto op_end;
 
 op5:
@@ -604,17 +599,17 @@ op5:
 op9:
         blt_src_out ^= end_1;
 op6:
-        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        *(unsigned short *)dst_addr ^= (blt_src_out & end_1);
         goto op_end;
 
 opd:
         blt_src_out ^= end_1;
 op7:
-        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        *(unsigned short *)dst_addr |= (blt_src_out & end_1);
         goto op_end;
 
 opa:
-        *(UWORD *)dst_addr ^= end_1;
+        *(unsigned short *)dst_addr ^= end_1;
         goto op_end;
 
 ope:
@@ -632,7 +627,7 @@ opc:
         goto op_end;
 
 opf:
-        *(UWORD *)dst_addr |= end_1;
+        *(unsigned short *)dst_addr |= end_1;
         goto op_end;
 op_end:
 
@@ -641,43 +636,42 @@ op_end:
     } while (--yc > 0);
 }
 
-
-
-
-static void
-do_blit(blit *blt)
+static void do_blit(blit *blt)
 {
-    ULONG   blt_src_in;
-    UWORD   blt_src_out, blt_dst_in, blt_dst_out;
+    unsigned long blt_src_in;
+    unsigned short blt_src_out, blt_dst_in, blt_dst_out;
     int  xc, yc;
-    ULONG skew;
-    ULONG dst_addr, src_addr;
-    LONG src_x_inc, dst_x_inc, src_y_inc, dst_y_inc;
-    ULONG end_1;
+    unsigned long skew;
+    unsigned short *dst_addr, *src_addr;
+    long src_x_inc, dst_x_inc, src_y_inc, dst_y_inc;
+    unsigned long end_1;
     void *my_op, *my_op1, *my_op2, *my_op3;
-    static void *ops1[] = {
+    static void *ops1[] =
+    {
         &&op1_0, &&op1_1, &&op1_2, &&op1_3, &&op1_4, &&op1_5, &&op1_6, &&op1_7,
         &&op1_8, &&op1_9, &&op1_a, &&op1_b, &&op1_c, &&op1_d, &&op1_e, &&op1_f
     };
-    static void *ops2[] = {
+    static void *ops2[] =
+    {
         &&op2_0, &&op2_1, &&op2_2, &&op2_end, &&op2_4, &&op2_5, &&op2_6, &&op2_7,
         &&op2_8, &&op2_9, &&op2_a, &&op2_b, &&op2_c, &&op2_d, &&op2_e, &&op2_f
     };
-    static void *ops3[] = {
+    static void *ops3[] =
+    {
         &&op3_0, &&op3_1, &&op3_2, &&op3_3, &&op3_4, &&op3_5, &&op3_6, &&op3_7,
         &&op3_8, &&op3_9, &&op3_a, &&op3_b, &&op3_c, &&op3_d, &&op3_e, &&op3_f
     };
 
 #if DBG_BLIT
     kprintf ("bitblt: Start\n");
-    kprintf ("X COUNT 0x%04x\n", (UWORD)blt->x_cnt);
-    kprintf ("Y COUNT 0x%04x\n", (UWORD)blt->y_cnt);
-    kprintf ("X S INC 0x%04x\n", (UWORD)src_x_inc);
-    kprintf ("Y S INC 0x%04x\n", (UWORD)blt->src_y_inc);
-    kprintf ("X D INC 0x%04x\n", (UWORD)blt->dst_x_inc);
-    kprintf ("Y D INC 0x%04x\n", (UWORD)blt->dst_y_inc);
-    kprintf ("ENDMASK 0x%04x-%04x-%04x\n", (UWORD)end_1,
-             (UWORD)blt->end_2, (UWORD)blt->end_3);
+    kprintf ("X COUNT 0x%04x\n", (unsigned short)blt->x_cnt);
+    kprintf ("Y COUNT 0x%04x\n", (unsigned short)blt->y_cnt);
+    kprintf ("X S INC 0x%04x\n", (unsigned short)src_x_inc);
+    kprintf ("Y S INC 0x%04x\n", (unsigned short)blt->src_y_inc);
+    kprintf ("X D INC 0x%04x\n", (unsigned short)blt->dst_x_inc);
+    kprintf ("Y D INC 0x%04x\n", (unsigned short)blt->dst_y_inc);
+    kprintf ("ENDMASK 0x%04x-%04x-%04x\n", (unsigned short)end_1,
+             (unsigned short)blt->end_2, (unsigned short)blt->end_3);
     kprintf ("S_ADDR  0x%08lx\n", src_addr);
     kprintf ("D_ADDR  0x%08lx\n", dst_addr);
     kprintf ("HOP=%01d, OP=%02d\n", blt->hop & 0x3, blt->op);
@@ -687,7 +681,8 @@ do_blit(blit *blt)
              (blt->skew & SKEW));
 #endif
 
-    if (blt->x_cnt == 1) {
+    if (blt->x_cnt == 1)
+    {
         do_blit_short(blt);
         return;
     }
@@ -700,13 +695,13 @@ do_blit(blit *blt)
 #endif
 
     skew      = blt->skew;
-    dst_addr  = blt->dst_addr;
-    src_addr  = blt->src_addr;
+    dst_addr  = (unsigned short *) blt->dst_addr;
+    src_addr  = (unsigned short *) blt->src_addr;
     src_y_inc = blt->src_y_inc;
     dst_y_inc = blt->dst_y_inc;
     src_x_inc = blt->src_x_inc;
     dst_x_inc = blt->dst_x_inc;
-    end_1     = ((ULONG)blt->end_3 << 16) | (UWORD)blt->end_1;
+    end_1     = ((unsigned long) blt->end_3 << 16) | (unsigned short) blt->end_1;
 
     if (blt->op < 2)
         end_1 = ~end_1;
@@ -722,7 +717,8 @@ do_blit(blit *blt)
         yc = 65535;
 #endif
 
-    if (dbg) {
+    if (dbg)
+    {
         char buf[10];
         access->funcs.ltoa(buf, end_1, 16);
         access->funcs.puts(buf);
@@ -732,7 +728,8 @@ do_blit(blit *blt)
         access->funcs.puts(")\x0a\x0d");
     }
 
-    do {
+    do
+    {
         xc = blt->x_cnt;
         blt_src_in = 0;
         /* Next line to get rid of obnoxious compiler warnings */
@@ -740,12 +737,13 @@ do_blit(blit *blt)
 
         xc--;
         /* Read source into blt_src_in */
-        if (blt->hop & FXSR) {
+        if (blt->hop & FXSR)
+        {
             blt_src_in = GetMemW(src_addr) << 16;
-            src_addr += src_x_inc;
+            src_addr += src_x_inc / 2;
         }
         blt_src_in |= GetMemW(src_addr);
-        src_addr += src_x_inc;
+        src_addr += src_x_inc / 2;
         if (src_x_inc < 0)
             blt_src_in = (blt_src_in << 16) | (blt_src_in >> 16);
 
@@ -754,11 +752,11 @@ do_blit(blit *blt)
 
         goto *my_op1;
 op1_0:
-        *(UWORD *)dst_addr &= end_1;
+        *dst_addr &= end_1;
         goto op1_end;
 
 op1_1:
-        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        *dst_addr &= blt_src_out | end_1;
         goto op1_end;
 
 op1_2:
@@ -776,7 +774,7 @@ op1_3:
         goto op1_end;
 
 op1_4:
-        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        *dst_addr &= ~(blt_src_out & end_1);
         goto op1_end;
 
 op1_5:
@@ -785,17 +783,17 @@ op1_5:
 op1_9:
         blt_src_out ^= end_1;
 op1_6:
-        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        *dst_addr ^= (blt_src_out & end_1);
         goto op1_end;
 
 op1_d:
         blt_src_out ^= end_1;
 op1_7:
-        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        *dst_addr |= (blt_src_out & end_1);
         goto op1_end;
 
 op1_a:
-        *(UWORD *)dst_addr ^= end_1;
+        *dst_addr ^= end_1;
         goto op1_end;
 
 op1_e:
@@ -813,24 +811,29 @@ op1_c:
         goto op1_end;
 
 op1_f:
-        *(UWORD *)dst_addr |= end_1;
+        *dst_addr |= end_1;
         goto op1_end;
 op1_end:
 
-        if (xc) {
-            dst_addr += dst_x_inc;
+        if (xc)
+        {
+            dst_addr += dst_x_inc / 2;
         }
 
         my_op = my_op2;
-        while (--xc > 0) {
-            if (src_x_inc >= 0) {
+        while (--xc > 0)
+        {
+            if (src_x_inc >= 0)
+            {
                 blt_src_in <<= 16;
                 blt_src_in |= GetMemW(src_addr);
-            } else {
+            }
+            else
+            {
                 blt_src_in >>= 16;
                 blt_src_in |= (GetMemW(src_addr) << 16);
             }
-            src_addr += src_x_inc;
+            src_addr += src_x_inc / 2;
 
             /* Shift blt->skew times into blt_src_out */
             blt_src_out = blt_src_in >> skew;
@@ -901,22 +904,31 @@ op2_f:
 op2_end:
 
             SetMemW(dst_addr, blt_src_out);
-            dst_addr += dst_x_inc;
+            dst_addr += dst_x_inc / 2;
         }
 
         /* Read source into blt_src_in */
-        if (src_x_inc >= 0) {
+        if (src_x_inc >= 0)
+        {
             blt_src_in <<= 16;
-            if (blt->hop & NFSR) {
-                src_addr -= src_x_inc;
-            } else {
+            if (blt->hop & NFSR)
+            {
+                src_addr -= src_x_inc / 2;
+            }
+            else
+            {
                 blt_src_in |= GetMemW(src_addr);
             }
-        } else {
+        }
+        else
+        {
             blt_src_in >>= 16;
-            if (blt->hop & NFSR) {
-                src_addr -= src_x_inc;
-            } else {
+            if (blt->hop & NFSR)
+            {
+                src_addr -= src_x_inc / 2;
+            }
+            else
+            {
                 blt_src_in |= (GetMemW(src_addr) << 16);
             }
         }
@@ -927,11 +939,11 @@ op2_end:
         end_1 = (end_1 >> 16) | (end_1 << 16);
         goto *my_op3;
 op3_0:
-        *(UWORD *)dst_addr &= end_1;
+        *dst_addr &= end_1;
         goto op3_end;
 
 op3_1:
-        *(UWORD *)dst_addr &= blt_src_out | end_1;
+        *dst_addr &= blt_src_out | end_1;
         goto op3_end;
 
 op3_2:
@@ -949,7 +961,7 @@ op3_3:
         goto op3_end;
 
 op3_4:
-        *(UWORD *)dst_addr &= ~(blt_src_out & end_1);
+        *dst_addr &= ~(blt_src_out & end_1);
         goto op3_end;
 
 op3_5:
@@ -958,17 +970,17 @@ op3_5:
 op3_9:
         blt_src_out ^= end_1;
 op3_6:
-        *(UWORD *)dst_addr ^= (blt_src_out & end_1);
+        *dst_addr ^= (blt_src_out & end_1);
         goto op3_end;
 
 op3_d:
         blt_src_out ^= end_1;
 op3_7:
-        *(UWORD *)dst_addr |= (blt_src_out & end_1);
+        *dst_addr |= (blt_src_out & end_1);
         goto op3_end;
 
 op3_a:
-        *(UWORD *)dst_addr ^= end_1;
+        *dst_addr ^= end_1;
         goto op3_end;
 
 op3_e:
@@ -986,13 +998,13 @@ op3_c:
         goto op3_end;
 
 op3_f:
-        *(UWORD *)dst_addr |= end_1;
+        *dst_addr |= end_1;
         goto op3_end;
 op3_end:
         end_1 = (end_1 >> 16) | (end_1 << 16);
 
-        src_addr += src_y_inc;
-        dst_addr += dst_y_inc;
+        src_addr += src_y_inc / 2;
+        dst_addr += dst_y_inc / 2;
     } while (--yc > 0);
 }
 #endif
@@ -1019,14 +1031,14 @@ op3_end:
 void
 bit_blt(struct blit_frame *info)
 {
-    WORD plane;
-    UWORD s_xmin, s_xmax;
-    UWORD d_xmin, d_xmax;
-    UWORD lendmask, rendmask;
-    WORD skew, skew_idx;
-    WORD s_span, s_xmin_off, s_xmax_off;
-    WORD d_span, d_xmin_off, d_xmax_off;
-    ULONG s_addr, d_addr;
+    short plane;
+    unsigned short s_xmin, s_xmax;
+    unsigned short d_xmin, d_xmax;
+    unsigned short lendmask, rendmask;
+    short skew, skew_idx;
+    short s_span, s_xmin_off, s_xmax_off;
+    short d_span, d_xmin_off, d_xmax_off;
+    unsigned long s_addr, d_addr;
     blit blitter;
 
     blit *blt = &blitter;
@@ -1054,17 +1066,17 @@ bit_blt(struct blit_frame *info)
 #define mSkewFXSR    0x80
 #define mSkewNFSR    0x40
 
-    const UBYTE skew_flags[8] = {
+    const unsigned char skew_flags[8] = {
         mSkewNFSR,              /* Source span < Destination span */
         mSkewFXSR,              /* Source span > Destination span */
         0,                      /* Spans equal Shift Source right */
         mSkewNFSR+mSkewFXSR,    /* Spans equal Shift Source left */
 
-        /* When Destination span is but a single word ... */
-        0,                      /* Implies a Source span of no words */
-        mSkewFXSR,              /* Source span of two words */
+        /* When Destination span is but a single short ... */
+        0,                      /* Implies a Source span of no shorts */
+        mSkewFXSR,              /* Source span of two shorts */
         0,                      /* Skew flags aren't set if Source and */
-        0                       /* destination spans are both one word */
+        0                       /* destination spans are both one short */
     };
 
     /* Calculate Xmax coordinates from Xmin coordinates and width */
@@ -1084,8 +1096,8 @@ bit_blt(struct blit_frame *info)
     /*                       Source span      Destination span */
     /*           1: SrcXmax/16-SrcXmin/16 == DstXmax/16-DstXmin/16 */
 
-    /* bit 2     0: multiple word Destination span */
-    /*           1: single word Destination span */
+    /* bit 2     0: multiple short Destination span */
+    /*           1: single short Destination span */
 
     /* These flags form an offset into a skew flag table yielding */
     /* correct FXSR and NFSR flag states for the given source and */
@@ -1093,12 +1105,12 @@ bit_blt(struct blit_frame *info)
 
     skew_idx = 0x0000;                  /* Default */
 
-    s_xmin_off = s_xmin >> 4;           /* d0<- word offset to src Xmin */
-    s_xmax_off = s_xmax >> 4;           /* d1<- word offset to src Xmax */
+    s_xmin_off = s_xmin >> 4;           /* d0<- short offset to src Xmin */
+    s_xmax_off = s_xmax >> 4;           /* d1<- short offset to src Xmax */
     s_span = s_xmax_off - s_xmin_off;   /* d1<- Src span - 1 */
 
-    d_xmin_off = d_xmin >> 4;           /* d2<- word offset to dst Xmin */
-    d_xmax_off = d_xmax >> 4;           /* d3<- word offset to dst Xmax */
+    d_xmin_off = d_xmin >> 4;           /* d2<- short offset to dst Xmin */
+    d_xmax_off = d_xmax >> 4;           /* d3<- short offset to dst Xmax */
     d_span = d_xmax_off - d_xmin_off;   /* d3<- dst span - 1 */
 
     /* The last discriminator is the */
@@ -1106,31 +1118,31 @@ bit_blt(struct blit_frame *info)
         skew_idx |= 0x0002;             /* Equal spans */
     }
 
-    /* Number of words in dst line */
+    /* Number of shorts in dst line */
     blt->x_cnt = d_span + 1;            /* Set value in BLiTTER */
 
     /* Endmasks derived from source Xmin mod 16 and source Xmax mod 16 */
     lendmask =   0xffff >> (d_xmin % 16);
     rendmask = ~(0x7fff >> (d_xmax % 16));
 
-    /* Does destination just span a single word? */
+    /* Does destination just span a single short? */
     if (!d_span) {
         /* Merge both end masks into Endmask1. */
-        lendmask &= rendmask;           /* Single word end mask */
+        lendmask &= rendmask;           /* Single short end mask */
 #if 0
         rendmask = lendmask;
 #endif
-        skew_idx |= 0x0004;             /* Single word dst */
+        skew_idx |= 0x0004;             /* Single short dst */
         /* The other end masks will be ignored by the BLiTTER */
     }
 
     /* Calculate starting addresses */
-    s_addr = (ULONG)info->s_form +
-            (ULONG)info->s_ymin * (ULONG)info->s_nxln +
-            (ULONG)s_xmin_off   * (ULONG)info->s_nxwd;
-    d_addr = (ULONG)info->d_form +
-            (ULONG)info->d_ymin * (ULONG)info->d_nxln +
-            (ULONG)d_xmin_off   * (ULONG)info->d_nxwd;
+    s_addr = (unsigned long)info->s_form +
+             (unsigned long)info->s_ymin * (unsigned long)info->s_nxln +
+             (unsigned long)s_xmin_off   * (unsigned long)info->s_nxwd;
+    d_addr = (unsigned long)info->d_form +
+             (unsigned long)info->d_ymin * (unsigned long)info->d_nxln +
+             (unsigned long)d_xmin_off   * (unsigned long)info->d_nxwd;
 
 #if 0
     if (info->b_ht != 1)
@@ -1168,18 +1180,18 @@ bit_blt(struct blit_frame *info)
     if (1) {
 #endif
         /* Start from lower right corner, so add width+length */
-        s_addr = (ULONG)info->s_form +
-                (ULONG)info->s_ymax * (ULONG)info->s_nxln +
-                (ULONG)s_xmax_off   * (ULONG)info->s_nxwd;
-        d_addr = (ULONG)info->d_form +
-                (ULONG)info->d_ymax * (ULONG)info->d_nxln +
-                (ULONG)d_xmax_off   * (ULONG)info->d_nxwd;
+        s_addr = (unsigned long)info->s_form +
+                 (unsigned long)info->s_ymax * (unsigned long)info->s_nxln +
+                 (unsigned long)s_xmax_off   * (unsigned long)info->s_nxwd;
+        d_addr = (unsigned long)info->d_form +
+                 (unsigned long)info->d_ymax * (unsigned long)info->d_nxln +
+                 (unsigned long)d_xmax_off   * (unsigned long)info->d_nxwd;
 
-        /* Offset between consecutive words in planes */
+        /* Offset between consecutive shorts in planes */
         blt->src_x_inc = -info->s_nxwd;
         blt->dst_x_inc = -info->d_nxwd;
 
-        /* Offset from last word of a line to first word of next one */
+        /* Offset from last short of a line to first short of next one */
         blt->src_y_inc = -(info->s_nxln - info->s_nxwd * s_span);
         blt->dst_y_inc = -(info->d_nxln - info->d_nxwd * d_span);
 
@@ -1198,11 +1210,11 @@ bit_blt(struct blit_frame *info)
             access->funcs.puts("******* Top to bottom **********\x0a\x0d");
         }
 #endif
-        /* Offset between consecutive words in planes */
+        /* Offset between consecutive shorts in planes */
         blt->src_x_inc = info->s_nxwd;
         blt->dst_x_inc = info->d_nxwd;
 
-        /* Offset from last word of a line to first word of next one */
+        /* Offset from last short of a line to first short of next one */
         blt->src_y_inc = info->s_nxln - info->s_nxwd * s_span;
         blt->dst_y_inc = info->d_nxln - info->d_nxwd * d_span;
 
@@ -1303,9 +1315,8 @@ setup_pattern(Virtual *vwk, struct blit_frame *info)
 /*
  * Fill the info structure with MFDB values
  */
-static BOOL
-setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB *dst,
-           int src_x, int src_y, int dst_x, int dst_y, int w, int h)
+static bool setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB *dst,
+                       int src_x, int src_y, int dst_x, int dst_y, int w, int h)
 {
     /* Setup plane info for source MFDB */
     if (src && src->address && (src->address != wk->screen.mfdb.address)) {
@@ -1316,7 +1327,7 @@ setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB *dst,
     }
     else {
         /* Source form is screen */
-        info->s_form = (UWORD *)wk->screen.mfdb.address;
+        info->s_form = (unsigned short *) wk->screen.mfdb.address;
         info->s_nxwd = wk->screen.mfdb.bitplanes * 2;
         info->s_nxln = wk->screen.wrap;
     }
@@ -1331,7 +1342,7 @@ setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB *dst,
     }
     else {
         /* Destination form is screen */
-        info->d_form   = (UWORD *)wk->screen.mfdb.address;
+        info->d_form   = (unsigned short *)wk->screen.mfdb.address;
         info->plane_ct = wk->screen.mfdb.bitplanes;
         info->d_nxwd   = wk->screen.mfdb.bitplanes * 2;
         info->d_nxln   = wk->screen.wrap;
@@ -1367,8 +1378,7 @@ setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB *dst,
  * This function copies a rectangular raster area from source form to
  * destination form using the logic operation specified by the application.
  */
-long CDECL
-c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst,
+long c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst,
             long dst_x, long dst_y, long w, long h, long operation)
 {
     struct blit_frame info;     /* Holds some internal info for bit_blt */
@@ -1408,8 +1418,7 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst,
 }
 
 
-long CDECL
-x_blit_area(Workstation *wk, MFDB *src, long src_x, long src_y, MFDB *dst,
+long x_blit_area(Workstation *wk, MFDB *src, long src_x, long src_y, MFDB *dst,
             long dst_x, long dst_y, long w, long h, long operation)
 {
     struct blit_frame info;     /* Holds some internal info for bit_blt */
@@ -1451,8 +1460,7 @@ x_blit_area(Workstation *wk, MFDB *src, long src_x, long src_y, MFDB *dst,
  * are specified in the INTIN array.
  */
 
-long CDECL
-c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
+long c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
               MFDB *dst, long dst_x, long dst_y, long w, long h,
               long operation, long colour)
 {
@@ -1576,8 +1584,7 @@ c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 }
 
 
-long CDECL
-x_expand_area(Workstation *wk, MFDB *src, long src_x, long src_y,
+long x_expand_area(Workstation *wk, MFDB *src, long src_x, long src_y,
               MFDB *dst, long dst_x, long dst_y, long w, long h,
               long operation, long colour)
 {
@@ -1660,8 +1667,7 @@ x_expand_area(Workstation *wk, MFDB *src, long src_x, long src_y,
 }
 
 
-long CDECL
-c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
+long c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
 {
     MFDB dst;
     short pixel[8], *ptr;
@@ -1679,7 +1685,8 @@ c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
 
     colour = 0;
     ptr = pixel;
-    for(i = mfdb->bitplanes - 1; i >= 0; --i) {
+    for (i = mfdb->bitplanes - 1; i >= 0; --i)
+    {
         colour *= 2;
         colour += *ptr++ & 1;
     }
@@ -1688,14 +1695,13 @@ c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
 }
 
 
-long CDECL
-c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour)
+long c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour)
 {
     MFDB src;
     short pixel;
 
     /* Don't understand any table operations yet. */
-    if ((long)vwk & 1)
+    if ((long) vwk & 1)
         return -1;
 
     pixel = 0x8000;
@@ -1716,12 +1722,13 @@ c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour)
 short set_mouse_colours(Workstation *wk)
 {
     int foreground, background;
-    short i, colours;
+    short i, colours = 0;
 
     foreground = x_get_colour(wk, wk->mouse.colour.foreground);
     background = x_get_colour(wk, wk->mouse.colour.background);
 
-    switch (wk->screen.mfdb.bitplanes) {
+    switch (wk->screen.mfdb.bitplanes)
+    {
         case 1:
             foreground = (foreground << 1) | foreground;
             background = (background << 1) | background;
@@ -1735,7 +1742,9 @@ short set_mouse_colours(Workstation *wk)
     }
     foreground <<= 7;
     background <<= 7;
-    for(i = 7; i >= 0; i--) {
+
+    for (i = 7; i >= 0; i--)
+    {
         colours <<= 1;
         foreground <<= 1;
         if (foreground & 0x8000)
@@ -1753,7 +1762,8 @@ void set_mouse_shape(Mouse *mouse, short *masks)
 {
     int i;
 
-    for(i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++)
+    {
         *masks++ = mouse->mask[i];
         *masks++ = mouse->data[i];
     }
@@ -1780,8 +1790,8 @@ long CDECL
 c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse)
 {
     static long CDECL (*mouse_draw[])(Workstation *, long, long, Mouse *) = {
-            0, c_mouse_draw_1, c_mouse_draw_2, 0, c_mouse_draw_4,
-            0, 0, 0, c_mouse_draw_8
+                                                                            0, c_mouse_draw_1, c_mouse_draw_2, 0, c_mouse_draw_4,
+                                                                            0, 0, 0, c_mouse_draw_8
 };
 
     return mouse_draw[wk->screen.mfdb.bitplanes](wk, x, y, mouse);
