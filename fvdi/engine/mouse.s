@@ -1,7 +1,7 @@
 *****
 * fVDI mouse functions
 *
-* Copyright 1997-2000, Johan Klockars 
+* Copyright 1997-2000, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -316,7 +316,7 @@ vrq_string:
 	addq.l	#4,a7
 	tst.w	d0
 	beq	.no_key
-	
+
 	move.w	#2,-(a7)
 	move.w	#$02,-(a7)
 	trap	#13
@@ -327,7 +327,7 @@ vrq_string:
 	lsl.w	#8,d1
 	or.w	d1,d0
 .no_key:
-	
+
 	movem.l	(a7)+,d2/a0-a1
 	used_d1
 
@@ -381,7 +381,7 @@ vq_key_s:
   endc
 	done_return
 
-	
+
 	dc.b	0,"vex_butv",0
 * vex_butv - Standard Trap function
 * Todo:
@@ -389,7 +389,7 @@ vq_key_s:
 *       a0      VDI struct
 vex_butv:
 	uses_d1
-	
+
 	move.l	control(a1),a2
 	move.l	14(a2),d0
 	move.l	vwk_real_address(a0),a2
@@ -428,8 +428,8 @@ vex_motv:
 ;	beq	redirect			; Temporary (needs a1)
 	redir	vex_motv			; Temporary (needs a1)
 	done_return
-	
-	
+
+
 	dc.b	0,"vex_curv",0
 * vex_curv - Standard Trap function
 * Todo:
@@ -437,7 +437,7 @@ vex_motv:
 *       a0      VDI struct
 vex_curv:
 	uses_d1
-	
+
 	move.l	control(a1),a2
 	move.l	14(a2),d0
 	move.l	vwk_real_address(a0),a2
@@ -452,8 +452,7 @@ vex_curv:
 ;	beq	redirect			; Temporary (needs a1)
 	redir	vex_curv			; Temporary (needs a1)
 	done_return
-	
-	
+
 	dc.b	0,"vex_wheelv",0
 * vex_wheelv - Standard Trap function
 * Todo:
@@ -461,7 +460,7 @@ vex_curv:
 *       a0      VDI struct
 vex_wheelv:
 	uses_d1
-	
+
 	move.l	control(a1),a2
 	move.l	14(a2),d0
 	move.l	vwk_real_address(a0),a2
@@ -477,7 +476,7 @@ vex_wheelv:
 	redir	vex_wheelv			; Temporary (needs a1)
 	done_return
 
-	
+
 	dc.b	0,"vex_timv",0
 * vex_timv - Standard Trap function
 * Todo:
@@ -485,13 +484,13 @@ vex_wheelv:
 *       a0      VDI struct
 vex_timv:
 	uses_d1
-	
+
 	move.l	control(a1),a2
 	move.l	14(a2),d0
 	move.l	vwk_real_address(a0),a2
 	move.l	wk_vector_vblank(a2),d1
 	move.l	d0,wk_vector_vblank(a2)
-	
+
 	tst.w	wk_vblank_frequency(a2)	; pos - Hz, neg - us
 	bmi	.microseconds
 	move.l	#2000,d0		; time_ms = (1000 + freq/2) / freq
@@ -506,7 +505,7 @@ vex_timv:
 	add.w	#500,d0
 	divu	#1000,d0
 .ms_calculated:
-	
+
 	move.l	control(a1),a2
 	move.l	d1,18(a2)
 	move.l	intout(a1),a2
@@ -518,8 +517,8 @@ vex_timv:
 ;	beq	redirect			; Temporary (needs a1)
 	redir	vex_timv			; Temporary (needs a1)
 	done_return
-	
-	
+
+
 	dc.b	0,"mouse_move",0
 * mouse_move - Support function
 * Todo: ?
@@ -529,9 +528,9 @@ _mouse_move:
 	swap	d0
 	move.w	d1,d0
 	move.l	d0,mouse_first			; Atomic
-	
+
 ;	tst.w	pointer_shown			; If not hidden,
-;	beq	1$	; .end	
+;	beq	1$	; .end
 ;	move.w	#-1,pointer_delay		;  show mouse on next timer interrupt
 ;1$:			; .end
 ;	move.l	_old_curv,-(a7)			; Continue to next mouse movement routine?
@@ -756,7 +755,7 @@ _do_nothing:
 	dc.b	0,0,"vector_call",0
 * vector_call - Support function
 * Todo: ?
-* In:	
+* In:
 _vector_call:
 	movem.l	d1-d7/a0-a6,-(a7)
 	move.l	14*4+8(a7),d0
@@ -775,7 +774,7 @@ _vector_call:
 	dc.b	0,0,"vbl_handler",0
 * vbl_handler - Support function
 * Todo: Does this need to save all registers?
-* In:	
+* In:
 _vbl_handler:
 	movem.l	d0-d7/a0-a6,-(a7)
 	move.l	_screen_wk,d0
