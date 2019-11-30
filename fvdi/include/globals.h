@@ -98,7 +98,7 @@ extern short xbiosfix;
 extern short singlebend;
 extern short memlink;
 extern short blocks;
-extern size_t  block_size;
+extern size_t block_size;
 extern long  log_size;
 extern short arc_split;
 extern short arc_min;
