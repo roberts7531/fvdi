@@ -516,7 +516,7 @@ static void do_blit_short(blit *blt)
     unsigned short blt_src_out, blt_dst_in;
     int yc;
     unsigned long skew;
-    unsigned long dst_addr, src_addr;
+    unsigned short *dst_addr, *src_addr;
 #if 1
     long src_x_inc;
 #endif
@@ -568,11 +568,11 @@ static void do_blit_short(blit *blt)
         goto *my_op;
 
 op0:
-        *(unsigned short *)dst_addr &= end_1;
+        *dst_addr &= end_1;
         goto op_end;
 
 op1:
-        *(unsigned short *)dst_addr &= blt_src_out | end_1;
+        *dst_addr &= blt_src_out | end_1;
         goto op_end;
 
 op2:
@@ -590,7 +590,7 @@ op3:
         goto op_end;
 
 op4:
-        *(unsigned short *)dst_addr &= ~(blt_src_out & end_1);
+        *dst_addr &= ~(blt_src_out & end_1);
         goto op_end;
 
 op5:
@@ -599,17 +599,17 @@ op5:
 op9:
         blt_src_out ^= end_1;
 op6:
-        *(unsigned short *)dst_addr ^= (blt_src_out & end_1);
+        *dst_addr ^= (blt_src_out & end_1);
         goto op_end;
 
 opd:
         blt_src_out ^= end_1;
 op7:
-        *(unsigned short *)dst_addr |= (blt_src_out & end_1);
+        *dst_addr |= (blt_src_out & end_1);
         goto op_end;
 
 opa:
-        *(unsigned short *)dst_addr ^= end_1;
+        *dst_addr ^= end_1;
         goto op_end;
 
 ope:
@@ -627,12 +627,12 @@ opc:
         goto op_end;
 
 opf:
-        *(unsigned short *)dst_addr |= end_1;
+        *dst_addr |= end_1;
         goto op_end;
 op_end:
 
-        src_addr += src_y_inc;
-        dst_addr += dst_y_inc;
+        src_addr += src_y_inc / 2;
+        dst_addr += dst_y_inc / 2;
     } while (--yc > 0);
 }
 
@@ -1269,7 +1269,8 @@ bit_blt(struct blit_frame *info)
     blt->skew = skew & 0x0f;
     blt->hop  = skew_flags[skew_idx];
 
-    for(plane = info->plane_ct - 1; plane >= 0; plane--) {
+    for (plane = info->plane_ct - 1; plane >= 0; plane--)
+    {
         int op_tabidx;
 
         blt->src_addr = s_addr;         /* Load Source pointer to this plane */
@@ -1287,7 +1288,7 @@ bit_blt(struct blit_frame *info)
         d_addr += info->d_nxpl;         /* a1-> start of next dst plane */
     }
 #if 0
-    while(info->b_ht == 114);
+    while (info->b_ht == 114);
 #endif
 }
 
@@ -1319,13 +1320,15 @@ static bool setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB
                        int src_x, int src_y, int dst_x, int dst_y, int w, int h)
 {
     /* Setup plane info for source MFDB */
-    if (src && src->address && (src->address != wk->screen.mfdb.address)) {
+    if (src && src->address && (src->address != wk->screen.mfdb.address))
+    {
         /* For a positive source address */
         info->s_form = src->address;
         info->s_nxwd = src->bitplanes * 2;
         info->s_nxln = src->wdwidth * info->s_nxwd;
     }
-    else {
+    else
+    {
         /* Source form is screen */
         info->s_form = (unsigned short *) wk->screen.mfdb.address;
         info->s_nxwd = wk->screen.mfdb.bitplanes * 2;
@@ -1333,14 +1336,16 @@ static bool setup_info(Workstation *wk, struct blit_frame *info, MFDB *src, MFDB
     }
 
     /* Setup plane info for destination MFDB */
-    if (dst && dst->address && (dst->address != wk->screen.mfdb.address)) {
+    if (dst && dst->address && (dst->address != wk->screen.mfdb.address))
+    {
         /* For a positive address */
         info->d_form   = dst->address;
         info->plane_ct = dst->bitplanes;
         info->d_nxwd   = dst->bitplanes * 2;
         info->d_nxln   = dst->wdwidth * info->d_nxwd;
     }
-    else {
+    else
+    {
         /* Destination form is screen */
         info->d_form   = (unsigned short *)wk->screen.mfdb.address;
         info->plane_ct = wk->screen.mfdb.bitplanes;
