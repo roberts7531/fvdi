@@ -261,7 +261,7 @@ char *allocate_block(size_t size)
 
     addr = block_chain;
     block_chain = * (char **) addr;
-    *(long *)addr = block_size;    /* Make size info available */
+    * (long *) addr = block_size;    /* Make size info available */
 
     return addr;
 }
@@ -272,7 +272,7 @@ char *allocate_block(size_t size)
  */
 void free_block(void *addr)
 {
-    *(char **)addr = block_chain;
+    * (char **) addr = block_chain;
     block_chain = addr;
 }
 
