@@ -1,51 +1,55 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
+
+#include "fvdi.h"
+
 /*
  * fVDI function declarations
  *
  * $Id: function.h,v 1.17 2006-11-26 07:30:56 standa Exp $
  *
- * Copyright 2003, Johan Klockars 
+ * Copyright 2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.
  */
 
-extern Fontheader **linea_fonts(void);
-extern void linea_setup(Workstation *);
+Fontheader **linea_fonts(void);
+void linea_setup(Workstation *);
 
-extern long vector_call(void *vector, long data);
+long vector_call(void *vector, long data);
 
-extern void do_nothing(void);
-extern void mouse_move(void);
-extern void mouse_timer(void);
-extern void vbl_handler(void);
+void do_nothing(void);
+void mouse_move(void);
+void mouse_timer(void);
+void vbl_handler(void);
 
-extern void bad_or_non_fvdi_handle(void);
+void bad_or_non_fvdi_handle(void);
 
-extern int load_prefs(Virtual *vwk, char *sysname);
-extern Virtual *initialize_vdi(void);
-extern void copy_workstations(Virtual *def, long really_copy);
-extern void setup_fallback(void);
-extern void shut_down(void);
-extern long tokenize(const char *buffer);
+int load_prefs(Virtual *vwk, char *sysname);
+Virtual *initialize_vdi(void);
+void copy_workstations(Virtual *def, long really_copy);
+void setup_fallback(void);
+void shut_down(void);
+long tokenize(const char *buffer);
 
-extern void v_bez_accel(long vwk, short *points, long num_points, long totmoves,
+void v_bez_accel(long vwk, short *points, long num_points, long totmoves,
                         short *xmov, long pattern, long colour, long mode);
-extern void lib_v_pline(Virtual *, void *);
-extern void c_pline(Virtual *vwk, long num_pts, long colour, short *points);
-extern void filled_poly(Virtual *vwk, short p[][2], long n, long colour, short *pattern, short *points, long mode, long interior_style);
-extern void fill_poly(Virtual *vwk, short *p, long n, long colour, short *pattern, short *points, long mode, long interior_style);
-extern void fill_area(Virtual *vwk, long x1, long y1, long x2, long y2, long colour);
-extern void get_extent(Virtual *vwk, long length, short *text, short points[]);
-extern void draw_text(Virtual *vwk, long x, long y, short *text, long length, long colour);
+void lib_v_pline(Virtual *, void *);
+void c_pline(Virtual *vwk, long num_pts, long colour, short *points);
+void filled_poly(Virtual *vwk, short p[][2], long n, long colour, short *pattern, short *points, long mode, long interior_style);
+void fill_poly(Virtual *vwk, short *p, long n, long colour, short *pattern, short *points, long mode, long interior_style);
+void fill_area(Virtual *vwk, long x1, long y1, long x2, long y2, long colour);
+void get_extent(Virtual *vwk, long length, short *text, short points[]);
+void draw_text(Virtual *vwk, long x, long y, short *text, long length, long colour);
 #if 0
 extern void hline(void *, int x1, int y1, int y2, int colour, short *pattern);
 #endif
-extern void fill_spans(void *, short *, long n, long colour, short *pattern, long mode, long interior_style);
+
+void fill_spans(void *, short *, long n, long colour, short *pattern, long mode, long interior_style);
 
 void do_arrow(Virtual *vwk, short *pts, int numpts, int colour, short *points, long mode);
 
-extern void fill_poly(Virtual *vwk, short *p, long n, long colour, short *pattern,
+void fill_poly(Virtual *vwk, short *p, long n, long colour, short *pattern,
                       short *points, long mode, long interior_style);
 
 #if 0
@@ -83,15 +87,15 @@ void lib_vdi_pp(void *, void *, void *, void *);
  #endif
 #endif
 
-extern void link_mouse_routines(void);
-extern void unlink_mouse_routines(void);
-extern void setup_vbl_handler(void);
-extern void shutdown_vbl_handler(void);
+void link_mouse_routines(void);
+void unlink_mouse_routines(void);
+void setup_vbl_handler(void);
+void shutdown_vbl_handler(void);
 
-extern int lib_vst_font(Virtual *vwk, long fontID);
-extern int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh,
-			 short *cellw, short *cellh);
-extern long lib_vst_color(Virtual *vwk, unsigned long colour);
+int lib_vst_font(Virtual *vwk, long fontID);
+int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh,
+             short *cellw, short *cellh);
+long lib_vst_color(Virtual *vwk, unsigned long colour);
 extern void *lib_vsl_color;
 extern void *lib_vsl_type;
 extern void *lib_vsm_color;
@@ -118,17 +122,16 @@ extern void lib_vsf_style(Virtual *, short);
 extern void lib_vs_clip(Virtual *, short, short *);
 extern void lib_vr_trn_fm(Virtual *, MFDB *, MFDB *);
 #endif
-extern void opnvwk_values(Virtual *, VDIpars *);
+void opnvwk_values(Virtual *, VDIpars *);
+short isqrt(unsigned long x);
 
-extern short isqrt(unsigned long x);
-
-extern long         (*external_init)(void);
+extern long        (*external_init)(void);
 extern Fontheader* (*external_load_font)(Virtual *vwk, const char *font);
 extern long        (*external_vqt_extent)(Virtual *vwk, Fontheader *font, short *text, long length);
 extern long        (*external_vqt_width)(Virtual *vwk, Fontheader *font, long ch);
 extern Fontheader* (*external_vst_point)(Virtual *vwk, long size, short *sizes);
 extern long        (*external_renderer)(Virtual *vwk, unsigned long coords,
-					short *text, long length);
+                    short *text, long length);
 extern void*       (*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bitmap_info);
 extern void*       (*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info);
 
