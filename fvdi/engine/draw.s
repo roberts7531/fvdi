@@ -3,7 +3,7 @@
 *
 * $Id: draw.s,v 1.9 2005-07-10 00:08:52 johan Exp $
 *
-* Copyright 1997-2003, Johan Klockars 
+* Copyright 1997-2003, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -65,7 +65,7 @@ _call_draw_line:
 	jsr	_retry_line
  label .call_dl_done,1
 	addq.l	#8,a7
-	
+
 	movem.l	(a7)+,d2/a2
 	rts
 
@@ -105,7 +105,7 @@ call_draw_line:
 
 	add.w	#drvline_struct_size,a7
 	movem.l	(a7)+,d0-d2/a0-a2
-	rts	
+	rts
 
 * Should never get here, since driver is supposed to deal with this itself.
 * That's the only way to make use of any possible non-default fallback.
@@ -113,7 +113,7 @@ call_draw_line:
 	bsr	_call_default_line
 	lbra	.call_dl_done,1
 
-	
+
 * c_pline(vwk, numpts, colour, points)
 _c_pline:
 	move.l	a2,-(a7)
@@ -178,7 +178,7 @@ v_bez:
 	used_d1
 	done_return
 
-* v_bez_accel((long)vwk + 1, points, 
+* v_bez_accel((long)vwk + 1, points,
 *             (num_points << 16) | 1, *par->totmoves, xmov,
 *             pattern, vwk->line.colour, vwk->mode);
 _v_bez_accel:
@@ -201,7 +201,7 @@ _v_bez_accel:
 	addq.l	#1,a0
 	jsr	(a1)
 	movem.l	(a7)+,d2-d6
-	rts	
+	rts
 
 * lib_v_bez - Standard Library function
 * Todo: ?
@@ -226,8 +226,8 @@ lib_v_bez:
 * In:	a1	Parameters  lib_v_pline(num_pts, points)
 *	a0	VDI struct
 _lib_v_pline:
-	move.l	4(a7),a0
-	move.l	8(a7),a1
+	move.l	4(a7),a0		; VDI structure
+	move.l	8(a7),a1		; lib_v_pline args
 lib_v_pline:
 ;	use_special_stack
 ;	move.w	#0,d0			; Background colour
@@ -235,6 +235,7 @@ lib_v_pline:
 	move.l	vwk_line_colour(a0),d0
 c_v_pline:
 
+	bra	.no_wide
 	cmp.w	#1,vwk_line_width(a0)
 	bhi	.wide_line
 
@@ -351,6 +352,7 @@ c_v_pline:
 
 
 .wide_line:
+	; call allocate_block(0);
 	move.l	d0,d1		; this is the line color
 	clr.l	-(a7)
 	bsr	allocate_block
@@ -449,7 +451,7 @@ _default_line:
 	sub.w	d1,d3			; d3 = dx
 	bge	.ok1
 	neg.w	d3
-	neg.w	d7	
+	neg.w	d7
 .ok1:
 	sub.w	d2,d4			; d4 = dy
 	bge	.ok2
@@ -718,7 +720,7 @@ v_ellpie:
 	movem.w	0(a2),d0-d1	; Angles
 	move.l	d1,-(a7)
 	move.l	d0,-(a7)
-	
+
 	move.l	ptsin(a1),a2
 	movem.w	4(a2),d0-d1	; Radii
 	move.l	d1,-(a7)
@@ -759,7 +761,7 @@ v_ellipse:
 	movem.w	0(a2),d0-d1	; Center
 	move.l	d1,-(a7)
 	move.l	d0,-(a7)
-	
+
 	move.l	#5,-(a7)	; ellipse
 	move.l	a0,-(a7)
 	jsr	_ellipsearc	; vwk, gdp, xc, yc, xrad, yrad, b_ang, e_ang
@@ -785,7 +787,7 @@ v_rbox:
 	jsr	_rounded_box	; vwk, gdb_code, points
 	add.w	#3*4,a7
 
-	move.l	(a7)+,d2	
+	move.l	(a7)+,d2
 	used_d1
 	done_return			; Should be real_return
 
@@ -821,7 +823,7 @@ v_rfbox:
 	jsr	_rounded_box	; vwk, gdb_code, points
 	add.w	#3*4,a7
 
-	move.l	(a7)+,d2	
+	move.l	(a7)+,d2
 	used_d1
 	done_return			; Should be real_return
 
@@ -1002,7 +1004,7 @@ lib_v_bez_fill:
 	move.l	_vdi_stack_top,a7		;  extra stack space
 	move.l	d2,-(a7)			; (Should be improved)
   endc
-	
+
 	sub.w	#10,a7
 	move.l	a7,a2
 	movem.l	a0-a1,-(a7)
@@ -1227,7 +1229,7 @@ lib_v_bez_fill:
 	bsr	free_block	; Block address is already on the stack
 	addq.l	#4,a7
 	bra	.no_poly
-		
+
 .normal_fill:
 	add.w	#9*4,a7
 	movem.l	(a7),a0-a1
