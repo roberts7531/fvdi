@@ -64,37 +64,42 @@ void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, long yrad
             return;
     }
     start = angle = beg_ang;
+
     *points++ = SMUL_DIV(Icos(angle), xrad, 32767) + xc;
     *points++ = yc - SMUL_DIV(Isin(angle), yrad, 32767);
 
-    for(i = 1, j = 2; i < n_steps; i++, j += 2) {
+    for (i = 1, j = 2; i < n_steps; i++, j += 2)
+    {
         angle = SMUL_DIV(del_ang, i, n_steps) + start;
         *points++ = SMUL_DIV(Icos(angle), xrad, 32767) + xc;
         *points++ = yc - SMUL_DIV(Isin(angle), yrad, 32767);
     }
     angle = end_ang;
+
     *points++ = SMUL_DIV(Icos(angle), xrad, 32767) + xc;
     *points++ = yc - SMUL_DIV(Isin(angle), yrad, 32767);
 
-    /* If pie wedge, draw to center and then close.
+    /*
+     * If pie wedge, draw to center and then close.
      * If arc or circle, do nothing because loop should close circle.
      */
 
-    if ((gdp_code == 3) || (gdp_code == 7)) {	/* Pie wedge */
+    if ((gdp_code == 3) || (gdp_code == 7))
+    {
+        /* Pie wedge */
         n_steps++;
         *points++ = xc;
         *points++ = yc;
     }
 
     if ((gdp_code == 2) || (gdp_code == 6))	/* Open arc */
-        c_pline(vwk, n_steps + 1,
-                *(long *)&border_colour, points - (n_steps + 1) * 2);
-    else {
+        c_pline(vwk, n_steps + 1, * (long *) &border_colour, points - (n_steps + 1) * 2);
+    else
+    {
         fill_poly(vwk, points - (n_steps + 1) * 2, n_steps + 1,
-                  *(long *)&fill_colour, pattern, points, mode, interior_style);
+                  * (long *) &fill_colour, pattern, points, mode, interior_style);
         if (vwk->fill.perimeter)
-            c_pline(vwk, n_steps + 1,
-                    *(long *)&border_colour, points - (n_steps + 1) * 2);
+            c_pline(vwk, n_steps + 1, * (long *) &border_colour, points - (n_steps + 1) * 2);
     }
 }
 
