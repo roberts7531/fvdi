@@ -358,7 +358,7 @@ c_v_pline:
 	bsr	allocate_block
 	addq.l	#4,a7
 	tst.l	d0
-	beq	.no_wide	; return if no memory
+	beq	.no_wide	; fall back to thin line if no memory
 
 	move.l	d0,-(a7)	; for free_block below
 
@@ -370,15 +370,19 @@ c_v_pline:
 
 	move.l	d0,-(a7)	; this is the address of the allocated block
 	move.l	d1,-(a7)	; color
+
 	moveq	#0,d0		;
 	move.w	0(a1),d0	;
 	move.l	d0,-(a7)
+
 	move.l	2(a1),-(a7)
+
 	move.l	a0,-(a7)
+
 	jsr	_wide_line
 	add.w	#24,a7
 
-	move.l	(a7)+,d2
+	move.l	(a7)+,d2	; restore d2
 
 	bsr	free_block	; Block address is already on the stack
 	addq.l	#4,a7
