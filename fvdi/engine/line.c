@@ -153,7 +153,8 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
         low = high + 1;
     }
 #else
-    for(i = num_qc_lines - 1; i >= 0; i--) {
+    for (i = num_qc_lines - 1; i >= 0; i--)
+    {
         q_circle[i] = q_circle[(2 * i * ysize / xsize + 1) / 2];
     }
 #endif
@@ -319,6 +320,7 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
         points[5] = wy2 - vy;
         points[6] = wx2 + vx;
         points[7] = wy2 + vy;
+
         fill_poly(vwk, points, 4, colour, &solid, &points[8], mode, 0x00010000L);
 
         /* The line segment end point becomes the starting point for the next
