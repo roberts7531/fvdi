@@ -38,6 +38,7 @@
 #define Y_ASPECT 1
 
 #define ARROWED 1
+#define ROUNDED 2
 
 #if 1
 #define SMUL_DIV(x,y,z)	((short)(((short)(x)*(long)((short)(y)))/(short)(z)))
@@ -236,6 +237,7 @@ void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
     quad_xform(quad, x_val, y_val, vx, vy);
 }
 
+void do_rounded(Virtual *vwk, short *pts, int numpts, int colour, short *points, long mode);
 
 void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode)
 {
@@ -261,6 +263,10 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
     /* If the ends are arrowed, output them. */
     if ((vwk->line.ends.beginning | vwk->line.ends.end) & ARROWED)
         do_arrow(vwk, pts, numpts, colour, points, mode);
+
+    /* if they are rounded, as well */
+    if ((vwk->line.ends.beginning | vwk->line.ends.end) & ROUNDED)
+        do_rounded(vwk, pts, numpts, colour, points, mode);
 
     /* Initialize the starting point for the loop. */
     j = 0;
@@ -566,4 +572,57 @@ void do_arrow(Virtual *vwk, short *pts, int numpts, int colour, short *points, l
     }
 }
 
+void hline(Virtual *vwk, long x1, long y1, long y2, long colour, short *pattern, long mode, long interior_style);
 
+/*
+ * draw a filled circle
+ */
+void draw_filled_circle(Virtual *vwk, const int xc, const int yc, const int radius, const int color, short mode)
+{
+    /* simplified bresenham */
+    int d;
+    int dx;
+    int dxy;
+    int x;
+    int y;
+
+    x = 0;
+    y = radius;
+    d = 1 - radius;
+    dx = 3;
+    dxy = -2 * radius + 5;
+
+    while (y >= x)
+    {
+        extern short *pattern_ptrs[];
+
+        hline(vwk, xc - x, xc + x, yc + y, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - x, xc + x, yc - y, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - y, xc + y, yc + x, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - y, xc + y, yc - x, color, pattern_ptrs[0], mode, 0);
+
+        if (d < 0)
+        {
+            d += dx;
+            dx += 2;
+            dxy += 2;
+            x++;
+        }
+        else
+        {
+            d += dxy;
+            dx += 2;
+            dxy += 4;
+            x++;
+            y--;
+        }
+    }
+}
+
+void do_rounded(Virtual *vwk, short *pts, int numpts, int colour, short *points, long mode)
+{
+    if (vwk->line.ends.beginning & ROUNDED)
+        draw_filled_circle(vwk, pts[0], pts[1],  vwk->line.width / 2, colour, mode);
+    if (vwk->line.ends.end & ROUNDED)
+        draw_filled_circle(vwk, pts[2], pts[3], vwk->line.width / 2, colour, mode);
+}
