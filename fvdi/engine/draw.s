@@ -235,7 +235,7 @@ lib_v_pline:
 	move.l	vwk_line_colour(a0),d0
 c_v_pline:
 
-	bra	.no_wide
+	; bra	.no_wide
 	cmp.w	#1,vwk_line_width(a0)
 	bhi	.wide_line
 
@@ -358,30 +358,31 @@ c_v_pline:
 	bsr	allocate_block
 	addq.l	#4,a7
 	tst.l	d0
-	beq	.no_wide
+	beq	.no_wide	; return if no memory
 
-	move.l	d0,-(a7)	; For free_block below
+	move.l	d0,-(a7)	; for free_block below
 
-	move.l	d2,-(a7)
+	move.l	d2,-(a7)	; save d2
 
 	moveq	#0,d2
 	move.w	vwk_mode(a0),d2
-	move.l	d2,-(a7)
+	move.l	d2,-(a7)	; push writing mode
 
-	move.l	d0,-(a7)
-	move.l	d1,-(a7)
-	moveq	#0,d0
-	move.w	0(a1),d0
+	move.l	d0,-(a7)	; this is the address of the allocated block
+	move.l	d1,-(a7)	; color
+	moveq	#0,d0		;
+	move.w	0(a1),d0	;
 	move.l	d0,-(a7)
 	move.l	2(a1),-(a7)
 	move.l	a0,-(a7)
 	jsr	_wide_line
 	add.w	#24,a7
 
+	move.l	(a7)+,d2
+
 	bsr	free_block	; Block address is already on the stack
 	addq.l	#4,a7
 
-	move.l	(a7)+,d2
 	rts
 
 
