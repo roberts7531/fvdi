@@ -594,15 +594,15 @@ _trap14:
   else
 	move	usp,a0
   endc
-	btst	#5,(a7)
-	beq	.correct_a0
-	lea	6(a7),a0
-	tst.w	$59e
-	beq	.correct_a0
-	addq.l	#2,a0
+	btst	#5,(a7)			; called from supervisor mode?
+	beq	.correct_a0		; no
+	lea	6(a7),a0		; stack offset for 68000
+	tst.w	$59e			; > 68000?
+	beq	.correct_a0		; no, we are correct
+	addq.l	#2,a0			; adjust for long stack frame
 .correct_a0:
 	move.w	(a0),d0
-	cmp.w	#2,d0
+	cmp.w	#2,d0			; is it a Physbase() (2), Logbase() (3) or Getrez() (4) call?
 	blo	.continue_trap14
 	cmp.w	#4,d0
 	bhi	.continue_trap14
