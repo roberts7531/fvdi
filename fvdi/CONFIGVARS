@@ -35,7 +35,7 @@ endif
 ifeq ($(CPU),v4e)
 	CPUOPTS = -mcpu=547x
 else
-	CPUOPS = -mcpu=68$(CPU)
+	CPUOPTS = -mcpu=68$(CPU)
 endif
 
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
