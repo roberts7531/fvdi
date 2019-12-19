@@ -52,6 +52,7 @@ $(SSRC_GNU): $(SINCSRC_GNU)
 # engine binary objects
 OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
+LIBS=$(shell $(CC) $(CFLAGS) -print-libgcc-file-name)
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
 	$(LD) -Map=mapfile -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 

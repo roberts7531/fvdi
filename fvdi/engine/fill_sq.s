@@ -194,7 +194,7 @@ lib_vsf_udpat:
 ;	addq.l	#6,a7
 	move.l	#3,-(a7)
 	move.l	d1,-(a7)
-	bsr.l	_malloc
+	bsr	_malloc
 	addq.l	#8,a7
 	movem.l	(a7)+,d1-d2/a0/a2
 	tst.l	d0

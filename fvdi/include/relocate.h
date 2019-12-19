@@ -15,7 +15,8 @@
 /*
  * Structure definitions
  */
-typedef struct _Prgheader {
+typedef struct _Prgheader
+{
    short magic;
    long  tsize;
    long  dsize;
@@ -26,7 +27,8 @@ typedef struct _Prgheader {
    short relocflag;
 } Prgheader;
 
-typedef struct _Funcs {
+typedef struct _Funcs
+{
 	void CDECL (*copymem)(const void *s, void *d, long n);
 	const char* CDECL (*next_line)(const char *ptr);
 	const char* CDECL (*skip_space)(const char *ptr);
@@ -38,7 +40,7 @@ typedef struct _Funcs {
 	long  CDECL (*numeric)(long ch);
 	long CDECL (*atol)(const char *text);
 	void CDECL (*error)(const char *text1, const char *text2);
-	void* CDECL (*malloc)(long size, long type);			/* Uses Mxalloc if possible */
+    void* CDECL (*malloc)(long size, long type);                    /* Uses Mxalloc if possible */
 	long CDECL (*free)(void *addr);
 	long CDECL (*puts)(const char *text);
 	void CDECL (*ltoa)(char *buf, long n, unsigned long base);
@@ -55,17 +57,20 @@ typedef struct _Funcs {
 	long CDECL (*event)(long id_type, long data);
 } Funcs;
 
-typedef struct _Vars {
+typedef struct _Vars
+{
 	long	*version;
 	char	*name;
 } Vars;
 
-typedef struct _Access {
+typedef struct _Access
+{
 	Funcs	funcs;
 	Vars	vars;	
 } Access;
 
-typedef struct _Locator {
+typedef struct _Locator
+{
 	char 	magic[10];
 	short	version;
 	long  CDECL (*init)(Access *, Driver *, Virtual *, char *);

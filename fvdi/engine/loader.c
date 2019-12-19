@@ -1015,7 +1015,7 @@ int initialize(const unsigned char *addr, long size, Driver *driver, Virtual *vw
         }
         if (j == sizeof(MAGIC))
         {
-            locator = (Locator *)addr;
+            locator = (Locator *) addr;
             if ((locator->version & 0xfff0) < (MODULE_IF_VER & 0xfff0))
             {
                 puts_nl("Module compiled with unsupported interface version.");
@@ -1038,7 +1038,7 @@ void relocate(unsigned char *prog_addr, Prgheader *header)
     unsigned char *code, *rtab, rval;
 
     rtab = prog_addr + header->tsize + header->dsize + header->ssize;
-    code = prog_addr + *(long *)rtab;
+    code = prog_addr + * (long *) rtab;
     rtab += 4;
 
     *(long *)code += (long)prog_addr;
@@ -1090,7 +1090,7 @@ int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
     memset(addr + header.tsize + header.dsize, 0, header.bsize);
 
     /* This will cause trouble if ever called from supervisor mode! */
-    Supexec((long)cache_flush);
+    Supexec(cache_flush);
 
     init_result = 0;
     if (!(init_result = initialize(addr, header.tsize + header.dsize, driver, vwk, opts)))

@@ -116,12 +116,15 @@ long startup(void)
 
     puts_nl("");
 
-    if (!init_utility()) {				/* Make the utility routines ready for use */
+    if (!init_utility())
+    {
+        /* Make the utility routines ready for use */
         error("Error while initializing utility routines.", 0);
         return 0;
     }
 
-    if (!(super = fmalloc(sizeof(struct Super_data), 0x4033))) {
+    if (!(super = fmalloc(sizeof(struct Super_data), 0x4033)))
+    {
         error("Could not allocate space for supervisor accessible data.", 0);
         return 0;
     }
@@ -130,17 +133,22 @@ long startup(void)
     super->fvdi_log.current = 0;
     super->fvdi_log.end = 0;
 
-    if (!(readable = fmalloc(sizeof(struct Readable_data), 0x4043))) {
+    if (!(readable = fmalloc(sizeof(struct Readable_data), 0x4043)))
+    {
         error("Could not allocate space for world-readable data.", 0);
         return 0;
     }
 
-    if (!(base_vwk = initialize_vdi())) {		/* Setup initial real and virtual workstations */
+    if (!(base_vwk = initialize_vdi()))
+    {
+        /* Setup initial real and virtual workstations */
         error("Error while initializing VDI.", 0);
         return 0;
     }
 
-    if (!load_prefs(base_vwk, SYSNAME)) {		/* Load preferences (and load all fonts and device drivers specified) */
+    if (!load_prefs(base_vwk, SYSNAME))
+    {
+        /* Load preferences (and load all fonts and device drivers specified) */
         error("Aborted while loading preferences.", 0);
         return 0;
     }
@@ -150,32 +158,42 @@ long startup(void)
     readable->cookie.remove = remove_fvdi;
     readable->cookie.setup = setup_fvdi;
     readable->cookie.log = &super->fvdi_log;
-    if (!speedo_cookie) {
+    if (!speedo_cookie)
+    {
         readable->fsmc_cookie.type = str2long("_FNT");  /* Was _FSM */
         readable->fsmc_cookie.versions = 0x0100;
-    } else {
+    }
+    else
+    {
         readable->fsmc_cookie.type = str2long("_SPD");
         readable->fsmc_cookie.versions = speedo_cookie;
         readable->fsmc_cookie.quality = 0xffff;
     }
-    if (nvdi_cookie) {
+    if (nvdi_cookie)
+    {
         readable->nvdi_cookie.version = nvdi_cookie;
         readable->nvdi_cookie.date    = 0x13052005;
         readable->nvdi_cookie.flags   = 0x0001;  /* GDOS support */
     }
-    if (calamus_cookie) {
+    if (calamus_cookie)
+    {
         calamus_initialize_cookie(&readable->dcsd_cookie, calamus_cookie);
     }
 
-    if (debug) {				/* Set up log table if asked for */
-        if ((super->fvdi_log.start = malloc(log_size * sizeof(long)))) {
+    if (debug)
+    {
+        /* Set up log table if asked for */
+        if ((super->fvdi_log.start = malloc(log_size * sizeof(long))))
+        {
             super->fvdi_log.active = 1;
             super->fvdi_log.current = super->fvdi_log.start;
             super->fvdi_log.end = &super->fvdi_log.start[log_size - 8];
         }
     }
 
-    if (!initialize_pool(block_size, blocks)) {	/* Initialize the internal memory pool */
+    if (!initialize_pool(block_size, blocks))
+    {
+        /* Initialize the internal memory pool */
         error("Error while initializing memory pool.", 0);
         return 0;
     }
@@ -194,9 +212,12 @@ long startup(void)
     }
     trap14_address = (long)Setexc(46, (void (*)())&trap14);	/* Install an XBIOS handler */
 #else
-    if (booted && !fakeboot && !singlebend) {
+    if (booted && !fakeboot && !singlebend)
+    {
         trap2_address = (long)Setexc(34, (void *)&trap2_temp);	/* Install a temporary trap handler if real boot (really necessary?) */
-    } else {
+    }
+    else
+    {
         vdi_address = (long)Setexc(34, (void *)&vdi_dispatch);	/*   otherwise the dispatcher directly */
     }
 
@@ -209,7 +230,8 @@ long startup(void)
     lineA_address = (long)Setexc(10, (void *)&lineA);		/* Install a LineA handler */
 #endif
 
-    if ( bconout ) {
+    if (bconout)
+    {
         Supexec(bconout_hook); /* cannot use Setexc() as the 0x586 is not divisible by 4 */;
     }
 
@@ -221,12 +243,14 @@ long startup(void)
     puts(".");
     ltoa(buffer, VERmin, 10);
     puts(buffer);
-    if (BETA) {
+    if (BETA)
+    {
         puts("beta");
         ltoa(buffer, BETA, 10);
         puts(buffer);
     }
-    if (!int_is_short) {
+    if (!int_is_short)
+    {
         puts("L");
     }
 #ifdef __GNUC__
@@ -241,7 +265,8 @@ long startup(void)
 #endif
     puts_nl(" now installed.");
 
-    if (debug) {
+    if (debug)
+    {
         ltoa(buffer, (long)&init, 16);
         puts("fVDI engine Text: $");
         puts(buffer);
@@ -251,7 +276,8 @@ long startup(void)
         ltoa(buffer, (long)&bss_start, 16);
         puts("   Bss: $");
         puts_nl(buffer);
-        if (super->fvdi_log.active) {
+        if (super->fvdi_log.active)
+        {
             ltoa(buffer, (long)&super->fvdi_log, 16);
             puts("Logging at $");
             puts_nl(buffer);
@@ -271,19 +297,23 @@ long startup(void)
     element = driver_list;
     while (element) {
         driver = (Driver *)element->value;
-        if (driver->module.flags & 1) {
+        if (driver->module.flags & 1)
+        {
             if (!first_vwk)
                 first_vwk = driver->default_vwk;
-            if (debug) {
+            if (debug)
+            {
                 puts(" ");
                 puts(driver->module.name);
                 ltoa(buffer, (long)driver->module.initialize, 16);
                 puts(" at $");
                 puts_nl(buffer);
             }
-            if (!((long (*)(Virtual *))(driver->module.initialize))(driver->default_vwk)) {
+            if (!((long (*)(Virtual *))(driver->module.initialize))(driver->default_vwk))
+            {
                 /* Driver that fails initialization should be removed! */
-                if (debug) {
+                if (debug)
+                {
                     puts_nl("  Failed initialization!");
                 }
             }
@@ -296,13 +326,17 @@ long startup(void)
      * unless this is a boot (in which case a fall-back is set up instead).
      */
 
-    if (!booted) {
+    if (!booted)
+    {
         if (debug)
             puts_nl("Copying available virtual workstations");
         copy_workstations(first_vwk, !fakeboot);	/* f.vwk - default vwk to set up for, fall-through if fakeboot */
-    } else if (!disabled) {
-        if (!fakeboot && (!stand_alone || fall_back)) {
-            if (debug) {
+    } else if (!disabled)
+    {
+        if (!fakeboot && (!stand_alone || fall_back))
+        {
+            if (debug)
+            {
                 puts_nl("About to set up VDI fallback. Press any key.");
                 key_wait(10);			/* It's too late to wait for a key afterwards */
             }
@@ -313,8 +347,9 @@ long startup(void)
 
     old_gdos = vq_gdos();
 
-    if (!disabled) {
-        *(short *)((long)&vdi_dispatch + 2) = 0x0073;	/* Finally make fVDI take normal VDI calls */
+    if (!disabled)
+    {
+        * (short *) ((long) &vdi_dispatch + 2) = 0x0073;	/* Finally make fVDI take normal VDI calls */
         readable->cookie.flags |= ACTIVE;
     }
 
@@ -329,12 +364,14 @@ long startup(void)
     old_fsmc = get_cookie("FSMC", 0);			/* Experimental */
     set_cookie("FSMC", (long)&readable->fsmc_cookie);
 
-    if (nvdi_cookie) {
+    if (nvdi_cookie)
+    {
         old_nvdi = get_cookie("NVDI", 0);
         set_cookie("NVDI", (long)&readable->nvdi_cookie);
     }
 
-    if (calamus_cookie && (get_cookie("DCSD", 0) == -1)) {
+    if (calamus_cookie && (get_cookie("DCSD", 0) == -1))
+    {
         set_cookie("DCSD", (long)&readable->dcsd_cookie);
         puts_nl("Calamus cookie installed");
     }
@@ -347,7 +384,8 @@ long startup(void)
      * to allocate and release memory under TOS.
      */
 
-    if ((pid = (long *) pid_addr)) {
+    if ((pid = (long *) pid_addr))
+    {
         copymem((void *)basepage, fake_bp, 256);
         *pid = (long)fake_bp;
     }
@@ -370,7 +408,8 @@ static long remove_fvdi(void)
     long ret;
 
     ret = 0;
-    if ((readable->cookie.flags & ACTIVE) && !(readable->cookie.flags & BOOTED)) {
+    if ((readable->cookie.flags & ACTIVE) && !(readable->cookie.flags & BOOTED))
+    {
         if (old_eddi)
             set_cookie("EdDI", old_eddi);
         if (old_fsmc)
@@ -399,7 +438,8 @@ static Driver *find_driver(long n)
     Driver *driver;
 
     element = driver_list;
-    while(element) {
+    while (element)
+    {
         driver = (Driver *)element->value;
         if (((n > 0) && (driver->module.id == n)) || ((n <= 0) && (driver->module.id > -n)))
             return driver;
@@ -473,7 +513,7 @@ static int nvdi_patch(void)
      */
 
     link = 0x88;
-    addr = (long *)get_protected_l(link);
+    addr = (long *) get_protected_l(link);
     while ((addr[-3] == xbra_v) && (addr[-2] != nvdi_v))
     {
         link = (long)&addr[-1];
@@ -547,13 +587,15 @@ void vdi_debug(VDIpars *pars, char *vector)
         return;
     entered = 1;
 
-    if ((check_mem > 0) && (--check_count <= 0)) {
+    if ((check_mem > 0) && (--check_count <= 0))
+    {
         check_memory();
         check_count = check_mem;
     }
 
     func = pars->control->function;
-    if (silent[func >> 3] & (1 << (func & 7))) {
+    if (silent[func >> 3] & (1 << (func & 7)))
+    {
         entered = 0;
         return;
     }
@@ -562,33 +604,42 @@ void vdi_debug(VDIpars *pars, char *vector)
         display = 1;
 
     old_count = count;
-    if (display || ((debug > 2) && (--count == 0))) {
-        if (vector && !*--vector) {        /* If there is a name, */
+    if (display || ((debug > 2) && (--count == 0)))
+    {
+        if (vector && !*--vector)
+        {
+            /* If there is a name, */
             while(*--vector);               /*   locate it! */
             vector++;
             access->funcs.puts(vector);
             buf[0] = ' ';
             access->funcs.ltoa(buf + 1, func, 10);
-        } else {
+        }
+        else
+        {
             access->funcs.puts("VDI ");
             access->funcs.ltoa(buf, func, 10);
         }
         access->funcs.puts(buf);
-        if (pars->control->subfunction) {
+        if (pars->control->subfunction)
+        {
             buf[0] = ' ';
             access->funcs.ltoa(buf + 1, pars->control->subfunction, 10);
             access->funcs.puts(buf);
         }
         access->funcs.puts("\x0d\x0a");
 
-        if (pars->control->l_intin) {
+        if (pars->control->l_intin)
+        {
             access->funcs.puts("  Int");
             access->funcs.ltoa(buf, pars->control->l_intin, 10);
             access->funcs.puts(buf);
             access->funcs.puts(" = ");
-            if ((func == 8) || (func == 241) || (func ==  116) || (func == 117)) {
+            if ((func == 8) || (func == 241) || (func ==  116) || (func == 117))
+            {
                 access->funcs.puts("\"");
-                for(i = 0; i < MIN(pars->control->l_intin, 72); i++) {
+                for(i = 0; i < MIN(pars->control->l_intin, 72); i++)
+                {
                     buf[0] = '.';
                     buf[1] = 0;
                     if ((pars->intin[i] >= 32) && (pars->intin[i] < 256))
@@ -596,8 +647,11 @@ void vdi_debug(VDIpars *pars, char *vector)
                     access->funcs.puts(buf);
                 }
                 access->funcs.puts("\"");
-            } else {
-                for(i = 0; i < MIN(pars->control->l_intin, 12); i++) {
+            }
+            else
+            {
+                for(i = 0; i < MIN(pars->control->l_intin, 12); i++)
+                {
                     access->funcs.ltoa(buf, pars->intin[i], 10);
                     access->funcs.puts(buf);
                     access->funcs.puts(" ");
@@ -606,12 +660,14 @@ void vdi_debug(VDIpars *pars, char *vector)
             access->funcs.puts("\x0d\x0a");
         }
 
-        if (pars->control->l_ptsin) {
+        if (pars->control->l_ptsin)
+        {
             access->funcs.puts("  Pts");
             access->funcs.ltoa(buf, pars->control->l_ptsin, 10);
             access->funcs.puts(buf);
             access->funcs.puts(" = ");
-            for(i = 0; i < MIN(pars->control->l_ptsin * 2, 12); i += 2) {
+            for(i = 0; i < MIN(pars->control->l_ptsin * 2, 12); i += 2)
+            {
                 access->funcs.ltoa(buf, pars->ptsin[i], 10);
                 access->funcs.puts(buf);
                 access->funcs.puts(",");
@@ -622,16 +678,19 @@ void vdi_debug(VDIpars *pars, char *vector)
             access->funcs.puts("\x0d\x0a");
         }
 
-        if ((func == 109) || (func == 110) || (func == 121)) {
+        if ((func == 109) || (func == 110) || (func == 121))
+        {
             mfdb = (MFDB *)pars->control->addr1;
-            for(i = 0; i < 2; i++) {
+            for (i = 0; i < 2; i++)
+            {
                 if (i == 0)
                     access->funcs.puts("  MFDB src = $");
                 else
                     access->funcs.puts("  MFDB dst = $");
                 if (!mfdb->address)
                     access->funcs.puts("screen");
-                else {
+                else
+                {
                     access->funcs.ltoa(buf, (long)mfdb->address, 16);
                     access->funcs.puts(buf);
                     access->funcs.puts(" ");
@@ -655,7 +714,8 @@ void vdi_debug(VDIpars *pars, char *vector)
             }
         }
 
-        if (debug > 3) {
+        if (debug > 3)
+        {
             access->funcs.puts("Trap #2: ");
             access->funcs.ltoa(buf, *(long *)0x88, 16);
             access->funcs.puts(buf);
@@ -663,7 +723,8 @@ void vdi_debug(VDIpars *pars, char *vector)
         }
 
         count = old_count;
-        if (interactive) {
+        if (interactive)
+        {
             key = key_wait(10);
             switch (key) {
                 case 'q':
@@ -736,12 +797,14 @@ void display_output(VDIpars *pars)
     char buf[10];
     int i;
 
-    if (pars->control->l_intout) {
+    if (pars->control->l_intout)
+    {
         access->funcs.puts("  Intout");
         access->funcs.ltoa(buf, pars->control->l_intout, 10);
         access->funcs.puts(buf);
         access->funcs.puts(" = ");
-        for(i = 0; i < MIN(pars->control->l_intout, 12); i++) {
+        for (i = 0; i < MIN(pars->control->l_intout, 12); i++)
+        {
             access->funcs.ltoa(buf, pars->intout[i], 10);
             access->funcs.puts(buf);
             access->funcs.puts(" ");
@@ -749,7 +812,8 @@ void display_output(VDIpars *pars)
     }
     access->funcs.puts("\x0d\x0a");
 
-    if (pars->control->l_ptsout) {
+    if (pars->control->l_ptsout)
+    {
         access->funcs.puts("  Ptsout");
         access->funcs.ltoa(buf, pars->control->l_ptsout, 10);
         access->funcs.puts(buf);
@@ -774,7 +838,8 @@ void trap2_debug(long type, VDIpars *pars, long *stack)
 
     stack = (long *)((long)stack + 10);
     access->funcs.puts("Stack: \x0d\x0a");
-    for(i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++)
+    {
         access->funcs.ltoa(buf, *stack++, 16);
         access->funcs.puts(buf);
         access->funcs.puts(" ");
@@ -784,7 +849,8 @@ void trap2_debug(long type, VDIpars *pars, long *stack)
     type &= 0xffff;
     if (type == 0x73)
         vdi_debug(pars, 0);
-    else {
+    else
+    {
         access->funcs.puts("Trap #2: ");
         access->funcs.ltoa(buf, type, 16);
         access->funcs.puts(buf);

@@ -1139,27 +1139,35 @@ void *fmalloc(long size, long type)
     Circle *new;
     long bp = 0L;
 
-    if (pid) {           /* Pretend to be fVDI if possible */
+    if (pid)
+    {
+        /* Pretend to be fVDI if possible */
         bp = *pid;
         *pid = basepage;
     }
-    if (mint | magic) {
+    if (mint | magic)
+    {
         if (!(type & 0xfff8))  /* Simple type? */
             type |= 0x4030;     /* Keep around, supervisor accessible */
         new = (Circle *)Mxalloc(size + sizeof(Circle), type);
-    } else {
+    }
+    else
+    {
         type &= 3;
         if (mxalloc)      /* Alternative if possible */
-            new = (Circle *)Mxalloc(size + sizeof(Circle), type);
+            new = (Circle *) Mxalloc(size + sizeof(Circle), type);
         else
-            new = (Circle *)Malloc(size + sizeof(Circle));
+            new = (Circle *) Malloc(size + sizeof(Circle));
     }
-    if (pid) {
+    if (pid)
+    {
         *pid = bp;
     }
 
-    if ((long)new > 0) {
-        if ((debug > 2) && !(silentx[0] & 0x01)) {
+    if ((long) new > 0)
+    {
+        if ((debug > 2) && !(silentx[0] & 0x01))
+        {
             char buffer[10];
             ltoa(buffer, (long)new, 16);
             puts("Allocation at $");
@@ -1169,22 +1177,27 @@ void *fmalloc(long size, long type)
             puts(buffer);
             puts_nl(" bytes");
         }
-        if (memlink) {
-            if (mblocks) {
+        if (memlink)
+        {
+            if (mblocks)
+            {
                 new->prev = mblocks->prev;
                 new->next = mblocks;
                 ((Circle *)((long)mblocks->prev & ~1))->next = new;
                 mblocks->prev = (Circle *)((long)new | 1);
-            } else {
+            }
+            else
+            {
                 mblocks = new;
                 new->prev = (Circle *)((long)new | 1);
                 new->next = new;
             }
         }
         new->size = size + sizeof(Circle);
-        *(long *)&new[1] = size;
-        return (void *)&new[1];
-    } else
+        * (long *) &new[1] = size;
+        return (void *) &new[1];
+    }
+    else
         return new;
 }
 
@@ -2038,12 +2051,13 @@ long init_utility(void)
 
     check_cookies();
 
-    tmp = (long)Mxalloc(10, 3);      /* Try allocating a little memory */
+    tmp = (long) Mxalloc(10, 3);      /* Try allocating a little memory */
     if (tmp == -32)
         mxalloc = 0;
     else if (tmp < 0)
         return 0;                     /* Should not happen */
-    else {
+    else
+    {
         mxalloc = 1;
         Mfree((void *)tmp);
     }
@@ -2051,7 +2065,8 @@ long init_utility(void)
     tmp = get_protected_l(0x4f2);       /* _sysbase */
     if ((get_protected_l(tmp) & 0x0000ffff) < 0x0102)
         tmp = 0;
-    else {
+    else
+    {
         tmp = get_protected_l(tmp + 40); /* p_run (ptr to current base page) */
         if (get_protected_l(tmp) != basepage)    /* Not what it should be? */
             tmp = 0;
