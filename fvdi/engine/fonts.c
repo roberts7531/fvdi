@@ -140,7 +140,7 @@ Fontheader *load_font(const char *name)
     if ((font_size = get_size(name) - header_size) < 0)
         return 0;
 
-    if (!(header = (Fontheader *)malloc(sizeof(Fontheader))))
+    if (!(header = malloc(sizeof(Fontheader))))
         return 0;
 
     if ((file = Fopen(name, 0)) < 0) {
@@ -150,7 +150,7 @@ Fontheader *load_font(const char *name)
 
     Fread(file, header_size, header);
 
-    if (!(buffer = (char *)malloc(font_size)))
+    if (!(buffer = malloc(font_size)))
     {
         free(header);
         Fclose(file);
@@ -160,7 +160,7 @@ Fontheader *load_font(const char *name)
     Fread(file, font_size, buffer);
     Fclose(file);
 
-    fixup_font(header, buffer, 1);    /* (flip) */
+    fixup_font(header, buffer, ~(header->flags & 2));    /* (flip) */
     unpack_font(header, 1);           /* Try to unpack font (standard format) */
 
     return header;

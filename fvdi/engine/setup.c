@@ -76,7 +76,6 @@ Virtual *initialize_vdi(void)
     dummy_vwk->real_address = (void *) dummy_wk;
     dummy_vwk->standard_handle = -1;
 
-    puts("assign function ptrs\r\n");
     for (i = -1; i < 256; i ++)
     {
         dummy_wk->function[i].retvals[0] = 0;
@@ -87,13 +86,13 @@ Virtual *initialize_vdi(void)
     non_fvdi_wk = dummy_wk;
     non_fvdi_vwk = dummy_vwk;
 
-    puts("assign virtual workstation to handles\r\n");
     for (i = 0; i < HANDLES; i++)
         handle[i] = dummy_vwk;
 
     if (!(wk = malloc(sizeof(Workstation))))
     {
         free(tmp);
+
         return 0;
     }
 
@@ -101,6 +100,7 @@ Virtual *initialize_vdi(void)
     {
         free(wk);
         free(tmp);
+
         return 0;
     }
 
@@ -110,6 +110,7 @@ Virtual *initialize_vdi(void)
     * reasonable initial values.
     * The virtual workstation is both returned and stored as 'default_virtual'.
     */
+
     /* Screen */
     wk->driver = 0;
     wk->screen.type = 0;
@@ -123,7 +124,7 @@ Virtual *initialize_vdi(void)
     wk->screen.shadow.address = 0;
     wk->screen.shadow.wrap = 0;
     /* */
-    wk->screen.pixel.width = 238;       /* Used to be 353 */
+    wk->screen.pixel.width = 238;               /* Used to be 353 */
     wk->screen.pixel.height = 149;
     /* */
     wk->screen.coordinates.course = 0;
@@ -133,7 +134,7 @@ Virtual *initialize_vdi(void)
     /* */
     wk->writing.fonts = 0;
     wk->writing.first_font = 0;
-    wk->writing.effects = 0x1f;              /* Outline/underline/italic/light/bold supported */
+    wk->writing.effects = 0x1f;                 /* Outline/underline/italic/light/bold supported */
     wk->writing.rotation.possible = 0;
     wk->writing.rotation.type = 0;
     wk->writing.justification = 0;
@@ -186,7 +187,7 @@ Virtual *initialize_vdi(void)
     wk->various.workstation_type = 0;
     /* Console */
     /* Mouse */
-    wk->mouse.type = 0;           /* Default to old VDI mouse */
+    wk->mouse.type = 0;                         /* Default to old VDI mouse */
     wk->mouse.hide = 0;
     wk->mouse.buttons = 0;
     wk->mouse.forced = 0;
@@ -211,15 +212,12 @@ Virtual *initialize_vdi(void)
     wk->r.text     = &default_text;
     wk->r.mouse    = 0;
 
-    puts("assign default functions\r\n");
     copymem(&default_functions[-1], &wk->function[-1], 257 * sizeof(Function));
 
-    puts("assign default opcode5\'s\r\n");
-    wk->opcode5_count = *(short *)((long) default_opcode5 - 2);
+    wk->opcode5_count = * (short *) ((long) default_opcode5 - 2);
     copymem(default_opcode5, wk->opcode5, (wk->opcode5_count + 1) * sizeof(void *));
 
-    puts("assign default opcode11\'s\r\n);");
-    wk->opcode11_count = *(short *)((long)default_opcode11 - 2);
+    wk->opcode11_count = * (short *) ((long) default_opcode11 - 2);
     copymem(default_opcode11, wk->opcode11, (wk->opcode11_count + 1) * sizeof(void *));
 
     vwk->clip.on = 0;
@@ -234,9 +232,9 @@ Virtual *initialize_vdi(void)
     vwk->text.alignment.horizontal = 0;
     vwk->text.alignment.vertical = 0;
     vwk->text.rotation = 0;
-    vwk->text.charmap = 1;	      /* ASCII words mapping */
+    vwk->text.charmap = 1;                  /* ASCII words mapping */
     vwk->text.font = 0;
-    vwk->text.current_font = 0;        /* Address will be set on first call to vst_font */
+    vwk->text.current_font = 0;             /* Address will be set on first call to vst_font */
 
     vwk->line.colour.background = WHITE;
     vwk->line.colour.foreground = BLACK;
@@ -246,7 +244,7 @@ Virtual *initialize_vdi(void)
     vwk->line.ends.end = 0;
     vwk->line.user_mask = 0xffff;
 
-    vwk->bezier.on = 0;                /* Should these really be per vwk? */
+    vwk->bezier.on = 0;                     /* Should these really be per vwk? */
     vwk->bezier.depth_scale = 0;
 
     vwk->marker.colour.background = WHITE;
@@ -266,7 +264,7 @@ Virtual *initialize_vdi(void)
 
     vwk->mode = 1;
 
-    vwk->real_address = (void *)wk;
+    vwk->real_address = wk;
 
     vwk->standard_handle = 1;
 
