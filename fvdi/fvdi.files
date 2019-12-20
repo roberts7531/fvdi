@@ -138,6 +138,7 @@ include/compiler.inc
 include/function.h
 include/fvdi.h
 include/globals.h
+include/macros.gnu
 include/macros.inc
 include/os.h
 include/relocate.h
