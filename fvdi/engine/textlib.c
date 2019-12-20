@@ -167,15 +167,15 @@ long lib_vqt_name(Virtual *vwk, long number, short *name)
     Fontheader *font;
     unsigned char *font_name;
 
-    if (!number || ((unsigned long)number > vwk->real_address->writing.fonts))
+    if (!number || ((unsigned long) number > vwk->real_address->writing.fonts))
         number = 1;
 
     font = vwk->real_address->writing.first_font;
-    for(number -= 2; number >= 0; number--)
+    for (number -= 2; number >= 0; number--)
         font = font->next;
 
     font_name = font->name;
-    for(i = 31; i >= 0; i--)
+    for (i = 31; i >= 0; i--)
         *name++ = *font_name++;
 
     if (font->flags & 0x4000)
