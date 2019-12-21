@@ -436,12 +436,14 @@ void setmem_aligned(void *d, long v, long n)
  */
 void *memset(void *s, int c, size_t n)
 {
-    if ((n > 3) && !((long)s & 1)) {
+    if ((n > 3) && !((long) s & 1))
+    {
         unsigned long v;
-        v = ((unsigned short)c << 8) | (unsigned short)c;
+        v = ((unsigned short) c << 8) | (unsigned short) c;
         v = (v << 16) | v;
         setmem_aligned(s, v, n);
-    } else
+    }
+    else
         setmem(s, c, n);
 
     return s;
@@ -479,8 +481,10 @@ long strncmp(const char *s1, const char *s2, size_t n)
     long ns;     /* size_t can't be negative */
 
     ns = n;
-    for(ns--; ns >= 0; ns--) {
-        if (!(c1 = *s1++)) {
+    for (ns--; ns >= 0; ns--)
+    {
+        if (!(c1 = *s1++))
+        {
             s2++;
             break;
         }
@@ -503,7 +507,8 @@ long memcmp(const void *s1, const void *s2, size_t n)
     ns = n;
     s1c = (char *)s1;
     s2c = (char *)s2;
-    for(ns--; ns >= 0; ns--) {
+    for (ns--; ns >= 0; ns--)
+    {
         if (*s1c++ != *s2c++)
             return (long)(s1c[-1] - s2c[-1]);
     }
@@ -536,7 +541,8 @@ char *strncpy(char *dest, const char *src, size_t n)
 
     d = dest;
     ns = n;
-    for(ns--; ns >= 0; ns--) {
+    for (ns--; ns >= 0; ns--)
+    {
         c1 = *src++;
         *dest++ = c1;
         if (!c1)
@@ -563,7 +569,7 @@ char *strdup(const char *s)
 
 void cat(const char *src, char *dest)
 {
-    while(*dest++)
+    while (*dest++)
         ;
     copy(src, dest - 1);
 }
@@ -586,7 +592,8 @@ char *strchr(const char *s, long c)
         return (char *)s + strlen(s);
 
     c1 = c;
-    while((ch = *s++)) {
+    while((ch = *s++))
+    {
         if (ch == c1)
             return (char *)s - 1;
     }
@@ -711,7 +718,8 @@ long isalnum(long c)
 
 long isspace(long c)
 {
-    switch(c) {
+    switch(c)
+    {
         case ' ':
         case '\f':
         case '\n':

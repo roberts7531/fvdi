@@ -29,68 +29,75 @@
 #define __WINDOM_LIST__
 
 
-typedef struct Linkable {
-	struct Linkable *next;
-	struct Linkable *prev;
+typedef struct Linkable
+{
+    struct Linkable *next;
+    struct Linkable *prev;
 } LINKABLE;
 
 
-typedef struct {
-	LINKABLE head;
-	LINKABLE tail;
+typedef struct
+{
+    LINKABLE head;
+    LINKABLE tail;
 } LIST;
 
 
 #define listEmptyListInitializer() {{NULL,NULL},{NULL,NULL}}
 
-static inline void listInit( LIST *list ) {
-	list->head.next = &list->tail;
-	list->head.prev = (LINKABLE*)0L;
-	list->tail.next = (LINKABLE*)0L;
-	list->tail.prev = &list->head;
+static inline void listInit(LIST *list)
+{
+    list->head.next = &list->tail;
+    list->head.prev = (LINKABLE*) 0L;
+    list->tail.next = (LINKABLE*) 0L;
+    list->tail.prev = &list->head;
 }
 
-static inline void listInsert( LINKABLE *iter, LINKABLE *entry ) {
-	entry->next = iter;
-	entry->prev = iter->prev;
-	iter->prev->next = entry;
-	iter->prev = entry;
+static inline void listInsert(LINKABLE *iter, LINKABLE *entry)
+{
+    entry->next = iter;
+    entry->prev = iter->prev;
+    iter->prev->next = entry;
+    iter->prev = entry;
 }
 
-static inline void listAppend( LINKABLE *iter, LINKABLE *entry ) {
-	entry->next = iter->next;
-	entry->prev = iter;
-	iter->next->prev = entry;
-	iter->next = entry;
+static inline void listAppend(LINKABLE *iter, LINKABLE *entry)
+{
+    entry->next = iter->next;
+    entry->prev = iter;
+    iter->next->prev = entry;
+    iter->next = entry;
 }
 
-static inline LINKABLE *listRemove( LINKABLE *iter ) {
-	iter->prev->next = iter->next;
-	iter->next->prev = iter->prev;
-	return iter;
+static inline LINKABLE *listRemove(LINKABLE *iter)
+{
+    iter->prev->next = iter->next;
+    iter->next->prev = iter->prev;
+    return iter;
 }
 
-LIST *createList( void );
-LIST *listSplice( LIST *list, LINKABLE *first, LINKABLE *pastLast );
+LIST *createList(void);
+LIST *listSplice(LIST *list, LINKABLE *first, LINKABLE *pastLast);
 
-#define listForEach( type, i, list )	\
-	if ( list ) for( i=(type)(list)->head.next; \
-		((LINKABLE*)i) != &(list)->tail; \
-		i=(type)((LINKABLE*)i)->next )
+#define listForEach(type, i, list) \
+    if (list) for (i = (type) (list)->head.next; \
+        ((LINKABLE *) i) != &(list)->tail; \
+        i = (type)((LINKABLE *) i)->next)
 
-#define listRewind( list )	&((list)->head)
-#define listEnd( list )		&((list)->tail)
-#define listNext( iter )	((!((LINKABLE*)iter)->next->next) ? NULL : (((LINKABLE*)iter)->next))
-#define listPrev( iter )	((!((LINKABLE*)iter)->prev->prev) ? NULL : (((LINKABLE*)iter)->prev))
+#define listRewind(list)    &((list)->head)
+#define listEnd(list)       &((list)->tail)
+#define listNext(iter)      ((!((LINKABLE *)iter)->next->next) ? NULL : (((LINKABLE *)iter)->next))
+#define listPrev(iter)      ((!((LINKABLE *)iter)->prev->prev) ? NULL : (((LINKABLE *)iter)->prev))
 
-#define listIsEmpty(list)	( ((list)->head.next) == (&(list)->tail))
-#define listFirst(list)		( ((list)->head.next) == (&(list)->tail) ? NULL : ((list)->head.next))
-#define listLast(list)		( ((list)->tail.prev) == (&(list)->head) ? NULL : ((list)->tail.prev))
+#define listIsEmpty(list)	(((list)->head.next) == (&(list)->tail))
+#define listFirst(list)     (((list)->head.next) == (&(list)->tail) ? NULL : ((list)->head.next))
+#define listLast(list)      (((list)->tail.prev) == (&(list)->head) ? NULL : ((list)->tail.prev))
 
-typedef struct VoidP_Linkable {
-	struct Linkable *next;
-	struct Linkable *prev;
-	void		*value;
+typedef struct VoidP_Linkable
+{
+    struct Linkable *next;
+    struct Linkable *prev;
+    void *value;
 } VOIDP_LINKABLE;
 
 
