@@ -4,3 +4,10 @@ mapfile
 *.gnue
 *.ino
 *.inf
+*.acc
+*.prg
+conv2gas
+lex.yy.c
+struct.tab.*
+structer
+
