@@ -41,7 +41,8 @@ endif
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 # General compilation and optimization options (CFLAGS)
-M68K_ATARI_MINT_CFLAGS   = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
+M68K_ATARI_MINT_CFLAGS = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
+
 ifdef DEBUG
 CFLAGS += -g
 ASFLAGS += -g
@@ -52,16 +53,7 @@ endif
 LIBS := $(shell $(CC) $(CPUOPTS) -print-file-name=libgcc.a)
 
 # Set these to point to the correct directories for FreeType support!
-#stdlib_srcdir  = $(top_srcdir)/modules/ft2/stdlib
-#ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype-2.1.9
-#ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype-2.1.10
 ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype-2.2.1
-#ft2_srcdir     = $(top_srcdir)/../freetype2
-#libkern_srcdir = $(top_srcdir)/../freemint/sys/libkern
-
-#stdlib_srcdir  =
-#ft2_srcdir     =
-#libkern_srcdir =
 
 ifeq ($(DEBUG),yes)
  FT2_DEBUG_OPTS = -I$(top_srcdir)/modules/ft2/devel
