@@ -31,7 +31,8 @@ SSRC = \
 	../common/c_common.s \
 	../common/common.s \
 	../common/clip.s \
-	../common/lineachk.s
+	../common/lineachk.s \
+	evendata.s
 
 CSRC = \
 	../common/init.c \
@@ -39,8 +40,8 @@ CSRC = \
 	spec.c \
 	palette.c \
 	fill.c \
-	line.c \
-	blit.c
+	blit.c \
+	line.c
 
 # handle DevPac -> gas conversions
 # defines SSRC_GNU and SINCSRC_GNU variables
