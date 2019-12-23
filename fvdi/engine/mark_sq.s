@@ -1,7 +1,7 @@
 *****
 * FenixVDI marker set/query functions
 *
-* Copyright 1997-2000, Johan Klockars 
+* Copyright 1997-2000, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 *****
@@ -32,7 +32,7 @@ vsm_color:
 	lblo	.ok,1
 	moveq	#BLACK,d0
  label .ok,1
-	move.w	d0,vwk_marker_colour_foreground(a0)
+	move.w	d0,vwk_marker_colour_bgfg_foreground(a0)
 	move.l	intout(a1),a2
 	move.w	d0,(a2)
 	done_return
@@ -49,7 +49,7 @@ lib_vsm_color:
 	lblo	.ok,1
 	moveq	#BLACK,d0
  label .ok,1
-	move.w	d0,vwk_marker_colour_foreground(a0)
+	move.w	d0,vwk_marker_colour_bgfg_foreground(a0)
 	rts
 
 
