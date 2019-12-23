@@ -1,6 +1,13 @@
 M68K_ATARI_MINT_CROSS := yes
+
+# set CPU and DEBUG if not passed in already
+ifeq ($(CPU),)
 CPU=020
+endif
+
+ifeq ($DEBUG,)
 DEBUG=yes
+endif
 
 SUBDIRS := \
 	modules/ft2 \
