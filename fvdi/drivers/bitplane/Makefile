@@ -31,8 +31,7 @@ SSRC = \
 	../common/c_common.s \
 	../common/common.s \
 	../common/clip.s \
-	../common/lineachk.s \
-	evendata.s
+	../common/lineachk.s
 
 CSRC = \
 	../common/init.c \
