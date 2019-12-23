@@ -646,7 +646,7 @@ static void do_blit(blit *blt)
     long src_x_inc, dst_x_inc, src_y_inc, dst_y_inc;
     unsigned long end_1;
     void *my_op, *my_op1, *my_op2, *my_op3;
-    static void *ops1[] =
+    static const void *ops1[] =
     {
         &&op1_0, &&op1_1, &&op1_2, &&op1_3, &&op1_4, &&op1_5, &&op1_6, &&op1_7,
         &&op1_8, &&op1_9, &&op1_a, &&op1_b, &&op1_c, &&op1_d, &&op1_e, &&op1_f
