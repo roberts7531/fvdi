@@ -508,7 +508,11 @@ subroutine_call:
 	move.w	#$ffff,-(a7)		; Mark old stack
 	move.w	#$88,-(a7)		; Set up a 'Trap #2' on the stack
 	pea	.return_here
-	move	sr,-(a7)
+	move.w	sr,-(a7)
+	ifne	mcoldfire
+	move.w	0x4000,-(sp)		; to create a valid ColdFire stack frame,
+					; push a format word on ths stack
+	endc
 	bra	dispatch_entry
 .return_here:
 	cmp.w	#$ffff,(a7)+
