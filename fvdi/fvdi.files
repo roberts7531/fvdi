@@ -50,6 +50,7 @@ drivers/common/common.s
 drivers/common/falc_pal.s
 drivers/common/init.c
 drivers/common/lineachk.s
+drivers/firebee/Makefile
 drivers/firebee/fb_spec.c
 drivers/firebee/firebee.c
 drivers/firebee/firebee.h
@@ -60,6 +61,7 @@ drivers/firebee/video.h
 drivers/include/driver.h
 drivers/include/linea.inc
 drivers/include/pixelmac.inc
+drivers/radeon/Makefile
 drivers/radeon/modeline_vesa.c
 drivers/radeon/radeon.c
 drivers/radeon/radeon.h
