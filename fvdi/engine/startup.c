@@ -836,7 +836,7 @@ void trap2_debug(long type, VDIpars *pars, long *stack)
     char buf[10];
     int i;
 
-    stack = (long *)((long)stack + 10);
+    stack = (long *) ((long) stack + 10);
     access->funcs.puts("Stack: \x0d\x0a");
     for (i = 0; i < 16; i++)
     {
@@ -855,7 +855,7 @@ void trap2_debug(long type, VDIpars *pars, long *stack)
         access->funcs.ltoa(buf, type, 16);
         access->funcs.puts(buf);
         access->funcs.puts(" (");
-        access->funcs.ltoa(buf, *(long *)0x88, 16);
+        access->funcs.ltoa(buf, *(long *) 0x88, 16);
         access->funcs.puts(buf);
         access->funcs.puts(")\x0d\x0a");
 
