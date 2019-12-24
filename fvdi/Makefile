@@ -12,7 +12,9 @@ endif
 SUBDIRS := \
 	modules/ft2 \
 	engine \
-	drivers/bitplane
+	drivers/bitplane \
+	drivers/radeon \
+	drivers/firebee
 
 TARGETS := all clean
 

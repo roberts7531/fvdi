@@ -10,11 +10,14 @@ FVDI_DIR=fvdi
 
 FT2_DIR=${FVDI_DIR}/modules/ft2
 BPL_DIR=${FVDI_DIR}/drivers/bitplane
+RAD_DIR=${FVDI_DIR}/drivers/radeon
+FBE_DIR=${FVDI_DIR}/drivers/firebee
 ENG_DIR=${FVDI_DIR}/engine
 
 TARGET_DIR=../fvdi_test
 
 rm -f bitplane.sys
+rm -f radeon.sys
 rm -f fvdi_gnu.prg
 
 (cd ${FT2_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make clean) || exit
@@ -25,6 +28,12 @@ rm -f fvdi_gnu.prg
 
 (cd ${BPL_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make clean) || exit
 (cd ${BPL_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make -j) || exit
+
+(cd ${RAD_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make clean) || exit
+(cd ${RAD_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make -j) || exit
+
+(cd ${FBE_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make clean) || exit
+(cd ${FBE_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make -j) || exit
 
 cp ${BPL_DIR}/bitplane.sys .
 cp ${ENG_DIR}/fvdi_gnu.prg .
