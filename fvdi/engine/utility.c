@@ -154,13 +154,14 @@ long remove_xbra(long vector, const char *name)
 {
     long link, *addr, name_l, xbra_l;
     link = vector;
-    addr = (long *)get_protected_l(link);    /* Probably an exception vector */
+    addr = (long *) get_protected_l(link);    /* Probably an exception vector */
     xbra_l = str2long("XBRA");
     name_l = str2long(name);
 
-    while ((addr[-3] == xbra_l) && (addr[-2] != name_l)) {
-        link = (long)&addr[-1];
-        addr = (long *)addr[-1];
+    while ((addr[-3] == xbra_l) && (addr[-2] != name_l))
+    {
+        link = (long) &addr[-1];
+        addr = (long *) addr[-1];
     }
     if (addr[-3] != xbra_l)
         return 0;
@@ -184,21 +185,25 @@ long set_cookie(const char *name, long value)
 
     count = 0;
     name_l = str2long(name);
-    addr = old_addr = (long *)get_protected_l(0x5a0);    /* _p_cookies */
+    addr = old_addr = (long *) get_protected_l(0x5a0);    /* _p_cookies */
 
-    if (addr) {
-        while (*addr && (*addr != name_l)) {
+    if (addr)
+    {
+        while (*addr && (*addr != name_l))
+        {
             count++;
             addr += 2;
         }
-        if (*addr == name_l) {
+        if (*addr == name_l)
+        {
             addr[1] = value;
             return 1;
         }
 
         /* Must make sure there is room for the final count!  [010109] */
 
-        if (count != addr[1] - 1) {
+        if (count != addr[1] - 1)
+        {
             addr[2] = 0;
             addr[3] = addr[1];
             addr[0] = name_l;
@@ -216,7 +221,7 @@ long set_cookie(const char *name, long value)
     addr[count * 2 + 2] = 0;
     addr[count * 2 + 3] = count + 8;
 
-    set_protected_l(0x5a0, (long)addr);    /* _p_cookies */
+    set_protected_l(0x5a0, (long) addr);    /* _p_cookies */
 
     return 0;
 }
@@ -238,9 +243,10 @@ long initialize_pool(size_t size, long n)
 
     block_size = size;
     ptr = 0;
-    for(n = n - 1; n >= 0; n--) {
+    for (n = n - 1; n >= 0; n--)
+    {
         block_chain = addr;
-        *(char **)addr = ptr;
+        * (char **) addr = ptr;
         ptr = addr;
         addr += size;
     }
@@ -252,7 +258,7 @@ long initialize_pool(size_t size, long n)
 /*
  * Allocate a block from the internal memory pool.
  */
-char *allocate_block(size_t size)
+void *allocate_block(size_t size)
 {
     char *addr;
 
