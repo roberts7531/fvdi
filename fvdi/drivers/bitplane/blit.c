@@ -390,7 +390,7 @@ static void do_blit_short_32(blit *blt)
     long src_x_inc, src_y_inc, dst_y_inc;
     short end_1;
     void *my_op;
-    static void *ops[] =
+    static const void *ops[] =
     {
         &&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
         &&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
@@ -523,7 +523,7 @@ static void do_blit_short(blit *blt)
     long src_y_inc, dst_y_inc;
     short end_1;
     void *my_op;
-    static void *ops[] = {
+    static const void *ops[] = {
         &&op0, &&op1, &&op2, &&op3, &&op4, &&op5, &&op6, &&op7,
         &&op8, &&op9, &&opa, &&opb, &&opc, &&opd, &&ope, &&opf
     };
@@ -651,12 +651,12 @@ static void do_blit(blit *blt)
         &&op1_0, &&op1_1, &&op1_2, &&op1_3, &&op1_4, &&op1_5, &&op1_6, &&op1_7,
         &&op1_8, &&op1_9, &&op1_a, &&op1_b, &&op1_c, &&op1_d, &&op1_e, &&op1_f
     };
-    static void *ops2[] =
+    static const void *ops2[] =
     {
         &&op2_0, &&op2_1, &&op2_2, &&op2_end, &&op2_4, &&op2_5, &&op2_6, &&op2_7,
         &&op2_8, &&op2_9, &&op2_a, &&op2_b, &&op2_c, &&op2_d, &&op2_e, &&op2_f
     };
-    static void *ops3[] =
+    static const void *ops3[] =
     {
         &&op3_0, &&op3_1, &&op3_2, &&op3_3, &&op3_4, &&op3_5, &&op3_6, &&op3_7,
         &&op3_8, &&op3_9, &&op3_a, &&op3_b, &&op3_c, &&op3_d, &&op3_e, &&op3_f
@@ -1794,10 +1794,11 @@ void set_mouse_shape(Mouse *mouse, short *masks)
 long CDECL
 c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse)
 {
-    static long CDECL (*mouse_draw[])(Workstation *, long, long, Mouse *) = {
-                                                                            0, c_mouse_draw_1, c_mouse_draw_2, 0, c_mouse_draw_4,
-                                                                            0, 0, 0, c_mouse_draw_8
-};
+    static long CDECL (*mouse_draw[])(Workstation *, long, long, Mouse *) =
+    {
+        0, c_mouse_draw_1, c_mouse_draw_2, 0, c_mouse_draw_4,
+        0, 0, 0, c_mouse_draw_8
+    };
 
     return mouse_draw[wk->screen.mfdb.bitplanes](wk, x, y, mouse);
 }
