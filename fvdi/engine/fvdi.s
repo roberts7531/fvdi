@@ -79,8 +79,10 @@ _init:
 	move.l	d0,a6		; Program size
 	move.l	a5,d1
 	add.l	d0,d1
+
 	and.w	#$fffe,d1	; Even stack address
 	move.l	d1,a7
+
 	move.l	d0,-(a7)	; Keep d0 bytes
 	move.l	a5,-(a7)	; From address a5
 	move.w	d0,-(a7)	; dummy
@@ -89,6 +91,7 @@ _init:
 	lea	12(a7),a7
 
 	move.l	a5,_basepage
+
 	bsr	_startup	; Initialize
 	tst.l	d0
 	beq	.error
@@ -97,6 +100,7 @@ _init:
 	move.l	a6,-(a7)        ; Program size
 	move.w	#$31,-(a7)	; Ptermres
 	trap	#1
+
 	;illegal
 
 .error:
@@ -131,7 +135,9 @@ _trap2_temp:
   ifne debug
 	cmp.w	#2,_debug
 	bls	.no_debug1
+
 	movem.l	d0-d2/a0-a2,-(a7)
+
 	move.l	a7,a0
 	add.w	#6*4+8,a0
 	move.l	a0,-(a7)
@@ -139,6 +145,7 @@ _trap2_temp:
 	move.l	d0,-(a7)
 	jsr	_trap2_debug
 	add.w	#12,a7
+
 	movem.l	(a7)+,d0-d2/a0-a2
 .no_debug1:
   endc
@@ -176,7 +183,7 @@ _trap2_temp:
 ;	tst.w	_fvdi_log
 	move.l	_super,a2
 	tst.w	(a2)				; Log function call if that has (super->fvdi_log.active)
-	beq	.no_log2			;  been requested (only debug version)
+	beq	.no_log2			; been requested (only debug version)
 ;	move.l	_fvdi_log+6,a2
 	move.l	a2,d0
 	move.l	6(a2),a2
@@ -593,14 +600,20 @@ _trap14:
 	tst.w	_xbiosfix
 	beq	.continue_trap14
   ifne mcoldfire
-	; move	usp,a0		; PortAsm doesn't swallow this although it's valid
+	; move	usp,a0			; PortAsm doesn't swallow this although it's valid
 	.word	$4e68
+	btst	#5,4(a7)		; called from supervisor mode?
   else
 	move	usp,a0
-  endc
 	btst	#5,(a7)			; called from supervisor mode?
+  endc
 	beq	.correct_a0		; no
+  ifne mcoldfire
+	lea	8(a7),a0
+	bra	.correct_a0
+  else
 	lea	6(a7),a0		; stack offset for 68000
+  endc
 	tst.w	$59e			; > 68000?
 	beq	.correct_a0		; no, we are correct
 	addq.l	#2,a0			; adjust for long stack frame
