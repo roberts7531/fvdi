@@ -41,7 +41,9 @@ typedef int BOOL;
 typedef void VOID;
 typedef ULONG IPTR;
 
-#define NULL ((void*)0)
+#ifndef NULL
+#define NULL ((void*) 0L)
+#endif
 #define TRUE 1
 #define FALSE 0
 

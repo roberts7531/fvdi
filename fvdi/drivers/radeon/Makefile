@@ -16,8 +16,6 @@ top_srcdir = ../..
 
 include $(top_srcdir)/CONFIGVARS
 
-CPU     = v4e
-
 ifeq ($(CPU),v4e)
 	CPUFLAGS = -mcpu=547x
 else
@@ -49,7 +47,7 @@ SSRC = \
 CSRC = \
 	../common/init.c \
 	../common/colours.c \
-        radeon_bas_interface.c \
+	radeon_bas_interface.c \
 	radeon_spec.c \
 	radeon.c \
 	modeline_vesa.c \

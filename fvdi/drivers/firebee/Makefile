@@ -16,7 +16,9 @@ top_srcdir = ../..
 
 include $(top_srcdir)/CONFIGVARS
 
+ifeq ($(CPU),)
 CPU     = v4e
+endif
 
 ifeq ($(CPU),v4e)
 	CPUFLAGS = -mcpu=547x
@@ -57,7 +59,7 @@ CSRC = \
 	../16_bit/16b_line.c \
 	../16_bit/16b_fill.c \
 	../16_bit/16b_scr.c \
-	../16_bit/16b_pal.c 
+	../16_bit/16b_pal.c
 
 # handle DevPac -> gas conversions
 # defines SSRC_GNU and SINCSRC_GNU variables

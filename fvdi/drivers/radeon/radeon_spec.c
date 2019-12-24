@@ -41,7 +41,7 @@ Mode mode[1] =
 
 extern Device device;
 
-char driver_name[] = "FBee";
+char driver_name[] = "Radeon BaS_gcc";
 
 struct
 {
@@ -50,7 +50,10 @@ struct
     short height;
     short bpp;
     short freq;
-} res = {0, 640, 480, 16, 60};  /* needs to be renamed from "resolution" since we have that name already in fb.h */
+} res =   /* needs to be renamed from "resolution" since we have that name already in fb.h */
+{
+    0, 640, 480, 16, 60
+};
 
 struct {
     short width;
@@ -63,8 +66,8 @@ extern Access *access;
 extern short *loaded_palette;
 
 extern short colours[][3];
-extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
+void initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
+void c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 extern void *c_set_colours;		/* Just to check if the routine is available */
 
 extern long tokenize(const char *ptr);
@@ -94,7 +97,7 @@ void *get_colour_r  = &c_get_colour;
 
 static void fbee_puts(const char* message)
 {
-    access->funcs.puts("FBee: ");
+    access->funcs.puts("Radeon: ");
     access->funcs.puts(message);
     access->funcs.puts("\x0d\x0a");
 }
@@ -267,7 +270,7 @@ UBYTE *fbee_alloc_vram(UWORD width, UWORD height)
     const int alignment = 32;
 
     /* FireBee screen buffers live in ST RAM */
-    buffer = (ULONG) Mxalloc(vram_size + alignment - 1, 0);
+    buffer = Mxalloc(vram_size + alignment - 1, 0);
     if (!buffer)
         panic("Mxalloc() failed to allocate screen buffer.");
 
@@ -281,7 +284,7 @@ UBYTE *fbee_alloc_vram(UWORD width, UWORD height)
  * and which couldn't be done directly while loading.
  * Supplied is the default fVDI virtual workstation.
  */
-long CDECL initialize(Virtual *vwk)
+long initialize(Virtual *vwk)
 {
     Workstation *wk;
     int old_palette_size;
@@ -365,7 +368,7 @@ long CDECL initialize(Virtual *vwk)
 /*
  *
  */
-long CDECL setup(long type, long value)
+long setup(long type, long value)
 {
     long ret;
 
@@ -387,7 +390,7 @@ long CDECL setup(long type, long value)
  * Create new (or use old) Workstation and default Virtual.
  * Supplied is the default fVDI virtual workstation.
  */
-Virtual* CDECL opnwk(Virtual *vwk)
+Virtual* opnwk(Virtual *vwk)
 {
     Workstation *wk;
     vwk = me->default_vwk;  /* This is what we're interested in */
@@ -433,6 +436,6 @@ Virtual* CDECL opnwk(Virtual *vwk)
 /*
  * 'Deinitialize'
  */
-void CDECL clswk(Virtual *vwk)
+void clswk(Virtual *vwk)
 {
 }

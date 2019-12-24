@@ -31,8 +31,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _FIREBEE_H_
-#define _FIREBEE_H_
+#ifndef RADEON_H
+#define RADEON_H
 
 typedef unsigned char UBYTE;
 typedef unsigned short UWORD;
@@ -41,7 +41,10 @@ typedef int BOOL;
 typedef void VOID;
 typedef ULONG IPTR;
 
+#ifndef NULL
 #define NULL ((void*)0)
+#endif
+
 #define TRUE 1
 #define FALSE 0
 
@@ -156,4 +159,4 @@ void radeon_set_clock(const struct ModeInfo *mi);
 void radeon_set_modeline(const struct ModeInfo *mi, UBYTE Format);
 void radeon_set_panning(UBYTE *mem);
 
-#endif /* _FIREBEE_H_ */
+#endif /* RADEON_H */
