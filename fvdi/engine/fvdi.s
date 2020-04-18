@@ -369,6 +369,11 @@ non_fvdi_ok:
 * The call didn't seem to really be to the VDI,
 * but check for a few other possibilities
 no_vdi:
+* Workaround to gas bug 25848:
+* https://sourceware.org/bugzilla/show_bug.cgi?id=25848
+* We make vdi_dispatch weak to prevent gas to optimize the address
+* to PC-relative mode with cmpi. Such addressing mode is unsupported on 68000.
+	.weak	vdi_dispatch
 	cmp.w	#fvdi_magic,vdi_dispatch+2	; Just to be safe, check that
 	beq	.disabled			;  fVDI is 'on top'
   ifne return_version
