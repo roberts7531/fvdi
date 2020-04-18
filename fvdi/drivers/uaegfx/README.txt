@@ -1,5 +1,5 @@
 UAEGFX.SYS - WinUAE RTG driver for fVDI
-Copyright (C) 2017 Vincent Riviere
+Copyright (C) 2017-2020 Vincent Riviere
 email: vincent.riviere@freesbee.fr
 
 Homepage, updates, source code:
@@ -21,18 +21,18 @@ GNU General Public License for more details.
 
 How to use:
 
-1) You need an EmuTOS ROM with proper initialization of Zorro cards through
-AUTOCONFIG mechanism. Currently, this not supported by the official binary ROM
-of EmuTOS for Amiga, due to license issue. However, you can build EmuTOS
-yourself with AROS support enabled. See EmuTOS documentation.
-NB: Due to WinUAE limitation, it does not work either from EmuTOS floppy.
+1) Your WinUAE emulated Amiga needs at least 1 MB of RAM (any kind).
 
-2) Prepare your filesystem:
+2) You need EmuTOS 0.9.12 or higher, Amiga ROM version.
+This is mandatory for proper initialization of Zorro cards through
+AUTOCONFIG mechanism.
+
+3) Prepare your filesystem:
 - Put FVDI.PRG in \AUTO folder
 - Put UAEGFX.SYS in \GEMSYS folder
 - Put the provided FVDI.SYS in the root folder
 
-3) Select your resolution:
+4) Select your resolution:
 Edit FVDI.SYS with a text editor and change the following line at bottom:
 01r uaegfx.sys mode 1024x768x16@60
 The mode is in the form: WIDTHxHEIGHTxDEPTH@FREQ
@@ -40,12 +40,12 @@ WIDTH and HEIGHT can be any standard values. You can look at the WinUAE debug
 log to see possible resolutions.
 DEPTH must always be 16. FREQ is ignored.
 
-4) In WinUAE properties, go to Hardware > RTG board. Then select an RTG Graphics
+5) In WinUAE properties, go to Hardware > RTG board. Then select an RTG Graphics
 card in the list. UAE Zorro II or III work fine.
 
-5) Start WinUAE. EmuTOS will start with its famous monochrome welcome screen.
+6) Start WinUAE. EmuTOS will start with its famous monochrome welcome screen.
 Then it will switch to the extended video mode and display the familiar green
 desktop, with 65536 available colors.
 
-6) Of course you can also run FreeMiNT and XaAES to get more benefits of these
+7) Of course you can also run FreeMiNT and XaAES to get more benefits from these
 new video modes.
