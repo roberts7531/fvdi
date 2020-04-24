@@ -108,8 +108,11 @@ call_other:
 * We need to check various values when the normal VDI returns
 
 	move.w	#$88,-(a7)		; In case we're on >='020
-	pea	.vdi_ret(pc)
+	pea	.vdi_ret(pc)	
 	move.w	sr,-(a7)
+	ifne mcoldfire
+	move.w	#$4000,-(sp)		; to create a valid ColdFire stack frame, push a Format Status Word
+	endc
 	move.l	vdi_address(pc),-(a7)
 	rts
 
