@@ -517,8 +517,8 @@ subroutine_call:
 	pea	.return_here
 	move.w	sr,-(a7)
 	ifne	mcoldfire
-	move.w	0x4000,-(sp)		; to create a valid ColdFire stack frame,
-					; push a format word on ths stack
+	move.w	#$4000,-(sp)		; to create a valid ColdFire stack frame,
+					; push a format word on the stack
 	endc
 	bra	dispatch_entry
 .return_here:
@@ -601,8 +601,8 @@ _trap14:
 	beq	.continue_trap14
   ifne mcoldfire
 	; move	usp,a0			; PortAsm doesn't swallow this although it's valid
-	.word	$4e68
-	btst	#5,4(a7)		; called from supervisor mode?
+	.word	0x4e68
+	btst	#5,2(a7)		; called from supervisor mode?
   else
 	move	usp,a0
 	btst	#5,(a7)			; called from supervisor mode?
