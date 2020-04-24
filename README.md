@@ -7,5 +7,8 @@ new branch "cf"
 - Makefiles are sensitive to "CPU=v4e" (ColdFire build) or any other m68k-atari-mint CPU target
 - provided build script "buildit.sh" (dependend on CPU setting as well) builds the fvdi engine and the bitplane.sys driver 
   (to allow testing using hatari)
+- untar the provided freetype-2.2.1.tar.bz2 (in fvdi/modules/ft2) for truetype library before building
 
-Not yet functional (crashes when opening virtual workstation)
+ColdFire build not yet functional (crashes when opening virtual workstation). 
+Works for other CPUs
+
