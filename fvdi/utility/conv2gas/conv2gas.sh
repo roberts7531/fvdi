@@ -10,6 +10,8 @@ sed "s%;.*$%%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 
 # Conditional compilation
+sed "s%^\\([ 	][ 	]*\\)ifnd%\1.ifndef%" $file.tmp >$file.gnu
+mv $file.gnu $file.tmp
 sed "s%^\\([ 	][ 	]*\\)ifd%\1.ifdef%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 sed "s%^\\([ 	][ 	]*\\)ifne%\1.ifne%" $file.tmp >$file.gnu
