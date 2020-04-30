@@ -51,3 +51,13 @@ drivers/bitplane
 drivers/16_bit
 drivers/1_plane
 utility/conv2gas
+drivers/1_dummy
+modules/ft2/freetype-2.2.1/src/tools
+drivers/common
+docs
+modules/ft2/freetype-2.2.1
+modules/ft2/freetype-2.2.1/src/base
+utility/profiler
+modules/ft2/freetype-2.2.1/builds/amiga/src/base
+modules/ft2/freetype-2.2.1/builds/win32
+utility/structer/dos2unix

@@ -9,7 +9,10 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
+ ifnd debug
 debug		equ	0
+ endc
+
 stoplog		equ	0		; Log until no more room (not circular)
 
 off		equ	0		; Skip fVDI code via a branch?
@@ -601,15 +604,22 @@ _trap14:
 	beq	.continue_trap14
   ifne mcoldfire
 	; move	usp,a0			; PortAsm doesn't swallow this although it's valid
-	.word	0x4e68
-	btst	#5,2(a7)		; called from supervisor mode?
+	.short	0x4e68
+	; mvz.w	2(sp),d0
+	.short	0x71ef
+	btst	#13,d0			; called from supervisor mode?
   else
 	move	usp,a0
 	btst	#5,(a7)			; called from supervisor mode?
   endc
-	beq	.correct_a0		; no
+	beq	.correct_a0		; no, continue
   ifne mcoldfire
-	lea	8(a7),a0
+	lea	4(sp),a0		; a0 now points to the program counter field in the exception stack frame
+	; mvz.b	(sp),d0			; extract format field of exception stack frame
+	.short	0x7197
+	lsr.l	#4,d0			; shift bits in place (these are now 4, 5, 6 or 7) depending on original frame offset
+	andi.w	#0x7,d0			; mask out format
+	lea	0(a0,d0.w),a0		; and compute final address
 	bra	.correct_a0
   else
 	lea	6(a7),a0		; stack offset for 68000

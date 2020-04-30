@@ -101,18 +101,15 @@ call_other:
 	move.l	control(a1),a0
 	move.w	handle(a0),-(a7)	; Remember original handle
 	move.w	d0,handle(a0)		; Point to handle from above (normally default physical workstation)
-	move.w	#$ffff,-(a7)		; Mark old stack
 	moveq	#$73,d0
 
 * Pretend the call was from this code
 * We need to check various values when the normal VDI returns
-
+ ifeq mcoldfire
+	move.w	#$ffff,-(a7)		; Mark old stack
 	move.w	#$88,-(a7)		; In case we're on >='020
 	pea	.vdi_ret(pc)	
 	move.w	sr,-(a7)
-	ifne mcoldfire
-	move.w	#$4000,-(sp)		; to create a valid ColdFire stack frame, push a Format Status Word
-	endc
 	move.l	vdi_address(pc),-(a7)
 	rts
 
@@ -127,8 +124,18 @@ call_other:
 	move.w	(a7)+,handle(a0)
 ;	move.l	(a7)+,a0		; Workstation struct
 	rts
-
-
+ else
+	pea	.vdi_ret(pc)
+	move.w	sr,-(sp)
+	move.w	#0x4000,-(sp)
+	move.l	vdi_address(pc),-(sp)
+	rts
+.vdi_ret:
+	move.l	control(a1),a0
+	move.w	handle(a0),d0
+	move.w	(sp)+,handle(a0)
+	rts
+ endc
 	dc.b		0,"initialize_palette",0
 * initialize_palette(Virtual *vwk, long start, long n, short requested[][3], Colour palette[])
 * Set palette colours
@@ -219,7 +226,7 @@ _cache_flush:
 
 	movem.l	(sp),d0-d1/a0
 	lea	3 * 4(sp),sp
-	endc 			; mcoldfire
+  endc 			; mcoldfire
  endc ; m68000
 .cache_end:
 	movem.l	(a7)+,d0-d1
