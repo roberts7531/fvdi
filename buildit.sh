@@ -37,6 +37,7 @@ rm -f fvdi_gnu.prg
 
 cp ${BPL_DIR}/bitplane.sys .
 cp ${ENG_DIR}/fvdi_gnu.prg .
+cp ${RAD_DIR}/radeon.sys .
 
 #m68k-atari-mint-strip bitplane.sys
 #m68k-atari-mint-strip fvdi_gnu.prg
