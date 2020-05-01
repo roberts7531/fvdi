@@ -21,8 +21,8 @@
 #define SAGA_PLL_NTSC      1
 
 static struct saga_pll_data {
-    ULONG freq[2];
-    UBYTE data[18];
+    unsigned long freq[2];
+    unsigned char data[18];
 } fbee_pll[] = {
     { .freq = { 20267942, 20454542 },
       .data = { 0x09,0xC0,0x60,0x00,0x01,0x90,0xC8,0x25,0x11,
@@ -1674,7 +1674,7 @@ int radeon_pll_clock_count(void)
     return PLL_NUM_CLOCKS;
 }
 
-int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
+int fbee_pll_clock_freq(int id, bool is_ntsc, unsigned long *freq)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
 
@@ -1686,11 +1686,11 @@ int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
     return 0;
 }
 
-int radeon_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
+int radeon_pll_clock_lookup(bool is_ntsc, unsigned long *freqp)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
     int i;
-    ULONG freq;
+    unsigned long freq;
 
     if (!freqp)
         return -1;
@@ -1699,7 +1699,7 @@ int radeon_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
 
     /* Find the closest clock */
     for (i = 0; i < PLL_NUM_CLOCKS-1; i++) {
-        ULONG split;
+        unsigned long split;
 
         if (freq <= fbee_pll[i].freq[type])
             break;
@@ -1726,7 +1726,7 @@ int radeon_pll_clock_program(int clock)
          return -1;
 
     for (i = 0; i < 18; i++) {
-        UBYTE byte = fbee_pll[clock].data[17 - i];
+        unsigned char byte = fbee_pll[clock].data[17 - i];
         int j;
 
         Write32(SAGA_VIDEO_PLLW, SAGA_VIDEO_PLLW_MAGIC |

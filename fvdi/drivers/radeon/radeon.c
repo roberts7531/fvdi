@@ -40,7 +40,7 @@
  */
 void radeon_set_clock(const struct ModeInfo *mi)
 {
-    int clock_id = ((ULONG)mi->Numerator << 8) | mi->Denomerator;
+    int clock_id = ((unsigned long)mi->Numerator << 8) | mi->Denomerator;
 
     radeon_pll_clock_program(clock_id);
 }
@@ -51,7 +51,7 @@ void radeon_set_clock(const struct ModeInfo *mi)
  */
 void radeon_fix_mode(struct ModeInfo *mi)
 {
-    BOOL is_NTSC = FALSE;
+    bool is_NTSC = FALSE;
     int refresh;
     int clock_id;
 
@@ -59,7 +59,7 @@ void radeon_fix_mode(struct ModeInfo *mi)
     if (!refresh)
         refresh = 60;
 
-    mi->PixelClock = (ULONG)mi->HorTotal * mi->VerTotal * refresh;
+    mi->PixelClock = (unsigned long) mi->HorTotal * mi->VerTotal * refresh;
     if (mi->Flags & GMF_DOUBLESCAN)
         mi->PixelClock *= 2;
     if (mi->Flags & GMF_DOUBLECLOCK)
@@ -75,11 +75,11 @@ void radeon_fix_mode(struct ModeInfo *mi)
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setgc.c
  */
-void radeon_set_modeline(const struct ModeInfo *mi, UBYTE Format)
+void radeon_set_modeline(const struct ModeInfo *mi, unsigned char Format)
 {
-    UWORD width, hsstrt, hsstop, htotal;
-    UWORD height, vsstrt, vsstop, vtotal;
-    UBYTE doublescan = 0;
+    unsigned short width, hsstrt, hsstop, htotal;
+    unsigned short height, vsstrt, vsstop, vtotal;
+    unsigned short doublescan = 0;
 
     /* Borders (mi->HorBlankSize and mi->VerBlankSize)
      * are not truely supported, since the border color
@@ -144,7 +144,7 @@ void radeon_set_modeline(const struct ModeInfo *mi, UBYTE Format)
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/setgc.c
  */
-void radeon_set_panning(UBYTE *mem)
+void radeon_set_panning(unsigned char *mem)
 {
-    Write32(SAGA_VIDEO_PLANEPTR, (IPTR)mem);
+    Write32(SAGA_VIDEO_PLANEPTR, (unsigned long) mem);
 }

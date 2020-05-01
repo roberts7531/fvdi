@@ -121,7 +121,8 @@ short debug = 0;
 
 long set_mode(const char **ptr);
 
-Option options[] = {
+Option options[] =
+{
     {"debug",      &debug,             2},  /* debug, turn on debugging aids */
     {"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
 };
@@ -134,7 +135,8 @@ char *get_num(char *token, short *num)
     *num = -1;
     if (!*token)
         return token;
-    for(i = 0; i < 10; i ++) {
+    for (i = 0; i < 10; i ++)
+    {
         c = buf[i] = *token++;
         if ((c < '0') || (c > '9'))
             break;
@@ -149,7 +151,8 @@ char *get_num(char *token, short *num)
 
 int set_bpp(int bpp)
 {
-    switch (bpp) {
+    switch (bpp)
+    {
         case -1:
         case 16:
             graphics_mode = &mode[0];
@@ -193,7 +196,8 @@ long check_token(char *token, const char **ptr)
     char *xtoken;
 
     xtoken = token;
-    switch (token[0]) {
+    switch (token[0])
+    {
         case '+':
             xtoken++;
             normal = 1;
@@ -206,25 +210,29 @@ long check_token(char *token, const char **ptr)
             normal = 1;
             break;
     }
-    for(i = 0; i < sizeof(options) / sizeof(Option); i++) {
-        if (access->funcs.equal(xtoken, options[i].name)) {
-            switch (options[i].type) {
+
+    for(i = 0; i < sizeof(options) / sizeof(Option); i++)
+    {
+        if (access->funcs.equal(xtoken, options[i].name))
+        {
+            switch (options[i].type)
+            {
                 case -1:     /* Function call */
                     return ((long (*)(const char **))options[i].varfunc)(ptr);
                 case 0:      /* Default 1, set to 0 */
-                    *(short *)options[i].varfunc = 1 - normal;
+                    * (short *) options[i].varfunc = 1 - normal;
                     return 1;
                 case 1:     /* Default 0, set to 1 */
-                    *(short *)options[i].varfunc = normal;
+                    * (short *) options[i].varfunc = normal;
                     return 1;
                 case 2:     /* Increase */
-                    *(short *)options[i].varfunc += -1 + 2 * normal;
+                    * (short *) options[i].varfunc += -1 + 2 * normal;
                     return 1;
                 case 3:
                     if (!(*ptr = access->funcs.skip_space(*ptr)))
                         ;  /* *********** Error, somehow */
                     *ptr = access->funcs.get_token(*ptr, token, 80);
-                    *(short *)options[i].varfunc = token[0];
+                    * (short *) options[i].varfunc = token[0];
                     return 1;
             }
         }
@@ -234,14 +242,15 @@ long check_token(char *token, const char **ptr)
 }
 
 static struct ModeInfo *mi;
-static UBYTE *screen_address;
+static unsigned char *screen_address;
 
 /* Fix all ModeInfo with PLL data */
 static void fix_all_mode_info(void)
 {
     int i;
 
-    for (i = 0; i < modeline_vesa_entries; i++) {
+    for (i = 0; i < modeline_vesa_entries; i++)
+    {
         struct ModeInfo *mi = &modeline_vesa_entry[i];
         radeon_fix_mode(mi);
     }
@@ -252,7 +261,8 @@ static struct ModeInfo *find_mode_info(void)
 {
     int i;
 
-    for (i = 0; i < modeline_vesa_entries; i++) {
+    for (i = 0; i < modeline_vesa_entries; i++)
+    {
         struct ModeInfo *p = &modeline_vesa_entry[i];
         if (p->Width == res.width && p->Height == res.height)
             return p;
@@ -263,10 +273,10 @@ static struct ModeInfo *find_mode_info(void)
 }
 
 /* Allocate screen buffer */
-UBYTE *fbee_alloc_vram(UWORD width, UWORD height)
+unsigned char *fbee_alloc_vram(unsigned short width, unsigned short height)
 {
-    ULONG buffer;
-    ULONG vram_size = (ULONG)width * height * sizeof(short);
+    unsigned long buffer;
+    unsigned long vram_size = (unsigned long) width * height * sizeof(short);
     const int alignment = 32;
 
     /* FireBee screen buffers live in ST RAM */
@@ -276,7 +286,7 @@ UBYTE *fbee_alloc_vram(UWORD width, UWORD height)
 
     buffer = (buffer + alignment - 1) & -alignment;
 
-    return (UBYTE *) buffer + FIREBEE_VRAM_PHYS_OFFSET;
+    return (unsigned char *) buffer + FIREBEE_VRAM_PHYS_OFFSET;
 }
 
 /*
@@ -296,8 +306,8 @@ long initialize(Virtual *vwk)
 
     /* Display startup banner */
     access->funcs.puts("\r\n");
-    access->funcs.puts("\ep FireBee driver for fVDI \eq\r\n");
-    access->funcs.puts("\xbd 2017 Markus Fr\x94schle\r\n");
+    access->funcs.puts("\ep ATI Radeon driver for fVDI \eq\r\n");
+    access->funcs.puts("\xbd 2020 Markus Fr\x94schle\r\n");
     access->funcs.puts("Free Software distributed under GPLv2\r\n");
     access->funcs.puts("\r\n");
 
@@ -313,13 +323,14 @@ long initialize(Virtual *vwk)
 
         return -1;
     }
+    access->funcs.puts("BaS driver interface found\r\n");
 
     // radeon_accel_ops = bas_if->fbops;
 
 
-    /* Initialize the RTG card with the requested video mode */
     fix_all_mode_info();
     mi = find_mode_info();
+
     screen_address = fbee_alloc_vram(res.width, res.height);
 
     vwk = me->default_vwk;	/* This is what we're interested in */
@@ -344,14 +355,18 @@ long initialize(Virtual *vwk)
 
     if (loaded_palette)
         access->funcs.copymem(loaded_palette, colours, 256 * 3 * sizeof(short));
-    if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
+    if ((old_palette_size = wk->screen.palette.size) != 256)
+    {
+        /* Started from different graphics mode? */
         old_palette_colours = wk->screen.palette.colours;
-        wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
-        if (wk->screen.palette.colours) {
+        wk->screen.palette.colours = access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
+        if (wk->screen.palette.colours)
+        {
             wk->screen.palette.size = 256;
             if (old_palette_colours)
                 access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
-        } else
+        }
+        else
             wk->screen.palette.colours = old_palette_colours;
     }
     c_initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
@@ -373,7 +388,8 @@ long setup(long type, long value)
     long ret;
 
     ret = -1;
-    switch(type) {
+    switch(type)
+    {
         case Q_NAME:
             ret = (long)driver_name;
             break;

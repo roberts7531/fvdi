@@ -34,12 +34,7 @@
 #ifndef RADEON_H
 #define RADEON_H
 
-typedef unsigned char UBYTE;
-typedef unsigned short UWORD;
-typedef unsigned long ULONG;
-typedef int BOOL;
-typedef void VOID;
-typedef ULONG IPTR;
+#include <stdbool.h>
 
 #ifndef NULL
 #define NULL ((void*)0)
@@ -61,23 +56,23 @@ struct Node
 struct ModeInfo
 {
     struct Node Node;
-    UWORD       Width;
-    UWORD       Height;
-    UBYTE       Depth;
-    UBYTE       Flags;  /* See GM* flags below */
-    UWORD       HorTotal;
-    UWORD       HorBlankSize;
-    UWORD       HorSyncStart;
-    UWORD       HorSyncSize;
-    UBYTE       HorSyncSkew;
-    UBYTE       HorEnableSkew;
-    UWORD       VerTotal;
-    UWORD       VerBlankSize;
-    UWORD       VerSyncStart;
-    UWORD       VerSyncSize;
-    UBYTE       Numerator;
-    UBYTE       Denomerator;
-    ULONG       PixelClock;
+    unsigned short Width;
+    unsigned short Height;
+    unsigned char Depth;
+    unsigned char Flags;  /* See GM* flags below */
+    unsigned short HorTotal;
+    unsigned short HorBlankSize;
+    unsigned short HorSyncStart;
+    unsigned short HorSyncSize;
+    unsigned char HorSyncSkew;
+    unsigned char HorEnableSkew;
+    unsigned short VerTotal;
+    unsigned short VerBlankSize;
+    unsigned short VerSyncStart;
+    unsigned short VerSyncSize;
+    unsigned char Numerator;
+    unsigned char Denomerator;
+    unsigned long PixelClock;
 };
 
 
@@ -128,14 +123,14 @@ struct ModeInfo
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/saga_intern.h
  */
 
-static inline VOID Write32(IPTR addr, ULONG value)
+static inline void Write32(unsigned long addr, unsigned long value)
 {
-    *(volatile ULONG *) addr = value;
+    *(volatile unsigned long *) addr = value;
 }
 
-static inline VOID Write16(IPTR addr, UWORD value)
+static inline void Write16(unsigned long addr, unsigned short value)
 {
-    *(volatile UWORD *) addr = value;
+    *(volatile unsigned short *) addr = value;
 }
 
 /* Test if width or height requires doublescan
@@ -145,8 +140,8 @@ static inline VOID Write16(IPTR addr, UWORD value)
 
 /* saga_pll.c */
 int radeon_pll_clock_count(void);
-int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq);
-int radeon_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp);
+int fbee_pll_clock_freq(int id, bool is_ntsc, unsigned long *freq);
+int radeon_pll_clock_lookup(bool is_ntsc, unsigned long *freqp);
 int radeon_pll_clock_program(int clock);
 
 /* from modeline_vesa.c */
@@ -156,7 +151,7 @@ extern const int modeline_vesa_entries;
 /* from saga.c */
 void radeon_fix_mode(struct ModeInfo *mi);
 void radeon_set_clock(const struct ModeInfo *mi);
-void radeon_set_modeline(const struct ModeInfo *mi, UBYTE Format);
-void radeon_set_panning(UBYTE *mem);
+void radeon_set_modeline(const struct ModeInfo *mi, unsigned char Format);
+void radeon_set_panning(unsigned char *mem);
 
 #endif /* RADEON_H */
