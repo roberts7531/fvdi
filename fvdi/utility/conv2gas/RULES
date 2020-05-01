@@ -6,6 +6,14 @@ SYMBOLS = --defsym gas=1 --defsym lattice=0
 ifeq ($(CPU),000)
 	SYMBOLS += --defsym mc68000=1 --defsym mcoldfire=0
 else ifeq ($(CPU),v4e)
+ifeq (, $(shell which pacf))
+    $(info ***)
+    $(info *** No pacf in $$(PATH), compiling for ColdFire requires)
+    $(info *** an installation of MicroAPL's PortAsm)
+    $(info *** (see http://microapl.com/downloads.html))
+    $(info ***)
+    $(error )
+endif
 	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=1
 else
 	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=0
