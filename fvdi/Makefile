@@ -13,8 +13,9 @@ SUBDIRS := \
 	modules/ft2 \
 	engine \
 	drivers/bitplane \
-	drivers/radeon \
 	drivers/firebee
+
+# SUBDIRS += drivers/radeon
 
 TARGETS := all clean
 
