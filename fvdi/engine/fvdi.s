@@ -664,9 +664,7 @@ _lineA:
 	move.l 	2(a7),a1		; get linea opcode address
  endc
 	move.w	(a1),d0
- ifne mcoldfire				; make sure we map out ColdFire specific bits
-	and.l	#$f,d0
- endc
+	and.l	#$f,d0			; map out function code
 
   ifne debug
 	cmp.w	#2,_debug
@@ -678,9 +676,9 @@ _lineA:
 	addq.l	#8,a7
 	movem.l	(a7)+,d0-d2/a0-a2
 .no_debug2:
+	tst.w	d0
   endc
 
-	tst.w	d0
 	beq	.continue_lineA		; Need for font address in a1
 	move.l	_screen_wk,d0
 	beq	.continue_lineA
