@@ -65,7 +65,7 @@ $(SSRC_GNU): $(SINCSRC_GNU)
 OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(LD) $(M68K_ATARI_MINT_LDFLAGS) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(AM_V_LD)$(LD) $(M68K_ATARI_MINT_LDFLAGS) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 depend: $(CSRC)
 #	"$(CC) -MM" does not seem able to keep track of the directory of the
@@ -74,10 +74,10 @@ depend: $(CSRC)
 #	Unfortunately, makedepend includes system headers in its
 #	dependency lists, but you can't get everything...
 #	$(CC) -MM $(CFLAGS) $(CSRC) > depend
-	makedepend -f- -- $(CFLAGS) $(CSRC) > depend 2> /dev/null
-	sed "s#\/usr[^ ]*\.h##g" < depend  > depend2
-	sed "s#^.*: *\$$##"      < depend2 > depend
-	rm depend2
+	$(AM_V_at)makedepend -f- -- $(CFLAGS) $(CSRC) > depend 2> /dev/null
+	$(AM_V_at)sed "s#\/usr[^ ]*\.h##g" < depend  > depend2
+	$(AM_V_at)sed "s#^.*: *\$$##"      < depend2 > depend
+	$(AM_V_at)$(RM) depend2
 
 strip:
 	$(STRIP) --strip-all $(TARGET)

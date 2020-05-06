@@ -27,7 +27,7 @@ endif
 
 # Use native compiler when cross compiling
 $(CONV2GAS): $(top_srcdir)/utility/conv2gas/conv2gas.c
-	$(NATIVE_CC) -o $@ $<
+	$(MAKE) -C $(top_srcdir)/utility/conv2gas
 
 SINCSRC_GNU = $(SINCSRC:=.gnu)
 SSRC_GNU    = $(SSRC:=.gnu)
@@ -66,37 +66,30 @@ $(SSRC_GNU):$(SSRC_GNU_CF)
 # pattern rule for assembler sources (traditional assembler to gas syntax)
 # after conversion, move result file to the name originally expected
 %.cf_gnu: $(basename %.gnu) $(CONV2GAS)
-	$(CONV2GAS).sh $<
-	mv $<.gnu $@
+	$(AM_V_GEN)$(CONV2GAS).sh $<
+	$(AM_V_at)mv $<.gnu $@
 
 # assembler includes only need to go through conv2gas
 # (will be milled through PortAsm with the sources they include them)
 %.inc.gnu: $(basename %.inc.gnu) $(CONV2GAS)
-	$(CONV2GAS).sh $<
+	$(AM_V_GEN)$(CONV2GAS).sh $<
 
 # assembler source files processed by PortAsm pacf (gas m68k sources to ColdFire).
 # need to delete one line with a section statement that m68k-atari-mint-as doesn't translate
 %.gnu:%.cf_gnu
-	$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
-	sed -ie '/\.section/d' $@
+	$(AM_V_GEN)$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
+	$(AM_V_at)sed -ie '/\.section/d' $@
 else
 
 # straight m68k to gas syntax conversion
 %.gnu: $(basename %.gnu) $(CONV2GAS)
-	$(CONV2GAS).sh $<
+	$(AM_V_GEN)$(CONV2GAS).sh $<
 endif
 
 
 # Assember for .gnu
 %.gnu.o: %.gnu
-	$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ < $<
+	$(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ $<
 
 clean_gnu:
-	rm -rf $(SINCSRC_GNU) $(SSRC_GNU) $(SSRC_GNU_CF)
-
-.PHONY:	clean_gnu
-
-.PHONY: printvars
-printvars:
-	$(Q)$(foreach V,$(.VARIABLES), $(if $(filter-out environment% default automatic, $(origin $V)),$(warning $V=$($V))))
-
+	$(RM) $(SINCSRC_GNU) $(SSRC_GNU) $(SSRC_GNU_CF)

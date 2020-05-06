@@ -1,8 +1,6 @@
 #
 # Makefile for C struct to assembly equ converter
 #
-# $Id: Makefile,v 1.3 2005-07-01 09:51:44 johan Exp $
-#
 # Copyright 2002, Johan Klockars
 # This software is licensed under the GNU General Public License.
 # Please, see LICENSE.TXT for further information.
@@ -31,10 +29,10 @@ BISONOUT	= struct.tab.c struct.tab.h
 all:		depend $(TARGET)
 
 $(TARGET):		$(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
+	$(AM_V_LD)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 depend:		$(CSOURCES) $(CHEADERS)
-	$(CC) -MM $(CSOURCES) > depend
+	$(AM_V_CC)$(CC) -MM $(CSOURCES) > depend
 
 clean::
 	$(RM) $(OBJECTS) $(FLEXOUT) $(BISONOUT) $(TARGET) depend

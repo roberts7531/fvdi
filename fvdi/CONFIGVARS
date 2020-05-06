@@ -69,3 +69,44 @@ ifeq ($(DEBUG),yes)
 else
  FT2_DEBUG_OPTS =
 endif
+
+
+#
+# for silent make rules
+# use make V=1 to override
+#
+AM_DEFAULT_VERBOSITY = 0
+
+AM_V_GEN    = $(am__v_GEN_$(V))
+am__v_GEN_  = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN     " $@;
+am__v_GEN_1 = 
+
+AM_V_at     = $(am__v_at_$(V))
+am__v_at_   = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0  = @
+am__v_at_1  = 
+
+AM_V_CC     = $(am__v_CC_$(V))
+am__v_CC_   = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
+am__v_CC_0  = @echo "  CC      " $@;
+am__v_CC_1  = 
+
+AM_V_AS     = $(am__v_AS_$(V))
+am__v_AS_   = $(am__v_AS_$(AM_DEFAULT_VERBOSITY))
+am__v_AS_0  = @echo "  AS      " $@;
+am__v_AS_1  = 
+
+AM_V_LD     = $(am__v_LD_$(V))
+am__v_LD_   = $(am__v_LD_$(AM_DEFAULT_VERBOSITY))
+am__v_LD_0  = @echo "  LD      " $@;
+am__v_LD_1  = 
+
+AM_V_AR     = $(am__v_AR_$(V))
+am__v_AR_   = $(am__v_AR_$(AM_DEFAULT_VERBOSITY))
+am__v_AR_0  = @echo "  AR      " $@;
+am__v_AR_1  = 
+
+COMPILE.c = $(AM_V_CC)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+COMPILE.s = $(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) $(TARGET_ARCH) -c
+COMPILE.S = $(AM_V_AS)$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 $(TARGET_ARCH) -c

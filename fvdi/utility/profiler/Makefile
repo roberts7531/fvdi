@@ -1,8 +1,6 @@
 #
 # Makefile for VDI profiler
 #
-# $Id: Makefile,v 1.2 2002-05-14 08:49:13 johan Exp $
-#
 # Copyright 2002, Johan Klockars
 # This software is licensed under the GNU General Public License.
 # Please, see LICENSE.TXT for further information.
