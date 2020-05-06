@@ -8,8 +8,14 @@
 # Please, see LICENSE.TXT for further information.
 #
 
-CFLAGS		= -O2
-LDFLAGS		= $(CFLAGS)
+top_srcdir = ../..
+srcdir     = .
+
+include $(top_srcdir)/CONFIGVARS
+
+CC              = $(NATIVE_CC)
+CFLAGS		= $(NATIVE_CFLAGS) -DYYDEBUG=1
+LDFLAGS		= -s
 FLEXFLAGS	=
 BISONFLAGS	=
 LIBS		= -lfl
@@ -22,15 +28,16 @@ OBJECTS		= $(CSOURCES:.c=.o)
 FLEXOUT		= lex.yy.c
 BISONOUT	= struct.tab.c struct.tab.h
 
-all:		depend $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS)
+all:		depend $(TARGET)
+
+$(TARGET):		$(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 depend:		$(CSOURCES) $(CHEADERS)
 	$(CC) -MM $(CSOURCES) > depend
 
-clean:
-	rm -f $(OBJECTS) $(FLEXOUT) $(BISONOUT) depend
-
+clean::
+	$(RM) $(OBJECTS) $(FLEXOUT) $(BISONOUT) $(TARGET) depend
 
 $(BISONOUT):	struct.y
 	bison -d $(BISONFLAGS) struct.y

@@ -18,36 +18,23 @@ srcdir     = .
 include $(top_srcdir)/CONFIGVARS
 
 ifneq ($(stdlib_srcdir),)
- STDLIB_CFLAGS = -I$(stdlib_srcdir)/include $(M68K_ATARI_MINT_CFLAGS)
+ STDLIB_CFLAGS = -I$(stdlib_srcdir)/include
 else
- STDLIB_CFLAGS = -I$(top_srcdir)/modules/include $(M68K_ATARI_MINT_CFLAGS)
+ STDLIB_CFLAGS = -I$(top_srcdir)/modules/include
 endif
 
-CFLAGS  = $(CPUOPTS) $(OPTS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
-
-ifeq ($(DEBUG),yes)
-M68K_ATARI_MINT_CFLAGS += -DDEBUG
-CFLAGS += -DDEBUG
-endif
-
+CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
 ASFLAGS := $(ASFLAGS) -I$(top_srcdir)/drivers/1_plane
+
+LDFLAGS += --mprg-flags=0x27
 
 # FreeType2 things
 ifneq ($(ft2_srcdir),)
- ifneq ($(libkern_srcdir),)
-  LIBKERN = $(libkern_srcdir)/libkern$(CPU).a
-  #LIBS  := -lft2 -lkern$(CPU) $(LIBS)
-  LIBS   := -lft2 -lkern020-60 $(LIBS)
-  LDFLAGS = -L$(top_srcdir)/modules/ft2 -L$(libkern_srcdir)
-  CFLAGS += -DUSE_LIBKERN
- else
-  LIBKERN =
-  LIBS   := -lft2 $(LIBS)
-  LDFLAGS = -L$(top_srcdir)/modules/ft2
- endif
+ LIBS   := -lft2 $(LIBS)
+ LDFLAGS += -L$(top_srcdir)/modules/ft2
 
  LIBFT2  = $(top_srcdir)/modules/ft2/libft2.a
- LIBFILES= $(LIBFT2) $(LIBKERN)
+ LIBFILES= $(LIBFT2)
  CFLAGS += -DFT2 -I$(top_srcdir)/modules/ft2/include $(FT2_DEBUG_OPTS) \
 	   -I$(ft2_srcdir)/include
 endif
@@ -131,35 +118,17 @@ $(SSRC_GNU): $(SINCSRC_GNU)
 # Engine binary objects
 OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
-# libkern + stdlib additions
-ifneq ($(stdlib_srcdir),)
- CLIBSRC = \
-	$(stdlib_srcdir)/qsort.c \
-	$(stdlib_srcdir)/msort.c \
-	$(stdlib_srcdir)/mempcpy.c \
-	$(stdlib_srcdir)/strdup.c
-
- SLIBSRC = \
-	$(stdlib_srcdir)/setjmp.S
-
- OBJECTS+= $(CLIBSRC:.c=.o) $(SLIBSRC:.S=.S.o)
-endif
-
 %.S.o: %.S
 	$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 -D__cpu__=$(CPU) -o $@ -c $<
 
-$(LIBKERN):
-	cd $(libkern_srcdir); make 020-60
-
 $(LIBFT2):
-	cd $(top_srcdir)/modules/ft2; make
+	$(MAKE) -C $(top_srcdir)/modules/ft2
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(CC) -nostdlib -ffreestanding -o $@ -Wl,-Map,mapfile $(OBJECTS) $(LDFLAGS) $(LIBS)
-	$(FLAGS) -S $@
+	$(LD) -o $@ -Map=fvdi.map $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
-	cd $(top_srcdir)/utility/structer; make
+	$(MAKE) -C $(top_srcdir)/utility/structer
 	@echo "*****"\
 	  > $(top_srcdir)/include/types.inc
 	@echo "* fVDI structure declarations, by Johan Klockars"\
@@ -207,6 +176,7 @@ $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
 	  Virtual=vwk Workstation=wk Fontheader=font MFDB=mfdb \
 	  Colour=colour RGB=rgb List=list Driver=driver \
 	  Mouse=mouse Device=dev DrvLine=drvline DrvPalette=drvpalette \
+	  v_bez_pars=v_bez_pars \
 	  >> $(top_srcdir)/include/types.inc
 
 depend: $(CSRC)
@@ -225,8 +195,7 @@ strip:
 	$(STRIP) --strip-all $(TARGET)
 
 clean: clean_gnu
-	rm -rf $(OBJECTS)
-	rm depend
+	$(RM) $(OBJECTS) $(TARGET) fvdi.map depend
 
 mrproper:
 	make clean

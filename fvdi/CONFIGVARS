@@ -1,6 +1,10 @@
 # Handle cross compilation
 
 NATIVE_CC = gcc
+NATIVE_CFLAGS = -O2
+
+CROSS_SH=case `uname -s` in *mint*|*MINT*) echo no ;; *) echo yes ;; esac
+M68K_ATARI_MINT_CROSS := $(shell $(CROSS_SH))
 
 ifeq ($(M68K_ATARI_MINT_CROSS),yes)
  CROSSPREFIX = m68k-atari-mint
@@ -35,22 +39,27 @@ endif
 ifeq ($(CPU),v4e)
 	CPUOPTS = -mcpu=547x
 else
-	CPUOPTS = -mcpu=68$(CPU)
+	CPUOPTS = -m68$(CPU)
 endif
 
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 # General compilation and optimization options (CFLAGS)
-M68K_ATARI_MINT_CFLAGS = --freestanding -nostdlib -O2 -fomit-frame-pointer -Wall
-
-ifdef DEBUG
-CFLAGS += -g
-ASFLAGS += -g
+WARNINGS = -Wall -W -Wunused -Wundef -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs
+ifeq ($(OPTS),)
+OPTS   = -O2 -fomit-frame-pointer -fno-common
+endif
+# OPTS   +=  -mshort
+ifeq ($(DEBUG),yes)
+  OPTS += -DFVDI_DEBUG
+  OPTS += -g
+else
+  LDFLAGS = -s
 endif
 
 # If building for 68000 (no long multiply instruction),
 # we need to link with libgcc.
-LIBS := $(shell $(CC) $(CPUOPTS) -print-file-name=libgcc.a)
+LIBS := $(shell $(CC) $(CPUOPTS) --print-file-name=libgcc.a)
 
 # Set these to point to the correct directories for FreeType support!
 ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype-2.2.1

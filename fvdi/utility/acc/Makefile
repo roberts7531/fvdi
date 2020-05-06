@@ -16,10 +16,8 @@ top_srcdir = ../..
 
 include $(top_srcdir)/CONFIGVARS
 
-#CFLAGS  = -m68$(CPU) -mshort $(OPTS) -I$(top_srcdir)/include $(M68K_ATARI_MINT_CFLAGS) -D__GEMLIB_OLDNAMES -DNEW_GEMLIB -Wall
-CFLAGS  = -m68$(CPU) $(OPTS) -I$(top_srcdir)/include -D__GEMLIB_OLDNAMES -DNEW_GEMLIB -Wall
+CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -D__GEMLIB_OLDNAMES -DNEW_GEMLIB
 
-#LDFLAGS = $(M68K_ATARI_MINT_LDFLAGS)
 LIBS += -lgem
 
 CSRC = \
@@ -52,8 +50,7 @@ depend: $(CSRC)
 strip:
 	$(STRIP) --strip-all $(TARGET)
 
-clean:
-	rm -rf $(OBJECTS)
-	rm depend
+clean::
+	$(RM) $(OBJECTS) depend $(TARGET)
 
-include depend
+-include depend

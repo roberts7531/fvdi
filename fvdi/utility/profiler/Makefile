@@ -11,3 +11,5 @@
 all:
 	sed 's#^\([[:alnum:]_]\+\)[[:space:]]\+\(equ\|set\)[[:space:]]\+\(.\+\)#.\2 \1,\3#' < vdi_prof.s | sed 's#\(text\|data\|bss\|even\|end\)#.&#' | sed 's#dc\.b[[:space:]]\+\"#.ascii "#' | sed 's#;#|#' | sed 's#\$$#0x#' > vdi_prof.gnu.s
 
+clean::
+	@:

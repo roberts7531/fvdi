@@ -14,9 +14,11 @@ all: $(TARGET)
 
 top_srcdir = ../..
 
+OPTS    = -mshort -O2 -fomit-frame-pointer
 include $(top_srcdir)/CONFIGVARS
 
-CFLAGS  = $(CPUOPTS) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS)
+CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
 	$(top_srcdir)/include/compiler.inc \
@@ -55,7 +57,7 @@ $(SSRC_GNU): $(SINCSRC_GNU)
 OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(LD) -Map=mapfile -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(LD) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 depend: $(CSRC)
 #	"$(CC) -MM" does not seem able to keep track of the directory of the
@@ -72,8 +74,7 @@ depend: $(CSRC)
 strip:
 	$(STRIP) --strip-all $(TARGET)
 
-clean: clean_gnu
-	rm -rf $(OBJECTS)
-	rm depend
+clean:: clean_gnu
+	$(RM) $(OBJECTS) depend $(TARGET)
 
-include depend
+-include depend

@@ -14,22 +14,12 @@ all: $(TARGET)
 
 top_srcdir = ../..
 
+CPU     = v4e
+OPTS    = -mshort -O2 -fomit-frame-pointer
 include $(top_srcdir)/CONFIGVARS
 
-ifeq ($(CPU),)
-CPU     = v4e
-endif
-
-ifeq ($(CPU),v4e)
-	CPUFLAGS = -mcpu=547x
-else
-	CPUFLAGS = -m68$(CPU)
-endif
-
-M68K_ATARI_MINT_LDFLAGS += -Map mapfile
-
-CFLAGS  = $(CPUFLAGS) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS) -Wall
-ASFLAGS = $(CPUFLAGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
 	$(top_srcdir)/include/compiler.inc \
@@ -89,8 +79,7 @@ depend: $(CSRC)
 strip:
 	$(STRIP) --strip-all $(TARGET)
 
-clean: clean_gnu
-	rm -rf $(OBJECTS)
-	rm depend
+clean:: clean_gnu
+	$(RM) $(OBJECTS) $(TARGET) depend
 
-include depend
+-include depend

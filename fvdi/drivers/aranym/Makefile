@@ -14,17 +14,12 @@ all: $(TARGET)
 
 top_srcdir = ../..
 
+CPU = 040
+OPTS   = -O2 -fomit-frame-pointer
 include $(top_srcdir)/CONFIGVARS
 
-#CPU     = 040
-
-CFLAGS  = -m68$(CPU) -mshort -O2 -fomit-frame-pointer -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include $(M68K_ATARI_MINT_CFLAGS)
-ASFLAGS = -m68$(CPU) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
-
-#LDFLAGS = $(M68K_ATARI_MINT_LDFLAGS)
-#-L/usr/local/m68k-atari-mint/usr/lib
-#CFLAGS += -I/usr/local/m68k-atari-mint/usr/include
-#LIBS    = -L/lib/gcc-lib/m68k-atari-mint/2.95.3/ -lgcc
+CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
 	$(top_srcdir)/include/compiler.inc \
@@ -79,8 +74,7 @@ depend: $(CSRC)
 strip:
 	$(STRIP) --strip-all $(TARGET)
 
-clean: clean_gnu
-	rm -rf $(OBJECTS)
-	rm depend
+clean:: clean_gnu
+	$(RM) $(OBJECTS) $(TARGET) depend
 
-include depend
+-include depend
