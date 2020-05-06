@@ -49,25 +49,6 @@ mv $file.gnu $file.tmp
 sed "s%\\$%0x%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 
-# Data
-sed "s%\\([ 	][ 	]*\\)dc.b%\1.byte%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ 	][ 	]*\\)dc.w%\1.short%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ 	][ 	]*\\)dc.l%\1.long%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-
-# Miscellaneous directives
-sed "s%\.end\\([ 	][ 	]*\|$\|\:\\)%.end___fix\1%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ 	][ 	]*\\)end\\(\\([ 	][ 	]*\\)\|$\\)%\1.end%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ 	][ 	]*\\)end\\([ 	][ 	]*\\)%\1.end%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-sed "s%\\([ 	][ 	]*\\)end\\($\\)%\1.end%" $file.tmp >$file.gnu
-mv $file.gnu $file.tmp
-
-
 sed "s%^.loop1:$%1:%" $file.tmp >$file.gnu
 mv $file.gnu $file.tmp
 sed "s%^.loop2:$%2:%" $file.tmp >$file.gnu

@@ -17,7 +17,7 @@ shift		equ	1
 	include		"pixelmac.inc"
 	include		"vdi.inc"
 
-	xdef		expand_area,_expand_area
+	xdef		_expand_area
 
 	xdef		mode_table
 
@@ -33,7 +33,6 @@ shift		equ	1
   endc
 
 
-	dc.b	0,0,"expand_area",0
 * In:	a1	VDI struct, destination MFDB, VDI struct, source MFDB
 *	d0	height and width to move (high and low word)
 *	d1-d2	source coordinates
@@ -41,7 +40,6 @@ shift		equ	1
 *	d6	background and foreground colour
 *	d7	logic operation
 _expand_area:
-expand_area:
 	exg		d0,d6
 	bsr		get_colour
 	exg		d0,d6

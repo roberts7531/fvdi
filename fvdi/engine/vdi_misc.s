@@ -18,7 +18,6 @@ always_clip_l	equ	0		; Always clip lines?
 
 	text
 
-	dc.b	0,0,"clip_rect",0
 * clip_rect - Internal function
 *
 * Clips coordinates according to currect clip settings
@@ -60,7 +59,6 @@ clip_rect:
 	rts
 
 
-	dc.b	0,"clip_point",0
 * clip_point - Internal function
 *
 * 'Clips' coordinates according to currect clip settings
@@ -88,7 +86,6 @@ clip_point:
 	rts
 
 
-	dc.b	0,"setup_blit",0
 * setup_blit - Internal function
 *
 * Sets up pointers to pixel blit functions
@@ -372,7 +369,6 @@ blit_f:
 	rts
  
 
-	dc.b	0,"setup_plot",0
 * setup_plot - Internal function
 *
 * Sets up pointers to pixel draw functions
@@ -449,7 +445,6 @@ p_revtransp:
 	rts
 
 
-	dc.b	0,0,"clip_line",0
 * clip_line - Internal function
 *
 * Clips line coordinates

@@ -130,7 +130,6 @@ _c_pline:
 	rts
 
 
-	dc.b	0,0,"v_pline",0
 * v_pline - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -402,7 +401,6 @@ _call_default_line:
 	move.l	drvline_mode(a1),d6
 	bra	_default_line
 
-	dc.b	0,"default_line",0
 * _default_line - Pixel by pixel line routine
 * In:	a0	VDI struct (odd address marks table operation)
 *	d0	Colour
@@ -599,7 +597,6 @@ _default_line:
 * Various
 *
 
-	dc.b	0,"v_circle",0
 * v_circle - Standard Trap function
 * Todo: -
 * In:   a1      Parameter block
@@ -612,7 +609,6 @@ v_circle:
 	bra	v_ellipse
 
 
-	dc.b	0,0,"v_arc",0
 * v_arc - Standard Trap function
 * Todo: -
 * In:   a1      Parameter block
@@ -625,7 +621,6 @@ v_arc:
 	bra	v_ellarc
 
 
-	dc.b	0,0,"v_pie",0
 * v_pie - Standard Trap function
 * Todo: -
 * In:   a1      Parameter block
@@ -676,7 +671,6 @@ col_pat:
 	rts
 
 
-	dc.b	0,"v_ellarc",0
 * v_ellarc - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -710,7 +704,6 @@ v_ellarc:
 	done_return
 
 
-	dc.b	0,"v_ellpie",0
 * v_ellpie - Standard Trap function
 * Todo: -
 * In:   a1      Parameter block
@@ -744,7 +737,6 @@ v_ellpie:
 	done_return
 
 
-	dc.b	0,0,"v_ellipse",0
 * v_ellipse - Standard Trap function
 * Todo: -
 * In:   a1      Parameter block
@@ -777,7 +769,6 @@ v_ellipse:
 	done_return
 
 
-	dc.b	0,"v_rbox",0
 * v_rbox - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -813,7 +804,6 @@ lib_v_rbox:
 	rts
 
 
-	dc.b	0,0,"v_rfbox",0
 * v_rfbox - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -849,7 +839,6 @@ lib_v_rfbox:
 	rts
 
 
-	dc.b	0,0,"v_pmarker",0
 * v_pmarker - Standard Trap function
 * Todo: All the other types, multiple markers
 * In:   a1      Parameter block
@@ -912,7 +901,6 @@ v_pmarker:
 	done_return			; Should be real_return
 
 
-	dc.b	0,"v_fillarea",0
 * v_fillarea - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -1343,7 +1331,6 @@ lib_v_fillarea:
 	rts
 
 
-	dc.b	0,0,"fill_poly",0
 * fill_poly(Virtual *vwk, short *p, int n, int colour, short *pattern, short *points, long mode, long interior_style);
 *
 _fill_poly:
@@ -1374,7 +1361,6 @@ _fill_poly:
 	jmp	_filled_poly
 
 
-	dc.b	0,0,"hline",0
 * hline(Virtual *vwk, long x1, long y1, long y2, long colour, short *pattern, long mode, long interior_style)
 *
 _hline:
@@ -1405,7 +1391,6 @@ _hline:
 	rts
 
 
-	dc.b	0,"fill_spans",0
 * fill_spans(Virtual *vwk, short *spans, long n, long colour, short *pattern, long mode, long interior_style)
 *
 _fill_spans:

@@ -34,7 +34,6 @@ transparent	equ	1		; Fall through?
 
 	text
 
-	dc.b	0,0,"v_gtext",0
 * v_gtext - Standard Trap function
 * Todo: ?
 * In:	a1	Parameter block
@@ -135,7 +134,6 @@ _draw_text:
 	rts
 
 
-	dc.b	0,0,"v_ftext",0
 * v_ftext - Standard Trap function
 * Todo: ?
 * In:	a1	Parameter block
@@ -230,7 +228,6 @@ lib_v_ftext_offset:
 	rts
 
 
-	dc.b	0,0,"v_justified",0
 * v_justified - Standard Trap function
 * Todo: Actually do justification
 * In:	a1	Parameter block
@@ -398,7 +395,6 @@ lib_v_justified:
 	rts
 
 
-	dc.b	0,"default_text",0
 * _default_text - Buffer rendering or individual character mono-expand text routine
 * Todo:	Add effects of effects to the size
 * In:	a0	VDI struct

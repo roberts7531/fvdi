@@ -43,7 +43,6 @@ upto8		equ	0	; Handle 8 bit drawing
 
 	text
 
-	dc.b		"set_pixel",0
 *---------
 * Set a coloured pixel
 * In:	a0	VDI struct, destination MFDB (odd address marks table operation)
@@ -56,7 +55,6 @@ upto8		equ	0	; Handle 8 bit drawing
 *	d2	y or table length (high) and type (0 - coordinates)
 *---------
 _set_pixel:
-set_pixel:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -89,7 +87,6 @@ set_pixel:
 	rts
 
 
-	dc.b		"get_pixel",0
 *---------
 * Get a coloured pixel
 * In:	a0	VDI struct, source MFDB
@@ -112,7 +109,6 @@ get_pixel:
 	rts
 
 
-	dc.b		"line"
 *---------
 * Draw a colored line between 2 points
 * In:	a0	VDI struct (odd address marks table operation)
@@ -133,7 +129,6 @@ get_pixel:
 *	d6	colour
 *---------
 _line:
-line:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -224,7 +219,6 @@ line:
 	rts
 
 
-	dc.b		"expand"
 *---------
 * Expand a monochrome area to multiple bitplanes
 * In:	a0	VDI struct, destination MFDB, VDI struct, source MFDB
@@ -239,7 +233,6 @@ line:
 *	d7	logic operation
 *---------
 _expand:
-expand:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3(/6)/4(/6)/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -263,7 +256,6 @@ expand:
 	rts
 
 
-	dc.b		"fill"
 *---------
 * Fill a multiple bitplane area using a monochrome pattern
 * In:	a0	VDI struct (odd address marks table operation)
@@ -285,7 +277,6 @@ expand:
 **	+colour in a really dumb way...
 *---------
 _fill:
-fill:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -394,7 +385,6 @@ fill:
 	rts
 
 
-	dc.b		"fillpoly"
 *---------
 * Fill a multiple bitplane polygon using a monochrome pattern
 * In:	a0	VDI struct (odd address marks table operation)
@@ -417,7 +407,6 @@ fill:
 **	+colour in a really dumb way...
 *---------
 _fillpoly:
-fillpoly:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -495,7 +484,6 @@ fillpoly:
 	rts
 
 
-	dc.b		"blit"
 *---------
 * Blit an area
 * In:	a0	VDI struct, destination MFDB, VDI struct, source MFDB
@@ -509,7 +497,6 @@ fillpoly:
 *	d5	logic operation
 *---------
 _blit:
-blit:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -535,7 +522,6 @@ blit:
 	rts
 
 
-	dc.b		"text"
 *---------
 * Draw some text
 * In:	a0	VDI struct
@@ -550,7 +536,6 @@ blit:
 *	a4	string address
 *---------
 _text:
-text:
 	movem.l		d0-d7/a0-a6,-(a7)	; Was d2-d7/a3-a6
 
 	move.l		a1,a4
@@ -571,7 +556,6 @@ text:
 	rts
 
 
-	dc.b		"mouse",0
 *---------
 * Draw the mouse
 * In:	a1	Pointer to Workstation struct
@@ -585,12 +569,10 @@ text:
 * Out:	d0	mouse op to try again (low), pointer delay (high)
 *---------
 _mouse:
-mouse:
 	ijsr		_mouse_draw_r
 	rts
 
 
-	dc.b		"set_palette",0
 *---------
 * Set palette colours
 * In:	a0	VDI struct
@@ -608,7 +590,6 @@ set_palette:
 	rts
 
 
-	dc.b		"colour"
 *---------
 * Get palette colour
 * In:	a0	VDI struct
@@ -616,7 +597,6 @@ set_palette:
 * Out:	d0	fore- and background colour
 *---------
 _colour:
-colour:
 	movem.l		d1-d7/a0-a6,-(a7)
 
 	ijsr		_get_colour_r
@@ -626,7 +606,6 @@ colour:
 
 
   ifne	1
-	dc.b		"initialize_palette"
 *---------
 * Set palette colours
 * initialize_palette(Virtual *vwk, int start, int n, int requested[][3], Colour palette[])

@@ -54,20 +54,17 @@ start_unimpl:
 * Unimplemented traps
 * Todo: Implement them!
 
-	dc.b	0,0,"No known function",0
 * No known function
 nothing:
 special_5:
 special_11:
 	bra	redirect
 
-	dc.b	0,"Physical Workstation",0
 * Physical workstation manipulation
 v_clrwk:
 v_updwk:
 	done_return
 
-	dc.b	0,"Strange IO",0
 * Strange mouse/keyboard functions
 vrq_locator:
 vrq_valuator:
@@ -79,7 +76,7 @@ vqin_mode:
 	clr.w	(a2)
   endc
 	bra	redirect
-	dc.b	0,0,"vsin_mode",0
+
 vsin_mode:			; An experiment
 	move.l	intin(a1),a0
 	move.w	2(a0),d1	; Mode
@@ -100,15 +97,12 @@ setting:
 
 	text
 
-	dc.b	0,0,"Miscellaneous",0
 vq_cellarray:
 	bra	redirect
 
-	dc.b	0,"Outdated",0
 v_kill_outline:
 	done_return
 	
-	dc.b	0,"NVDI",0
 vst_name:
 vst_width:
 v_getoutline:
@@ -124,7 +118,6 @@ vqt_get_table:
 v_set_app_buff:
 	done_return
 
-	dc.b	0,0,"ESC",0
 vq_tabstatus:
 v_hardcopy:
 v_rmcur:
@@ -134,7 +127,6 @@ v_clear_disp_list:
 v_bit_image:
 	bra	redirect
 
-	dc.b	0,0,"Drawing",0
 v_contourfill:
 v_cellarray:
 

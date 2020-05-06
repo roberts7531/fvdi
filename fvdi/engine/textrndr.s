@@ -511,8 +511,6 @@ calc_addr macro	dreg,treg
    endc
   endc
 
-	dc.b		"display4"
-
 * In:	a1	screen line address
 *	a5	font structure address
 *	d0	lines to draw, width

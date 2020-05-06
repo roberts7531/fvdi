@@ -22,7 +22,6 @@
 
 	text
 
-	dc.b	0,0,"dcsd_stub",0
 _dcsd_stub_active:
 	move.l	_is_active,d0
 	rts

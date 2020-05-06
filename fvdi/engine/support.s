@@ -28,7 +28,6 @@ transparent	equ	1		; Fall through?
 
 	text
 
-	dc.b	0,"flip_words",0
 * flip_words(short *addr, long n)
 * Byte swap a number of consecutive words
 _flip_words:
@@ -61,7 +60,6 @@ _flip_longs:
 	rts
 
 
-	dc.b	0,"redirect",0
 * redirect    - Remaps VDI call to default physical workstation
 * redirect_d0 =      -   "   -     specified handle
 * Todo:	?
@@ -86,7 +84,6 @@ redirect_d0:
 	real_return
 
 
-	dc.b	0,"call_other",0
 * call_other - Do a VDI call to the previous VDI instead
 * Todo:	?
 * In:	a1	Parameter block   **** Should perhaps put this in d1? ****
@@ -136,7 +133,7 @@ call_other:
 	move.w	(sp)+,handle(a0)
 	rts
  endc
-	dc.b		0,"initialize_palette",0
+
 * initialize_palette(Virtual *vwk, long start, long n, short requested[][3], Colour palette[])
 * Set palette colours
 _initialize_palette:
@@ -158,7 +155,6 @@ _initialize_palette:
 	rts
 
 
-	dc.b	0,"allocate_block",0
 * long allocate_block(long size)
 * Allocate a block from the internal memory pool
 allocate_block:
@@ -170,7 +166,6 @@ allocate_block:
 	rts
 
 
-	dc.b	0,"free_block",0
 * free_block(void *addr)
 * Free a block and return it to the internal memory pool
 free_block:
@@ -182,7 +177,6 @@ free_block:
 	rts
 
 
-	dc.b	0,0,"cache_flush",0
 * cache_flush(void)
 * Flush both caches
 cache_flush:

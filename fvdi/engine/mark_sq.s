@@ -19,7 +19,6 @@ transparent	equ	1		; Fall through?
 
 	text
 
-	dc.b	0,0,"vsm_color",0
 * vsm_color - Standard Trap function
 * Todo: Get foreground colour?
 * In:   a1      Parameter block
@@ -53,7 +52,6 @@ lib_vsm_color:
 	rts
 
 
-	dc.b	0,"vsm_height",0
 * vsm_height - Standard Trap function
 * Todo: Get allowed steps?
 * In:   a1      Parameter block
@@ -101,7 +99,6 @@ lib_vsm_height:
 	rts
 
 
-	dc.b	0,"vsm_type",0
 * vsm_type - Standard Trap function
 * Todo: Get allowed markers.
 * In:   a1      Parameter block
@@ -139,7 +136,6 @@ lib_vsm_type:
 	rts
 
 
-	dc.b	0,"vqm_attributes",0
 * vqm_attributes - Standard Trap function
 * Todo: -
 * In:   a1      Parameter block

@@ -27,8 +27,6 @@ shift		equ	1
 	endc
 
 
-	dc.b		"blit"
-
 * In:	a1	VDI struct,destination MFDB, VDI struct, source MFDB
 *	d0	height and width to move (high and low word)
 *	d1-d2	source coordinates

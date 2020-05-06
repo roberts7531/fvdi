@@ -35,7 +35,6 @@ sven_mouse	equ	1		; Use Sven's timer draw code?
 
 	text
 
-	dc.b	0,"vsc_form",0
 * vsc_form - Standard Trap function
 * Todo: Redraw mouse through vector
 * In:   a1      Parameter block
@@ -113,7 +112,6 @@ lib_vsc_form:
 	rts
 
 
-	dc.b	0,"v_show_c",0
 * v_show_c - Standard Trap function
 * Todo: Redraw mouse through vector when necessary
 * In:   a1      Parameter block
@@ -204,7 +202,6 @@ lib_v_show_c:
 	lbra	.end,1
 
 
-	dc.b	0,"v_hide_c",0
 * v_hide_c - Standard Trap function
 * Todo: Remove mouse through vector when necessary
 * In:   a1      Parameter block
@@ -283,7 +280,6 @@ lib_v_hide_c:
 	lbra	.not_shown,1
 
 
-	dc.b	0,"vq_mouse",0
 * vq_mouse - Standard Trap function
 * Todo:
 * In:   a1      Parameter block
@@ -301,7 +297,6 @@ vq_mouse:
 	done_return
 
 
-	dc.b	0,"vrq_string",0
 * vrq_string - Standard Trap function
 * Todo: This could use the p_kbshift system variable instead
 * In:   a1      Parameter block
@@ -353,7 +348,6 @@ vrq_string:
 	done_return
 
 
-	dc.b	0,"vq_key_s",0
 * vq_key_s - Standard Trap function
 * Todo: This could use the p_kbshift system variable instead
 * In:   a1      Parameter block
@@ -382,7 +376,6 @@ vq_key_s:
 	done_return
 
 
-	dc.b	0,"vex_butv",0
 * vex_butv - Standard Trap function
 * Todo:
 * In:   a1      Parameter block
@@ -406,7 +399,6 @@ vex_butv:
 	done_return
 
 
-	dc.b	0,"vex_motv",0
 * vex_motv - Standard Trap function
 * Todo:
 * In:   a1      Parameter block
@@ -430,7 +422,6 @@ vex_motv:
 	done_return
 
 
-	dc.b	0,"vex_curv",0
 * vex_curv - Standard Trap function
 * Todo:
 * In:   a1      Parameter block
@@ -453,7 +444,6 @@ vex_curv:
 	redir	vex_curv			; Temporary (needs a1)
 	done_return
 
-	dc.b	0,"vex_wheelv",0
 * vex_wheelv - Standard Trap function
 * Todo:
 * In:   a1      Parameter block
@@ -477,7 +467,6 @@ vex_wheelv:
 	done_return
 
 
-	dc.b	0,"vex_timv",0
 * vex_timv - Standard Trap function
 * Todo:
 * In:   a1      Parameter block
@@ -519,7 +508,6 @@ vex_timv:
 	done_return
 
 
-	dc.b	0,"mouse_move",0
 * mouse_move - Support function
 * Todo: ?
 * In:	d0/d1	New x, y
@@ -538,7 +526,6 @@ _mouse_move:
 	rts
 
 
-	dc.b	0,0,"mouse_timer",0
 * mouse_timer - Support function
 * Todo: ?
 * In:	-
@@ -622,7 +609,6 @@ _mouse_timer:
 	bra	.no_error
 
 
-	dc.b	0,"mouse_unshow",0
 * mouse_unshow - Support function
 * Todo: ?
 * In:	a0	VDI struct
@@ -673,7 +659,6 @@ mouse_unshow:
 	bra	.next
 
 
-	dc.b	0,"mouse_show",0
 * mouse_show - Support function
 * Todo: ?
 * In:	a0	VDI struct
@@ -744,7 +729,6 @@ mouse_show:
 	bra	.no_pixel
 
 
-	dc.b	0,"do_nothing",0
 * do_nothing - Support function
 * Todo: ?
 * In:	-
@@ -752,7 +736,6 @@ _do_nothing:
 	rts
 
 
-	dc.b	0,0,"vector_call",0
 * vector_call - Support function
 * Todo: ?
 * In:
@@ -771,7 +754,6 @@ _vector_call:
 	rts
 
 
-	dc.b	0,0,"vbl_handler",0
 * vbl_handler - Support function
 * Todo: Does this need to save all registers?
 * In:

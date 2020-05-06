@@ -56,7 +56,6 @@ normal_font equ     font_line-4
 ;mask        equ     pixels-4
 
 
-	dc.b	0,0,"text_area",0
 * In:	a1	virtual workstation
 *	a2	offset table
 *       d0      string length
@@ -404,7 +403,6 @@ monospace_first:
 ;
 ;.first:
 
-	dc.b	0,0,"draw_char",0
 * In:	a0	font line address
 *	a1	screen line address
 *	a4	shadow line address
@@ -484,8 +482,6 @@ calc_addr macro	dreg,treg
 	add.w		d0,\1
 	endm
 
-
-	dc.b		0,"display4",0
 
 * In:	a0	font line address
 *	a1	screen line address

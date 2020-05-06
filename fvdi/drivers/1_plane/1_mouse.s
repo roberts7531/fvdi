@@ -9,7 +9,6 @@
 
 	text
 
-	dc.b	"mouse_draw"
 *	d0.w	x
 *	d1.w	y
 *	d2	0 - move shown  1 - move hidden  2 - hide  3 - show  >7 - change shape (pointer to mouse struct)

@@ -15,7 +15,6 @@
 
 
 * int clip_line(Virtual *vwk, short *x1, short *y1, short *x2, short *y2)
-	dc.b	"clip_line",0
 _clip_line:
 	movem.l	d2-d4,-(a7)
 	move.l	3*4+4(a7),a0

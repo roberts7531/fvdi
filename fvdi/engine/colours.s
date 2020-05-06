@@ -44,7 +44,6 @@ _set_palette:
 	rts
 
 	
-	dc.b	0,0,"vs_fg_color",0
 * vs_fg_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -71,7 +70,6 @@ vs_fg_color:
 	done_return
 	
 
-	dc.b	0,0,"vs_bg_color",0
 * vs_bg_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -98,7 +96,6 @@ vs_bg_color:
 	done_return
 	
 
-	dc.b	0,"vs_x_color",0
 * vs_x_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -110,7 +107,6 @@ vs_x_color:
 	done_return
 
 
-	dc.b	0,"vq_x_color",0
 * vq_x_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -124,7 +120,6 @@ vq_x_color:
 	done_return
 
 
-	dc.b	0,0,"vq_fg_color",0
 * vq_fg_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -150,7 +145,6 @@ vq_fg_color:
 	done_return
 
 
-	dc.b	0,0,"vq_bg_color",0
 * vq_bg_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -176,7 +170,6 @@ vq_bg_color:
 	done_return
 
 
-	dc.b	0,"vq_color",0
 * vq_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
@@ -211,7 +204,6 @@ vq_color:
 	done_return
 	
 
-	dc.b	0,"vs_color",0
 * vs_color - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
