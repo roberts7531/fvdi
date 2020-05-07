@@ -1,8 +1,26 @@
 # fVDI configuration
-# $Id: fvdi.sys,v 1.4 2003-04-06 13:35:38 johan Exp $
 
+debugout -1
+
+echo "q - Quit fVDI"
+echo "b - Bitmap fonts only"
+echo "d - Debug"
+setkey n
+#waitkey 2
+
+exitkey q
 
 # ----- Standard setup -----
+
+antialias
+filecache 1024
+preallocate 1024
+
+casekey b no_fsm_fonts
+cookie nvdi=$0501
+cookie speedo
+vqgdos _FSM
+:no_fsm_fonts
 
 # This is the path to fonts and drivers.
 PATH = C:\GEMSYS
@@ -16,10 +34,10 @@ PATH = C:\GEMSYS
 # Tell fVDI the size of your screen, in mm. Recommended!
 # A negative number can be given to specify a fixed DPI.
 # Defaults to the approximate size of the picture on an SM124.
-width -90
-height -90
+width -95
+height -95
 
-# If fVDI is not being started from the AUTO folder, comment this out. 
+# If fVDI is not being started from the AUTO folder, comment this out.
 booted
 
 
@@ -55,7 +73,7 @@ booted
 # Uncomment this to force fVDI to make do with a single Trap #2
 # bending. Normally fVDI tries to move itself forward in the vector
 # chains, but this might cause trouble together with some other TSR.
-singlebend
+#singlebend
 
 # Unless this is uncommented, fVDI tries to allocate memory as itself
 # rather than the calling application under normal TOS.
@@ -82,7 +100,7 @@ singlebend
 
 # The size of the internal memory blocks in kbyte.
 # Defaults to ten, which should normally be enough.
-#blocksize 10
+#blocksize 20
 
 
 # ----- Debug setup -----
@@ -93,7 +111,19 @@ singlebend
 # this, together with what for example ERR_RPRT.PRG shows, is very
 # useful.
 # Multiple 'debug' turns on more debug output/features.
-#debug debug debug
+casekey d debugging
+goto no_debugging
+:debugging
+debug debug debug
+:no_debugging
+# vrt_cpyfm
+silent 121
+# vs_clip vr_trn_fm vswr_mode
+silent 129 32 110
+# lines
+silent 6 15 16 17 108
+# fills
+silent 23 24 25 104 114
 
 # This enables interactive debugging if uncommented.
 # fVDI will stop and wait for key presses after displaying debug
@@ -105,7 +135,7 @@ singlebend
 # most useful ones are the parallel port (0), the serial port (1), and
 # the midi port (3). Use -1 for ARAnyM console output and -2 to return
 # to the default (screen output via Cconws).
-#debugout 1
+#debugout -1
 
 # The size of the VDI call log in kbyte.
 # Defaults to 4, but is neither allocated nor used without 'debug'.
@@ -129,14 +159,14 @@ singlebend
 
 # ----- Interactive setup -----
 
-# Uncomment and change to write any text to the screen.
-# Note the quotes!
-#echo "Select graphics mode (or 'q' to skip fVDI):"
-
 # Uncomment and change to set up a default key (reported if none is
 # pressed). A device driver (or exitkey/casekey) can ask for this
 # value later on.
-#setkey 6
+#setkey f
+
+# Uncomment and change to write any text to the screen.
+# Note the quotes!
+#echo "Select graphics mode (or 'q' to skip fVDI):"
 
 # Uncomment and change to wait for a key (for a specified number of
 # seconds). A device driver (or exitkey/casekey) can ask for this
@@ -155,6 +185,12 @@ singlebend
 #casekey m monochrome
 
 
+casekey b no_vector_fonts
+FONTS = C:\gemsys\ttf\
+:no_vector_fonts
+
+size 6 8 9 10 11 12 14 16 18 24 36 40 44 48 64 72
+
 # ----- Driver configuration -----
 
 # Common driver initialization options (any driver can add to these):
@@ -162,7 +198,7 @@ singlebend
 #     Any soft- or hardware accelerations can be turned off using the
 #     'accelerate xxxxxxx' option. For any 'x' that is replaced by a
 #     '-' or a '0', the corresponding accelerated function will be
-#     turned off. 
+#     turned off.
 #     If this option is not used, all acceleration will be on.
 #     Acceleration possibilities (in order):
 #        line expand fillpoly fill blit text mouse
@@ -174,6 +210,20 @@ singlebend
 #     Use a separate buffer of the screen in RAM. This is not useful
 #     unless you have a really fast processor ('040) and RAM that can
 #     be accessed much faster than the screen.
+
+# The ARAnyM driver recognizes
+# mode WIDTHxHEIGHTxDEPTH@FREQUENCY
+#     Sets a mode as close to (but not higher) the given numbers as
+#     possible.
+# realones
+#     Do not special case all zero/one blit types in true colour mode.
+#     Often better left inactive.
+# assumenf
+#     Use NatFeat without checking for cookie.
+# scrninfo fb
+#     Make vq_scrninfo return values regarding actual fb layout.
+# debug
+#     Turn on debugging aids.
 
 # The Eclipse/RageII driver recognizes
 # mode n    ('n' can be replaced by 'key' (see above))
@@ -245,8 +295,8 @@ singlebend
 #01r 1plane.sys
 #01r 4plane.sys
 #01r 16bit.sys shadow oldmouse accelerate xxxxxx-
-#01r rage.sys screencache onlysrc 4mb mode key imgcache
 
+#01r rage.sys screencache onlysrc 4mb mode key imgcache
 #01r rage_lc.sys pcibios screencache imgcache mode key accelerate xxxxxxx
 #01r rage.sys pcibios mode key imgcache screencache accelerate xxxxxxx
 #01r rage.sys pcibios mode 800x600x16@72 imgcache screencache accelerate xxxxxxx
@@ -259,7 +309,78 @@ singlebend
 #01r rage.sys pcibios doblit 4mb mode key
 #01r rage.sys 4mb mode key screencache imgcache
 
-01r aranym.sys mode 1024x768x32@60
+#01r aranym.sys mode 1200x1024x16@72
+#01r aranym.sys mode 1024x768x16@72 assumenf
+#01r aranym.sys mode 800x600x16@72 assumenf
+
+echo "0 - 800x600x32"
+echo "1 - 1024x768x32"
+echo "2 - 1280x1024x32"
+echo "3 - 1920x960x32"
+echo "4 - 1920x960x8"
+echo "5 - 1920x960x4"
+echo "6 - 640x480x32"
+echo "7 - 1920x960x16"
+echo "8 - 640x480x8"
+echo "9 - 1280x1024x16"
+swapkey
+setkey 1
+#waitkey 1
+
+casekey 0 res800x600x32
+casekey 1 res1024x768x32
+casekey 2 res1280x1024x32
+casekey 3 res1920x960x32
+casekey 4 res1920x960x8
+casekey 5 res1920x960x4
+casekey 6 res640x480x32
+casekey 7 res1920x960x16
+casekey 8 res640x480x8
+casekey 9 res1280x1024x16
+
+:res800x600x32
+01r aranym.sys mode 800x608x32@72 irq accelerate xxxxxxx
+goto font_specification
+
+:res1024x768x32
+01r aranym.sys mode 1024x768x32@72 irq accelerate xxxxxxx
+goto font_specification
+
+:res1280x1024x32
+01r aranym.sys mode 1280x1024x32@72 irq accelerate xxxxxxx
+goto font_specification
+
+:res1920x960x32
+01r aranym.sys mode 1792x928x32@72 irq accelerate xxxxxxx
+#01r aranym.sys mode 1920x1024x32@72 irq accelerate xxxxxxx
+goto font_specification
+
+:res1920x960x8
+01r aranym.sys mode 1920x960x8@72 irq accelerate xxxxxxx
+goto font_specification
+
+:res1920x960x4
+01r aranym.sys mode 1920x960x4@72 accelerate xxxxxxx
+goto font_specification
+
+:res640x480x32
+01r aranym.sys mode 640x480x32@72 accelerate xxxxxxx
+goto font_specification
+
+:res1920x960x16
+01r aranym.sys mode 1920x960x16@72 irq accelerate xxxxxxx
+goto font_specification
+
+:res640x480x8
+01r aranym.sys mode 640x480x8@72 accelerate xxxxxxx
+goto font_specification
+
+:res1280x1024x16
+01r aranym.sys mode 1280x1024x16@72 accelerate xxxxxxx
+goto font_specification
+
+:font_specification
+swapkey
 
 #s MONACO08.FNT
 #s MONACO09.FNT

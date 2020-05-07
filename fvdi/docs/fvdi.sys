@@ -1,6 +1,4 @@
 # fVDI configuration
-# $Id: fvdi.sys,v 1.4 2003-04-06 13:35:38 johan Exp $
-
 
 # ----- Standard setup -----
 
@@ -19,7 +17,7 @@ PATH = C:\GEMSYS
 width 280
 height 210
 
-# If fVDI is not being started from the AUTO folder, comment this out. 
+# If fVDI is not being started from the AUTO folder, comment this out.
 booted
 
 
@@ -162,7 +160,7 @@ nomemlink
 #     Any soft- or hardware accelerations can be turned off using the
 #     'accelerate xxxxxxx' option. For any 'x' that is replaced by a
 #     '-' or a '0', the corresponding accelerated function will be
-#     turned off. 
+#     turned off.
 #     If this option is not used, all acceleration will be on.
 #     Acceleration possibilities (in order):
 #        line expand fillpoly fill blit text mouse
