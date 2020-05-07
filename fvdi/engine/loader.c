@@ -99,11 +99,14 @@ short stand_alone = 0;
 short nvdi_cookie = 0;
 short speedo_cookie = 0;
 short calamus_cookie = 0;
-char silent[32] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-char silentx[1] = {0};
+char silent[32] = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+char silentx[1] = { 0 };
 char vq_gdos_value[] = "fVDI";
 unsigned short sizes[16] = {8, 9, 10, 11, 12, 14, 18, 24, 36, 48, 0xffff};
+
 short size_count = 11;
 short size_user = 0;
 short old_malloc = 0;
@@ -119,6 +122,7 @@ short bconout = 0;
 short file_cache_size = 0;
 short antialiasing = 0;
 char *debug_file = 0;
+
 static char path[PATH_SIZE];
 
 static long set_path(Virtual *vwk, const char **ptr);
@@ -148,8 +152,7 @@ static long pre_allocate(Virtual *vwk, const char **ptr);
 static long file_cache(Virtual *vwk, const char **ptr);
 static long set_debug_file(Virtual *vwk, const char **ptr);
 
-static Option options[] =
-{
+static Option options[] = {
     {"path",       set_path,       -1},  /* path = str, where to look for fonts and drivers */
     {"fonts",      load_fonts,     -1},  /* fonts = str, where to look for FreeType2 fonts */
     {"debug",      &debug,          2},  /* debug, turn on debugging aids */
@@ -205,7 +208,7 @@ static Option options[] =
 };
 
 
-int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts);        /* forward declare */
+static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts);        /* forward declare */
 
 /* Allocate for size of Driver since the module might be one. */
 Module *init_module(Virtual *vwk, const char **ptr, List **list)
@@ -219,7 +222,7 @@ Module *init_module(Virtual *vwk, const char **ptr, List **list)
     copy(path, name);
     cat(token, name);
     opts = *ptr;
-    *ptr = next_line(*ptr);               /* Rest of line is parameter data */
+    *ptr = next_line(*ptr);             /* Rest of line is parameter data */
     if (*ptr)
     {
         /* Assumed no larger than a maximum length token */
@@ -1000,15 +1003,15 @@ long tokenize(const char *buffer)
  * Find the magic startup struct and
  * call the initialization function given there.
  */
-int initialize(const unsigned char *addr, long size, Driver *driver, Virtual *vwk, char *opts)
+static int initialize(const unsigned char *addr, long size, Driver *driver, Virtual *vwk, char *opts)
 {
     long i;
     int j;
     Locator *locator;
 
-    for (i = 0; i < size - sizeof(MAGIC); i++)
+    for (i = 0; i < size - (long)sizeof(MAGIC); i++)
     {
-        for (j = 0; j < sizeof(MAGIC); j++)
+        for (j = 0; j < (int)sizeof(MAGIC); j++)
         {
             if (addr[j] != MAGIC[j])
                 break;
@@ -1033,16 +1036,20 @@ int initialize(const unsigned char *addr, long size, Driver *driver, Virtual *vw
 /*
  * Do a complete relocation
  */
-void relocate(unsigned char *prog_addr, Prgheader *header)
+static void relocate(unsigned char *prog_addr, Prgheader *header)
 {
-    unsigned char *code, *rtab, rval;
+    unsigned char *code, *rtab;
+    unsigned long rval;
 
-    rtab = prog_addr + header->tsize + header->dsize + header->ssize;
-    code = prog_addr + * (long *) rtab;
+    rtab = prog_addr + header->tsize + header->dsize;
+    rval = *(unsigned long *) rtab;
+    if (rval == 0)
+        return;
+    code = prog_addr + rval;
     rtab += 4;
 
     *(long *)code += (long)prog_addr;
-    while ((rval = *rtab++))
+    while ((rval = *rtab++) != 0)
     {
         if (rval == 1)
             code += 254;
@@ -1058,9 +1065,9 @@ void relocate(unsigned char *prog_addr, Prgheader *header)
 /*
  * Load, relocate and initialize driver
  */
-int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
+static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
 {
-    long file_size, program_size;
+    long file_size, program_size, reloc_size;
     int file;
     unsigned char *addr;
     Prgheader header;
@@ -1069,22 +1076,30 @@ int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
     if ((file_size = get_size(name) - sizeof(header)) < 0)
         return 0;
 
-    if ((file = Fopen(name, O_RDONLY)) < 0)
+    if ((file = (int) Fopen(name, O_RDONLY)) < 0)
         return 0;
 
     Fread(file, sizeof(header), &header);
-    program_size = header.tsize + header.dsize + header.bsize;
+    program_size = header.tsize + header.dsize;
+    file_size -= header.ssize;
+    reloc_size = file_size - program_size;
+    program_size += header.bsize;
 
-    if (!(addr = malloc(MAX(file_size, program_size))))
+    if ((addr = (unsigned char *) malloc(MAX(file_size, program_size))) == NULL)
     {
         Fclose(file);
         return 0;
     }
 
-    Fread(file, file_size, addr);
+    Fread(file, header.tsize + header.dsize, addr);
+    /* skip symbol table */
+    if (header.ssize != 0)
+        Fseek(header.ssize, file, SEEK_CUR);
+    Fread(file, reloc_size, addr + header.tsize + header.dsize);
     Fclose(file);
 
-    relocate(addr, &header);
+    if (header.relocflag == 0 && reloc_size > 4)
+        relocate(addr, &header);
 
     /* Clear the BSS */
     memset(addr + header.tsize + header.dsize, 0, header.bsize);
@@ -1092,11 +1107,10 @@ int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
     /* This will cause trouble if ever called from supervisor mode! */
     Supexec(cache_flush);
 
-    init_result = 0;
-    if (!(init_result = initialize(addr, header.tsize + header.dsize, driver, vwk, opts)))
+    if ((init_result = initialize(addr, header.tsize + header.dsize, driver, vwk, opts)) == 0)
     {
         free(addr);
-        error("Initialization failed!", 0);
+        error("Initialization failed!", NULL);
         return 0;
     }
 
