@@ -1,8 +1,6 @@
 /*
  * fVDI startup
  *
- * $Id: startup.c,v 1.61 2006-12-04 07:53:55 johan Exp $
- *
  * Copyright 1999-2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

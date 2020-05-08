@@ -1,8 +1,6 @@
 /*
  * Bitplane mouse routine
  *
- * $Id: mouse.c,v 1.4 2006-05-26 07:56:20 johan Exp $
- *
  * Copyright 2006, Johan Klockars
  * Copyright 2002 The EmuTOS development team
  * Copyright 1999 by Caldera, Inc. and Authors:

@@ -1,8 +1,6 @@
 *****
 * Single plane fill
 *
-* $Id: 1_fill.s,v 1.3 2005-04-23 18:57:52 johan Exp $
-*
 * Copyright 1998-2002, Johan Klockars 
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

@@ -1,8 +1,6 @@
 ﻿/*
  * fVDI Bconout(con) redirection
  *
- * $Id: bconout.c,v 1.1 2005-12-17 01:08:31 standa Exp $
- *
  * Copyright 1993, Johan Klockars, 2005 Standa Opichal
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

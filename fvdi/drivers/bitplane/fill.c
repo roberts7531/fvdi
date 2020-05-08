@@ -1,8 +1,6 @@
 /*
  * Bitplane fill routines
  *
- * $Id: fill.c,v 1.5 2005-12-07 08:54:22 johan Exp $
- *
  * Copyright 2005, Johan Klockars 
  * Copyright 2002 The EmuTOS development team
  *

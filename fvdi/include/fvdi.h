@@ -3,8 +3,6 @@
 /*
  * fVDI structure declarations, by Johan Klockars.
  *
- * $Id: fvdi.h,v 1.19 2006-11-28 12:19:45 johan Exp $
- *
  * Most C files in the fVDI engine, as well as in its
  * device drivers, need to include this file.
  *

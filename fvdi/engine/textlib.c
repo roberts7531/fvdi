@@ -3,8 +3,6 @@
 /*
  * fVDI text handling
  *
- * $Id: textlib.c,v 1.16 2006-12-06 20:36:12 standa Exp $
- *
  * Copyright 2005, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

@@ -1,8 +1,6 @@
 /*
  * fVDI preferences and driver loader
  *
- * $Id: loader.c,v 1.35 2006-11-28 12:18:14 johan Exp $
- *
  * Copyright 1997-2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

@@ -1,8 +1,6 @@
 *****
 * fVDI colour functions
 *
-* $Id: colours.s,v 1.8 2005-08-10 10:08:00 johan Exp $
-*
 * Copyright 1997-2000, Johan Klockars 
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

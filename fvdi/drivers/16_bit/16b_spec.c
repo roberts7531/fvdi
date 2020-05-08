@@ -1,8 +1,6 @@
 /* 
  * A 16 bit mode specification/initialization file, by Johan Klockars.
  *
- * $Id: 16b_spec.c,v 1.5 2005-05-25 14:02:00 johan Exp $
- *
  * This file is an example of how to write an
  * fVDI device driver routine in C.
  *

@@ -1,8 +1,6 @@
 *****
 * fVDI->driver interface (C functions), by Johan Klockars
 *
-* $Id: c_common.s,v 1.8 2005-08-09 08:37:37 johan Exp $
-*
 * Most fVDI device drivers are expected to make use of this file.
 *
 * Since it would be difficult to do without this file when

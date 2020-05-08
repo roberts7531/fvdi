@@ -3,8 +3,6 @@
 /*
  * Includes compiler specific OS headers
  *
- * $Id: os.h,v 1.2 2006-02-19 01:18:08 johan Exp $
- *
  * Copyright 2003, Johan Klockars 
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

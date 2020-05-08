@@ -1,8 +1,6 @@
 /*
  * VDI profiler - data analyzer
  *
- * $Id: analyzer.c,v 1.2 2002-05-14 01:25:10 johan Exp $
- *
  * Copyright 1997 & 2002, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

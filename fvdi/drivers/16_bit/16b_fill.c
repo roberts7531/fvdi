@@ -1,8 +1,6 @@
 /* 
  * A 16 bit graphics fill routine, by Johan Klockars.
  *
- * $Id: 16b_fill.c,v 1.2 2002-07-10 22:13:39 johan Exp $
- *
  * This file is an example of how to write an
  * fVDI device driver routine in C.
  *

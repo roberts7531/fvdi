@@ -1,8 +1,6 @@
 ﻿/*
  * fVDI Calamus functions
  *
- * $Id: calamus.c,v 1.7 2005-12-15 15:05:30 standa Exp $
- *
  * Copyright 2004, Standa Opichal
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

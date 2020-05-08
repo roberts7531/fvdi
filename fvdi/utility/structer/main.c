@@ -1,8 +1,6 @@
 /*
  * C struct to assembly equ converter
  *
- * $Id: main.c,v 1.3 2002-07-01 21:08:56 johan Exp $
- *
  * Copyright 1997-2002, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

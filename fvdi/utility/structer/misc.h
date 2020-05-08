@@ -3,8 +3,6 @@
 /*
  * Miscellaneous declarations
  *
- * $Id: misc.h,v 1.2 2002-05-13 01:28:11 johan Exp $
- *
  * Copyright 1997-2002, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

@@ -1,8 +1,6 @@
 /*
  * fVDI workstation setup functions
  *
- * $Id: setup.c,v 1.13 2006-02-28 21:21:51 standa Exp $
- *
  * Copyright 1999-2000/2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

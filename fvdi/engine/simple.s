@@ -1,8 +1,6 @@
 *****
 * fVDI miscellaneous functions
 *
-* $Id: simple.s,v 1.12 2005-11-18 10:38:27 johan Exp $
-*
 * Copyright 1997-2003, Johan Klockars 
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

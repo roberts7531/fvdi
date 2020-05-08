@@ -6,8 +6,6 @@
 /*
  * fVDI utility function declarations
  *
- * $Id: utility.h,v 1.9 2006-02-19 01:17:41 johan Exp $
- *
  * Copyright 2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

@@ -1,8 +1,6 @@
 /*
  * fVDI console functions
  *
- * $Id: escape.c,v 1.4 2005-10-03 22:51:42 johan Exp $
- *
  * Copyright 2002-2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

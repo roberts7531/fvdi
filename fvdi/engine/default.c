@@ -1,8 +1,6 @@
 /*
  * fVDI default drawing function code
  *
- * $Id: default.c,v 1.7 2006-02-19 01:13:58 johan Exp $
- *
  * Copyright 2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

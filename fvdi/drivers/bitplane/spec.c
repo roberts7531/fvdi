@@ -1,8 +1,6 @@
 /*
  * fVDI device driver specific setup
  *
- * $Id: spec.c,v 1.4 2006-02-19 01:24:07 johan Exp $
- *
  * Copyright 1998-2002, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

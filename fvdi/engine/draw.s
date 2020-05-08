@@ -1,8 +1,6 @@
 *****
 * fVDI drawing functions
 *
-* $Id: draw.s,v 1.9 2005-07-10 00:08:52 johan Exp $
-*
 * Copyright 1997-2003, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

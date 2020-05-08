@@ -1,8 +1,6 @@
 *****
 * ARAnyM driver event trampoline
 *
-* $Id: irq.s,v 1.2 2005-06-01 20:57:42 johan Exp $
-*
 * Copyright 2005, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

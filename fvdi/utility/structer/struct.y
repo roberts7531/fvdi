@@ -1,8 +1,6 @@
 /*
  * C structure parser
  *
- * $Id: struct.y,v 1.4 2005-05-25 13:48:58 johan Exp $
- *
  * Copyright 1997-2002, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

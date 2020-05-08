@@ -217,5 +217,3 @@ struct ModeInfo modeline_vesa_entry[] = {
 };
 
 const int modeline_vesa_entries = sizeof(modeline_vesa_entry)/sizeof(modeline_vesa_entry[0]);
-
-/* vim: set shiftwidth=4 expandtab:  */

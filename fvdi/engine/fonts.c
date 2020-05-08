@@ -1,8 +1,6 @@
 /*
  * fVDI font load and setup
  *
- * $Id: fonts.c,v 1.4 2006-11-15 23:20:06 standa Exp $
- *
  * Copyright 1997-2000/2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

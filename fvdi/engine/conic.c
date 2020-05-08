@@ -1,8 +1,6 @@
 ﻿/*
  * fVDI circle/ellipse/pie/arc code
  *
- * $Id: conic.c,v 1.8 2005-07-10 00:06:24 johan Exp $
- *
  * Copyright 1999/2001-2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

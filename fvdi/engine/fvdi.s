@@ -2,8 +2,6 @@
 * fVDI v0.96, 020710
 *   Mainly function dispatcher related things
 *
-* $Id: fvdi.s,v 1.10 2005-11-21 23:38:05 johan Exp $
-*
 * Copyright 1997-2002, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

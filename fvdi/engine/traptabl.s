@@ -1,8 +1,6 @@
 *****
 * fVDI trap table
 *
-* $Id: traptabl.s,v 1.13 2006-03-05 22:39:48 johan Exp $
-*
 * Copyright 1997-2002, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

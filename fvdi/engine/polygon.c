@@ -1,8 +1,6 @@
 /*
  * fVDI polygon fill functions
  *
- * $Id: polygon.c,v 1.4 2004-10-17 21:44:11 johan Exp $
- *
  * Copyright 1999-2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

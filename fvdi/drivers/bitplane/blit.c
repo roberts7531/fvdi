@@ -1,8 +1,6 @@
 /*
  * Bitplane blit routines
  *
- * $Id: blit.c,v 1.8 2006-01-19 19:18:58 johan Exp $
- *
  * Copyright 2005, Johan Klockars
  * Copyright 2003 The EmuTOS development team
  * Copyright 2002 Joachim Hoenig (blitter)

@@ -1,8 +1,6 @@
 /*
  * fVDI font load and setup
  *
- * $Id: ft2.c,v 1.42 2007-01-11 22:07:04 standa Exp $
- *
  * Copyright 1997-2000/2003, Johan Klockars
  *                     2005, Standa Opichal
  * This software is licensed under the GNU General Public License.

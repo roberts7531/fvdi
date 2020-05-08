@@ -79,4 +79,3 @@
 #define SAGA_VIDEO_HVSYNC  0x00DFF310
 
 #endif /* SAGA_VIDEO_H */
-/* vim: set shiftwidth=4 expandtab:  */

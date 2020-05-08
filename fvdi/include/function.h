@@ -6,8 +6,6 @@
 /*
  * fVDI function declarations
  *
- * $Id: function.h,v 1.17 2006-11-26 07:30:56 standa Exp $
- *
  * Copyright 2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

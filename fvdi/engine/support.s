@@ -1,8 +1,6 @@
 *****
 * fVDI support routines
 *
-* $Id: support.s,v 1.9 2005-12-06 00:14:04 johan Exp $
-*
 * Copyright 1997-2003, Johan Klockars
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

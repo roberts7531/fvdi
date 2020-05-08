@@ -1,8 +1,6 @@
 /*
  * fVDI workstation functions
  *
- * $Id: workstn.c,v 1.19 2006-11-28 12:14:36 johan Exp $
- *
  * Copyright 2000/2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

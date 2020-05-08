@@ -1,8 +1,6 @@
 /*
  * C structure lexical analyzer
  *
- * $Id: struct.lex,v 1.3 2005-07-18 06:42:07 johan Exp $
- *
  * Copyright 1997-2002, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

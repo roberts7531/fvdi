@@ -1,8 +1,6 @@
 *****
 * fVDI VDI declarations, by Johan Klockars
 *
-* $Id: vdi.inc,v 1.5 2002-07-10 21:59:29 johan Exp $
-*
 * This file is put in the public domain.
 * It is not copyrighted or under any sort of license.
 *****

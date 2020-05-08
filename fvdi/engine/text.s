@@ -1,8 +1,6 @@
 *****
 * fVDI text drawing functions
 *
-* $Id: text.s,v 1.10 2007-01-11 22:06:09 standa Exp $
-*
 * Copyright 1997-2003, Johan Klockars 
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

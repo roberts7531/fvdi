@@ -1,8 +1,6 @@
 ﻿/*
  * fVDI colour handling
  *
- * $Id: colour.c,v 1.4 2006-05-25 22:44:18 johan Exp $
- *
  * Copyright 2005, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

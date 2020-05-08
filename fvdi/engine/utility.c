@@ -1,8 +1,6 @@
 /*
  * fVDI utility functions
  *
- * $Id: utility.c,v 1.35 2006-12-06 14:34:46 standa Exp $
- *
  * Copyright 1997-2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

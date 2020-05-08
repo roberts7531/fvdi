@@ -1,8 +1,6 @@
 /*
  * fVDI generic device driver initialization, by Johan Klockars
  *
- * $Id: init.c,v 1.8 2005-06-01 21:00:10 johan Exp $
- *
  * Since it would be difficult to do without this file when
  * writing new device drivers, and to make it possible for
  * some such drivers to be commercial, this file is put in

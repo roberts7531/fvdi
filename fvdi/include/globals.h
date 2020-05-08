@@ -3,8 +3,6 @@
 /*
  * fVDI global variable declarations
  *
- * $Id: globals.h,v 1.14 2006-02-21 20:16:44 standa Exp $
- *
  * Copyright 2003, Johan Klockars
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.

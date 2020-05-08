@@ -1,8 +1,6 @@
 *****
 * fVDI unimplemented functions
 *
-* $Id: unimpl.s,v 1.17 2006-02-28 21:21:51 standa Exp $
-*
 * Copyright 1997-2002, Johan Klockars 
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.

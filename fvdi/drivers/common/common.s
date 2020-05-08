@@ -1,8 +1,6 @@
 *****
 * fVDI->driver interface (assembly functions), by Johan Klockars
 *
-* $Id: common.s,v 1.5 2005-04-23 18:53:17 johan Exp $
-*
 * Most fVDI device drivers are expected to make use of this file.
 *
 * Since it would be difficult to do without this file when
