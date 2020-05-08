@@ -23,13 +23,13 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "uaegfx.h"
 #include "uaelib.h"
 
 #define PIXEL		short
 #define PIXEL_SIZE	sizeof(PIXEL)
 
-extern void CDECL c_get_colour(Virtual *vwk, long colour, short *foreground, short *background);
 
 /*
  * Make it as easy as possible for the C compiler.
@@ -150,6 +150,7 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *
 {
 	Workstation *wk;
 	PIXEL *src_addr, *dst_addr;
+    long colours;
 	short foreground, background;
 	int src_wrap, dst_wrap;
 	int src_line_add, dst_line_add;
@@ -159,7 +160,9 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *
 
 	wk = vwk->real_address;
 
-	c_get_colour(vwk, colour, &foreground, &background);
+	colours = c_get_colour(vwk, colour);
+    foreground = colours;
+    background = colours >> 16;
 
 	src_wrap = (long)src->wdwidth * 2;		/* Always monochrome */
 	src_addr = src->address;

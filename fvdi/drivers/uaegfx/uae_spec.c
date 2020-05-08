@@ -23,6 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "relocate.h"
 #include "uaegfx.h"
 #include "uaelib.h"
@@ -62,19 +63,8 @@ extern short *loaded_palette;
 extern short colours[][3];
 extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-extern void *c_set_colours;		/* Just to check if the routine is available */
 
 extern long tokenize(const char *ptr);
-
-extern void *c_write_pixel;
-extern void *c_read_pixel;
-extern void *c_line_draw;
-extern void *c_expand_area;
-extern void *c_fill_area;
-extern void *c_blit_area;
-extern void *c_mouse_draw;
-extern void *c_set_colours;
-extern void *c_get_colour;
 
 void *write_pixel_r = &c_write_pixel;
 void *read_pixel_r  = &c_read_pixel;

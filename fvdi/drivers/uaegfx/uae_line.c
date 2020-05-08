@@ -23,9 +23,9 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "uaegfx.h"
 
-extern void CDECL c_get_colour(Virtual *vwk, long colour, short *foreground, short *background);
 
 extern long CDECL clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
 
@@ -239,6 +239,7 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 {
 	Workstation *wk;
 	short *addr, *addr_fast;
+    long colours;
 	short foreground, background;
   	int line_add;
 	long pos;
@@ -257,7 +258,9 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 	if (!clip_line(vwk, &x1, &y1, &x2, &y2))
 		return 1;
 
-	c_get_colour(vwk, colour, &foreground, &background);
+	colours = c_get_colour(vwk, colour);
+    foreground = colours;
+    background = colours >> 16;
 
 	wk = vwk->real_address;
 

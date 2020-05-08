@@ -20,8 +20,8 @@
 #endif
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 
-extern void CDECL c_get_colour(Virtual *vwk, long colour, short *foreground, short *background);
 
 extern long CDECL clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
 
@@ -44,6 +44,7 @@ static void s_replace(short *addr, short *addr_fast, int count,
     *addr_fast = foreground;
 #endif
     *addr = foreground;
+    (void) background;
 
     for(--count; count >= 0; count--) {
         if (d < 0) {
@@ -124,6 +125,7 @@ static void s_transparent(short *addr, short *addr_fast, int count,
     *addr_fast = foreground;
 #endif
     *addr = foreground;
+    (void) background;
 
     for(--count; count >= 0; count--) {
         if (d < 0) {
@@ -152,6 +154,7 @@ static void s_transparent_p(short *addr, short *addr_fast, long pattern, int cou
 {
     unsigned int mask = 0x8000;
 
+    (void) background;
     if (pattern & mask) {
 #ifdef BOTH
         *addr_fast = foreground;
@@ -186,12 +189,14 @@ static void s_transparent_p(short *addr, short *addr_fast, long pattern, int cou
     }
 }
 
-static void s_xor(short *addr, short *addr_fast, int count,
+static void s_xor(short *addr, short *addr_fast, int count, /* x00000 */
                   int d, int incrE, int incrNE, int one_step, int both_step,
                   short foreground, short background)
 {
     int v;
 
+    (void) foreground;
+    (void) background;
 #ifdef BOTH
     v = ~*addr_fast;
 #else
@@ -235,6 +240,8 @@ static void s_xor_p(short *addr, short *addr_fast, long pattern, int count,
     int v;
     unsigned int mask = 0x8000;
 
+    (void) foreground;
+    (void) background;
     if (pattern & mask) {
 #ifdef BOTH
         v = ~*addr_fast;
@@ -287,6 +294,8 @@ static void s_revtransp(short *addr, short *addr_fast, int count,
     *addr_fast = foreground;
 #endif
     *addr = foreground;
+    (void) addr_fast;
+    (void) background;
 
     for(--count; count >= 0; count--) {
         if (d < 0) {
@@ -315,6 +324,7 @@ static void s_revtransp_p(short *addr, short *addr_fast, long pattern, int count
 {
     unsigned int mask = 0x8000;
 
+    (void) background;
     if (!(pattern & mask)) {
 #ifdef BOTH
         *addr_fast = foreground;
@@ -368,6 +378,8 @@ static void replace(short *addr, short *addr_fast, int count,
     *addr_fast = foreground;
 #endif
     *addr = foreground;
+    (void) addr_fast;
+    (void) background;
 
     for(--count; count >= 0; count--) {
         if (d < 0) {
@@ -396,6 +408,7 @@ static void replace_p(short *addr, short *addr_fast, long pattern, int count,
 {
     unsigned int mask = 0x8000;
 
+    (void) addr_fast;
     if (pattern & mask) {
 #ifdef BOTH
         *addr_fast = foreground;
@@ -448,6 +461,8 @@ static void transparent(short *addr, short *addr_fast, int count,
     *addr_fast = foreground;
 #endif
     *addr = foreground;
+    (void) addr_fast;
+    (void) background;
 
     for(--count; count >= 0; count--) {
         if (d < 0) {
@@ -476,6 +491,8 @@ static void transparent_p(short *addr, short *addr_fast, long pattern, int count
 {
     unsigned int mask = 0x8000;
 
+    (void) addr_fast;
+    (void) background;
     if (pattern & mask) {
 #ifdef BOTH
         *addr_fast = foreground;
@@ -516,6 +533,9 @@ static void xor(short *addr, short *addr_fast, int count,
 {
     int v;
 
+    (void) addr_fast;
+    (void) foreground;
+    (void) background;
 #ifdef BOTH
     v = ~*addr_fast;
 #else
@@ -559,6 +579,9 @@ static void xor_p(short *addr, short *addr_fast, long pattern, int count,
     int v;
     unsigned int mask = 0x8000;
 
+    (void) addr_fast;
+    (void) foreground;
+    (void) background;
     if (pattern & mask) {
 #ifdef BOTH
         v = ~*addr_fast;
@@ -611,6 +634,8 @@ static void revtransp(short *addr, short *addr_fast, int count,
     *addr_fast = foreground;
 #endif
     *addr = foreground;
+    (void) addr_fast;
+    (void) background;
 
     for(--count; count >= 0; count--) {
         if (d < 0) {
@@ -639,6 +664,8 @@ static void revtransp_p(short *addr, short *addr_fast, long pattern, int count,
 {
     unsigned int mask = 0x8000;
 
+    (void) addr_fast;
+    (void) background;
     if (!(pattern & mask)) {
 #ifdef BOTH
         *addr_fast = foreground;
@@ -682,6 +709,7 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 {
     Workstation *wk;
     short *addr, *addr_fast;
+    long colours;
     short foreground, background;
     int line_add;
     long pos;
@@ -698,7 +726,9 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
     if (!clip_line(vwk, &x1, &y1, &x2, &y2))
         return 1;
 
-    c_get_colour(vwk, colour, &foreground, &background);
+    colours = c_get_colour(vwk, colour);
+    foreground = colours;
+    background = colours >> 16;
 
     wk = vwk->real_address;
 
@@ -737,7 +767,7 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
     both_step = x_step + y_step;
 
 #ifdef BOTH
-    if (addr_fast = wk->screen.shadow.address) {
+    if ((addr_fast = wk->screen.shadow.address) != 0) {
 
         addr += pos >> 1;
 #ifdef BOTH

@@ -14,6 +14,7 @@
  */
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "relocate.h"
 
 #define NOVA 0		/* 1 - byte swap 16 bit colour value (NOVA etc) */
@@ -24,13 +25,12 @@
 #define blue_bits  5	/* 5 for all normal 16 bit hardware */
 
 
-void CDECL
-c_get_colour(Virtual *vwk, long colour, short *foreground, short* background)
+long CDECL c_get_colour(Virtual *vwk, long colour)
 {
     Colour *local_palette, *global_palette;
     Colour *fore_pal, *back_pal;
-    short fg_colindex = (short) colour;
-    short bg_colindex = (short) (colour >> 16);
+    unsigned short foreground, background;
+    unsigned short *realp;
 
     local_palette = vwk->palette;
     if (local_palette && !((long)local_palette & 1))	/* Complete local palette? */
@@ -48,8 +48,11 @@ c_get_colour(Virtual *vwk, long colour, short *foreground, short* background)
             back_pal = global_palette;
     }
 
-    *foreground = * (short *) &fore_pal[fg_colindex].real;
-    *background = * (short *) &back_pal[bg_colindex].real;
+	realp = (unsigned short *)&fore_pal[(short)colour].real;
+	foreground = *realp;
+	realp = (unsigned short *)&back_pal[colour >> 16].real;
+	background = *realp;
+	return ((unsigned long)background << 16) | (unsigned long)foreground;
 }
 
 
@@ -60,7 +63,9 @@ c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested,
     unsigned short component;
     unsigned long tc_word;
     int i;
+    short *realp;
 
+    (void) vwk;
     if ((long)requested & 1) {			/* New entries? */
         requested = (unsigned short *)((long)requested & 0xfffffffeL);
         for(i = 0; i < entries; i++) {
@@ -85,7 +90,8 @@ c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested,
             tc_word = ((tc_word & 0x000000ff) << 24) | ((tc_word & 0x0000ff00) <<  8) |
                     ((tc_word & 0x00ff0000) >>  8) | ((tc_word & 0xff000000) >> 24);
 #endif
-            *(short *)&palette[start + i].real = tc_word;
+            realp = (short *)&palette[start + i].real;
+            *realp = tc_word;
         }
     } else {
         for(i = 0; i < entries; i++) {
@@ -108,7 +114,8 @@ c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested,
 #if NOVA
             tc_word = (tc_word << 8) | (tc_word >> 8);
 #endif
-            * (short *) &palette[start + i].real = tc_word;
+            realp = (short *)&palette[start + i].real;
+            *realp = tc_word;
         }
     }
 }

@@ -23,10 +23,10 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "uaegfx.h"
 #include "uaelib.h"
 
-extern void CDECL c_get_colour(Virtual *vwk, long colour, short *foreground, short *background);
 
 /*
  * Make it as easy as possible for the C compiler.
@@ -203,6 +203,7 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
 {
 	Workstation *wk;
 	short *addr, *addr_fast;
+    long colours;
 	short foreground, background;
   	int line_add;
 	long pos;
@@ -217,7 +218,9 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
 		return -1;			/* Don't know about anything yet */
 	}
 
-	c_get_colour(vwk, colour, &foreground, &background);
+	colours = c_get_colour(vwk, colour);
+    foreground = colours;
+    background = colours >> 16;
 
 	wk = vwk->real_address;
 

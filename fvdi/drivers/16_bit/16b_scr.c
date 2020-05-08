@@ -14,6 +14,7 @@
 #define BOTH	/* Write in both FastRAM and on screen */
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "relocate.h"
 
 

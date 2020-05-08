@@ -20,11 +20,10 @@
 #endif
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 
 #define PIXEL		short
 #define PIXEL_SIZE	sizeof(PIXEL)
-
-extern void CDECL c_get_colour(Virtual *vwk, long colour, short *foreground, short *background);
 
 /*
  * Make it as easy as possible for the C compiler.
@@ -79,6 +78,7 @@ static void s_transparent(short *src_addr, int src_line_add, PIXEL *dst_addr, PI
 
     x = 1 << (15 - (x & 0x000f));
 
+    (void) background;
     for(i = h - 1; i >= 0; i--) {
         expand_word = *src_addr++;
         mask = x;
@@ -112,6 +112,8 @@ static void s_xor(short *src_addr, int src_line_add, PIXEL *dst_addr, PIXEL *dst
     int i, j, v;
     unsigned int expand_word, mask;
 
+    (void) foreground;
+    (void) background;
     x = 1 << (15 - (x & 0x000f));
 
     for(i = h - 1; i >= 0; i--) {
@@ -152,6 +154,7 @@ static void s_revtransp(short *src_addr, int src_line_add, PIXEL *dst_addr, PIXE
     int i, j;
     unsigned int expand_word, mask;
 
+    (void) background;
     x = 1 << (15 - (x & 0x000f));
 
     for(i = h - 1; i >= 0; i--) {
@@ -197,6 +200,7 @@ static void replace(short *src_addr, int src_line_add, PIXEL *dst_addr, PIXEL *d
     int i, j;
     unsigned int expand_word, mask;
 
+    (void) dst_addr_fast;
     x = 1 << (15 - (x & 0x000f));
 
     for(i = h - 1; i >= 0; i--) {
@@ -232,6 +236,8 @@ static void transparent(short *src_addr, int src_line_add, PIXEL *dst_addr, PIXE
     int i, j;
     unsigned int expand_word, mask;
 
+    (void) dst_addr_fast;
+    (void) background;
     x = 1 << (15 - (x & 0x000f));
 
     for(i = h - 1; i >= 0; i--) {
@@ -267,6 +273,9 @@ static void xor(short *src_addr, int src_line_add, PIXEL *dst_addr, PIXEL *dst_a
     int i, j, v;
     unsigned int expand_word, mask;
 
+    (void) dst_addr_fast;
+    (void) foreground;
+    (void) background;
     x = 1 << (15 - (x & 0x000f));
 
     for(i = h - 1; i >= 0; i--) {
@@ -307,6 +316,8 @@ static void revtransp(short *src_addr, int src_line_add, PIXEL *dst_addr, PIXEL 
     int i, j;
     unsigned int expand_word, mask;
 
+    (void) dst_addr_fast;
+    (void) background;
     x = 1 << (15 - (x & 0x000f));
 
     for(i = h - 1; i >= 0; i--) {
@@ -345,6 +356,7 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *
 {
     Workstation *wk;
     PIXEL *src_addr, *dst_addr, *dst_addr_fast;
+    long colours;
     short foreground, background;
     int src_wrap, dst_wrap;
     int src_line_add, dst_line_add;
@@ -353,7 +365,9 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *
 
     wk = vwk->real_address;
 
-    c_get_colour(vwk, colour, &foreground, &background);
+    colours = c_get_colour(vwk, colour);
+    foreground = colours;
+    background = colours >> 16;
 
     src_wrap = (long)src->wdwidth * 2;		/* Always monochrome */
     src_addr = src->address;

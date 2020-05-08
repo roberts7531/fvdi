@@ -23,6 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
+#include "../bitplane/bitplane.h"
 #include "relocate.h"
 #include "uaegfx.h"
 	
