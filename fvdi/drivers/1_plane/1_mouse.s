@@ -3,7 +3,7 @@
 
 	xref	_me
 
-	xdef	mouse_draw,_mouse_draw
+	xdef	_mouse_draw
 	xdef	_mouse_pos
 
 
@@ -13,7 +13,6 @@
 *	d1.w	y
 *	d2	0 - move shown  1 - move hidden  2 - hide  3 - show  >7 - change shape (pointer to mouse struct)
 _mouse_draw:
-mouse_draw:
 	sub.w	hotspot_x,d0
 	bpl	.x_positive
 	move.w	#0,d0
@@ -36,6 +35,7 @@ mouse_draw:
 	btst	#4,d0
 	beq	.skip_shape_setup
 	move.l	shape_data,d2
+	beq		.finish
 .shape_setup:
 	move.l	d2,a0				; Points to mouse structure
 	move.l	mouse_hotspot(a0),hotspot	; Both coordinates
