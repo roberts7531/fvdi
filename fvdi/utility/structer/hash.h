@@ -13,16 +13,15 @@
 typedef struct _Scopeitem *Scopeitem;
 
 struct _NTentry {
+  int len;
   char *string;
   struct _NTentry*link;
 } ;
 
 typedef struct _NTentry NTentry;
 
-extern void init_hash(int, unsigned int (*)(char *));
-extern NTentry *new_string(char *);
+extern void init_hash(int);
+extern NTentry *new_string(const char *, int);
 extern void hash_stat(int *, int *, int *);
 
 #endif
-
-

@@ -16,7 +16,7 @@ typedef long Numeral;
 typedef char *String;
 
 typedef enum _Type {_Char, _Short, _Int, _Long, _Struct, _Union,
-                    _Structdef, _Uniondef, _Typedef, _Pointer} Type;
+                    _Structdef, _Uniondef, _Typedef, _Pointer, _Void} Type;
 
 typedef enum _Listtype {_Deflist} Listtype;
 

@@ -16,7 +16,7 @@ CFLAGS		= $(NATIVE_CFLAGS) -DYYDEBUG=1
 LDFLAGS		= -s
 FLEXFLAGS	=
 BISONFLAGS	=
-LIBS		= -lfl
+LIBS		= 
 
 TARGET		= structer
 CSOURCES	= main.c expr.c hash.c list.c memory.c outequ.c \

@@ -15,11 +15,9 @@ typedef struct _rect {
 
 typedef struct _vdi {
    struct _line {
-//      Colour pen;
       short pen;
       short type;
    } line;
-//   Rect clip;
    struct _irect {
       short x1;
       short y1;
@@ -52,10 +50,3 @@ struct utest {
    } g;
    vdi h;
 };
-
-//void func(void)
-//{
-//   a.div.a = 1;
-//   a.div.c = 3;
-//   a.w.t = 4;
-//}

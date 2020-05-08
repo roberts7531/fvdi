@@ -12,7 +12,7 @@
 #include "list.h"
 
 enum Exprs {
-   _Idexpr, _Typedefexpr, _Structexpr, _Unionexpr, _Typeexpr, _Varexpr
+   _Idexpr, _Typedefexpr, _Structexpr, _Unionexpr, _Typeexpr, _Varexpr, _Listexpr
    } ;
 
 struct _Expr {
@@ -45,21 +45,33 @@ struct _Expr {
          Identifier name;
          struct _Expr *type;
       } def;
+
+      struct _Listexpr {
+         struct _Expr *type;
+      } list;
    } info;
 } ;
 
 typedef struct _Expr *Expression;
 
-extern Expression
-  mkid(Identifier, int),
-  mktypedef(Expression),
-  mkstruct(Identifier, List),
-  mkunion(Identifier, List),
-  mktype(int, Identifier, Expression),
-  mkvar(Expression, Expression);
+Expression mkid(Identifier, int);
+Expression mktypedef(Expression);
+Expression mkstruct(Identifier, List);
+Expression mkunion(Identifier, List);
+Expression mktype(int, Identifier, Expression);
+Expression mkvar(Expression, Expression);
+Expression mklist(Expression);
 
-extern void printdefs(List);
+void printdefs(List);
 
 #define EXPR(pointer)  VAL(Expression, pointer)
+
+extern int lineno;
+
+int yyparse(void);
+void yyerror(const char *);
+__attribute__((format(printf, 2, 3))) void error(int lineno, const char *format, ...);
+
+void convert(char *, List);
 
 #endif

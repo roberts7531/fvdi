@@ -16,64 +16,54 @@
 #include "hash.h"
 #include "struct.tab.h"
 
-#define LDEBUG	0
-#define	DBE	if (LDEBUG) ECHO
-
 int lineno = 1;
 char tmpbuf[32];   /* Maximum identifier or number must fit! */
 
-static void lexerror(int,char*);
-extern void yyerror(char *,...);
-
 %}
+
+%option noyywrap
 
 D		[0-9]
 identifier	[a-zA-Z_]+[a-zA-Z0-9_]*
 %%
 
-"*"	{ DBE; yylval.line = lineno; return '*'; }
-"{"	{ DBE; yylval.line = lineno; return '{'; }
-"}"	{ DBE; yylval.line = lineno; return '}'; }
-"["	{ DBE; yylval.line = lineno; return '['; }
-"]"	{ DBE; yylval.line = lineno; return ']'; }
-"struct"	{ DBE; yylval.line = lineno; return STRUCT; }
-"union"	{ DBE; yylval.line = lineno; return UNION; }
-"char"	{ DBE; yylval.line = lineno; return CHAR; }
-"unsigned char"	{ DBE; yylval.line = lineno; return CHAR; }
-"signed char"	{ DBE; yylval.line = lineno; return CHAR; }
-"short"	{ DBE; yylval.line = lineno; return SHORT; }
-"unsigned short"	{ DBE; yylval.line = lineno; return SHORT; }
-"signed short"	{ DBE; yylval.line = lineno; return SHORT; }
-"int"	{ DBE; yylval.line = lineno; return INT; }
-"unsigned int"	{ DBE; yylval.line = lineno; return INT; }
-"signed int"	{ DBE; yylval.line = lineno; return INT; }
-"long"	{ DBE; yylval.line = lineno; return LONG; }
-"unsigned long"	{ DBE; yylval.line = lineno; return LONG; }
-"signed long"	{ DBE; yylval.line = lineno; return LONG; }
-"typedef"	{ DBE; yylval.line = lineno; return TYPEDEF; }
-";"	{ DBE; yylval.line = lineno; return ';'; }
+"*"	{ yylval.line = lineno; return '*'; }
+"("	{ yylval.line = lineno; return '('; }
+")"	{ yylval.line = lineno; return ')'; }
+","	{ yylval.line = lineno; return ','; }
+"{"	{ yylval.line = lineno; return '{'; }
+"}"	{ yylval.line = lineno; return '}'; }
+"["	{ yylval.line = lineno; return '['; }
+"]"	{ yylval.line = lineno; return ']'; }
+"struct"	{ yylval.line = lineno; return TK_STRUCT; }
+"union"	{ yylval.line = lineno; return TK_UNION; }
+"void"	{ yylval.line = lineno; return TK_VOID; }
+"char"	{ yylval.line = lineno; return TK_CHAR; }
+"short"	{ yylval.line = lineno; return TK_SHORT; }
+"unsigned"	{ yylval.line = lineno; return TK_UNSIGNED; }
+"signed"	{ yylval.line = lineno; return TK_SIGNED; }
+"int"	{ yylval.line = lineno; return TK_INT; }
+"long"	{ yylval.line = lineno; return TK_LONG; }
+"typedef"	{ yylval.line = lineno; return TK_TYPEDEF; }
+"const"	{ yylval.line = lineno; return TK_CONST; }
+";"	{ yylval.line = lineno; return ';'; }
 
-'.'	{ DBE;
-	  yylval.num = (long)yytext[0];
-	  return NUMERAL;
+'.'	{ yylval.num = (long)yytext[0];
+	  return TK_NUMERAL;
 	}
-{identifier}	{ DBE;
-                  strncpy(tmpbuf, yytext, yyleng);
-                  tmpbuf[yyleng] = '\0';
-		  yylval.name = new_string(tmpbuf);
-		  return IDENTIFIER;
+{identifier}	{ yylval.name = new_string(yytext, yyleng);
+		  return TK_IDENTIFIER;
 		}
-{D}+ 		{ DBE;
-                  strncpy(tmpbuf, yytext, yyleng);
+{D}+ 		{ strncpy(tmpbuf, yytext, yyleng);
                   tmpbuf[yyleng] = '\0';
 		  yylval.num = atol(tmpbuf);
-		  return NUMERAL;
+		  return TK_NUMERAL;
                	}
-"/*".*"*/"  DBE;
-"//".*	DBE;
-"#".*	DBE;
-[ \t] 	DBE;
-"\n"	{DBE; lineno++; }
+"/*".*"*/"  ;
+"//".*	;
+"#".*	;
+[ \t\r] 	;
+"\n"	{lineno++; }
 
-.	{DBE; error(lineno, "Unallowed Character", yytext); return LEXERROR; }
+.	{ error(lineno, "Unallowed Character '%c'", *yytext); return TK_LEXERROR; }
 %%

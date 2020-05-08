@@ -41,6 +41,8 @@ extern void
   tail_nd(Voidlist),
   tail(Voidlist, void (*)(void *));
 
+extern int opt;
+
 extern int count_list(Listelement);
 
 #define TYPE(list)         ((list)->listtype)
