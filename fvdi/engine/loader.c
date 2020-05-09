@@ -105,10 +105,8 @@ short old_malloc = 0;
 short fall_back = 0;
 short move_mouse = 0;
 short ext_malloc = 0;
-#if 1
+#ifdef FVDI_DEBUG 
 short check_mem = 0;
-#else
-short check_mem = 1;
 #endif
 short bconout = 0;
 short file_cache_size = 0;
@@ -191,7 +189,9 @@ static Option options[] = {
     {"fallback",   &fall_back,      1},  /* fallback, forces fVDI to open workstation on an underlying VDI */
     {"movemouse",  &move_mouse,     1},  /* movemouse, forces fVDI to call its movement vector explicitly */
     {"extmalloc",  &ext_malloc,     4},  /* extalloc n, extend all malloc's by n bytes */
+#ifdef FVDI_DEBUG 
     {"checkmem",   &check_mem,      4},  /* checkmem n, check memory allocation consistency at every nth VDI call */
+#endif
     {"preallocate",pre_allocate,   -1},  /* preallocate n, allocate n kbyte at startup */
     {"filecache",  file_cache,     -1},  /* filecache n, allocate n kbyte for FreeType2 font files */
     {"antialias",  &antialiasing,   1},  /* use FT2 antialiasing */
@@ -1056,8 +1056,6 @@ long tokenize(const char *buffer)
 
     /* Take whatever final steps might be necessary. */
     {
-        extern struct Super_data *super;
-
         if (debug && !super->fvdi_log.start)
         {
             /* Set up log table if there isn't one */
@@ -1259,7 +1257,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
 /*
  * Load and parse FVDI.SYS
  */
-int load_prefs(Virtual *vwk, char *sysname)
+int load_prefs(Virtual *vwk, const char *sysname)
 {
     long file_size;
     char *buffer, token[TOKEN_SIZE], name[NAME_SIZE];

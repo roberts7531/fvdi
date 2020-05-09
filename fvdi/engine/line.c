@@ -31,6 +31,7 @@
 #include "function.h"
 #include "relocate.h"
 #include "utility.h"
+#include "globals.h"
 
 #define MAX_L_WIDTH	32
 #define X_ASPECT 1
@@ -42,7 +43,7 @@
 #if 1
 #define SMUL_DIV(x,y,z)	((short)(((short)(x)*(long)((short)(y)))/(short)(z)))
 #else
-int SMUL_DIV(int, int, int);   //   d0d1d0d2
+int SMUL_DIV(int, int, int);			/*   d0d1d0d2 */
 #pragma inline d0 = SMUL_DIV(d0, d1, d2) { "c1c181c2"; }
 #endif
 
@@ -56,10 +57,9 @@ static signed char row5[] = { 2, 2, -4, -3, 4, 3, 2, -4, 3, 4, -3 };
 static signed char row6[] = { 1, 5, -4, 0, 0, -3, 4, 0, 0, 3, -4, 0 };
 static signed char *marker[] = { row1, row2, row3, row4, row5, row6 };
 
-extern short solid;
 
 
-int wide_setup(Virtual *vwk, int width, short *q_circle)
+static int wide_setup(Virtual *vwk, int width, short *q_circle)
 {
     int i;
     int j;
@@ -95,11 +95,12 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
 #if Y_ASPECT >= X_ASPECT
     for (i = 0; i < MAX_L_WIDTH; i++)
     {
-        q_circle[i] = 0 ;
+        q_circle[i] = 0;
     }
 #else
-    for(i = 0; i < ((MAX_L_WIDTH * X_ASPECT / Y_ASPECT)) / 2 + 1); i++) {
-        q_circle[i] = 0 ;
+    for (i = 0; i < ((MAX_L_WIDTH * X_ASPECT / Y_ASPECT)) / 2 + 1; i++)
+    {
+        q_circle[i] = 0;
     }
 #endif
 
@@ -115,8 +116,7 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
         if (d < 0)
         {
             d = d + (4 * x) + 6;
-        }
-        else
+        } else
         {
             d = d + (4 * (x - y)) + 10;
             y--;
@@ -163,7 +163,7 @@ int wide_setup(Virtual *vwk, int width, short *q_circle)
 }
 
 
-void quad_xform(int quad, int x, int y, int *tx, int *ty)
+static void quad_xform(int quad, int x, int y, int *tx, int *ty)
 {
     if (quad & 2)
         *tx = -x;		/* 2, 3 */
@@ -177,7 +177,7 @@ void quad_xform(int quad, int x, int y, int *tx, int *ty)
 }
 
 
-void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
+static void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
 {
     int x, y, u, v, quad, magnitude, min_val, x_val, y_val;
 
@@ -200,14 +200,13 @@ void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
     while (1)
     {
         /* Check for new minimum, same minimum, or finished. */
-        if (((magnitude = ABS(u * y - v * x)) < min_val ) ||
-                ((magnitude == min_val) && (ABS(x_val - y_val) > ABS(u - v))))
+        if (((magnitude = ABS(u * y - v * x)) < min_val) ||
+            ((magnitude == min_val) && (ABS(x_val - y_val) > ABS(u - v))))
         {
             min_val = magnitude;
             x_val = u;
             y_val = v;
-        }
-        else
+        } else
             break;
 
         /* Step to the next pixel. */
@@ -217,15 +216,13 @@ void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
                 break;
             else
                 u--;
-        }
-        else
+        } else
         {
             if (q_circle[v + 1] >= u - 1)
             {
                 v++;
                 u = q_circle[v];
-            }
-            else
+            } else
             {
                 u--;
             }
@@ -236,7 +233,171 @@ void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
     quad_xform(quad, x_val, y_val, vx, vy);
 }
 
-void do_rounded(Virtual *vwk, short *pts, int numpts, int colour, short *points, long mode);
+
+/*
+ * draw a filled circle
+ */
+static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, long color, short mode)
+{
+    /* simplified bresenham */
+    int d;
+    int dx;
+    int dxy;
+    int x;
+    int y;
+
+    x = 0;
+    y = radius;
+    d = 1 - radius;
+    dx = 3;
+    dxy = -2 * radius + 5;
+
+    while (y >= x)
+    {
+        hline(vwk, xc - x, xc + x, yc + y, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - x, xc + x, yc - y, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - y, xc + y, yc + x, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - y, xc + y, yc - x, color, pattern_ptrs[0], mode, 0);
+
+        if (d < 0)
+        {
+            d += dx;
+            dx += 2;
+            dxy += 2;
+            x++;
+        } else
+        {
+            d += dxy;
+            dx += 2;
+            dxy += 4;
+            x++;
+            y--;
+        }
+    }
+}
+
+
+static void do_rounded(Virtual *vwk, short *pts, long colour, long mode)
+{
+    if (vwk->line.ends.beginning & ROUNDED)
+        draw_filled_circle(vwk, pts[0], pts[1],  vwk->line.width / 2, colour, mode);
+    if (vwk->line.ends.end & ROUNDED)
+        draw_filled_circle(vwk, pts[2], pts[3], vwk->line.width / 2, colour, mode);
+}
+
+
+static void arrow(Virtual *vwk, short *xy, short inc, int numpts, long colour, short *points, long mode)
+{
+    short i, arrow_len, arrow_wid, line_len;
+    short *xybeg;
+    short dx = 0, dy = 0;
+    short base_x, base_y, ht_x, ht_y;
+    long arrow_len2, line_len2 = 0;
+    int xsize, ysize;
+
+    xsize = vwk->real_address->screen.pixel.width;
+    ysize = vwk->real_address->screen.pixel.height;
+
+    /* Set up the arrow-head length and width as a function of line width. */
+    if (vwk->line.width == 1)
+        arrow_len = 8;
+    else
+        arrow_len = 3 * vwk->line.width - 1;
+    arrow_len2 = arrow_len * arrow_len;
+    arrow_wid = arrow_len / 2;
+
+    /* Initialize the beginning pointer. */
+    xybeg = xy;
+
+    /* Find the first point which is not so close to the end point that it
+     * will be obscured by the arrowhead.
+     */
+    for (i = 1; i < numpts; i++)
+    {
+        /* Find the deltas between the next point and the end point.
+         * Transform to a space such that the aspect ratio is uniform
+         * and the x axis distance is preserved.
+         */
+        xybeg += inc;
+        dx = *xy - *xybeg;
+        dy = SMUL_DIV(*(xy + 1) - *(xybeg + 1), ysize, xsize);
+
+        /* Get the length of the vector connecting the point with the end point.
+         * If the vector is of sufficient length, the search is over.
+         */
+        line_len2 = (long)dx * dx + (long)dy * dy;
+        if (line_len2 >= arrow_len2)
+            break;
+    }
+
+    /* If the longest vector is insufficiently long, don't draw an arrow. */
+    if (line_len2 < arrow_len2)
+        return;
+
+    line_len = isqrt(line_len2);
+
+    /* Rotate the arrow-head height and base vectors.
+     * Perform calculations in 1000x space.
+     */
+    ht_x = SMUL_DIV(arrow_len, SMUL_DIV(dx, 1000, line_len), 1000);
+    ht_y = SMUL_DIV(arrow_len, SMUL_DIV(dy, 1000, line_len), 1000);
+    base_x = SMUL_DIV(arrow_wid, SMUL_DIV(dy, -1000, line_len), 1000);
+    base_y = SMUL_DIV(arrow_wid, SMUL_DIV(dx, 1000, line_len), 1000);
+
+    /* Transform the y offsets back to the correct aspect ratio space. */
+    ht_y = SMUL_DIV(ht_y, xsize, ysize);
+    base_y = SMUL_DIV(base_y, xsize, ysize);
+
+    /* Build a polygon to send to plygn.  Build into a local array
+     * first since xy will probably be pointing to the PTSIN array.
+     */
+    points[0] = *xy + base_x - ht_x;
+    points[1] = *(xy + 1) + base_y - ht_y;
+    points[2] = *xy - base_x - ht_x;
+    points[3] = *(xy + 1) - base_y - ht_y;
+    points[4] = *xy;
+    points[5] = *(xy + 1);
+    fill_poly(vwk, points, 3, colour, solid, &points[6], mode, 0x00010000L);
+
+    /* Adjust the end point and all points skipped. */
+    *xy -= ht_x;
+    *(xy + 1) -= ht_y;
+    while ((xybeg -= inc) != xy)
+    {
+        *xybeg = *xy;
+        *(xybeg + 1) = *(xy + 1);
+    }
+}
+
+
+void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode)
+{
+    short x_start, y_start, new_x_start, new_y_start;
+
+    /* Function "arrow" will alter the end of the line segment.
+     * Save the starting point of the polyline in case two calls to "arrow"
+     * are necessary.
+     */
+    new_x_start = x_start = pts[0];
+    new_y_start = y_start = pts[1];
+
+    if (vwk->line.ends.beginning & ARROWED)
+    {
+        arrow(vwk, &pts[0], 2, numpts, colour, points, mode);
+        new_x_start = pts[0];
+        new_y_start = pts[1];
+    }
+
+    if (vwk->line.ends.end & ARROWED)
+    {
+        pts[0] = x_start;
+        pts[1] = y_start;
+        arrow(vwk, &pts[2 * numpts - 2], -2, numpts, colour, points, mode);
+        pts[0] = new_x_start;
+        pts[1] = new_y_start;
+    }
+}
+
 
 void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode)
 {
@@ -265,7 +426,7 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
 
     /* if they are rounded, as well */
     if ((vwk->line.ends.beginning | vwk->line.ends.end) & ROUNDED)
-        do_rounded(vwk, pts, numpts, colour, points, mode);
+        do_rounded(vwk, pts, colour, mode);
 
     /* Initialize the starting point for the loop. */
     j = 0;
@@ -295,13 +456,11 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
         {
             vx = q_circle[0];
             vy = 0;
-        }
-        else if (vy == 0)
+        } else if (vy == 0)
         {
             vx = 0;
             vy = num_qc_lines - 1;
-        }
-        else
+        } else
         {
             /* Find the offsets in x and y for a point perpendicular to the line
              * segment at the appropriate distance.
@@ -326,7 +485,7 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
         points[6] = wx2 + vx;
         points[7] = wy2 + vy;
 
-        fill_poly(vwk, points, 4, colour, &solid, &points[8], mode, 0x00010000L);
+        fill_poly(vwk, points, 4, colour, solid, &points[8], mode, 0x00010000L);
 
         /* The line segment end point becomes the starting point for the next
          * line segment.
@@ -457,171 +616,4 @@ void pmarker(int type, int size, int w_in, int h_in, char *buf)
             y1 = y2;
         }
     }
-}
-
-void arrow(Virtual *vwk, short *xy, short inc, int numpts, int colour, short *points, long mode)
-{
-    short i, arrow_len, arrow_wid, line_len;
-    short *xybeg;
-    short dx = 0, dy = 0;
-    short base_x, base_y, ht_x, ht_y;
-    long arrow_len2, line_len2 = 0;
-    int xsize, ysize;
-
-    xsize = vwk->real_address->screen.pixel.width;
-    ysize = vwk->real_address->screen.pixel.height;
-
-    /* Set up the arrow-head length and width as a function of line width. */
-    if (vwk->line.width == 1)
-        arrow_len = 8;
-    else
-        arrow_len = 3 * vwk->line.width - 1;
-    arrow_len2 = arrow_len * arrow_len;
-    arrow_wid = arrow_len / 2;
-
-    /* Initialize the beginning pointer. */
-    xybeg = xy;
-
-    /* Find the first point which is not so close to the end point that it
-     * will be obscured by the arrowhead.
-     */
-    for (i = 1; i < numpts; i++)
-    {
-        /* Find the deltas between the next point and the end point.
-         * Transform to a space such that the aspect ratio is uniform
-         * and the x axis distance is preserved.
-         */
-        xybeg += inc;
-        dx = *xy - *xybeg;
-        dy = SMUL_DIV(*(xy + 1) - *(xybeg + 1), ysize, xsize);
-
-        /* Get the length of the vector connecting the point with the end point.
-         * If the vector is of sufficient length, the search is over.
-         */
-        line_len2 = (long)dx * dx + (long)dy * dy;
-        if (line_len2 >= arrow_len2)
-            break;
-    }
-
-    /* If the longest vector is insufficiently long, don't draw an arrow. */
-    if (line_len2 < arrow_len2)
-        return;
-
-    line_len = isqrt(line_len2);
-
-    /* Rotate the arrow-head height and base vectors.
-     * Perform calculations in 1000x space.
-     */
-    ht_x = SMUL_DIV(arrow_len, SMUL_DIV(dx, 1000, line_len), 1000);
-    ht_y = SMUL_DIV(arrow_len, SMUL_DIV(dy, 1000, line_len), 1000);
-    base_x = SMUL_DIV(arrow_wid, SMUL_DIV(dy, -1000, line_len), 1000);
-    base_y = SMUL_DIV(arrow_wid, SMUL_DIV(dx, 1000, line_len), 1000);
-
-    /* Transform the y offsets back to the correct aspect ratio space. */
-    ht_y = SMUL_DIV(ht_y, xsize, ysize);
-    base_y = SMUL_DIV(base_y, xsize, ysize);
-
-    /* Build a polygon to send to plygn.  Build into a local array
-     * first since xy will probably be pointing to the PTSIN array.
-     */
-    points[0] = *xy + base_x - ht_x;
-    points[1] = *(xy + 1) + base_y - ht_y;
-    points[2] = *xy - base_x - ht_x;
-    points[3] = *(xy + 1) - base_y - ht_y;
-    points[4] = *xy;
-    points[5] = *(xy + 1);
-    fill_poly(vwk, points, 3, colour, &solid, &points[6], mode, 0x00010000L);
-
-    /* Adjust the end point and all points skipped. */
-    *xy -= ht_x;
-    *(xy + 1) -= ht_y;
-    while ((xybeg -= inc) != xy)
-    {
-        *xybeg = *xy;
-        *(xybeg + 1) = *(xy + 1);
-    }
-}
-
-
-void do_arrow(Virtual *vwk, short *pts, int numpts, int colour, short *points, long mode)
-{
-    short x_start, y_start, new_x_start, new_y_start;
-
-    /* Function "arrow" will alter the end of the line segment.
-     * Save the starting point of the polyline in case two calls to "arrow"
-     * are necessary.
-     */
-    new_x_start = x_start = pts[0];
-    new_y_start = y_start = pts[1];
-
-    if (vwk->line.ends.beginning & ARROWED)
-    {
-        arrow(vwk, &pts[0], 2, numpts, colour, points, mode);
-        new_x_start = pts[0];
-        new_y_start = pts[1];
-    }
-
-    if (vwk->line.ends.end & ARROWED)
-    {
-        pts[0] = x_start;
-        pts[1] = y_start;
-        arrow(vwk, &pts[2 * numpts - 2], -2, numpts, colour, points, mode);
-        pts[0] = new_x_start;
-        pts[1] = new_y_start;
-    }
-}
-
-void hline(Virtual *vwk, long x1, long y1, long y2, long colour, short *pattern, long mode, long interior_style);
-
-/*
- * draw a filled circle
- */
-void draw_filled_circle(Virtual *vwk, const int xc, const int yc, const int radius, const int color, short mode)
-{
-    /* simplified bresenham */
-    int d;
-    int dx;
-    int dxy;
-    int x;
-    int y;
-
-    x = 0;
-    y = radius;
-    d = 1 - radius;
-    dx = 3;
-    dxy = -2 * radius + 5;
-
-    while (y >= x)
-    {
-        extern short *pattern_ptrs[];
-
-        hline(vwk, xc - x, xc + x, yc + y, color, pattern_ptrs[0], mode, 0);
-        hline(vwk, xc - x, xc + x, yc - y, color, pattern_ptrs[0], mode, 0);
-        hline(vwk, xc - y, xc + y, yc + x, color, pattern_ptrs[0], mode, 0);
-        hline(vwk, xc - y, xc + y, yc - x, color, pattern_ptrs[0], mode, 0);
-
-        if (d < 0)
-        {
-            d += dx;
-            dx += 2;
-            dxy += 2;
-            x++;
-        }
-        else
-        {
-            d += dxy;
-            dx += 2;
-            dxy += 4;
-            x++;
-            y--;
-        }
-    }
-}
-
-void do_rounded(Virtual *vwk, short *pts, int numpts, int colour, short *points, long mode)
-{
-    if (vwk->line.ends.beginning & ROUNDED)
-        draw_filled_circle(vwk, pts[0], pts[1],  vwk->line.width / 2, colour, mode);
-    if (vwk->line.ends.end & ROUNDED)
-        draw_filled_circle(vwk, pts[2], pts[3], vwk->line.width / 2, colour, mode);
 }

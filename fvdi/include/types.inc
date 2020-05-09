@@ -416,3 +416,11 @@ drvpalette_requested	equ	8
 drvpalette_palette	equ	12
 drvpalette_struct_size	equ	16
 
+v_bez_pars_num_pts	equ	0
+v_bez_pars_points	equ	2
+v_bez_pars_bezarr	equ	6
+v_bez_pars_extent	equ	10
+v_bez_pars_totpoints	equ	14
+v_bez_pars_totmoves	equ	18
+v_bez_pars_struct_size	equ	22
+

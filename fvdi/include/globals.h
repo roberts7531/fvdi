@@ -28,24 +28,22 @@ extern short key_pressed;
 extern List *driver_list;
 extern long *pid;
 
-extern long trap2_address;
-extern long vdi_address;
-extern long trap14_address;
-extern long lineA_address;
-extern void *bconout_address;
+extern void (*trap2_address)(void);
+extern void (*vdi_address)(void);
+extern void (*trap14_address)(void);
+extern void (*lineA_address)(void);
 
-extern void *trap2_temp;
-extern void *trap14;
-extern void *lineA;
-extern void *bconout_stub;
-extern void *vdi_dispatch;
-extern void *eddi_dispatch;
-extern void *init;
-extern void *data_start;
-extern void *bss_start;
+void trap2_temp(void);
+void trap14(void);
+void lineA(void);
+void vdi_dispatch(void);
+void eddi_dispatch(void);
+void init(void);
+void data_start(void);
+void bss_start(void);
 
 extern void *bconout_address;
-extern void *bconout_stub;
+void bconout_stub(void);
 
 extern long mint;
 extern long magic;
@@ -56,12 +54,8 @@ extern Function default_functions[];
 extern void *default_opcode5[];
 extern void *default_opcode11[];
 
-extern void *default_line;
-extern void *default_text;
-extern void *default_fill;
-extern void *default_expand;
-extern void *default_blit;
-
+extern short *pattern_ptrs[];
+extern short solid[];
 
 extern short width;
 extern short height;
@@ -115,7 +109,9 @@ extern short old_malloc;
 extern short fall_back;
 extern short move_mouse;
 extern short ext_malloc;
+#ifdef FVDI_DEBUG 
 extern short check_mem;
+#endif
 extern short bconout;
 extern short file_cache_size;
 extern short antialiasing;
@@ -133,5 +129,6 @@ extern short pts_in[];
 extern short int_out[];
 extern short pts_out[];
 
-#endif
+extern struct Super_data *super;
 
+#endif

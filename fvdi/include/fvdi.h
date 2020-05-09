@@ -669,6 +669,15 @@ typedef struct wk_ {
 } Workstation;
 
 
+struct v_bez_pars {
+    short num_pts;
+    short *points;
+    char  *bezarr;
+    short *extent;
+    short *totpoints;
+    short *totmoves;
+};
+
 /* A couple of test things */
 typedef char chop;
 typedef chop hello[3];

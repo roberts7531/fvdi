@@ -142,6 +142,7 @@ Fontheader *load_font(const char *name);
 /*
  * Maths
  */
+short isqrt(unsigned long x);
 short Isin(unsigned short angle);
 short Icos(short angle);
 

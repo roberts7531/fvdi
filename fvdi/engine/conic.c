@@ -106,7 +106,6 @@ void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, long yrad
 void col_pat(Virtual *vwk, Fgbg *fill_colour, Fgbg *border_colour, short **pattern)
 {
     short interior;
-    extern short *pattern_ptrs[];
 
     interior = vwk->fill.interior;
 

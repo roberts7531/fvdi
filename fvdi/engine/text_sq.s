@@ -196,23 +196,6 @@ vst_color:
 	move.w	d0,(a2)
 	done_return
 
-  ifne 0
-* lib_vst_color - Standard Library function
-* Todo: -
-* In:	a1	Parameters   colour_set = lib_vst_color(colour)
-*	a0	VDI struct
-_lib_vst_color:
-lib_vst_color:
-	move.w	(a1),d0
-	move.l	vwk_real_address(a0),a2
-	cmp.w	wk_screen_palette_size(a2),d0
-	lblo	.ok,1
-	moveq	#BLACK,d0
- label .ok,1
-	move.w	d0,vwk_text_colour_bgfg_foreground(a0)
-	rts
-  endc
-
 
 * vst_effects - Standard Trap function
 * Todo: -

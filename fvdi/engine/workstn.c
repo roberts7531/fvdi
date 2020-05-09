@@ -283,18 +283,18 @@ void v_opnvwk(Virtual *vwk, VDIpars *pars)
     *handle_entry = vwk;
 
     /* Call various setup functions (most with supplied data) */
-    lib_vdi_s(&lib_vsl_type, vwk, pars->intin[1]);
-    lib_vdi_s(&lib_vsl_color, vwk, pars->intin[2]);
-    lib_vdi_s(&lib_vsm_type, vwk, pars->intin[3]);
-    lib_vdi_s(&lib_vsm_color, vwk, pars->intin[4]);
+    lib_vdi_s(lib_vsl_type, vwk, pars->intin[1]);
+    lib_vdi_s(lib_vsl_color, vwk, pars->intin[2]);
+    lib_vdi_s(lib_vsm_type, vwk, pars->intin[3]);
+    lib_vdi_s(lib_vsm_color, vwk, pars->intin[4]);
     lib_vst_font(vwk, pars->intin[5]);
     /* Default to 10 point font (or less) (should really depend on resolution) */
     lib_vst_point(vwk, 10, &dummy, &dummy, &dummy, &dummy);
     lib_vst_color(vwk, pars->intin[6]);
-    lib_vdi_s(&lib_vsf_interior, vwk, pars->intin[7]);
-    lib_vdi_s(&lib_vsf_style, vwk, pars->intin[8]);
-    lib_vdi_s(&lib_vsf_color, vwk, pars->intin[9]);
-    lib_vdi_sp(&lib_vs_clip, vwk, 0, 0);			/* No clipping (set to max size) */
+    lib_vdi_s(lib_vsf_interior, vwk, pars->intin[7]);
+    lib_vdi_s(lib_vsf_style, vwk, pars->intin[8]);
+    lib_vdi_s(lib_vsf_color, vwk, pars->intin[9]);
+    lib_vdi_sp(lib_vs_clip, vwk, 0, 0);			/* No clipping (set to max size) */
     /* Should also take care of the coordinate values that come now */
 
     return;

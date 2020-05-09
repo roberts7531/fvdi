@@ -158,15 +158,6 @@ struct node {
  */
 
 
-struct v_bez_pars {
-    short num_pts;
-    short *points;
-    char  *bezarr;
-    short *extent;
-    short *totpoints;
-    short *totmoves;
-};
-
 void CDECL
 lib_v_bez(Virtual *vwk, struct v_bez_pars *par)
 {
