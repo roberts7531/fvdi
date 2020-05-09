@@ -26,42 +26,19 @@
 #define PIXEL		short
 #define PIXEL_SIZE	sizeof(PIXEL)
 
-#define DEBUG
-
-#ifdef DEBUG
+#ifdef FVDI_DEBUG
 #include "relocate.h"
 extern short debug;
 extern Access *access;
 extern char err_msg[];
 
-void debug_out(char *text1, int w, int old_w, int h, int src_x, int src_y, int dst_x, int dst_y)
+static void debug_out(char *text1, int w, int old_w, int h, int src_x, int src_y, int dst_x, int dst_y)
 {
-    char buf[10];
-    access->funcs.puts(text1);
-    access->funcs.ltoa(buf, w, 10);
-    access->funcs.puts(buf);
+    PRINTF(("%s%d", w));
     if (old_w > 0) {
-        access->funcs.puts("(");
-        access->funcs.ltoa(buf, old_w, 10);
-        access->funcs.puts(buf);
-        access->funcs.puts(")");
+        PRINTF(("(%d))", old_w));
     }
-    access->funcs.puts(",");
-    access->funcs.ltoa(buf, h, 10);
-    access->funcs.puts(buf);
-    access->funcs.puts(" from ");
-    access->funcs.ltoa(buf, src_x, 10);
-    access->funcs.puts(buf);
-    access->funcs.puts(",");
-    access->funcs.ltoa(buf, src_y, 10);
-    access->funcs.puts(buf);
-    access->funcs.puts(" to ");
-    access->funcs.ltoa(buf, dst_x, 10);
-    access->funcs.puts(buf);
-    access->funcs.puts(",");
-    access->funcs.ltoa(buf, dst_y, 10);
-    access->funcs.puts(buf);
-    access->funcs.puts("\x0d\x0a");
+    PRINTF((",%d from %d,%d to %d,%d\n", h, src_x, src_y, dst_x, dst_y));
 }
 #endif
 
@@ -681,7 +658,7 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 
     dst_addr_fast = wk->screen.shadow.address;	/* May not really be to screen at all, but... */
 
-#ifdef DEBUG
+#ifdef FVDI_DEBUG
     if (debug > 1) {
         debug_out("Blitting: ", w, -1, h, src_x, src_y, dst_x, dst_y);
     }

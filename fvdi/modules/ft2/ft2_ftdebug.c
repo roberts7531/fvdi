@@ -42,42 +42,42 @@
 
 
 #include <ft2build.h>
-#include FT_FREETYPE_H
+#include <freetype/freetype.h>
 #include <freetype/internal/internal.h>
-#include FT_INTERNAL_DEBUG_H
+#include <freetype/internal/ftdebug.h>
 
 #include "globals.h"
 
 #if defined( FT_DEBUG_LEVEL_ERROR )
 
-FT_EXPORT_DEF( void )
-FT_Message( const char*  fmt, ... )
+FT_EXPORT_DEF(void)
+FT_Message(const char *fmt, ...)
 {
-    va_list  ap;
+    va_list ap;
     char buf[255];
 
-    va_start( ap, fmt );
+    va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
-    va_end( ap );
+    va_end(ap);
 
     access->funcs.puts(buf);
-    access->funcs.puts("\r");
+    access->funcs.puts("\n");
 }
 
 
-FT_EXPORT_DEF( void )
-FT_Panic( const char*  fmt, ... )
+FT_EXPORT_DEF(void)
+FT_Panic(const char *fmt, ...)
 {
-    va_list  ap;
+    va_list ap;
     char buf[255];
 
-    va_start( ap, fmt );
+    va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
-    va_end( ap );
+    va_end(ap);
 
     access->funcs.puts(buf);
-    access->funcs.puts("\r");
-    access->funcs.puts("EXIT\r\n");
+    access->funcs.puts("\n");
+    access->funcs.puts("EXIT\n");
 }
 
 #endif /* FT_DEBUG_LEVEL_ERROR */
@@ -87,15 +87,15 @@ FT_Panic( const char*  fmt, ... )
 #ifdef FT_DEBUG_LEVEL_TRACE
 
 /* array of trace levels, initialized to 0 */
-int  ft_trace_levels[trace_count];
+int ft_trace_levels[trace_count];
 
 
 /* define array of trace toggle names */
 #define FT_TRACE_DEF( x )  #x ,
 
-static const char*  ft_trace_toggles[trace_count + 1] =
+static const char *ft_trace_toggles[trace_count + 1] =
 {
-    #include FT_INTERNAL_TRACE_H
+#include FT_INTERNAL_TRACE_H
     NULL
 };
 
@@ -104,8 +104,7 @@ static const char*  ft_trace_toggles[trace_count + 1] =
 
 /* documentation is in ftdebug.h */
 
-FT_EXPORT_DEF( FT_Int )
-FT_Trace_Get_Count( void )
+FT_EXPORT_DEF(FT_Int) FT_Trace_Get_Count(void)
 {
     return trace_count;
 }
@@ -113,13 +112,12 @@ FT_Trace_Get_Count( void )
 
 /* documentation is in ftdebug.h */
 
-FT_EXPORT_DEF( const char * )
-FT_Trace_Get_Name( FT_Int  idx )
+FT_EXPORT_DEF(const char *) FT_Trace_Get_Name(FT_Int idx)
 {
-    int  max = FT_Trace_Get_Count();
+    int max = FT_Trace_Get_Count();
 
 
-    if ( idx < max )
+    if (idx < max)
         return ft_trace_toggles[idx];
     else
         return NULL;
@@ -144,47 +142,46 @@ FT_Trace_Get_Name( FT_Int  idx )
 /* The level must be between 0 and 6; 0 means quiet (except for serious  */
 /* runtime errors), and 6 means _very_ verbose.                          */
 /*                                                                       */
-FT_BASE_DEF( void )
-ft_debug_init( void )
+FT_BASE_DEF(void) ft_debug_init(void)
 {
-    const char*  ft2_debug = getenv( "FT2_DEBUG" );
+    const char *ft2_debug = getenv("FT2_DEBUG");
 
 
-    if ( ft2_debug )
+    if (ft2_debug)
     {
-        const char*  p = ft2_debug;
-        const char*  q;
+        const char *p = ft2_debug;
+        const char *q;
 
-
-        for ( ; *p; p++ )
+        for (; *p; p++)
         {
             /* skip leading whitespace and separators */
-            if ( *p == ' ' || *p == '\t' || *p == ',' || *p == ';' || *p == '=' )
+            if (*p == ' ' || *p == '\t' || *p == ',' || *p == ';' || *p == '=')
                 continue;
 
             /* read toggle name, followed by ':' */
             q = p;
-            while ( *p && *p != ':' )
+            while (*p && *p != ':')
                 p++;
 
-            if ( *p == ':' && p > q )
+            if (*p == ':' && p > q)
             {
-                FT_Int  n, i, len = (FT_Int)( p - q );
-                FT_Int  level = -1, found = -1;
+                FT_Int n, i;
+                FT_Int len = (FT_Int) (p - q);
+                FT_Int level = -1;
+                FT_Int found = -1;
 
-
-                for ( n = 0; n < trace_count; n++ )
+                for (n = 0; n < trace_count; n++)
                 {
-                    const char*  toggle = ft_trace_toggles[n];
+                    const char *toggle = ft_trace_toggles[n];
 
 
-                    for ( i = 0; i < len; i++ )
+                    for (i = 0; i < len; i++)
                     {
-                        if ( toggle[i] != q[i] )
+                        if (toggle[i] != q[i])
                             break;
                     }
 
-                    if ( i == len && toggle[i] == 0 )
+                    if (i == len && toggle[i] == 0)
                     {
                         found = n;
                         break;
@@ -193,22 +190,21 @@ ft_debug_init( void )
 
                 /* read level */
                 p++;
-                if ( *p )
+                if (*p)
                 {
                     level = *p++ - '0';
-                    if ( level < 0 || level > 6 )
+                    if (level < 0 || level > 6)
                         level = -1;
                 }
 
-                if ( found >= 0 && level >= 0 )
+                if (found >= 0 && level >= 0)
                 {
-                    if ( found == trace_any )
+                    if (found == trace_any)
                     {
                         /* special case for `any' */
-                        for ( n = 0; n < trace_count; n++ )
+                        for (n = 0; n < trace_count; n++)
                             ft_trace_levels[n] = level;
-                    }
-                    else
+                    } else
                         ft_trace_levels[found] = level;
                 }
             }
@@ -217,27 +213,24 @@ ft_debug_init( void )
 }
 
 
-#else  /* !FT_DEBUG_LEVEL_TRACE */
+#else /* !FT_DEBUG_LEVEL_TRACE */
 
 
-FT_BASE_DEF( void )
-ft_debug_init( void )
+FT_BASE_DEF(void) ft_debug_init(void)
 {
     /* nothing */
 }
 
 
-FT_EXPORT_DEF( FT_Int )
-FT_Trace_Get_Count( void )
+FT_EXPORT_DEF(FT_Int) FT_Trace_Get_Count(void)
 {
     return 0;
 }
 
 
-FT_EXPORT_DEF( const char * )
-FT_Trace_Get_Name( FT_Int  idx )
+FT_EXPORT_DEF(const char *) FT_Trace_Get_Name(FT_Int idx)
 {
-    FT_UNUSED( idx );
+    FT_UNUSED(idx);
 
     return NULL;
 }

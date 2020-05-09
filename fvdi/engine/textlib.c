@@ -1,5 +1,3 @@
-/* No debugging right now! */
-#undef DEB
 /*
  * fVDI text handling
  *
@@ -8,20 +6,21 @@
  * Please, see LICENSE.TXT for further information.
  */
 
-#include <stdlib.h>
 #include "fvdi.h"
 #include "function.h"
 #include "globals.h"
+#include "utility.h"
 
 #define BLACK 1
 
 
 void lib_vqt_extent(Virtual *vwk, long length, short *string, short *points);
 
-static inline void set_current_font(Virtual *vwk, Fontheader *font)
+static void set_current_font(Virtual *vwk, Fontheader *font)
 {
     /* Adjust the font structure utilization counters */
-    if (vwk->text.current_font != font) {
+    if (vwk->text.current_font != font)
+    {
         if (vwk->text.current_font)
             vwk->text.current_font->extra.ref_count--;
         font->extra.ref_count++;
@@ -30,37 +29,38 @@ static inline void set_current_font(Virtual *vwk, Fontheader *font)
     vwk->text.current_font = font;
 }
 
-                                                              // colour_set = lib_vst_color(colour)
-                                                              long lib_vst_color(Virtual *vwk, unsigned long colour)
+/* colour_set = lib_vst_color(colour) */
+long lib_vst_color(Virtual *vwk, unsigned long colour)
 {
-                                                              if (colour >= vwk->real_address->screen.palette.size)
-                                                              colour = BLACK;
-                                                              vwk->text.colour.foreground = colour;
+    if (colour >= vwk->real_address->screen.palette.size)
+        colour = BLACK;
+    vwk->text.colour.foreground = colour;
 
-                                                              return colour;
-                                                              }
+    return colour;
+}
 
-                                                              // effects_set = lib_vst_effects(effects)
-                                                              long lib_vst_effects(Virtual *vwk, long effects)
+
+/* effects_set = lib_vst_effects(effects) */
+long lib_vst_effects(Virtual *vwk, long effects)
 {
-                                                              effects &= vwk->real_address->writing.effects;
-                                                              vwk->text.effects = effects;
+    effects &= vwk->real_address->writing.effects;
+    vwk->text.effects = effects;
 
-                                                              return effects;
-                                                              }
+    return effects;
+}
 
-                                                              // lib_vst_alignment(halign, valign, &hresult, &vresult)
-                                                              void lib_vst_alignment(Virtual *vwk, unsigned long halign, unsigned long valign,
-                                                                                     short *hresult, short *vresult)
+
+/* lib_vst_alignment(halign, valign, &hresult, &vresult) */
+void CDECL lib_vst_alignment(Virtual *vwk, unsigned long halign, unsigned long valign, short *hresult, short *vresult)
 {
-                                                              if (halign > 2)    /* Not from wk struct? */
-                                                              halign = 0;    /* Left */
-                                                              if (valign > 5)    /* Not from wk struct? */
-                                                              valign = 0;    /* Baseline */
+    if (halign > 2)                     /* Not from wk struct? */
+        halign = 0;                     /* Left */
+    if (valign > 5)                     /* Not from wk struct? */
+        valign = 0;                     /* Baseline */
 
-                                                              *hresult = vwk->text.alignment.horizontal = halign;
-                                                              *vresult = vwk->text.alignment.vertical   = valign;
-                                                              }
+    *hresult = vwk->text.alignment.horizontal = halign;
+    *vresult = vwk->text.alignment.vertical = valign;
+}
 
                                                               #if 0
                                                               // Todo: Check if any angle is allowed.
@@ -86,8 +86,10 @@ move.w	d0,vwk_text_rotation(a0)
 rts
 #endif
 
-// Todo: Also look for correct size?
-// font_set = lib_vst_font(fontID)
+/*
+ * Todo: Also look for correct size?
+ * font_set = lib_vst_font(fontID)
+ */
 int lib_vst_font(Virtual *vwk, long fontID)
 {
     Fontheader *font;
@@ -96,13 +98,6 @@ int lib_vst_font(Virtual *vwk, long fontID)
 
     if (!fontID)
         fontID = 1;
-
-#if DEB
-    puts("lib_vst_font ");
-    ltoa(buf, fontID, 10);
-    puts(buf);
-    puts("\x0d\x0a");
-#endif
 
     font = vwk->real_address->writing.first_font;
     if (vwk->text.current_font) {
@@ -114,21 +109,12 @@ int lib_vst_font(Virtual *vwk, long fontID)
 
 
     do {
-#if DEB
-        puts("  loop\x0d\x0a");
-        ltoa(buf, font->id, 10);
-        puts(buf);
-        puts("\x0d\x0a");
-#endif
         if (fontID <= font->id)
             break;
         font = font->next;
     } while (font);
 
     if (!font || (font->id != fontID)) {
-#if DEB
-        puts("  set first\x0d\x0a");
-#endif
         fontID = 1;
         font = vwk->real_address->writing.first_font;
     }
@@ -156,10 +142,12 @@ int lib_vst_font(Virtual *vwk, long fontID)
 }
 
 
-// Apparently extended since NVDI 3.00 (add 33rd word, bitmap/vector flag)
-// Perhaps a version that returns the name as 32 bytes rather than 32 words?
-// id = lib_vqt_name(number, name)
-long lib_vqt_name(Virtual *vwk, long number, short *name)
+/*
+ * Apparently extended since NVDI 3.00 (add 33rd word, bitmap/vector flag)
+ * Perhaps a version that returns the name as 32 bytes rather than 32 words?
+ * id = lib_vqt_name(number, name)
+ */
+long CDECL lib_vqt_name(Virtual *vwk, long number, short *name)
 {
     int i;
     Fontheader *font;
@@ -494,19 +482,10 @@ int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh,
     Fontheader *font;
 
     /* Some other method should be used for this! */
-#if DEB
-    puts("lib_vst_point\x0d\x0a");
-#endif
     if (vwk->text.current_font->flags < 0) {
-#if DEB
-        puts("  vector\x0d\x0a");
-#endif
         /* Handle differently? This is not really allowed at all! */
         if (!external_vst_point)
             return 0;
-#if DEB
-        puts("  vector ok\x0d\x0a");
-#endif
         font = set_stack_call_pvlpl(vdi_stack_top, vdi_stack_size,
                                     external_vst_point,
                                     vwk, height, sizes, 0);
@@ -514,38 +493,25 @@ int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh,
         /* fall back to the built-in bitmap font
      * in case something went wrong */
         if ( !font ) {
-            puts("vst_point: external_vst_point returned NULL\x0d\x0a");
+            PUTS("vst_point: external_vst_point returned NULL\n");
             font = vwk->real_address->writing.first_font;
         }
-#if DEB
-        puts("  vector found\x0d\x0a");
-#endif
-    } else {
-#if DEB
-        char buf[10];
-        ltoa(buf, height, 10);
-        puts(buf);
-        puts(" ");
-#endif
-
+    } else
+    {
         font = vwk->text.current_font->extra.first_size;
 
-        while (font->extra.next_size && (font->extra.next_size->size <= height)) {
+        while (font->extra.next_size && (font->extra.next_size->size <= height))
+        {
             font = font->extra.next_size;
         }
-#if DEB
-        ltoa(buf, font->height, 10);
-        puts(buf);
-        puts("\x0d\x0a");
-#endif
     }
 
     set_current_font(vwk, font);
 
-    *charw = vwk->text.character.width  = font->widest.character;
+    *charw = vwk->text.character.width = font->widest.character;
     *charh = vwk->text.character.height = font->distance.top;
-    *cellw = vwk->text.cell.width       = font->widest.cell;
-    *cellh = vwk->text.cell.height      = font->height;
+    *cellw = vwk->text.cell.width = font->widest.cell;
+    *cellh = vwk->text.cell.height = font->height;
 
     return font->size;
 }
@@ -557,19 +523,10 @@ int lib_vst_arbpt(Virtual *vwk, long height, short *charw, short *charh,
     Fontheader *font;
 
     /* Some other method should be used for this! */
-#if DEB
-    puts("lib_vst_arbpt\x0d\x0a");
-#endif
     if (vwk->text.current_font->flags < 0) {
-#if DEB
-        puts("  vector\x0d\x0a");
-#endif
         /* Handle differently? This is not really allowed at all! */
         if (!external_vst_point)
             return 0;
-#if DEB
-        puts("  vector ok\x0d\x0a");
-#endif
         font = set_stack_call_pvlpl(vdi_stack_top, vdi_stack_size,
                                     external_vst_point,
                                     vwk, height, 0, 0);
@@ -577,30 +534,17 @@ int lib_vst_arbpt(Virtual *vwk, long height, short *charw, short *charh,
         /* fall back to the built-in bitmap font
      * in case something went wrong */
         if ( !font ) {
-            puts("vst_arbpt: external_vst_point returned NULL\x0d\x0a");
+            PUTS("vst_arbpt: external_vst_point returned NULL\n");
             font = vwk->real_address->writing.first_font;
         }
-#if DEB
-        puts("  vector found\x0d\x0a");
-#endif
-    } else {
-#if DEB
-        char buf[10];
-        ltoa(buf, height, 10);
-        puts(buf);
-        puts(" ");
-#endif
-
+    } else
+    {
         font = vwk->text.current_font->extra.first_size;
 
-        while (font->extra.next_size && (font->extra.next_size->size <= height)) {
+        while (font->extra.next_size && (font->extra.next_size->size <= height))
+        {
             font = font->extra.next_size;
         }
-#if DEB
-        ltoa(buf, font->height, 10);
-        puts(buf);
-        puts("\x0d\x0a");
-#endif
     }
 
     set_current_font(vwk, font);

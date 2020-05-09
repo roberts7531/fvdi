@@ -6,16 +6,22 @@
 
 typedef unsigned char uchar;
 
-/* XXX clean me up */
-# ifndef _cdecl
-# define _cdecl
-# endif
+#ifndef DRIVER_EXPORT
+#  define DRIVER_EXPORT CDECL
+#endif
+#ifndef CDECL
+#ifdef __PUREC__
+#define CDECL cdecl
+#else
+#define CDECL
+#endif
+#endif
 
-
-#if 1
-extern long isdigit(long c);
-extern long isxdigit(long c);
-extern long isalnum(long c);
+#ifndef USE_LIBKERN
+int isdigit(int c);
+int isxdigit(int c);
+int isalnum(int c);
+int isspace(int c);
 #else
 # define str(x)		_stringify (x)
 # define _stringify(x)	#x
@@ -58,8 +64,8 @@ extern uchar _mint_ctype[];
 # define _toascii(c)	((c) & 0x7f)
 # define _toint(c)	((c) <= '9' ? (c) - '0' : toupper (c) - 'A')
 
-int	_cdecl _mint_tolower	(int c);
-int	_cdecl _mint_toupper	(int c);
+int	CDECL _mint_tolower	(int c);
+int	CDECL _mint_toupper	(int c);
 
 static inline int
 _mint_toupper_inline (register int c)
@@ -84,66 +90,69 @@ _mint_tolower_inline (register int c)
  * kernel string functions
  */
 
-long	_cdecl atol(const char *s);
-#if 0
-long	_cdecl strtonumber	(const char *name, long *result, int neg, int zerolead);
-#endif
+long	CDECL _mint_atol(const char *s);
+long	CDECL strtonumber	(const char *name, long *result, int neg, int zerolead);
 
-long	_cdecl strlen(const char *s);
+size_t	CDECL _mint_strlen(const char *s);
 
-long	_cdecl strcmp(const char *str1, const char *str2);
-long	_cdecl strncmp(const char *str1, const char *str2, ulong len);
+long	CDECL _mint_strcmp(const char *str1, const char *str2);
+long	CDECL _mint_strncmp(const char *str1, const char *str2, ulong len);
 
-#if 0
-long	_cdecl _mint_stricmp	(const char *str1, const char *str2);
-long	_cdecl _mint_strnicmp	(const char *str1, const char *str2, long len);
-#endif
+long	CDECL _mint_stricmp	(const char *str1, const char *str2);
+long	CDECL _mint_strnicmp	(const char *str1, const char *str2, long len);
 
-char *	_cdecl strcpy(char *dst, const char *src);
-char *	_cdecl strncpy(char *dst, const char *src, long len);
-#if 0
-void	_cdecl _mint_strncpy_f	(char *dst, const char *src, long len);
+char *	CDECL _mint_strcpy(char *dst, const char *src);
+char *	CDECL _mint_strncpy(char *dst, const char *src, size_t len);
+void	CDECL _mint_strncpy_f	(char *dst, const char *src, long len);
 
-char *	_cdecl _mint_strlwr	(char *s);
-char *	_cdecl _mint_strupr	(char *s);
-#endif
-char *	_cdecl strcat(char *dst, const char *src);
-char *	_cdecl strchr(const char *str, long which);
-char *	_cdecl strrchr(const char *str, long which);
-#if 0
-char *	_cdecl _mint_strrev	(char *s);
+char *	CDECL _mint_strlwr	(char *s);
+char *	CDECL _mint_strupr	(char *s);
+char *	CDECL _mint_strcat(char *dst, const char *src);
+char *	CDECL _mint_strchr(const char *str, long which);
+char *	CDECL _mint_strrchr(const char *str, long which);
+char *	CDECL _mint_strrev	(char *s);
 
-char *	_cdecl _mint_strstr	(const char *s, const char *w);
+char *	CDECL _mint_strstr	(const char *s, const char *w);
 
-long	_cdecl _mint_strtol	(const char *nptr, char **endptr, long base);
-ulong	_cdecl _mint_strtoul	(const char *nptr, char **endptr, long base);
+long	CDECL _mint_strtol	(const char *nptr, char **endptr, long base);
+ulong	CDECL _mint_strtoul	(const char *nptr, char **endptr, long base);
 
-#endif
-void *	_cdecl memchr(const void *s, long search, ulong size);
-long	_cdecl memcmp(const void *s1, const void *s2, ulong size);
+void *	CDECL _mint_memchr(const void *s, long search, ulong size);
+long	CDECL _mint_memcmp(const void *s1, const void *s2, ulong size);
 
+# define atol			_mint_atol
+# define strlen			_mint_strlen
+# define strcmp			_mint_strcmp
+# define strncmp		_mint_strncmp
 # define stricmp		_mint_stricmp
 # define strnicmp		_mint_strnicmp
+# define strcpy			_mint_strcpy
+# define strncpy		_mint_strncpy
 # define strncpy_f		_mint_strncpy_f
 # define strlwr			_mint_strlwr
 # define strupr			_mint_strupr
+# define strcat			_mint_strcat
+# define strchr			_mint_strchr
+# define strrchr		_mint_strrchr
 # define strrev			_mint_strrev
 # define strstr			_mint_strstr
 # define strtol			_mint_strtol
 # define strtoll		_mint_strtoll
 # define strtoul		_mint_strtoul
 # define strtoull		_mint_strtoull
+# define memchr			_mint_memchr
+# define memcmp			_mint_memcmp
 
 /*
  * kernel block functions
  */
 
-void *	_cdecl memcpy(void *dst, const void *src, ulong nbytes);
-void *	_cdecl memset(void *dst, int ucharfill, ulong size);
+void *	CDECL memcpy(void *dst, const void *src, ulong nbytes);
+void *	CDECL memset(void *dst, int ucharfill, ulong size);
 
 #if 0
-void	_cdecl bcopy(const void *src, void *dst, ulong nbytes);
-void	_cdecl bzero(void *dst, ulong size);
+void	CDECL bcopy(const void *src, void *dst, ulong nbytes);
+void	CDECL bzero(void *dst, ulong size);
 #endif
 
 # endif /* _libkern_h */

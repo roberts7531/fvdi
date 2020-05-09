@@ -6,7 +6,13 @@
  * Please, see LICENSE.TXT for further information.
  */
 
-void bconout_char(long ch)
+#include "fvdi.h"
+#include "relocate.h"
+#include "utility.h"
+#include "function.h"
+
+
+void CDECL bconout_char(long ch)
 {
     static short esc = 0;
     static short inverse = 0;
@@ -15,35 +21,38 @@ void bconout_char(long ch)
 
     ch &= 0xff;
 
-    if (esc) {
-        switch (ch) {
-            case 'p':
-                inverse = 1;
-                break;
-            case 'q':
-                inverse = 0;
-                break;
-            case 'K':
-                ; /* fallthrough: delete to end of line (I guess) */
-            case 'Y':
-                params = 2;
-                break;
-
+    if (esc)
+    {
+        switch ((int) ch)
+        {
+        case 'p':
+            inverse = 1;
+            break;
+        case 'q':
+            inverse = 0;
+            break;
+        case 'K':
+            ; /* fallthrough: delete to end of line (I guess) */
+        case 'Y':
+            params = 2;
+            break;
         }
 
         esc = 0;
         return;
     }
 
-    if (params > 0) {
+    if (params > 0)
+    {
         params--;
         return;
     }
 
-    switch (ch) {
-        default:
-            *str = (ch == 32 && inverse) ? '_' : ch;
-            puts(str);
+    switch ((int) ch)
+    {
+    default:
+        *str = (ch == 32 && inverse) ? '_' : ch;
+        kputs(str);
+        break;
     }
 }
-

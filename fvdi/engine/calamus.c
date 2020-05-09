@@ -7,6 +7,8 @@
  */
 
 #include "fvdi.h"
+#include "stdio.h"
+#include "relocate.h"
 #include "utility.h"
 #include "function.h"
 #include "globals.h"

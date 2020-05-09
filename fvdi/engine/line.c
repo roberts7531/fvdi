@@ -29,6 +29,7 @@
 
 #include "fvdi.h"
 #include "function.h"
+#include "relocate.h"
 #include "utility.h"
 
 #define MAX_L_WIDTH	32

@@ -6,20 +6,61 @@
  * Please, see LICENSE.TXT for further information.
  */
 
+#include "fvdi.h"
+#include "stdio.h"
 #include "stdarg.h"
 
 #include "os.h"
-#include "fvdi.h"
 #include "relocate.h"
+#include "stdlib.h"
 #include "utility.h"
 #include "globals.h"
+#include "string.h"
+#include "nf_ops.h"
 #include "function.h"
+
+/* referenced in simple.s */
+void DRIVER_EXPORT event(long id_type, long data);
+
 
 /*
  * Global variables
  */
 
-Access real_access;
+Access real_access = {
+    {
+        copymem,
+        next_line,
+        skip_space,
+        get_token,
+        equal,
+        length,
+        copy,
+        cat,
+        numeric,
+        atol,
+        error,
+        fmalloc,
+        free,
+        kputs,
+        ltoa,
+        get_cookie,
+        set_cookie,
+        fixup_font,
+        unpack_font,
+        insert_font,
+        get_size,
+        allocate_block,
+        free_block,
+        cache_flush,
+        misc,
+        event
+    },
+    {
+        /* vars: nowhere initialized or accessed? */
+        0, 0
+    }
+};
 Access *access = &real_access;
 
 typedef struct _Circle {
@@ -42,19 +83,30 @@ long eddi = 0;
 long mint = 0;
 long magic = 0;
 
-/* NatFeat functions defined */
-static long _NF_getid = 0x73004e75L;
-static long _NF_call  = 0x73014e75L;
-#define nfGetID(n)  (((long __CDECL (*)(const char *))&_NF_getid)n)
-#define nfCall(n)   (((long __CDECL (*)(long, ...))&_NF_call)n)
-
-long nf_print_id = 0;
+static long nf_print_id = 0;
 
 long pid_addr = 0;        /* Copied into 'pid' when fVDI is installed */
 long *pid = 0;
 short mxalloc = 0;
 
 char *block_chain = 0;
+
+static struct nf_ops _nf_ops = { _nf_get_id, _nf_call, { 0, 0, 0 } };
+static struct nf_ops *nf_ops;
+
+
+
+
+static long nf_get_id(const char *feature_name)
+{
+    long id = 0;
+    
+    if (nf_ops != NULL)
+    {
+        id = NF_GET_ID(nf_ops, feature_name);
+    }
+    return id;
+}
 
 
 /*
@@ -65,9 +117,10 @@ long str2long(const char *text)
     long v;
 
     v = 0;
-    while (*text) {
+    while (*text)
+    {
         v <<= 8;
-        v += *text++;
+        v += (unsigned char) *text++;
     }
 
     return v;
@@ -117,7 +170,7 @@ void set_protected_l(long addr, long value)
 /*
  * Returns the value of a cookie, or -1
  */
-long get_cookie(const char *cname, long super)
+long DRIVER_EXPORT get_cookie(const char *cname, long super)
 {
     long ptr, value, cname_l;
     long (*get)(long addr);
@@ -129,8 +182,10 @@ long get_cookie(const char *cname, long super)
     ptr = get(0x5a0);
 
     value = -1;
-    if (ptr) {
+    if (ptr)
+    {
         long v = get(ptr);
+
         while (v && (v != cname_l))
         {
             ptr += 8;
@@ -151,6 +206,7 @@ long get_cookie(const char *cname, long super)
 long remove_xbra(long vector, const char *name)
 {
     long link, *addr, name_l, xbra_l;
+
     link = vector;
     addr = (long *) get_protected_l(link);    /* Probably an exception vector */
     xbra_l = str2long("XBRA");
@@ -175,7 +231,7 @@ long remove_xbra(long vector, const char *name)
  * Create/expand jar if needed.
  * Returns != 0 if an old cookie was replaced.
  */
-long set_cookie(const char *name, long value)
+long DRIVER_EXPORT set_cookie(const char *name, long value)
 {
     long *addr, *old_addr;
     long name_l;
@@ -229,14 +285,14 @@ long set_cookie(const char *name, long value)
  * Initialize an internal memory pool.
  * Returns zero on error.
  */
-long initialize_pool(size_t size, long n)
+long initialize_pool(long size, long n)
 {
     char *addr, *ptr;
 
     if ((size <= 0) || (n <= 0))
         return 0;
 
-    if (!(addr = malloc(size * n)))
+    if ((addr = malloc(size * n)) == NULL)
         return 0;
 
     block_size = size;
@@ -244,7 +300,7 @@ long initialize_pool(size_t size, long n)
     for (n = n - 1; n >= 0; n--)
     {
         block_chain = addr;
-        * (char **) addr = ptr;
+        *(char **) addr = ptr;
         ptr = addr;
         addr += size;
     }
@@ -256,7 +312,7 @@ long initialize_pool(size_t size, long n)
 /*
  * Allocate a block from the internal memory pool.
  */
-void *allocate_block(size_t size)
+char *DRIVER_EXPORT allocate_block(long size)
 {
     char *addr;
 
@@ -264,8 +320,8 @@ void *allocate_block(size_t size)
         return 0;
 
     addr = block_chain;
-    block_chain = * (char **) addr;
-    * (long *) addr = block_size;    /* Make size info available */
+    block_chain = *(char **) addr;
+    *(long *) addr = block_size;    /* Make size info available */
 
     return addr;
 }
@@ -274,9 +330,9 @@ void *allocate_block(size_t size)
 /*
  * Free a block and return it to the internal memory pool.
  */
-void free_block(void *addr)
+void DRIVER_EXPORT free_block(void *addr)
 {
-    * (char **) addr = block_chain;
+    *(char **) addr = block_chain;
     block_chain = addr;
 }
 
@@ -284,7 +340,7 @@ void free_block(void *addr)
 /*
  * Fetch some interesting cookies
  */
-void check_cookies(void)
+static void check_cookies(void)
 {
     long addr;
 
@@ -292,13 +348,14 @@ void check_cookies(void)
     fpu = get_cookie("_FPU", 0);
     frb = get_cookie("_FRB", 0);
     video = get_cookie("_VDO", 0);
-    switch((int)(video >> 16)) {   /* Probably a good idea. */
-        case 0x0003:
-            Falcon = 1;
-            break;
-        case 0x0002:
-            TT = 1;
-            break;
+    switch ((int) (video >> 16))
+    {
+    case 0x0003:
+        Falcon = 1;
+        break;
+    case 0x0002:
+        TT = 1;
+        break;
     }
     if ((addr = get_cookie("NVDI", 0)) != -1)
         nvdi = *(long *)addr;
@@ -308,159 +365,36 @@ void check_cookies(void)
         mint = (long)addr;
     if ((addr = get_cookie("MagX", 0)) != -1)
         magic = (long)addr;
-    if ((addr = get_cookie("__NF", 0)) != -1) {
-        nf_print_id = nfGetID(("NF_STDERR"));
-    }
-}
-
-
-void copymem(const void *s, void *d, long n)
-{
-    char *src, *dest;
-
-    src  = (char *)s;
-    dest = (char *)d;
-    for(n = n - 1; n >= 0; n--)
-        *dest++ = *src++;
-}
-
-
-void copymem_aligned(const void *s, void *d, long n)
-{
-    long *src, *dest, n4;
-
-    src  = (long *)s;
-    dest = (long *)d;
-    for(n4 = (n >> 2) - 1; n4 >= 0; n4--)
-        *dest++ = *src++;
-
-    if (n & 3) {
-        char *s1 = (char *)src;
-        char *d1 = (char *)dest;
-        switch(n & 3) {
-            case 3:
-                *d1++ = *s1++;
-            case 2:
-                *d1++ = *s1++;
-            case 1:
-                *d1++ = *s1++;
-                break;
-        }
-    }
-}
-
-
-#ifndef USE_LIBKERN
-void *memcpy(void *dest, const void *src, size_t n)
-{
-    if (n > 3) {
-        if (!((long)dest & 1)) {
-            if (!((long)src & 1)) {
-                copymem_aligned(src, dest, n);
-                return dest;
-            }
-        } else if ((long)src & 1) {
-            *(char *)dest++ = *(char *)src++;
-            copymem_aligned(src, dest, n - 1);
-            return dest - 1;
-        }
-    }
-
-    copymem(src, dest, n);
-
-    return dest;
-}
-
-
-void *memmove(void *dest, const void *src, long n)
-{
-    char *s1, *d1;
-
-    if (((long)dest >= (long)src + n) || ((long)dest + n <= (long)src))
-        return memcpy(dest, src, n);
-
-    if ((long)dest < (long)src) {
-        s1 = (char *)src;
-        d1 = (char *)dest;
-        for(n--; n >= 0; n--)
-            *d1++ = *s1++;
-    } else {
-        s1 = (char *)src + n;
-        d1 = (char *)dest + n;
-        for(n--; n >= 0; n--)
-            *(--d1) = *(--s1);
-    }
-
-    return dest;
-}
-#endif
-
-
-void setmem(void *d, long v, long n)
-{
-    char *dest;
-
-    dest = (char *)d;
-    for(n = n - 1; n >= 0; n--)
-        *dest++ = (char)v;
-}
-
-
-void setmem_aligned(void *d, long v, long n)
-{
-    long *dest;
-    long n4;
-
-    dest = (long *)d;
-    for(n4 = (n >> 2) - 1; n4 >= 0; n4--)
-        *dest++ = v;
-
-    if (n & 3) {
-        char *d1 = (char *)dest;
-        switch(n & 3) {
-            case 3:
-                *d1++ = (char)(v >> 24);
-            case 2:
-                *d1++ = (char)(v >> 16);
-            case 1:
-                *d1++ = (char)(v >> 8);
-                break;
-        }
-    }
-}
-
-
-#ifndef USE_LIBKERN
-/* This function needs an 'int' parameter
- * to be compatible with gcc's built-in
- * version.
- * For module use, a separate version will
- * be needed since they can't be guaranteed
- * to have the same size for 'int'.
- */
-void *memset(void *s, int c, size_t n)
-{
-    if ((n > 3) && !((long) s & 1))
+    if ((addr = get_cookie("__NF", 0)) != -1 && addr != 0)
     {
-        unsigned long v;
-        v = ((unsigned short) c << 8) | (unsigned short) c;
-        v = (v << 16) | v;
-        setmem_aligned(s, v, n);
+        if (((NatFeatCookie *) addr)->magic == 0x20021021L)
+        {
+            _nf_ops.get_id = ((NatFeatCookie *) addr)->nfGetID;
+            _nf_ops.call = ((NatFeatCookie *) addr)->nfCall;
+            nf_ops = &_nf_ops;
+        }
     }
-    else
-        setmem(s, c, n);
-
-    return s;
+#ifndef __mcoldfire__
+    if (Supexec(_nf_detect))
+        nf_ops = &_nf_ops;
+#endif
+    nf_print_id = nf_get_id(NF_ID_STDERR);
 }
 
 
-long strlen(const char *s)
+
+#include "string/memcpy.h"
+#include "string/memmove.h"
+
+#ifndef USE_LIBKERN
+size_t strlen(const char *s)
 {
     const char *p = s;
+
     while (*p++)
         ;
 
-    return (long)(p - s) - 1;
+    return (size_t) (p - s) - 1;
 }
 
 
@@ -468,14 +402,16 @@ long strcmp(const char *s1, const char *s2)
 {
     char c1;
 
-    do {
-        if (!(c1 = *s1++)) {
+    do
+    {
+        if ((c1 = *s1++) == 0)
+        {
             s2++;
             break;
         }
     } while (c1 == *s2++);
 
-    return (long)(c1 - s2[-1]);
+    return (long) (c1 - s2[-1]);
 }
 
 
@@ -487,7 +423,7 @@ long strncmp(const char *s1, const char *s2, size_t n)
     ns = n;
     for (ns--; ns >= 0; ns--)
     {
-        if (!(c1 = *s1++))
+        if ((c1 = *s1++) == 0)
         {
             s2++;
             break;
@@ -499,18 +435,49 @@ long strncmp(const char *s1, const char *s2, size_t n)
     if (ns < 0)
         return 0L;
 
-    return (long)(c1 - s2[-1]);
+    return (long) (c1 - s2[-1]);
+}
+
+
+char *strstr(const char *s, const char *wanted)
+{
+    register const char *scan;
+    register size_t len;
+    register char firstc;
+
+    if (!*s)
+    {
+        if (*wanted)
+            return NULL;
+        else
+            return (char *) (s);
+    } else if (!*wanted)
+    {
+        return (char *) (s);
+    }
+
+    /*
+     * The odd placement of the two tests is so "" is findable.
+     * Also, we inline the first char for speed.
+     * The ++ on scan has been moved down for optimization.
+     */
+    firstc = *wanted;
+    len = strlen(wanted);
+    for (scan = s; *scan != firstc || strncmp(scan, wanted, len) != 0;)
+        if (*scan++ == '\0')
+            return NULL;
+    return (char *) (scan);
 }
 
 
 long memcmp(const void *s1, const void *s2, size_t n)
 {
-    char *s1c, *s2c;
+    const char *s1c, *s2c;
     long ns;     /* size_t can't be negative */
 
     ns = n;
-    s1c = (char *)s1;
-    s2c = (char *)s2;
+    s1c = (const char *)s1;
+    s2c = (const char *)s2;
     for (ns--; ns >= 0; ns--)
     {
         if (*s1c++ != *s2c++)
@@ -522,9 +489,9 @@ long memcmp(const void *s1, const void *s2, size_t n)
 #endif
 
 
-void copy(const char *src, char *dest)
+void DRIVER_EXPORT copy(const char *src, char *dest)
 {
-    while ((*dest++ = *src++))
+    while ((*dest++ = *src++) != 0)
         ;
 }
 
@@ -552,7 +519,7 @@ char *strncpy(char *dest, const char *src, size_t n)
         if (!c1)
             break;
     }
-    for(ns--; ns >= 0; ns--)
+    for (ns--; ns >= 0; ns--)
         *dest++ = 0;
 
     return d;
@@ -563,7 +530,7 @@ char *strdup(const char *s)
 {
     char *d;
 
-    if ((d = malloc(strlen(s) + 1)))
+    if ((d = (char *) malloc(strlen(s) + 1)) != NULL)
         strcpy(d, s);
 
     return d;
@@ -571,7 +538,7 @@ char *strdup(const char *s)
 #endif
 
 
-void cat(const char *src, char *dest)
+void DRIVER_EXPORT cat(const char *src, char *dest)
 {
     while (*dest++)
         ;
@@ -596,7 +563,7 @@ char *strchr(const char *s, long c)
         return (char *)s + strlen(s);
 
     c1 = c;
-    while((ch = *s++))
+    while ((ch = *s++) != 0)
     {
         if (ch == c1)
             return (char *)s - 1;
@@ -615,7 +582,8 @@ char *strrchr(const char *s, long c)
 
     c1 = c;
     found = 0;
-    while ((ch = *s++)) {
+    while ((ch = *s++) != 0)
+    {
         if (ch == c1)
             found = (char *)s;
     }
@@ -636,29 +604,11 @@ void *memchr(const void *s, long c, size_t n)
     m = (char *)s;
     c1 = c;
     ns = n;
-    for(ns--; ns >= 0; ns--) {
+    for (ns--; ns >= 0; ns--)
+    {
         ch = *m++;
         if (ch == c1)
-            return (void *)m - 1;
-    }
-
-    return 0;
-}
-
-
-char *memrchr(const void *s, long c, size_t n)
-{
-    char ch, c1;
-    char *m;
-    long ns;
-
-    m = (char *)s + n;
-    c1 = c;
-    ns = n;
-    for(ns--; ns >= 0; ns--) {
-        ch = *--m;
-        if (ch == c1)
-            return (void *)m;
+            return m - 1;
     }
 
     return 0;
@@ -666,19 +616,19 @@ char *memrchr(const void *s, long c, size_t n)
 #endif
 
 
-long length(const char *text)
+long DRIVER_EXPORT length(const char *text)
 {
     int n;
 
     n = 0;
-    while(*text++)
+    while (*text++)
         n++;
 
     return n;
 }
 
 
-long numeric(long ch)
+long DRIVER_EXPORT numeric(long ch)
 {
     if ((ch >= '0') && (ch <= '9'))
         return 1;
@@ -687,7 +637,7 @@ long numeric(long ch)
 }
 
 
-long check_base(char ch, long base)
+int check_base(char ch, int base)
 {
     if (numeric(ch) && (ch < '0' + base))
         return ch - '0';
@@ -701,36 +651,36 @@ long check_base(char ch, long base)
 
 
 #ifndef USE_LIBKERN
-long isdigit(long c)
+int isdigit(int c)
 {
-    return numeric(c);
+    return (int) numeric(c);
 }
 
 
-long isxdigit(long c)
+int isxdigit(int c)
 {
     return check_base(c, 16) >= 0;
 }
 
 
-long isalnum(long c)
+int isalnum(int c)
 {
     return check_base(c, 36) >= 0;   /* Base 36 has 0-9, A-Z */
 }
 #endif
 
 
-long isspace(long c)
+int isspace(int c)
 {
-    switch(c)
+    switch (c)
     {
-        case ' ':
-        case '\f':
-        case '\n':
-        case '\r':
-        case '\t':
-        case '\v':
-            return 1;
+    case ' ':
+    case '\f':
+    case '\n':
+    case '\r':
+    case '\t':
+    case '\v':
+        return 1;
     }
 
     return 0;
@@ -822,10 +772,12 @@ void ltoa(char *buf, long n, unsigned long base)
     }
 }
 
+#include "string/memset.h"
+
 
 #ifndef USE_LIBKERN
 /* Mostly complete, but only simple things tested */
-long vsprintf(char *str, const char *format, va_list args)
+long kvsprintf(char *str, const char *format, va_list args)
 {
     int mode = 0;
     char *s, *text, ch;
@@ -1084,22 +1036,34 @@ long vsprintf(char *str, const char *format, va_list args)
     return strlen(s);
 }
 
-long sprintf(char *str, const char *format, ...)
+long ksprintf(char *str, const char *format, ...)
 {
     long res;
 
     va_list args;
     va_start(args, format);
-    res = vsprintf(str, format, args);
+    res = kvsprintf(str, format, args);
     va_end(args);
 
     return res;
 }
 
 
+long DRIVER_EXPORT kprintf(const char *format, ...)
+{
+	va_list args;
+	char buf[512];
+	long ret;
+	
+	va_start(args, format);
+	ret = kvsprintf(buf, format, args);
+	va_end(args);
+	access->funcs.puts(buf);
+	return ret;
+}
 
-void qsort(void *base, long nmemb, long size,
-           long (*compar)(const void *, const void *))
+
+void qsort(void *base, long nmemb, long size, int (*compar) (const void *, const void *))
 {
     static long incs[16] = { 1391376, 463792, 198768, 86961, 33936, 13776,
                              4592, 1968, 861, 336, 112, 48, 21, 7, 3, 1 };
@@ -1108,39 +1072,43 @@ void qsort(void *base, long nmemb, long size,
     char buf[16], *v, *p1, *p2, *cbase;
 
     v = buf;
-    if (size > sizeof(buf)) {
+    if (size > (long)sizeof(buf))
+    {
         v = malloc(size);
         if (!v)       /* Can't sort? */
             return;
     }
 
     cbase = (char *)base;
-    for(k = 0; k < 16; k++) {
+    for (k = 0; k < 16; k++)
+    {
         h = incs[k];
         h_size = h * size;
-        for(i = h; i < nmemb; i++) {
+        for (i = h; i < nmemb; i++)
+        {
             j = i;
             j_size = j * size;
             p1 = v;
             p2 = cbase + j_size;
-            for(n = size - 1; n >= 0; n--)
+            for (n = size - 1; n >= 0; n--)
                 *p1++ = *p2++;
-            while ((j >= h) && (compar(v, cbase + j_size - h_size) < 0)) {
+            while ((j >= h) && (compar(v, cbase + j_size - h_size) < 0))
+            {
                 p1 = cbase + j_size;
                 p2 = p1 - h_size;
-                for(n = size - 1; n >= 0; n--)
+                for (n = size - 1; n >= 0; n--)
                     *p1++ = *p2++;
                 j -= h;
                 j_size -= h_size;
             }
             p1 = cbase + j_size;
             p2 = v;
-            for(n = size - 1; n >= 0; n--)
+            for (n = size - 1; n >= 0; n--)
                 *p1++ = *p2++;
         }
     }
 
-    if (size > sizeof(buf))
+    if (size > (long)sizeof(buf))
         free(v);
 }
 #endif
@@ -1149,21 +1117,21 @@ void qsort(void *base, long nmemb, long size,
 void *fmalloc(long size, long type)
 {
     Circle *new;
-    long bp = 0L;
+    long bp;
+    long *ppid = pid;
 
-    if (pid)
+    if (ppid)
     {
         /* Pretend to be fVDI if possible */
-        bp = *pid;
-        *pid = basepage;
+        bp = *ppid;
+        *ppid = basepage;
     }
     if (mint | magic)
     {
         if (!(type & 0xfff8))  /* Simple type? */
             type |= 0x4030;     /* Keep around, supervisor accessible */
         new = (Circle *)Mxalloc(size + sizeof(Circle), type);
-    }
-    else
+    } else
     {
         type &= 3;
         if (mxalloc)      /* Alternative if possible */
@@ -1171,23 +1139,16 @@ void *fmalloc(long size, long type)
         else
             new = (Circle *) Malloc(size + sizeof(Circle));
     }
-    if (pid)
+    if (ppid)
     {
-        *pid = bp;
+        *ppid = bp;
     }
 
     if ((long) new > 0)
     {
         if ((debug > 2) && !(silentx[0] & 0x01))
         {
-            char buffer[10];
-            ltoa(buffer, (long)new, 16);
-            puts("Allocation at $");
-            puts(buffer);
-            puts(", ");
-            ltoa(buffer, size, 10);
-            puts(buffer);
-            puts_nl(" bytes");
+            PRINTF(("Allocation at $%08lx, %ld bytes\n", (long) new, size));
         }
         if (memlink)
         {
@@ -1197,8 +1158,7 @@ void *fmalloc(long size, long type)
                 new->next = mblocks;
                 ((Circle *)((long)mblocks->prev & ~1))->next = new;
                 mblocks->prev = (Circle *)((long)new | 1);
-            }
-            else
+            } else
             {
                 mblocks = new;
                 new->prev = (Circle *)((long)new | 1);
@@ -1206,44 +1166,25 @@ void *fmalloc(long size, long type)
             }
         }
         new->size = size + sizeof(Circle);
-        * (long *) &new[1] = size;
+        *(long *) &new[1] = size;
         return (void *) &new[1];
-    }
-    else
+    } else
+    {
+        kprintf("fVDI: fatal: M%salloc(%ld=$%lx, $%lx) failed\n", mint | magic | mxalloc ? "x" : "", size, size, type);
         return new;
+    }
 }
 
 
-static short block_space[] = {16, 48, 112, 240, 496, 1008, 2028, 4068, 8148, 16308};
-static char *block_free[]  = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
-static Circle *block_used[]  = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
-static short free_blocks[] = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
-static short used_blocks[] = { 0,  0,   0,   0,   0,    0,    0,    0,    0,     0};
+static short block_space[] = { 16, 48, 112, 240, 496, 1008, 2028, 4068, 8148, 16308 };
+static char *block_free[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static Circle *block_used[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static short free_blocks[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static short used_blocks[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
 static short allocated = 0;
 
 #define ADDR_NOT_OK 0xfc000003
-
-
-void memory_statistics(void)
-{
-    const int sizes = sizeof(block_space) / sizeof(block_space[0]);
-    char buf[10];
-    int n;
-
-    puts("       ");
-    ltoa(buf, allocated, 10);
-    puts(buf);
-    puts(": ");
-    for(n = 0; n < sizes; n++) {
-        ltoa(buf, used_blocks[n], 10);
-        puts(buf);
-        puts("/");
-        ltoa(buf, free_blocks[n], 10);
-        puts(buf);
-        puts(" ");
-    }
-    puts("\x0d\x0a");
-}
 
 
 void allocate(long amount)
@@ -1261,15 +1202,14 @@ void allocate(long amount)
     if (!buf)
         return;
 
-    if ((debug > 2) && !(silentx[0] & 0x02)) {
-        puts("       Malloc at ");
-        ltoa(buf, (long)buf, 16);
-        puts(buf);
-        puts("\x0d\x0a");
+    if ((debug > 2) && !(silentx[0] & 0x02))
+    {
+        PRINTF(("       Malloc at $%08lx\n", (long) buf));
     }
 
     last = (Circle *)block_free[sizes - 1];
-    for(i = 0; i < amount; i += 16) {
+    for (i = 0; i < amount; i += 16)
+    {
         link = (Circle *)&buf[i * 1024L];
         link->next = last;
         link->prev = 0;
@@ -1283,28 +1223,44 @@ void allocate(long amount)
 }
 
 
-void search_links(Circle *srch)
+#ifdef FVDI_DEBUG
+static void memory_statistics(void)
 {
+    const int sizes = sizeof(block_space) / sizeof(block_space[0]);
+    int n;
 
+    PRINTF(("       %d: ", allocated));
+    for (n = 0; n < sizes; n++)
+    {
+        PRINTF(("%d/%d ", used_blocks[n], free_blocks[n]));
+    }
+    PUTS("\n");
+}
+
+
+static void search_links(Circle *srch)
+{
     int n;
     const int sizes = sizeof(block_space) / sizeof(block_space[0]);
-    char buf[10];
-    Circle *link, *next, *first, *found = 0L;
+    Circle *link, *next, *first, *found = 0;
     long dist, dist_min;
     int dist_n = 0;
 
     dist_min = 999999999;
-    for(n = 0; n < sizes; n++) {
+    for (n = 0; n < sizes; n++)
+    {
         link = (Circle *)block_free[n];
-        while (link) {
+        while (link)
+        {
             if (((long)link & ADDR_NOT_OK) ||
-                    ((unsigned int)(link->size & 0xffff) >=
-                     sizeof(block_space) / sizeof(block_space[0])) ||
-                    !(link->size >> 16))
+                ((unsigned int)(link->size & 0xffff) >=
+                 sizeof(block_space) / sizeof(block_space[0])) ||
+                 !(link->size >> 16))
                 break;
 
             dist = (long)srch - (long)link;
-            if ((dist > 0) && (dist < dist_min)) {
+            if ((dist > 0) && (dist < dist_min))
+            {
                 dist_min = dist;
                 dist_n = n | 0x8000;
                 found = link;
@@ -1314,15 +1270,17 @@ void search_links(Circle *srch)
         }
 
         link = first = block_used[n];
-        while (link) {
+        while (link)
+        {
             if (((long)link & ADDR_NOT_OK) ||
-                    ((unsigned int)(link->size & 0xffff) >=
-                     sizeof(block_space) / sizeof(block_space[0])) ||
-                    !(link->size >> 16))
+                ((unsigned int)(link->size & 0xffff) >=
+                 sizeof(block_space) / sizeof(block_space[0])) ||
+                 !(link->size >> 16))
                 break;
 
             dist = (long)srch - (long)link;
-            if ((dist > 0) && (dist < dist_min)) {
+            if ((dist > 0) && (dist < dist_min))
+            {
                 dist_min = dist;
                 dist_n = n;
                 found = link;
@@ -1335,48 +1293,29 @@ void search_links(Circle *srch)
         }
     }
 
-    puts("At distance ");
-    ltoa(buf, dist_min, 10);
-    puts(buf);
-    puts(": ");
-    ltoa(buf, (long)found, 16);
-    puts(buf);
-    puts("(");
-    ltoa(buf, dist_n & 0x7fff, 10);
-    puts(buf);
-    if (dist_n & 0x8000)
-        puts(" free)");
-    else
-        puts(" used)");
-
-    puts("\x0d\x0a");
+    PRINTF(("At distance %ld: $%08lx(%d %s)\n", dist_min, (long) found, dist_n & 0x7fff, dist_n & 0x8000 ? "free" : "used"));
 }
 
 
-void display_links(Circle *first)
+static void display_links(Circle *first)
 {
     Circle *link, *last;
-    char buf[10];
     int m = 0;
 
-    puts("Links: ");
-    ltoa(buf, (long)first, 16);
-    puts(buf);
+    PRINTF(("Links: $%08lx", (long) first));
 
     last = first;
-    if (first) {
+    if (first)
+    {
         link = first->next;
-        while (link != first) {
+        while (link != first)
+        {
             if (m++ > 1000)
                 break;
-            puts("->");
-            ltoa(buf, (long)link, 16);
-            puts(buf);
-            if (link->prev != last) {
-                puts("(");
-                ltoa(buf, (long)link->prev, 16);
-                puts(buf);
-                puts(")");
+            PRINTF(("->$%08lx", (long) link));
+            if (link->prev != last)
+            {
+                PRINTF(("($%08lx)", (long) link->prev));
                 break;
             }
             last = link;
@@ -1385,7 +1324,7 @@ void display_links(Circle *first)
                 break;
         }
     }
-    puts("\x0d\x0a");
+    PUTS("\n");
 }
 
 
@@ -1393,49 +1332,40 @@ void check_memory(void)
 {
     int m, n;
     const int sizes = sizeof(block_space) / sizeof(block_space[0]);
-    char buf[10];
     Circle *link, *next, *first;
     int error, statistics;
 
     statistics = 0;
-    for(n = 0; n < sizes; n++) {
+    for (n = 0; n < sizes; n++)
+    {
         link = (Circle *)block_free[n];
         m = 0;
         error = 0;
-        while (link) {
+        while (link)
+        {
             m++;
-            if ((long)link & ADDR_NOT_OK) {
-                puts("Bad free list linkage at ");
+            if ((long)link & ADDR_NOT_OK)
+            {
+                PUTS("Bad free list linkage at ");
                 error = 1;
             }
-            if (error) {
-                ltoa(buf, (long)link, 16);
-                puts(buf);
-                puts("(");
-                ltoa(buf, m, 10);
-                puts(buf);
-                puts(",");
-                ltoa(buf, n, 10);
-                puts(buf);
-                puts(")\x0\x0d");
+            if (error)
+            {
+                PRINTF(("$%08lx(%d,%d)\n", (long) link, m, n));
                 break;
             }
 
             link = link->next;
         }
 
-        if (!error && (m != free_blocks[n])) {
-            puts("Wrong number of free blocks (");
-            ltoa(buf, m, 10);
-            puts(buf);
-            puts("/");
-            ltoa(buf, free_blocks[n], 10);
-            puts(buf);
-            puts(")\x0d\x0a");
+        if (!error && (m != free_blocks[n]))
+        {
+            PRINTF(("Wrong number of free blocks (%d/%d)\n", m, free_blocks[n]));
             error = 1;
         }
 
-        if (error && !statistics) {
+        if (error && !statistics)
+        {
             statistics = 1;
             memory_statistics();
         }
@@ -1443,48 +1373,40 @@ void check_memory(void)
         link = first = block_used[n];
         m = 0;
         error = 0;
-        while (link) {
+        while (link)
+        {
             m++;
-            if ((long)link & ADDR_NOT_OK) {
-                puts("Bad used list link at ");
+            if ((long)link & ADDR_NOT_OK)
+            {
+                PUTS("Bad used list link at ");
                 error = 1;
             } else if ((unsigned int)(link->size & 0xffff) >=
                        sizeof(block_space) / sizeof(block_space[0]) ||
-                       !(link->size >> 16)) {
-                puts("\x0d\x0a");
+                       !(link->size >> 16))
+            {
+                PUTS("\n");
                 search_links(link);
-                puts("Bad used list size at ");
+                PUTS("Bad used list size at ");
                 error = 1;
-            } else if ((long)link->next & ADDR_NOT_OK) {
-                puts("\x0d\x0a");
+            } else if ((long)link->next & ADDR_NOT_OK)
+            {
+                PUTS("\n");
                 search_links(link);
-                puts("Bad used list linkage at ");
+                PUTS("Bad used list linkage at ");
                 error = 1;
             }
             next = link->next;
-            if (next->prev != link) {
-                puts("\x0d\x0a");
+            if (next->prev != link)
+            {
+                PUTS("\n");
                 search_links(next);
-                puts("Bad used list prev linkage ");
-                ltoa(buf, (long)next, 16);
-                puts(buf);
-                puts(" ");
-                ltoa(buf, (long)next->prev, 16);
-                puts(buf);
-                puts(" ");
+                PRINTF(("Bad used list prev linkage $%08lx $%08lx ", (long) next, (long) next->prev));
                 error = 1;
             }
 
-            if (error) {
-                ltoa(buf, (long)link, 16);
-                puts(buf);
-                puts(" (");
-                ltoa(buf, m, 10);
-                puts(buf);
-                puts(",");
-                ltoa(buf, n, 10);
-                puts(buf);
-                puts(")\x0d\x0a");
+            if (error)
+            {
+                PRINTF(("$%08lx (%d,%d)\n", (long) link, m, n));
                 display_links(block_used[n]);
                 break;
             }
@@ -1493,78 +1415,72 @@ void check_memory(void)
             link = next;
         }
 
-        if (!error && (m != used_blocks[n])) {
-            puts("Wrong number of used blocks (");
-            ltoa(buf, n, 10);
-            puts(buf);
-            puts(":");
-            ltoa(buf, m, 10);
-            puts(buf);
-            puts("/");
-            ltoa(buf, used_blocks[n], 10);
-            puts(buf);
-            puts(")\x0d\x0a");
+        if (!error && (m != used_blocks[n]))
+        {
+            PRINTF(("Wrong number of used blocks (%d:%d/%d)\n", n, m, used_blocks[n]));
             display_links(block_used[n]);
             error = 1;
         }
 
-        if (error && !statistics) {
+        if (error && !statistics)
+        {
             statistics = 1;
             memory_statistics();
         }
     }
 }
+#endif /* FVDI_DEBUG */
+
 
 #define OS_MARGIN 64
 #define MIN_BLOCK 32
 #define LINK_SIZE (sizeof(Circle))
 #define MIN_KB_BLOCK
-void *malloc(long size)
+void *DRIVER_EXPORT malloc(size_t size)
 {
     int m, n;
     const int sizes = sizeof(block_space) / sizeof(block_space[0]);
-    char *block, buf[10];
+    char *block;
     Circle *link, *next;
 
     size += ext_malloc;
 
+#ifdef FVDI_DEBUG
     if (check_mem)
         check_memory();
+#endif
 
-    if (old_malloc || (size > 16 * 1024 - OS_MARGIN - LINK_SIZE))
+    if (old_malloc || (size > 16 * 1024 - OS_MARGIN - (long)LINK_SIZE))
         return fmalloc(size, 3);
 
     /* This will always break eventually thanks to the if-statement above */
-    for(n = 0; n < sizes; n++) {
-        if (size <= block_space[n])
+    for (n = 0; n < sizes; n++)
+    {
+        if ((long)size <= block_space[n])
             break;
     }
 
-    if ((debug > 2) && !(silentx[0] & 0x02)) {
-        ltoa(buf, n, 10);
-        puts("Alloc: Need block of size ");
-        puts(buf);
-        puts("/");
-        ltoa(buf, size, 10);
-        puts(buf);
-        puts("\x0d\x0a");
+    if ((debug > 2) && !(silentx[0] & 0x02))
+    {
+        PRINTF(("Alloc: Need block of size %d/%ldﬂn", n, size));
     }
 
-    if (!block_free[n]) {
-        for(m = n + 1; m < sizes; m++) {
+    if (!block_free[n])
+    {
+        for (m = n + 1; m < sizes; m++)
+        {
             if (block_free[m])
                 break;
         }
-        if (m >= sizes) {
+        if (m >= sizes)
+        {
             m = sizes - 1;
             block_free[m] = fmalloc(16 * 1024 - OS_MARGIN, 3);
             if (!block_free[m])
                 return 0;
-            if ((debug > 2) && !(silentx[0] & 0x02)) {
-                puts("       Malloc at ");
-                ltoa(buf, (long)block_free[m], 16);
-                puts(buf);
-                puts("\x0d\x0a");
+            if ((debug > 2) && !(silentx[0] & 0x02))
+            {
+                PRINTF(("       Malloc at $%08lx\n", (long) block_free[m]));
             }
             link = (Circle *)block_free[m];
             link->next = 0;
@@ -1573,9 +1489,11 @@ void *malloc(long size)
             free_blocks[m]++;
             allocated++;
         }
-        for(; m > n; m--) {
-            if ((debug > 2) && !(silentx[0] & 0x02)) {
-                puts("       Splitting\x0d\x0a");
+        for (; m > n; m--)
+        {
+            if ((debug > 2) && !(silentx[0] & 0x02))
+            {
+                PUTS("       Splitting\n");
             }
             block_free[m - 1] = block_free[m];
             link = (Circle *)block_free[m];
@@ -1592,35 +1510,36 @@ void *malloc(long size)
             link->size = m - 1;
             free_blocks[m - 1]++;
         }
-    } else {
-        if ((debug > 2) && !(silentx[0] & 0x02)) {
-            puts("       Available\x0d\x0a");
+    } else
+    {
+        if ((debug > 2) && !(silentx[0] & 0x02))
+        {
+            PUTS("       Available\n");
         }
     }
 
     block = block_free[n];
     block_free[n] = (char *)((Circle *)block)->next;
 
-    if ((debug > 2) && !(silentx[0] & 0x02)) {
-        puts("       Allocating at ");
-        ltoa(buf, (long)block, 16);
-        puts(buf);
-        puts(" (next at ");
-        ltoa(buf, (long)block_free[n], 16);
-        puts(buf);
-        puts(")\x0d\x0a");
+    if ((debug > 2) && !(silentx[0] & 0x02))
+    {
+        PRINTF(("       Allocating at $%08lx (next at $%08lx)\n", (long) block, (long) block_free[n]));
     }
 
     ((Circle *)block)->size = (((Circle *)block)->size & 0xffff) + (size << 16);
 
-    if (1 || memlink) {
+    if (1 || memlink)
+    {
         Circle *new = (Circle *)block;
-        if (block_used[n]) {
+
+        if (block_used[n])
+        {
             new->prev = block_used[n]->prev;
             new->next = block_used[n];
             block_used[n]->prev->next = new;
             block_used[n]->prev = new;
-        } else {
+        } else
+        {
             block_used[n] = new;
             new->prev = new;
             new->next = new;
@@ -1630,24 +1549,28 @@ void *malloc(long size)
     free_blocks[n]--;
     used_blocks[n]++;
 
-    if ((debug > 2) && !(silentx[0] & 0x02)) {
+#ifdef FVDI_DEBUG
+    if ((debug > 2) && !(silentx[0] & 0x02))
+    {
         memory_statistics();
     }
+#endif
 
     *(long *)(block + sizeof(Circle)) = block_space[n];
     return block + sizeof(Circle);
 }
 
 
-void *realloc(void *addr, long new_size)
+void *realloc(void *addr, size_t new_size)
 {
     Circle *current;
-    long old_size;
+    size_t old_size;
     void *new;
 
     if (!addr)
         return malloc(new_size);
-    if (!new_size) {
+    if (!new_size)
+    {
         free(addr);
         return 0;
     }
@@ -1664,72 +1587,125 @@ void *realloc(void *addr, long new_size)
     copymem_aligned(addr, new, old_size < new_size ? old_size : new_size);
     free(addr);
 
-    if ((debug > 2) && !(silentx[0] & 0x01)) {
-        char buffer[10];
-        puts("Reallocation from size ");
-        ltoa(buffer, old_size, 10);
-        puts(buffer);
-        puts(" at $");
-        ltoa(buffer, (long)addr, 16);
-        puts(buffer);
-        puts(" to ");
-        ltoa(buffer, new_size, 10);
-        puts_nl(buffer);
+    if ((debug > 2) && !(silentx[0] & 0x01))
+    {
+        PRINTF(("Reallocation from size %ld at $%08lx to %ld\n", old_size, (long) addr, new_size));
     }
 
     return new;
 }
 
 
-long free(void *addr)
+long free_size(void *addr)
 {
     Circle *current;
-    long bp = 0L, size, ret;
+    long size, ret;
 
     if (!addr)
         return 0;
 
     current = &((Circle *) addr)[-1];
 
-    if (!((long)current->prev & 1)) {
+    if (!((long) current->prev & 1))
+    {
         size = current->size & 0xffff;
-        if (((debug > 2) && !(silentx[0] & 0x02)) ||
-                (unsigned int)size >= sizeof(block_space) / sizeof(block_space[0]) ||
-                !(current->size >> 16)) {
-            char buf[10];
-            puts("Freeing at ");
-            ltoa(buf, (long)current, 16);
-            puts(buf);
-            puts(" (");
-            ltoa(buf, (long)current->size, 16);
-            puts(buf);
-            puts(" ,");
-            ltoa(buf, (long)current->prev, 16);
-            puts(buf);
-            puts(" ,");
-            ltoa(buf, (long)current->next, 16);
-            puts(buf);
-            puts(")");
-            puts("\x0d\x0a");
-        }
+#if 1
         /*
-             * FIXME:
-             * memlink is forced here in free(). It is also forced in malloc().
-             * But it is not forced in fmalloc(), so current->prev may be 0.
-             * This can happen because real_access.funcs.malloc == fmalloc,
-             * so drivers indirectly call fmalloc(), hence current->prev is set to 0
-             * if nomemlink is used.
-             */
-        if (1 || memlink) {
-            if (block_used[size] == current) {
+         * FIXME:
+         * memlink is forced here in free(). It is also forced in malloc().
+         * But it is not forced in fmalloc(), so current->prev may be 0.
+         * This can happen because real_access.funcs.malloc == fmalloc,
+         * so drivers indirectly call fmalloc(), hence current->prev is set to 0
+         * if nomemlink is used.
+         */
+        if (1 || memlink)
+        {
+            if (block_used[size] == current)
+            {
                 block_used[size] = current->next;
                 if (current->next == current)
-                    block_used[size] = 0;
+                    block_used[size] = NULL;
             }
-            if (current->prev == 0) {
-                puts_nl("BUG!! current->prev == 0");
-                puts_nl("Please comment out nomemlink in fvdi.sys");
-                for(;;);
+            if (current->prev == 0)
+            {
+                access->funcs.puts("BUG!! current->prev == 0");
+                access->funcs.puts("Please comment out nomemlink in fvdi.sys");
+                for (;;) ;
+            }
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
+        }
+#endif
+        current->next = (Circle *) block_free[size];
+        block_free[size] = (char *) current;
+        free_blocks[size]++;
+        used_blocks[size]--;
+        return 0;
+    }
+
+    if (memlink)
+    {
+#if 0
+        current->prev->next = current->next;
+#else
+        ((Circle *) ((long) current->prev & ~1))->next = current->next;
+#endif
+        current->next->prev = current->prev;
+    }
+    size = current->size;
+
+    if (pid)
+    {                                   /* Pretend to be fVDI if possible */
+        long bp = *pid;
+        *pid = basepage;
+        ret = Mfree(current);
+        *pid = bp;
+    } else
+    {
+        ret = Mfree(current);
+    }
+
+    if (ret)
+        return ret;
+    else
+        return size;
+}
+
+
+void DRIVER_EXPORT free(void *addr)
+{
+    Circle *current;
+    long size;
+
+    if (!addr)
+        return;
+
+    current = &((Circle *) addr)[-1];
+
+    if (!((long)current->prev & 1))
+    {
+        size = current->size & 0xffff;
+        /*
+         * FIXME:
+         * memlink is forced here in free(). It is also forced in malloc().
+         * But it is not forced in fmalloc(), so current->prev may be 0.
+         * This can happen because real_access.funcs.malloc == fmalloc,
+         * so drivers indirectly call fmalloc(), hence current->prev is set to 0
+         * if nomemlink is used.
+         */
+        if (1 || memlink)
+        {
+            if (block_used[size] == current)
+            {
+                block_used[size] = current->next;
+                if (current->next == current)
+                    block_used[size] = NULL;
+            }
+            if (current->prev == 0)
+            {
+                access->funcs.puts("BUG!! current->prev == 0\n");
+                access->funcs.puts("Please comment out nomemlink in fvdi.sys\n");
+                for (;;) ;
             }
             current->prev->next = current->next;
             current->next->prev = current->prev;
@@ -1738,18 +1714,11 @@ long free(void *addr)
         block_free[size] = (char *)current;
         free_blocks[size]++;
         used_blocks[size]--;
-        return 0;
-    } else {
-        if ((debug > 2) && !(silentx[0] & 0x01)) {
-            char buf[10];
-            puts("Standard free at ");
-            ltoa(buf, (long)current, 16);
-            puts(buf);
-            puts("\x0d\x0a");
-        }
+        return;
     }
 
-    if (memlink) {
+    if (memlink)
+    {
 #if 0
         current->prev->next = current->next;
 #else
@@ -1757,27 +1726,17 @@ long free(void *addr)
 #endif
         current->next->prev = current->prev;
     }
-    size = current->size;
 
-    if (pid) {           /* Pretend to be fVDI if possible */
-        bp = *pid;
+    if (pid)
+    {           /* Pretend to be fVDI if possible */
+        long bp = *pid;
         *pid = basepage;
-    }
-    if ((debug > 2) && !(silentx[0] & 0x01)) {
-        char buffer[10];
-        ltoa(buffer, (long)current, 16);
-        puts("Freeing at $");
-        puts_nl(buffer);
-    }
-    ret = Mfree(current);
-    if (pid) {
+        Mfree(current);
         *pid = bp;
+    } else
+    {
+        Mfree(current);
     }
-
-    if (ret)
-        return ret;
-    else
-        return size;
 }
 
 
@@ -1792,8 +1751,10 @@ long free_all(void)
 
     err = 0;
     total = 0;
-    while (mblocks->prev != mblocks) {    /* Remove the last until there is no more */
-        ret = free((void *)&mblocks->prev[1]);
+    while (mblocks->prev != mblocks)
+    {
+        /* Remove the last until there is no more */
+        ret = free_size((void *)&mblocks->prev[1]);
         if (ret > 0)
             total += ret;
         else
@@ -1808,46 +1769,68 @@ long free_all(void)
 }
 
 
-long puts(const char *text)
+long DRIVER_EXPORT kputs(const char *text)
 {
     int file;
 
-    if ((debug_out == -3) && debug_file) {
+    if ((debug_out == -3) && debug_file)
+    {
         file = -1;
 
         if (((file = Fopen(debug_file, O_WRONLY)) < 0) ||
-                (Fseek(0, file, SEEK_END) < 0) ||
-                (Fwrite(file, strlen(text), text) < 0)) {
+            (Fseek(0, file, SEEK_END) < 0) ||
+            (Fwrite(file, strlen(text), text) < 0))
+        {
             free(debug_file);
             debug_file = 0;
             debug_out = -2;
-            (void) Cconws("Write to debug file failed!\x0d\x0a");
-            (void) Cconws(text);
+            kputs("Write to debug file failed!\n");
+            kputs(text);
         }
         if (file >= 0)
             Fclose(file);
-    }
-    else if (debug_out == -2)
+    } else if (debug_out == -2)
+    {
         (void) Cconws(text);
-    else if ((debug_out == -1) && nf_print_id)
-        nfCall((nf_print_id, text));
-    else
+        if (strchr(text, '\n'))
+            Cconout(0x0d);
+    } else if (debug_out == -1)
+    {
+        if (nf_print_id != 0)
+        {
+            nf_ops->call(nf_print_id | 0, text);
+        } else
+        {
+            (void) Cconws(text);
+            if (strchr(text, '\n'))
+                Cconout(0x0d);
+        }
+    } else
+    {
         while (*text)
+        {
+            if (*text == 0x0a)
+                Bconout(debug_out, 0x0d);
             Bconout(debug_out, *text++);
+        }
+    }
 
     return 1;
 }
 
 
-long equal(const char *str1, const char *str2)
+long DRIVER_EXPORT equal(const char *str1, const char *str2)
 {
     char ch1, ch2;
 
-    do {
+    do
+    {
         ch1 = *str1++;
         ch2 = *str2++;
-        if (ch1 != ch2) {
-            if ((ch1 >= 'A') && (ch1 <= 'Z')) {
+        if (ch1 != ch2)
+        {
+            if ((ch1 >= 'A') && (ch1 <= 'Z'))
+            {
                 if ((ch1 | 32) != ch2)
                     return 0;
             } else
@@ -1859,36 +1842,49 @@ long equal(const char *str1, const char *str2)
 }
 
 
-long misc(long func, long par, const char *token)
+long DRIVER_EXPORT misc(long func, long par, const char *token)
 {
-    switch(func) {
+    (void) token;
+    switch (func)
+    {
+    case 0:
+        switch (par)
+        {
         case 0:
-            switch(par) {
-                case 0:
-                    return key_pressed;
-                    break;
-                case 1:
-                    return debug;
-                    break;
-            }
+            return key_pressed;
+            break;
+        case 1:
+            return debug;
+            break;
+        }
     }
 
     return 0;
 }
 
 
-void error(const char *text1, const char *text2)
+void DRIVER_EXPORT error(const char *text1, const char *text2)
 {
-    puts(text1);
+    kputs("fVDI: ");
+    kputs(text1);
     if (text2)
-        puts(text2);
-    puts("\x0d\x0a");
+        kputs(text2);
+    kputs("\n");
+    if (debug_out < 0)
+    {
+        (void) Cconws("fVDI: ");
+        (void) Cconws(text1);
+        if (text2)
+            (void) Cconws(text2);
+        (void) Cconws("\r\n");
+    }
 }
 
 
-const char *next_line(const char *ptr)
+const char *DRIVER_EXPORT next_line(const char *ptr)
 {
-    while (1) {
+    while (1)
+    {
         if (!*ptr)
             return 0;
         else if ((*ptr == 10) || (*ptr == 13))
@@ -1896,7 +1892,8 @@ const char *next_line(const char *ptr)
         ptr++;
     }
     ptr++;
-    while (1) {
+    while (1)
+    {
         if (!*ptr)
             return 0;
         else if ((*ptr != 10) && (*ptr != 13))
@@ -1907,16 +1904,18 @@ const char *next_line(const char *ptr)
 }
 
 
-const char *skip_space(const char *ptr)
+const char *DRIVER_EXPORT skip_space(const char *ptr)
 {
     if (!ptr)
         return 0;
-    while (1) {
+    while (1)
+    {
         if (!*ptr)
             return 0;
         else if (*ptr <= ' ')
             ;
-        else if (*ptr == '#') {
+        else if (*ptr == '#')
+        {
             if (!(ptr = next_line(ptr)))
                 return 0;
             else
@@ -1932,7 +1931,8 @@ const char *skip_only_space(const char *ptr)
 {
     if (!ptr)
         return 0;
-    while ((*ptr == ' ') || (*ptr == '\t')) {
+    while ((*ptr == ' ') || (*ptr == '\t'))
+    {
         ptr++;
     }
 
@@ -1940,19 +1940,24 @@ const char *skip_only_space(const char *ptr)
 }
 
 
-const char *get_token(const char *ptr, char *buf, long n)
+const char *DRIVER_EXPORT get_token(const char *ptr, char *buf, long n)
 {
     if (*ptr == '=')            /* Assignment token? */
         *buf++ = *ptr++;
-    else if (*ptr != '\"') {    /* Get ordinary token */
-        while (--n) {
+    else if (*ptr != '\"')
+    {
+        /* Get ordinary token */
+        while (--n)
+        {
             if ((*ptr <= ' ') || (*ptr == '='))
                 break;
             *buf++ = *ptr++;
         }
-    } else {                    /* Get quoted token */
+    } else
+    {                    /* Get quoted token */
         ptr++;
-        while (--n) {
+        while (--n)
+        {
             if (((*ptr < ' ') && (*ptr != '\t')) || (*ptr == '\"'))
                 break;
             *buf++ = *ptr++;
@@ -1969,91 +1974,92 @@ const char *get_token(const char *ptr, char *buf, long n)
 /*
  * Returns the size of a file
  */
-long get_size(const char *name)
+long DRIVER_EXPORT get_size(const char *name)
 {
-#ifdef __GNUC__
-    _DTA info;
-#else
-    DTA info;       /* Thanks to tos.h for Lattice C */
-#endif
+    _DTA info, *old;
     long file_size;
     int error;
 
+    old = Fgetdta();
     Fsetdta((void *)&info);
-    error = Fsfirst(name, 1);
+    error = Fsfirst(name, FA_RDONLY|FA_HIDDEN|FA_SYSTEM);
+    Fsetdta(old);
 
-    if (!error) {
-#ifdef __GNUC__
+    if (!error)
         file_size = info.dta_size;
-#else
-        file_size = info.d_length;
-#endif
-    } else
+    else
         file_size = -1;
 
     return file_size;
 }
 
 
-long event(long id_type, long data)
+void DRIVER_EXPORT event(long id_type, long data)
 {
     long xy;
+    long *xyp;
 
     /* Really needs to do something about the id part */
-    switch(id_type & 0xffff) {
-        case 0:    /* Initialize */
-            stand_alone = 1;
-            break;
-        case 1:    /* Relative mouse movement */
-            if (!screen_wk->mouse.forced) {
-                if (data) {
-                    xy = screen_wk->mouse.position.x << 16 | screen_wk->mouse.position.y;
-
-                    data = (((xy >> 16) + (data >> 16)) << 16) |
-                            ((xy + data) & 0xffff);
-                    data = vector_call(screen_wk->vector.motion, data);
-                    data = vector_call(screen_wk->vector.draw, data);
-                }
-            }
-            break;
-        case 2:    /* Absolute mouse movement */
-            if (!screen_wk->mouse.forced) {
-                xy = screen_wk->mouse.position.x << 16 | screen_wk->mouse.position.y;
-                if (data != xy) {
-                    if (move_mouse)
-                        vector_call(&mouse_move, data);
-                    data = vector_call(screen_wk->vector.motion, data);
-                    data = vector_call(screen_wk->vector.draw, data);
-                }
-            }
-            break;
-        case 3:    /* Button change */
-            if (data != screen_wk->mouse.buttons) {
-                screen_wk->mouse.buttons = data;
-                data = (data << 16) | (data & 0xffff);
-                data = vector_call(screen_wk->vector.button, data);
-            }
-            break;
-        case 4:    /* Wheel movement */
-            if (data) {
-                data = vector_call(screen_wk->vector.wheel, data);
-            }
-            break;
-        case 5:    /* Vertical blank */
-            if (vbl_handler_installed)
-                shutdown_vbl_handler();
-            data = vector_call(screen_wk->vector.vblank, data);
-            break;
-        case 6:    /* Forced absolute move */
-            xy = screen_wk->mouse.position.x << 16 | screen_wk->mouse.position.y;
-            if (data != xy) {
-                screen_wk->mouse.forced = 1;
+    switch (id_type & 0xffff)
+    {
+    case 0:    /* Initialize */
+        stand_alone = 1;
+        break;
+    case 1:    /* Relative mouse movement */
+        if (!screen_wk->mouse.forced)
+        {
+            if (data)
+            {
+                data = ((screen_wk->mouse.position.x + (data >> 16)) << 16) | ((screen_wk->mouse.position.y + data) & 0xffff);
                 data = vector_call(screen_wk->vector.motion, data);
                 data = vector_call(screen_wk->vector.draw, data);
             }
-            break;
+        }
+        break;
+    case 2:    /* Absolute mouse movement */
+        if (!screen_wk->mouse.forced)
+        {
+            xyp = (long *) &screen_wk->mouse.position.x;
+            xy = *xyp;
+            if (data != xy)
+            {
+                if (move_mouse)
+                    vector_call(mouse_move, data);
+                data = vector_call(screen_wk->vector.motion, data);
+                data = vector_call(screen_wk->vector.draw, data);
+            }
+        }
+        break;
+    case 3:    /* Button change */
+        if (data != screen_wk->mouse.buttons)
+        {
+            screen_wk->mouse.buttons = data;
+            data = (data << 16) | (data & 0xffff);
+            data = vector_call(screen_wk->vector.button, data);
+        }
+        break;
+    case 4:    /* Wheel movement */
+        if (data)
+        {
+            data = vector_call(screen_wk->vector.wheel, data);
+        }
+        break;
+    case 5:    /* Vertical blank */
+        if (vbl_handler_installed)
+            shutdown_vbl_handler();
+        data = vector_call(screen_wk->vector.vblank, data);
+        break;
+    case 6:    /* Forced absolute move */
+        xyp = (long *) &screen_wk->mouse.position.x;
+        xy = *xyp;
+        if (data != xy)
+        {
+            screen_wk->mouse.forced = 1;
+            data = vector_call(screen_wk->vector.motion, data);
+            data = vector_call(screen_wk->vector.draw, data);
+        }
+        break;
     }
-    return data;
 }
 
 
@@ -2087,33 +2093,19 @@ long init_utility(void)
     if (!mint && !magic)     /* Probably a bad idea under multitasking */
         pid_addr = tmp;
 
-    real_access.funcs.copymem = copymem;
-    real_access.funcs.next_line = next_line;
-    real_access.funcs.skip_space = skip_space;
-    real_access.funcs.get_token = get_token;
-    real_access.funcs.equal = equal;
-    real_access.funcs.length = length;
-    real_access.funcs.copy = copy;
-    real_access.funcs.cat = cat;
-    real_access.funcs.numeric = numeric;
-    real_access.funcs.error = error;
-    real_access.funcs.malloc = fmalloc;
-    real_access.funcs.free = free;
-    real_access.funcs.puts = puts;
-    real_access.funcs.ltoa = ltoa;
-    real_access.funcs.atol = atol;
-    real_access.funcs.get_cookie = get_cookie;
-    real_access.funcs.set_cookie = set_cookie;
-    real_access.funcs.fixup_font = fixup_font;
-    real_access.funcs.unpack_font = unpack_font;
-    real_access.funcs.insert_font = insert_font;
-    real_access.funcs.get_size = get_size;
-    real_access.funcs.allocate_block = allocate_block;
-    real_access.funcs.free_block = free_block;
-    real_access.funcs.cache_flush = cache_flush;
-    real_access.funcs.misc = misc;
-
-    real_access.funcs.event = event;
-
     return 1;
+}
+
+
+#ifdef __GNUC__
+#pragma GCC optimize "-O1"
+#endif
+void *DRIVER_EXPORT calloc(size_t nmemb, size_t size)
+{
+    void *p;
+    size *= nmemb;
+    p = malloc(size);
+    if (p)
+        memset(p, 0, size);
+    return p;
 }

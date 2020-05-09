@@ -7,8 +7,10 @@
  */
 
 #include "fvdi.h"
-#include "utility.h"
+#include "stdio.h"
 #include "function.h"
+#include "relocate.h"
+#include "utility.h"
 #include "globals.h"
 
 #define NEG_PAL_N	9	/* Number of negative palette entries */
@@ -90,7 +92,7 @@ static Virtual** find_handle_entry(short hnd)
         hnd -= handles;
         if (debug)
         {
-            puts("Looking for handle in extra table\x0d\x0a");
+            PUTS("Looking for handle in extra table\n");
         }
         handles = (long) handle_table[-2];
         if (hnd < handles)
@@ -119,7 +121,7 @@ static short find_free_handle(Virtual ***handle_entry)
     last = link;
     while ((handle_table = *link)) {
         if (debug) {
-            puts("Looking for free handle in extra table\x0d\x0a");
+            PUTS("Looking for free handle in extra table\n");
         }
         handles += (long)handle_table[-2];
         for(; hnd < handles; hnd++) {
@@ -136,10 +138,7 @@ static short find_free_handle(Virtual ***handle_entry)
     if (handle_table) {
         handles = *(long *)handle_table / sizeof(Virtual *) - 2;
         if (debug) {
-            puts("Allocated space for ");
-            ltoa((char *)handle_table, handles, 10);
-            puts((char *)handle_table);
-            puts(" extra handles\x0d\x0a");
+            PRINTF(("Allocated space for %d extra handles\n", handles));
         }
         handle_table[0] = (Virtual *)((long)handles);
         handle_table[1] = 0;
@@ -226,7 +225,7 @@ void v_opnvwk(Virtual *vwk, VDIpars *pars)
         if (!mfdb->address) {
             mfdb->standard = 0;
             mfdb->address = (short *)((long)new_wk + sizeof(Workstation));
-            setmem(mfdb->address, size, 0);
+            memset(mfdb->address, 0, size);
         }
 
         new_wk->screen.mfdb.address = mfdb->address;
@@ -327,18 +326,20 @@ void v_opnwk(VDIpars *pars)
                         *handle_entry = vwk;
                         pars->control->handle = hnd;
                     } else {
-                        char buf[10];
-                        puts("call_other failed (");
-                        ltoa(buf, pars->intin[0], 10);
-                        puts(buf);
-                        puts(")\x0d\x0a");
+                        PRINTF(("call_other failed (%d)\n", pars->intin[0]));
                     }
                 } else
-                    puts("malloc failed\x0d\x0a");
+                {
+                    PUTS("malloc failed\n");
+                }
             } else
-                puts("find_free_handle failed\x0d\x0a");
+            {
+                PUTS("find_free_handle failed\n");
+            }
         } else
-            puts("no old GDOS\x0d\x0a");
+        {
+            PUTS("no old GDOS\n");
+		}
 
         if (failed) {
             if (vwk)
@@ -403,17 +404,19 @@ void v_clsvwk(Virtual *vwk, VDIpars *pars)
     /* Reset VDI structure address to default */
     handle_entry = find_handle_entry(hnd);
     if (!handle_entry)
-        puts("Handle could not be found in tables!\x0d\x0a");
-    else if (*handle_entry != vwk)
-        puts("Wrong handle entry!\x0d\x0a");
-    else
+    {
+        PUTS("Handle could not be found in tables!\n");
+    } else if (*handle_entry != vwk)
+    {
+        PUTS("Wrong handle entry!\n");
+    } else
+    {
         *handle_entry = non_fvdi_vwk;
-
-    return;
+    }
 }
 
 
-// Needs to be able to deal with multiple fVDI workstations!
+/* Needs to be able to deal with multiple fVDI workstations! */
 void v_clswk(Virtual *vwk, VDIpars *pars)
 {
     Driver *driver;
@@ -444,28 +447,37 @@ void vq_devinfo(VDIpars *pars)
      * workstation handle >10 is non-fVDI
      */
     if (pars->intin[0] > 10) {
-#ifdef DEBUG
+#ifdef FVDI_DEBUG
         int failed = 1;
         if (old_gdos != -2) {		/* No pass-through without old GDOS */
-            char buf[10];
             call_other(pars, 0);	/* Dummy handle for call */
-            puts("vq_devinfo:\x0d\x0a");
-            display_output(pars);
-            puts(*(char **)&pars->intin[1]);
-            puts("\x0d\x0a");
-            puts(*(char **)&pars->intin[3]);
-            puts("\x0d\x0a");
-            puts(*(char **)&pars->intin[5]);
-            puts("\x0d\x0a");
+#ifdef FVDI_DEBUG
+            {
+                int i;
+                
+                PUTS("vq_devinfo:\n");
+                display_output(pars);
+                PUTS("filename: ");
+                for (i = 0; i < pars->control->l_intout; i++)
+                    PUTS(pars->intout[i]);
+                PUTS("\n");
+                PUTS("device name: ");
+                for (i = 1; i < pars->control->l_ptsout; i++)
+                    PUTS(pars->ptsout[i]);
+                PUTS("\n");
+            }
+#endif
         } else
-            puts("no old GDOS (vq_devinfo)\x0d\x0a");
+        {
+            PUTS("no old GDOS (vq_devinfo)\n");
+        }
 #endif
         return;
     }
 
     pars->intout[0] = 1;
     pars->intout[1] = 1;
-    puts("fVDI handles currently don't support vq_devinfo\x0d\x0a");
+    PUTS("fVDI handles currently don't support vq_devinfo\n");
 }
 
 

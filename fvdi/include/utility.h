@@ -1,8 +1,6 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
-#include "fvdi.h"
-
 /*
  * fVDI utility function declarations
  *
@@ -10,12 +8,6 @@
  * This software is licensed under the GNU General Public License.
  * Please, see LICENSE.TXT for further information.
  */
-
-typedef long unsigned int size_t;
-
-#ifndef NULL
-#define NULL ((void *) 0L)
-#endif
 
 long init_utility(void);
 
@@ -30,76 +22,93 @@ void set_l(long addr, long value);
 /*
  * Cookie and XBRA access
  */
-long get_cookie(const char *cname, long super);
-long set_cookie(const char *name, long value);
+long DRIVER_EXPORT get_cookie(const char *cname, long super);
+long DRIVER_EXPORT set_cookie(const char *name, long value);
 long remove_xbra(long vector, const char *name);
-void check_cookies(void);
 
 /*
  * Memory pool allocation (from set of same sized blocks)
  */
-long initialize_pool(size_t size, long n);
-void *allocate_block(size_t size);
-void free_block(void *addr);
+long initialize_pool(long size, long n);
+char *DRIVER_EXPORT allocate_block(long size);
+void DRIVER_EXPORT free_block(void *addr);
 
 
 /*
  * Memory/string operations
  */
-void copymem(const void *s, void *d, long n);
-void setmem(void *d, long v, long n);
-void copy(const char *src, char *dest);
-void cat(const char *src, char *dest);
-long length(const char *text);
-long equal(const char *str1, const char *str2);
-long strlen(const char *s);
-void *memset(void *s, int c, size_t n);
+void DRIVER_EXPORT copymem(const void *s, void *d, long n);
+void copymem_aligned(const void *s, void *d, long n);
+void DRIVER_EXPORT copy(const char *src, char *dest);
+void DRIVER_EXPORT cat(const char *src, char *dest);
+long DRIVER_EXPORT length(const char *text);
+long DRIVER_EXPORT equal(const char *str1, const char *str2);
 
 /*
  * Character numerics
  */
-long numeric(long ch);
-long check_base(char ch, long base);
-long atol(const char *text);
-void ltoa(char *buf, long n, unsigned long base);
+long DRIVER_EXPORT numeric(long ch);
+int check_base(char ch, int base);
+long DRIVER_EXPORT atol(const char *text);
+void DRIVER_EXPORT ltoa(char *buf, long n, unsigned long base);
+void ultoa(char *buf, unsigned long un, unsigned long base);
 long str2long(const char *text);
 
 /*
  * General memory allocation
  */
 void *fmalloc(long size, long type);
-void *malloc(long size);
-void *realloc(void *addr, long new_size);
-long free(void *addr);
+void *malloc(size_t size);
+void *realloc(void *addr, size_t new_size);
+void *calloc(size_t nmemb, size_t size);
+long free_size(void *addr);
+void free(void *addr);
 long free_all(void);
 void allocate(long amount);
+#ifdef FVDI_DEBUG 
 void check_memory(void);
+#endif
 
 /*
  * Text output
  */
-long puts(const char *text);
-void error(const char *text1, const char *text2);
-#define puts_nl(text)	{ puts(text); puts("\x0d\x0a"); }
+#ifdef FVDI_DEBUG
+#include "relocate.h"
+extern Access *access;
+#define PUTS(x) access->funcs.puts(x)
+#define PRINTF(x) kprintf x
+#define KEY_WAIT(x) key_wait(x)
+#else
+#define PUTS(x)
+#define PRINTF(x)
+#define KEY_WAIT(x)
+#endif
+
+void DRIVER_EXPORT error(const char *text1, const char *text2);
+
+long DRIVER_EXPORT kputs(const char *text);
+long DRIVER_EXPORT kprintf(const char *format, ...) __attribute__((format(printf, 1, 2)));
+long DRIVER_EXPORT ksprintf(char *buf, const char *format, ...) __attribute__((format(printf, 2, 3)));
+long DRIVER_EXPORT kvsprintf(char *buf, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
 
 /*
  * Token handling
  */
-const char *next_line(const char *ptr);
-const char *skip_space(const char *ptr);
+const char *DRIVER_EXPORT next_line(const char *ptr);
+const char *DRIVER_EXPORT skip_space(const char *ptr);
 const char *skip_only_space(const char *ptr);
-const char *get_token(const char *ptr, char *buf, long n);
+const char *DRIVER_EXPORT get_token(const char *ptr, char *buf, long n);
 
 /*
  * Miscellaneous
  */
-long misc(long func, long par, const char *token);
+long DRIVER_EXPORT misc(long func, long par, const char *token);
 void flip_words(void *addr, long n);
 void flip_longs(void *addr, long n);
 void initialize_palette(Virtual *vwk, long start, long n,
                         short colours[][3], Colour *palette);
-void cache_flush(void);
-long get_size(const char *name);
+void DRIVER_EXPORT cache_flush(void);
+long DRIVER_EXPORT get_size(const char *name);
 
 /*
  * VDI/AES
@@ -125,19 +134,19 @@ short call_other(VDIpars *pars, long handle);
 /*
  * Fonts
  */
-long fixup_font(Fontheader *font, char *buffer, long flip);
-long unpack_font(Fontheader *header, long format);
-long insert_font(Fontheader **first_font, Fontheader *new_font);
+long DRIVER_EXPORT fixup_font(Fontheader *font, char *buffer, long flip);
+long DRIVER_EXPORT unpack_font(Fontheader *header, long format);
+long DRIVER_EXPORT insert_font(Fontheader **first_font, Fontheader *new_font);
 Fontheader *load_font(const char *name);
 
 /*
  * Maths
  */
-short Isin(short angle);
+short Isin(unsigned short angle);
 short Icos(short angle);
+
 #define ABS(x)    (((x) >= 0) ? (x) : -(x))
 #define MIN(x,y)  (((x) < (y)) ? (x) : (y))
 #define MAX(x,y)  ((x) > (y) ? (x) : (y))
 
 #endif
-

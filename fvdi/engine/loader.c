@@ -85,7 +85,7 @@ short xbiosfix = 0;
 short singlebend = 0;
 short memlink = 1;
 short blocks = BLOCKS;
-size_t block_size = BLOCK_SIZE * 1024L;
+long block_size = BLOCK_SIZE * 1024L;
 long log_size = 1000;
 short arc_split = 16384;  /* 1/4 as many lines as largest ellipse axel radius in pixels */
 short arc_min = 16;       /* Minimum number of lines in an ellipse */
@@ -209,7 +209,7 @@ static Option options[] = {
 static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts);        /* forward declare */
 
 /* Allocate for size of Driver since the module might be one. */
-Module *init_module(Virtual *vwk, const char **ptr, List **list)
+static Module *init_module(Virtual *vwk, const char **ptr, List **list)
 {
     char token[TOKEN_SIZE], name[NAME_SIZE], *tmp;
     const char *opts;
@@ -1019,7 +1019,7 @@ static int initialize(const unsigned char *addr, long size, Driver *driver, Virt
             locator = (Locator *) addr;
             if ((locator->version & 0xfff0) < (MODULE_IF_VER & 0xfff0))
             {
-                puts_nl("Module compiled with unsupported interface version.");
+                error("Module compiled with unsupported interface version.", NULL);
                 return 0;
             }
             return locator->init(&real_access, driver, vwk, opts);
@@ -1130,7 +1130,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
 
     if (!external_init)
     {
-        puts_nl("Font directory specified without FreeType support!");
+        access->funcs.error("Font directory specified without FreeType support!", NULL);
         return -1;
     }
 
@@ -1142,8 +1142,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
 
     copy("*.*", pathtail);
 
-    puts("Fonts: ");
-    puts_nl(fonts);
+    PRINTF(("Fonts: %s\n", fonts));
 
     /* Initialize FreeType2 module */
     external_init();
@@ -1162,8 +1161,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
         copy(info.d_fname, pathtail);
 #endif
 
-        puts("   Load font: ");
-        puts_nl(fonts);
+        PRINTF(("   Load font: %s\n", fonts));
 
         if ((new_font = external_load_font(vwk, fonts))) {
             /* It's assumed that a device has been initialized (driver exists) */
@@ -1174,12 +1172,7 @@ long load_fonts(Virtual *vwk, const char **ptr)
         error = Fsnext();
     }
 
-    {
-        char buf[10];
-        puts("   Load fonts done: ");
-        ltoa(buf, vwk->real_address->writing.fonts, 10);
-        puts_nl(buf);
-    }
+    PRINTF(("   Load fonts done: %d\n", vwk->real_address->writing.fonts));
 
     return vwk->real_address->writing.fonts;
 }

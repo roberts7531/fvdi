@@ -12,10 +12,9 @@
  */
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
-#include "relocate.h"
-
 #include "driver.h"
+#include "relocate.h"
+#include "../bitplane/bitplane.h"
 
 #if 1
 #define FAST		/* Write in FastRAM buffer */
@@ -25,21 +24,23 @@
 #undef BOTH
 #endif
 
-char r_16[] = {5, 11, 12, 13, 14, 15};
-char g_16[] = {6,  5,  6,  7,  8,  9, 10};
-char b_16[] = {5,  0,  1,  2,  3,  4};
-char none[] = {0};
+static char r_16[] = { 5, 11, 12, 13, 14, 15 };
+static char g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
+static char b_16[] = { 5,  0,  1,  2,  3,  4 };
+static char none[] = { 0 };
+
 #if 0
-char red[] = {5, 11, 12, 13, 14, 15};
-char green[] = {5, 6, 7, 8, 9, 10};
-char blue[] = {5, 0, 1, 2, 3, 4};
-char alpha[] = {0};
-char genlock[] = {0};
-char unused[] = {1, 5};
+static char red[] = { 5, 11, 12, 13, 14, 15 };
+static char green[] = { 5, 6, 7, 8, 9, 10 };
+static char blue[] = { 5, 0, 1, 2, 3, 4 };
+static char alpha[] = { 0 };
+static char genlock[] = { 0 };
+static char unused[] = { 1, 5 };
 #endif
 
-Mode mode[1] =
-{{16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, {r_16, g_16, b_16, none, none, none}, 0,  2, 2, 1}};
+static Mode const mode[1] = {
+    { 16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0, 2, 2, 1 }
+};
 
 extern Device device;
 
@@ -74,7 +75,7 @@ long wk_extend = 0;
 short accel_s = 0;
 short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX |A_BLIT | A_FILL | A_EXPAND | A_LINE;
 
-Mode *graphics_mode = &mode[0];
+const Mode *graphics_mode = &mode[0];
 
 short debug = 0;
 
@@ -90,15 +91,27 @@ extern short max_mode;
 
 extern Modes mode_tab[];
 
-char *preset[] = {"640x480x8@60    ", "800x600x8@70    ", "1024x768x8@70   ", "1152x864x8@70   ",
-                  "800x600x16@70   ", "1024x768x16@70  ", "1152x864x16@70  ", "1280x1024x16@70 ",
-                  "800x600x32@70   ", "1024x768x32@70  "};
+static const char *const preset[] = {
+    "640x480x8@60    ",
+    "800x600x8@70    ",
+    "1024x768x8@70   ",
+    "1152x864x8@70   ",
+    "800x600x16@70   ",
+    "1024x768x16@70  ",
+    "1152x864x16@70  ",
+    "1280x1024x16@70 ",
+    "800x600x32@70   ",
+    "1024x768x32@70  ",
+    "1280x720x16@60  ",
+    "1920x1080x16@60 ",
+    "2560x1440x16@60 "
+};
 
 long set_mode(const char **ptr);
 #endif
 
-Option options[] = {
-    #if 0
+static Option const options[] = {
+#if 0
     {"mode",       set_mode,       -1},  /* mode key/<n>/WIDTHxHEIGHTxDEPTH@FREQ */
     {"aesbuf",     set_aesbuf,     -1},  /* aesbuf address, set AES background buffer address */
     {"screen",     set_screen,     -1},  /* screen address, set old screen address */
@@ -119,7 +132,8 @@ char *get_num(char *token, short *num)
     *num = -1;
     if (!*token)
         return token;
-    for(i = 0; i < 10; i ++) {
+    for (i = 0; i < 10; i++)
+    {
         c = buf[i] = *token++;
         if ((c < '0') || (c > '9'))
             break;
@@ -133,7 +147,7 @@ char *get_num(char *token, short *num)
 }
 
 
-int search_mode(char *token)
+static int search_mode(const char *token)
 {
     short width, height, bpp, freq;
     int b, w, f;
@@ -144,27 +158,25 @@ int search_mode(char *token)
     token = get_num(token, &freq);
 
     b = 0;
-    while ((mode_tab[b].bpp != -1) &&
-           ((unsigned int)mode_tab[b + 1].bpp <= bpp))
+    while ((mode_tab[b].bpp != -1) && ((unsigned int)mode_tab[b + 1].bpp <= bpp))
         b++;
     w = 0;
-    while ((mode_tab[b].res_freq[w].width != -1) &&
-           ((unsigned int)mode_tab[b].res_freq[w + 1].width <= width))
+    while ((mode_tab[b].res_freq[w].width != -1) && ((unsigned int)mode_tab[b].res_freq[w + 1].width <= width))
         w++;
     f = 0;
-    while ((f < mode_tab[b].res_freq[w].n) &&
-           ((unsigned int)mode_tab[b].res_freq[w].freqs[f + 1].frequency <= freq))
+    while ((f < mode_tab[b].res_freq[w].n) && ((unsigned int)mode_tab[b].res_freq[w].freqs[f + 1].frequency <= freq))
         f++;
 
     return &mode_tab[b].res_freq[w].freqs[f] - res_info;
 }
 
 
-long set_mode(const char **ptr)
+static long set_mode(const char **ptr)
 {
-    char token[80], *tokenptr;
+    char token[80];
+    const char *tokenptr;
 
-    if (!(*ptr = access->funcs.skip_space(*ptr)))
+    if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
         ;		/* *********** Error, somehow */
     *ptr = access->funcs.get_token(*ptr, token, 80);
 
