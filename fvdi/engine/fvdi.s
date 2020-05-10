@@ -7,10 +7,6 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
- ifnd debug
-debug		equ	0
- endc
-
 stoplog		equ	0		; Log until no more room (not circular)
 
 off		equ	0		; Skip fVDI code via a branch?
@@ -102,12 +98,9 @@ _init:
 	move.w	#$31,-(a7)	; Ptermres
 	trap	#1
 
-	;illegal
-
 .error:
 	move.w	#$0,-(a7)	; Pterm0
 	trap	#1
-	;illegal
 
 
 * XBRA chain for Trap #2
@@ -133,7 +126,7 @@ _trap2_temp:
 
 
  ifne 1
-  ifne debug
+  ifne FVDI_DEBUG
 	cmp.w	#2,_debug
 	bls	.no_debug1
 
@@ -180,7 +173,7 @@ _trap2_temp:
 
 
 ; REMOVE THIS AGAIN!
-  ifne debug
+  ifne FVDI_DEBUG
 ;	tst.w	_fvdi_log
 	move.l	_super,a2
 	tst.w	(a2)				; Log function call if that has (super->fvdi_log.active)
@@ -310,7 +303,7 @@ non_fvdi_ok:
 	move.w	(a2)+,L_intout(a1)
 	move.l	(a2),a2			; a2 - function address
 
-  ifne debug
+  ifne FVDI_DEBUG
 	cmp.l	#_bad_or_non_fvdi_handle,a2
 	beq	.special
 	cmp.l	#start_unimpl,a2
@@ -318,7 +311,7 @@ non_fvdi_ok:
 	cmp.l	#end_unimpl,a2
 	bcc	.normal			; >=
 .special:
-  ifne debug
+  ifne FVDI_DEBUG
 	cmp.w	#2,_debug
 	bls	.no_debug_special
 	movem.l	d0-d2/a0-a2,-(a7)
@@ -335,7 +328,7 @@ non_fvdi_ok:
 
 .normal:
   endc
-  ifne debug
+  ifne FVDI_DEBUG
 	move.l	a2,d0
 	move.l	_super,a2
 	tst.w	(a2)			; Log function call if that has (super->fvdi_log.active)
@@ -362,7 +355,7 @@ non_fvdi_ok:
 .no_log:
   endc
 
-  ifne debug
+  ifne FVDI_DEBUG
 	cmp.w	#2,_debug
 	bls	.no_debug
 	movem.l	d0-d2/a0-a2,-(a7)
@@ -661,7 +654,7 @@ _lineA:
 	move.w	(a1),d0
 	and.l	#$f,d0			; map out function code
 
-  ifne debug
+  ifne FVDI_DEBUG
 	cmp.w	#2,_debug
 	bls	.no_debug2
 	movem.l	d0-d2/a0-a2,-(a7)

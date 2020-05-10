@@ -19,9 +19,9 @@ else
 	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=0
 endif
 ifeq ($(DEBUG),yes)
-	SYMBOLS += --defsym debug=1
+	SYMBOLS += --defsym FVDI_DEBUG=1
 else
-	SYMBOLS += --defsym debug=0
+	SYMBOLS += --defsym FVDI_DEBUG=0
 endif
 
 
