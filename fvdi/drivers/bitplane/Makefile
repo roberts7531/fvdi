@@ -74,4 +74,7 @@ strip:
 clean:: clean_gnu
 	$(RM) $(OBJECTS) depend $(TARGET)
 
+install:
+	@:
+
 -include depend

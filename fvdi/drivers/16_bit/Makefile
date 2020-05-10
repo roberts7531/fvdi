@@ -70,4 +70,8 @@ strip:
 clean:: clean_gnu
 	$(RM) $(OBJECTS) depend $(TARGET)
 
+install::
+	mkdir -p $(DESTDIR)/gemsys
+	cp -a $(TARGET) $(DESTDIR)/gemsys/$(TARGET)
+
 -include depend

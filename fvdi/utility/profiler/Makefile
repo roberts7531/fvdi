@@ -11,3 +11,6 @@ all:
 
 clean::
 	@:
+
+install::
+	@:

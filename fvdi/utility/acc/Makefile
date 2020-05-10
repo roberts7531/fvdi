@@ -53,4 +53,7 @@ strip:
 clean::
 	$(RM) $(OBJECTS) depend $(TARGET)
 
+install::
+	cp -a $(TARGET) "$(DESTDIR)/fvdi.acc"
+
 -include depend

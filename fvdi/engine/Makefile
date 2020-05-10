@@ -177,4 +177,8 @@ strip:
 clean:: clean_gnu
 	$(RM) $(OBJECTS) $(TARGET) fvdi.map depend
 
+install::
+	mkdir -p $(DESTDIR)/auto
+	cp -a $(TARGET) $(DESTDIR)/auto/fvdi.prg
+
 -include depend

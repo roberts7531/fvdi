@@ -56,7 +56,7 @@ $(SSRC_GNU): $(SINCSRC_GNU)
 OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
-	$(AM_V_LD)$(LD) $(M68K_ATARI_MINT_LDFLAGS) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(AM_V_LD)$(LD) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 depend: $(CSRC)
 #	"$(CC) -MM" does not seem able to keep track of the directory of the
@@ -75,5 +75,10 @@ strip:
 
 clean:: clean_gnu
 	$(RM) $(OBJECTS) $(TARGET) depend
+
+install::
+	mkdir -p $(DESTDIR)/gemsys
+	cp -a $(TARGET) $(DESTDIR)/gemsys/$(TARGET)
+	cp -a fvdi.sys "$(DESTDIR)/fvdifb.sys"
 
 -include depend

@@ -79,4 +79,9 @@ strip:
 clean:: clean_gnu
 	$(RM) $(OBJECTS) $(TARGET) depend
 
+install::
+	mkdir -p "$(DESTDIR)/gemsys"
+	cp -a $(TARGET) "$(DESTDIR)/gemsys/$(TARGET)"
+	cp -a fvdi.sys "$(DESTDIR)/fvdiuae.sys"
+
 -include depend

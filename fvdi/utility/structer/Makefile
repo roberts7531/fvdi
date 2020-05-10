@@ -37,6 +37,9 @@ depend:		$(CSOURCES) $(CHEADERS)
 clean::
 	$(RM) $(OBJECTS) $(FLEXOUT) $(BISONOUT) $(TARGET) depend
 
+install::
+	@:
+
 $(BISONOUT):	struct.y
 	bison -d $(BISONFLAGS) struct.y
 
