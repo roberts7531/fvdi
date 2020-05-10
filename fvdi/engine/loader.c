@@ -866,7 +866,7 @@ static long set_debug_file(Virtual *vwk, const char **ptr)
         return -1;
     }
 
-    debug_file = malloc(strlen(token));
+    debug_file = malloc(strlen(token) + 1);
     if (!debug_file)
     {
         error("Can't store debug file name!", NULL);
