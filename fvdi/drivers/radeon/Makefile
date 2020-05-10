@@ -24,7 +24,6 @@ CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(BAS_INCLUDE) -I$(top_srcdir)/includ
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
-	$(top_srcdir)/include/compiler.inc \
 	$(top_srcdir)/include/macros.inc \
 	$(top_srcdir)/include/types.inc \
 	$(top_srcdir)/include/vdi.inc \

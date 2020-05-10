@@ -41,7 +41,6 @@ endif
 
 
 SINCSRC = \
-	$(top_srcdir)/include/compiler.inc \
 	$(top_srcdir)/include/macros.inc \
 	$(top_srcdir)/include/types.inc \
 	$(top_srcdir)/include/vdi.inc \
