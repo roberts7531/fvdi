@@ -92,4 +92,4 @@ endif
 	$(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ $<
 
 clean_gnu:
-	$(RM) $(SINCSRC_GNU) $(SSRC_GNU) $(SSRC_GNU_CF)
+	$(RM) $(SINCSRC_GNU) $(SSRC_GNU) $(SSRC_GNU_CF) $(SSRC_GNU:.gnu=.gnue)

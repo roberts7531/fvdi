@@ -77,7 +77,7 @@ strip:
 	$(STRIP) --strip-all $(TARGET)
 
 clean:: clean_gnu
-	$(RM) $(OBJECTS) $(TARGET) depend
+	$(RM) $(OBJECTS) $(TARGET) depend *.inf *.ino
 
 install::
 	mkdir -p $(DESTDIR)/gemsys
