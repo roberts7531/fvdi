@@ -20,7 +20,7 @@
 #define MAGIC     "InitMagic"
 
 #define TOKEN_SIZE  160                 /* Also used for driver option lines */
-#define PATH_SIZE   80
+#define PATH_SIZE   256
 #define NAME_SIZE   100
 
 
@@ -105,7 +105,7 @@ short old_malloc = 0;
 short fall_back = 0;
 short move_mouse = 0;
 short ext_malloc = 0;
-#ifdef FVDI_DEBUG 
+#ifdef FVDI_DEBUG
 short check_mem = 0;
 #endif
 short bconout = 0;
@@ -189,7 +189,7 @@ static Option options[] = {
     {"fallback",   &fall_back,      1},  /* fallback, forces fVDI to open workstation on an underlying VDI */
     {"movemouse",  &move_mouse,     1},  /* movemouse, forces fVDI to call its movement vector explicitly */
     {"extmalloc",  &ext_malloc,     4},  /* extalloc n, extend all malloc's by n bytes */
-#ifdef FVDI_DEBUG 
+#ifdef FVDI_DEBUG
     {"checkmem",   &check_mem,      4},  /* checkmem n, check memory allocation consistency at every nth VDI call */
 #endif
     {"preallocate",pre_allocate,   -1},  /* preallocate n, allocate n kbyte at startup */
@@ -200,15 +200,132 @@ static Option options[] = {
 };
 
 
-static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts);        /* forward declare */
+/*
+ * Do a complete relocation
+ */
+static void relocate(unsigned char *prog_addr, Prgheader *header)
+{
+    unsigned char *code, *rtab;
+    unsigned long rval;
+
+    rtab = prog_addr + header->tsize + header->dsize;
+    rval = *(unsigned long *) rtab;
+    if (rval == 0)
+        return;
+    code = prog_addr + rval;
+    rtab += 4;
+
+    *(long *)code += (long)prog_addr;
+    while ((rval = *rtab++) != 0)
+    {
+        if (rval == 1)
+            code += 254;
+        else
+        {
+            code += rval;
+            *(long *)code += (long)prog_addr;
+        }
+    }
+}
+
+
+/*
+ * Find the magic startup struct and
+ * call the initialization function given there.
+ */
+static int initialize(const unsigned char *addr, long size, Driver *driver, Virtual *vwk, char *opts)
+{
+    long i;
+    int j;
+    Locator *locator;
+
+    for (i = 0; i < size - (long)sizeof(MAGIC); i++)
+    {
+        for (j = 0; j < (int)sizeof(MAGIC); j++)
+        {
+            if (addr[j] != MAGIC[j])
+                break;
+        }
+        if (j == sizeof(MAGIC))
+        {
+            locator = (Locator *) addr;
+            if ((locator->version & 0xfff0) < (MODULE_IF_VER & 0xfff0))
+            {
+                error("Module compiled with unsupported interface version.", NULL);
+                return 0;
+            }
+            return locator->init(&real_access, driver, vwk, opts);
+        }
+        addr++;
+    }
+
+    return 0;
+}
+
+
+/*
+ * Load, relocate and initialize driver
+ */
+static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
+{
+    long file_size, program_size, reloc_size;
+    int file;
+    unsigned char *addr;
+    Prgheader header;
+    int init_result;
+
+    if ((file_size = get_size(name) - sizeof(header)) < 0)
+        return 0;
+
+    if ((file = (int) Fopen(name, O_RDONLY)) < 0)
+        return 0;
+
+    Fread(file, sizeof(header), &header);
+    program_size = header.tsize + header.dsize;
+    file_size -= header.ssize;
+    reloc_size = file_size - program_size;
+    program_size += header.bsize;
+
+    if ((addr = (unsigned char *) malloc(MAX(file_size, program_size))) == NULL)
+    {
+        Fclose(file);
+        return 0;
+    }
+
+    Fread(file, header.tsize + header.dsize, addr);
+    /* skip symbol table */
+    if (header.ssize != 0)
+        Fseek(header.ssize, file, SEEK_CUR);
+    Fread(file, reloc_size, addr + header.tsize + header.dsize);
+    Fclose(file);
+
+    if (header.relocflag == 0 && reloc_size > 4)
+        relocate(addr, &header);
+
+    /* Clear the BSS */
+    memset(addr + header.tsize + header.dsize, 0, header.bsize);
+
+    /* This will cause trouble if ever called from supervisor mode! */
+    Supexec(cache_flush);
+
+    if ((init_result = initialize(addr, header.tsize + header.dsize, driver, vwk, opts)) == 0)
+    {
+        free(addr);
+        error("Initialization failed!", NULL);
+        return 0;
+    }
+
+    return init_result;
+}
+
 
 /* Allocate for size of Driver since the module might be one. */
-static Module *init_module(Virtual *vwk, const char **ptr, List **list)
+static Driver *init_module(Virtual *vwk, const char **ptr, List **list)
 {
     char token[TOKEN_SIZE], name[NAME_SIZE], *tmp;
     const char *opts;
     List *list_elem;
-    Module *module;
+    Driver *driver;
 
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     copy(path, name);
@@ -218,33 +335,35 @@ static Module *init_module(Virtual *vwk, const char **ptr, List **list)
     if (*ptr)
     {
         /* Assumed no larger than a maximum length token */
-        copymem((char *)opts, (char *)token, *ptr - opts);
-        token[*ptr - opts] = '\0';
-    }
-    else
+        const char *end = *ptr;
+        while (end != opts && (end[-1] == 0x0d || end[-1] == 0x0a))
+            end--;
+        copymem(opts, token, end - opts);
+        token[end - opts] = '\0';
+    } else
+    {
         copy(opts, token);
+    }
 
-    if (!(tmp = malloc(sizeof(List) + sizeof(Driver) + length(name) + 1)))
+    if ((tmp = (char *) malloc(sizeof(List) + sizeof(Driver) + length(name) + 1)) == NULL)
         return 0;
 
     list_elem = (List *)tmp;
-    module = (Module *)(tmp + sizeof(List));
+    driver = (Driver *) (tmp + sizeof(List));
     list_elem->next = 0;
     list_elem->type = 1;
-    list_elem->value = module;
-    module->id = -1;
-    module->flags = 1;                     /* Resident */
-    module->file_name = tmp + sizeof(List) + sizeof(Driver);
-    copy(name, module->file_name);
+    list_elem->value = driver;
+    driver->module.id = -1;
+    driver->module.flags = 1;           /* Resident */
+    driver->module.file_name = tmp + sizeof(List) + sizeof(Driver);
+    copy(name, driver->module.file_name);
 
-    if (!load_driver(name, (Driver *) module, vwk, token))
+    if (!load_driver(name, driver, vwk, token))
     {
-        /* FIXME: this cast appears strange to me */
         error("Failed to load module: ", name);
         free(tmp);
         return 0;
-    }
-    else
+    } else
     {
         if (list)
         {
@@ -258,22 +377,22 @@ static Module *init_module(Virtual *vwk, const char **ptr, List **list)
         }
     }
 
-    return module;
+    return driver;
 }
 
 
 long use_module(Virtual *vwk, const char **ptr)
 {
-    Module *module;
+    Driver *driver;
 
-    if (!(*ptr = skip_space(*ptr)))
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("Bad module specification", 0);
+        error("Bad module specification", NULL);
         return -1;
     }
 
-    module = init_module(vwk, ptr, &module_list);
-    if (!module)
+    driver = init_module(vwk, ptr, &module_list);
+    if (!driver)
         return -1;
 
     return 1;
@@ -935,7 +1054,7 @@ static long set_size(Virtual *vwk, const char **ptr)
         }
         *ptr = get_token(*ptr, token, TOKEN_SIZE);
         size = atol(token);
-        if (size > 0 && size <= 100 && (size_count < (short)(sizeof(sizes) / sizeof(sizes[0]))))
+        if (size > 0 && size <= 300 && (size_count < (short)(sizeof(sizes) / sizeof(sizes[0]))))
         {
             if (!size_user)
             {
@@ -1073,184 +1192,82 @@ long tokenize(const char *buffer)
 }
 
 
-/*
- * Find the magic startup struct and
- * call the initialization function given there.
- */
-static int initialize(const unsigned char *addr, long size, Driver *driver, Virtual *vwk, char *opts)
-{
-    long i;
-    int j;
-    Locator *locator;
-
-    for (i = 0; i < size - (long)sizeof(MAGIC); i++)
-    {
-        for (j = 0; j < (int)sizeof(MAGIC); j++)
-        {
-            if (addr[j] != MAGIC[j])
-                break;
-        }
-        if (j == sizeof(MAGIC))
-        {
-            locator = (Locator *) addr;
-            if ((locator->version & 0xfff0) < (MODULE_IF_VER & 0xfff0))
-            {
-                error("Module compiled with unsupported interface version.", NULL);
-                return 0;
-            }
-            return locator->init(&real_access, driver, vwk, opts);
-        }
-        addr++;
-    }
-
-    return 0;
-}
-
-
-/*
- * Do a complete relocation
- */
-static void relocate(unsigned char *prog_addr, Prgheader *header)
-{
-    unsigned char *code, *rtab;
-    unsigned long rval;
-
-    rtab = prog_addr + header->tsize + header->dsize;
-    rval = *(unsigned long *) rtab;
-    if (rval == 0)
-        return;
-    code = prog_addr + rval;
-    rtab += 4;
-
-    *(long *)code += (long)prog_addr;
-    while ((rval = *rtab++) != 0)
-    {
-        if (rval == 1)
-            code += 254;
-        else
-        {
-            code += rval;
-            *(long *)code += (long)prog_addr;
-        }
-    }
-}
-
-
-/*
- * Load, relocate and initialize driver
- */
-static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opts)
-{
-    long file_size, program_size, reloc_size;
-    int file;
-    unsigned char *addr;
-    Prgheader header;
-    int init_result;
-
-    if ((file_size = get_size(name) - sizeof(header)) < 0)
-        return 0;
-
-    if ((file = (int) Fopen(name, O_RDONLY)) < 0)
-        return 0;
-
-    Fread(file, sizeof(header), &header);
-    program_size = header.tsize + header.dsize;
-    file_size -= header.ssize;
-    reloc_size = file_size - program_size;
-    program_size += header.bsize;
-
-    if ((addr = (unsigned char *) malloc(MAX(file_size, program_size))) == NULL)
-    {
-        Fclose(file);
-        return 0;
-    }
-
-    Fread(file, header.tsize + header.dsize, addr);
-    /* skip symbol table */
-    if (header.ssize != 0)
-        Fseek(header.ssize, file, SEEK_CUR);
-    Fread(file, reloc_size, addr + header.tsize + header.dsize);
-    Fclose(file);
-
-    if (header.relocflag == 0 && reloc_size > 4)
-        relocate(addr, &header);
-
-    /* Clear the BSS */
-    memset(addr + header.tsize + header.dsize, 0, header.bsize);
-
-    /* This will cause trouble if ever called from supervisor mode! */
-    Supexec(cache_flush);
-
-    if ((init_result = initialize(addr, header.tsize + header.dsize, driver, vwk, opts)) == 0)
-    {
-        free(addr);
-        error("Initialization failed!", NULL);
-        return 0;
-    }
-
-    return init_result;
-}
-
-
 /* This should really be handled somewhat differently. */
 /* Probably ought to be in another file. */
-long load_fonts(Virtual *vwk, const char **ptr)
+static void load_font_dir(Virtual *vwk, char *fonts)
 {
-#ifdef __GNUC__
     _DTA info;
-#else
-    DTA info;       /* Thanks to tos.h for Lattice C */
-#endif
-    static char fonts[PATH_SIZE], *pathtail;
+    _DTA *olddta;
+    char *pathtail;
     int error;
+    long len;
+
+    /* Point past the last char */
+    len = length(fonts);
+    if ((len + 12) > (PATH_SIZE - 2))
+        return;
+    pathtail = &fonts[len];
+
+    copy("*.*", pathtail);
+
+    olddta = Fgetdta();
+    Fsetdta((void *) &info);
+    error = Fsfirst(fonts, FA_RDONLY|FA_HIDDEN|FA_SYSTEM|FA_DIR);
+    while (error == 0)
+    {
+        Fontheader *new_font;
+
+        info.dta_name[12] = 0;
+        copy(info.dta_name, pathtail);
+
+        if (info.dta_attribute & FA_DIR)
+        {
+            if (!equal(info.dta_name, ".") && !equal(info.dta_name, ".."))
+            {
+                copy("\\", &fonts[length(fonts)]);
+                load_font_dir(vwk, fonts);
+            }
+        } else
+        {
+            PRINTF(("   Load font: %s\n", fonts));
+
+            if ((new_font = external_load_font(vwk, fonts)) != NULL)
+            {
+                /* It's assumed that a device has been initialized (driver exists) */
+                if (insert_font(&vwk->real_address->writing.first_font, new_font))
+                    vwk->real_address->writing.fonts++;
+            }
+        }
+        error = Fsnext();
+    }
+
+    Fsetdta(olddta);
+}
+
+
+static long load_fonts(Virtual *vwk, const char **ptr)
+{
+    char fonts[PATH_SIZE];
 
     if (!external_init)
     {
-        access->funcs.error("Font directory specified without FreeType support!", NULL);
+        error("Font directory specified without FreeType support!", NULL);
         return -1;
     }
 
     if (get_pathname(ptr, fonts) != 1)
         return -1;
 
-    /* Point past the last char */
-    pathtail = &fonts[length(fonts)];
-
-    copy("*.*", pathtail);
-
     PRINTF(("Fonts: %s\n", fonts));
 
     /* Initialize FreeType2 module */
     external_init();
 
-    Fsetdta((void *)&info);
-    error = Fsfirst(fonts, 7);
-    while (error == 0)
-    {
-        Fontheader *new_font;
-
-#ifdef __GNUC__
-        info.dta_name[12] = 0;
-        copy(info.dta_name, pathtail);
-#else
-        info.d_fname[12] = 0;
-        copy(info.d_fname, pathtail);
-#endif
-
-        PRINTF(("   Load font: %s\n", fonts));
-
-        if ((new_font = external_load_font(vwk, fonts))) {
-            /* It's assumed that a device has been initialized (driver exists) */
-            if (insert_font(&vwk->real_address->writing.first_font, new_font))
-                vwk->real_address->writing.fonts++;
-        }
-
-        error = Fsnext();
-    }
+    load_font_dir(vwk, fonts);
 
     PRINTF(("   Load fonts done: %d\n", vwk->real_address->writing.fonts));
 
-    return vwk->real_address->writing.fonts;
+    return 1;
 }
 
 
@@ -1282,16 +1299,16 @@ int load_prefs(Virtual *vwk, const char *sysname)
             path[0] = 'a';
             if ((file_size = get_size(path)) < 0)
             {
-                error("Can't find FVDI.SYS!", 0);
+                error("Can't find FVDI.SYS!", NULL);
                 return 0;
             }
         }
     }
 
-    if (!(buffer = malloc(file_size + 1)))
+    if ((buffer = (char *) malloc(file_size + 1)) == NULL)
         return 0;
 
-    if ((file = Fopen(path, O_RDONLY)) < 0)
+    if ((file = (int) Fopen(path, O_RDONLY)) < 0)
     {
         free(buffer);
         return 0;
@@ -1309,9 +1326,9 @@ int load_prefs(Virtual *vwk, const char *sysname)
     copy("gemsys\\", after_path);
 
 
-    if (!(ptr = skip_space(buffer)))
+    if ((ptr = skip_space(buffer)) == NULL)
     {
-        error("Empty config file!", 0);
+        error("Empty config file!", NULL);
         free(buffer);
         return 0;
     }
@@ -1319,7 +1336,7 @@ int load_prefs(Virtual *vwk, const char *sysname)
     {
         ptr = get_token(ptr, token, TOKEN_SIZE);
 
-        ret = check_token(vwk, token, &ptr);
+        ret = (int) check_token(vwk, token, &ptr);
         if (ret == -1)
             return 0;
         else if (ret)
@@ -1336,26 +1353,24 @@ int load_prefs(Virtual *vwk, const char *sysname)
             if (equal(&token[2], "r"))
             {
                 /* Resident */
-                if (!(ptr = skip_space(ptr)))
+                if ((ptr = skip_space(ptr)) == NULL)
                 {
                     error("Bad device driver specification: ", token);
                     break;
                 }
 
-                driver = (Driver *)init_module(vwk, &ptr, &driver_list);
+                driver = init_module(vwk, &ptr, &driver_list);
                 if (!driver)
                     break;
                 driver->module.id = device;
                 driver->module.flags = 1;                     /* Resident */
                 driver_loaded = 1;
-            }
-            else
+            } else
             {
                 /* Load when needed */
                 /* ........... */
             }
-        }
-        else
+        } else
         {                                    /* Anything that isn't recognized above must be a font */
             if (device == -1)
             {
@@ -1369,23 +1384,23 @@ int load_prefs(Virtual *vwk, const char *sysname)
             if (equal(token, "s"))
             {
                 /* An 's' before a font name means it's a system font */
-                if (!(ptr = skip_space(ptr)))
+                if ((ptr = skip_space(ptr)) == NULL)
                 {
-                    error("Bad system font specification!", 0);
+                    error("Bad system font specification!", NULL);
                     break;
                 }
                 ptr = get_token(ptr, token, TOKEN_SIZE);
                 system_font = 1;
-            }
-            else
+            } else
+            {
                 system_font = 0;
+            }
             copy(path, name);
             cat(token, name);
-            if (!(new_font = load_font(name)))
+            if ((new_font = load_font(name)) == NULL)
             {
                 error("Failed to load font: ", name);
-            }
-            else
+            } else
             {
                 font_loaded = 1;
                 if (system_font)
@@ -1408,6 +1423,7 @@ int load_prefs(Virtual *vwk, const char *sysname)
         long header_size = sizeof(Fontheader) - sizeof(Fontextra);
         Workstation *wk;
         List *tmp = driver_list;
+
         while (tmp)
         {
             /* For all drivers */
@@ -1416,7 +1432,7 @@ int load_prefs(Virtual *vwk, const char *sysname)
             {
                 /* No system font? */
                 system_font = linea_fonts();                                      /*   Find one in the ROM */
-                if (!(header = malloc(sizeof(Fontheader) * 3)))
+                if ((header = (Fontheader *) malloc(sizeof(Fontheader) * 3)) == NULL)
                     break;
                 copymem(system_font[0], &header[0], header_size);
                 copymem(system_font[1], &header[1], header_size);
