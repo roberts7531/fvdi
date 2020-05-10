@@ -8,6 +8,7 @@
 
 #include "os.h"
 #include "fvdi.h"
+#include "stdio.h"
 #include "relocate.h"
 #include "utility.h"
 #include "function.h"
@@ -28,44 +29,37 @@
  */
 
 #ifdef FT2
-/* Headers to ft2_* functions ... FIXME: to be moved */
-long        ft2_init(void);
-Fontheader* ft2_load_font(Virtual *vwk, const char *filename);
-long        ft2_char_width(Virtual *vwk, Fontheader *font, long ch);
-long        ft2_text_width(Virtual *vwk, Fontheader *font, short *s, long slen);
-Fontheader* ft2_vst_point(Virtual *vwk, long ptsize, short *sizes);
-long        ft2_text_render_default(Virtual *vwk, unsigned long coords,
-                                    short *s, long slen);
-long        ft2_set_effects(Virtual *vwk, Fontheader *font, long effects);
-void*       ft2_char_bitmap(Virtual *vwk, Fontheader *font, long ch, short *bitmap_info);
-void*       ft2_char_advance(Virtual *vwk, Fontheader *font, long ch, short *advance_info);
-void        ft2_xfntinfo(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info);
-void        ft2_fontheader(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr);
 
-long        (*external_init)(void) = ft2_init;
-Fontheader* (*external_load_font)(Virtual *vwk, const char *font) = ft2_load_font;
-long        (*external_vqt_extent)(Virtual *vwk, Fontheader *font, short *text, long length) = ft2_text_width;
-long        (*external_vqt_width)(Virtual *vwk, Fontheader *font, long ch) = ft2_char_width;
-long        (*external_vst_effects)(Virtual *vwk, Fontheader *font, long effects) = ft2_set_effects;
-Fontheader* (*external_vst_point)(Virtual *vwk, long size, short *sizes) = ft2_vst_point;
-long        (*external_renderer)(Virtual *vwk, unsigned long coords,
-                                 short *text, long length) = ft2_text_render_default;
-void*       (*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bitmap_info) = ft2_char_bitmap;
-void*       (*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info) = ft2_char_advance;
-void        (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info) = ft2_xfntinfo;
-void        (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr) = ft2_fontheader;
+#include "modules/ft2.h"
+
+int (*external_init)(void) = ft2_init;
+void (*external_term)(void) = ft2_term;
+Fontheader *(*external_load_font)(Virtual *vwk, const char *font) = ft2_load_font;
+long (*external_vqt_extent)(Virtual *vwk, Fontheader *font, short *text, long length) = ft2_text_width;
+long (*external_vqt_width)(Virtual *vwk, Fontheader *font, long ch) = ft2_char_width;
+long (*external_vst_effects)(Virtual *vwk, Fontheader *font, long effects) = ft2_set_effects;
+Fontheader *(*external_vst_point)(Virtual *vwk, long size, short *sizes) = ft2_vst_point;
+long (*external_renderer)(Virtual *vwk, unsigned long coords, short *text, long length) = ft2_text_render_default;
+void *(*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bitmap_info) = ft2_char_bitmap;
+void *(*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info) = ft2_char_advance;
+void (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info) = ft2_xfntinfo;
+void (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr) = ft2_fontheader;
+
 #else
-long        (*external_init)(void) = 0;
-Fontheader* (*external_load_font)(Virtual *vwk, const char *font) = 0;
-long        (*external_vqt_extent)(Virtual *vwk, Fontheader *font, short *text, long length) = 0;
-long        (*external_vqt_width)(Virtual *vwk, Fontheader *font, long ch) = 0;
-Fontheader* (*external_vst_point)(Virtual *vwk, long size, short *sizes) = 0;
-long        (*external_renderer)(Virtual *vwk, unsigned long coords,
-                                 short *text, long length) = 0;
-void*       (*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bitmap_info) = 0;
-void*       (*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info) = 0;
-void        (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info) = 0;
-void        (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr) = 0;
+
+int (*external_init)(void) = 0;
+void (*external_term)(void) = 0;
+Fontheader *(*external_load_font)(Virtual *vwk, const char *font) = 0;
+long (*external_vqt_extent)(Virtual *vwk, Fontheader *font, short *text, long length) = 0;
+long (*external_vqt_width)(Virtual *vwk, Fontheader *font, long ch) = 0;
+long (*external_vst_effects)(Virtual *vwk, Fontheader *font, long effects) = 0;
+Fontheader *(*external_vst_point)(Virtual *vwk, long size, short *sizes) = 0;
+long (*external_renderer)(Virtual *vwk, unsigned long coords, short *text, long length) = 0;
+void *(*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bitmap_info) = 0;
+void *(*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info) = 0;
+void (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info) = 0;
+void (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr) = 0;
+
 #endif
 
 List *driver_list = 0;
@@ -103,7 +97,7 @@ char silent[32] = {
 };
 char silentx[1] = { 0 };
 char vq_gdos_value[] = "fVDI";
-unsigned short sizes[16] = {8, 9, 10, 11, 12, 14, 18, 24, 36, 48, 0xffff};
+unsigned short sizes[64] = { 8, 9, 10, 11, 12, 14, 18, 24, 36, 48, 0xffff };
 
 short size_count = 11;
 short size_user = 0;
@@ -291,29 +285,28 @@ long specify_cookie(Virtual *vwk, const char **ptr)
     char token[TOKEN_SIZE];
     short nvdi_val, speedo_val, calamus_val;
 
+    (void) vwk;
     nvdi_val = 0;
     speedo_val = 0;
     calamus_val = 0;
 
-    if (!(*ptr = skip_space(*ptr)))
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("Bad cookie setting!", 0);
+        error("Bad cookie setting!", NULL);
         return -1;
     }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     if (equal(token, "nvdi"))
     {
 #ifdef FT2
-        nvdi_val   = 0x0400;
+        nvdi_val = 0x0400;
 #else
-        nvdi_val   = 0x0250;
+        nvdi_val = 0x0250;
 #endif
-    }
-    else if (equal(token, "speedo"))
+    } else if (equal(token, "speedo"))
     {
         speedo_val = 0x0500;
-    }
-    else if (equal(token, "calamus"))
+    } else if (equal(token, "calamus"))
     {
         calamus_val = 0x0100;
     }
@@ -324,15 +317,15 @@ long specify_cookie(Virtual *vwk, const char **ptr)
         *ptr = get_token(*ptr, token, TOKEN_SIZE);
         if (equal(token, "="))
         {
-            if (!(*ptr = skip_space(*ptr)))
+            if ((*ptr = skip_space(*ptr)) == NULL)
             {
-                error("Bad cookie setting!", 0);
+                error("Bad cookie setting!", NULL);
                 return -1;
             }
             *ptr = get_token(*ptr, token, TOKEN_SIZE);
 
             if (nvdi_val)
-                nvdi_val   = (short)atol(token);
+                nvdi_val = (short)atol(token);
             else if (speedo_val)
                 speedo_val = (short)atol(token);
             else if (calamus_val)
@@ -356,9 +349,10 @@ long specify_vqgdos(Virtual *vwk, const char **ptr)
     char token[TOKEN_SIZE];
     long value;
 
-    if (!(*ptr = skip_space(*ptr)))
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("Bad vq_gdos setting!", 0);
+        error("Bad vq_gdos setting!", NULL);
         return -1;
     }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
@@ -373,8 +367,7 @@ long specify_vqgdos(Virtual *vwk, const char **ptr)
         vq_gdos_value[1] = (char)value;
         value >>= 8;
         vq_gdos_value[0] = (char)value;
-    }
-    else
+    } else
     {
         vq_gdos_value[0] = token[0];
         vq_gdos_value[1] = token[1];
@@ -386,53 +379,60 @@ long specify_vqgdos(Virtual *vwk, const char **ptr)
 }
 
 
-long get_pathname(const char **ptr, char *dest)
+static long get_pathname(const char **ptr, char *dest)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("Bad path setting!", 0);
+        error("Bad path setting!", NULL);
         return -1;
     }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     if (!equal(token, "="))
     {
-        error("Bad path setting!", 0);
+        error("Bad path setting!", NULL);
         return -1;
     }
-    if (!(*ptr = skip_space(*ptr)))
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("Bad path setting!", 0);
+        error("Bad path setting!", NULL);
         return -1;
     }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     copy(token, dest);
     switch (dest[length(dest) - 1])
     {
-        case '\\':
-        case '/':
-            break;
-        default:
-            cat("\\", dest);
+    case '\\':
+    case '/':
+        break;
+    default:
+        cat("\\", dest);
+        break;
     }
 
     return 1;
 }
 
-long set_path(Virtual *vwk, const char **ptr)
+
+static long set_path(Virtual *vwk, const char **ptr)
 {
+    (void) vwk;
     return get_pathname(ptr, path);
 }
 
-long wait_key(Virtual *vwk, const char **ptr)
+
+static long wait_key(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     char key;
     long endtime;
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     endtime = atol(token);
     if (endtime > 999)
@@ -450,12 +450,16 @@ long wait_key(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long exit_key(Virtual *vwk, const char **ptr)
+
+static long exit_key(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     if (key_pressed == token[0])
         return -1;
@@ -463,10 +467,13 @@ long exit_key(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long swap_key(Virtual *vwk, const char **ptr)
+
+static long swap_key(Virtual *vwk, const char **ptr)
 {
     char tmp;
 
+    (void) vwk;
+    (void) ptr;
     tmp = key_stored;
     key_stored = key_pressed;
     key_pressed = tmp;
@@ -474,13 +481,17 @@ long swap_key(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long go_to(Virtual *vwk, const char **ptr)
+
+static long go_to(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     char label[TOKEN_SIZE + 1];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     label[0] = ':';
     *ptr = get_token(*ptr, &label[1], TOKEN_SIZE);
 
@@ -495,12 +506,16 @@ long go_to(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long case_key(Virtual *vwk, const char **ptr)
+
+static long case_key(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     if (key_pressed == token[0])
         return go_to(vwk, ptr);
@@ -510,12 +525,16 @@ long case_key(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long echo_text(Virtual *vwk, const char **ptr)
+
+static long echo_text(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     (void) Cconws(token);
     (void) Cconws("\x0d\x0a");
@@ -523,14 +542,18 @@ long echo_text(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_pid(Virtual *vwk, const char **ptr)
+
+static long set_pid(Virtual *vwk, const char **ptr)
 {
     pid = 0;
+    (void) vwk;
+    (void) ptr;
 
     return 1;
 }
 
-long set_width(Virtual *vwk, const char **ptr)
+
+static long set_width(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     int width;
@@ -538,16 +561,17 @@ long set_width(Virtual *vwk, const char **ptr)
     if (!vwk)
         return -1;
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
-    width = atol(token);
+    width = (int) atol(token);
     if (width > 0)
     {
         if (width < 100)
             width = 100;
-    }
-    else
+    } else
     {                                 /* Negative width - fixed DPI */
         if (-width < 10)
             width = -10;
@@ -557,7 +581,8 @@ long set_width(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_height(Virtual *vwk, const char **ptr)
+
+static long set_height(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     int height;
@@ -565,16 +590,17 @@ long set_height(Virtual *vwk, const char **ptr)
     if (!vwk)
         return -1;
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
-    height = atol(token);
+    height = (int) atol(token);
     if (height > 0)
     {
         if (height < 100)
             height = 100;
-    }
-    else
+    } else
     {                                 /* Negative height - fixed DPI */
         if (-height < 10)
             height = -10;
@@ -584,12 +610,16 @@ long set_height(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_blocks(Virtual *vwk, const char **ptr)
+
+static long set_blocks(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     blocks = atol(token);
     if (blocks < 2)
@@ -598,12 +628,16 @@ long set_blocks(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_block_size(Virtual *vwk, const char **ptr)
+
+static long set_block_size(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     block_size = atol(token) * 1024;
     if (block_size < 10 * 1024)
@@ -612,26 +646,34 @@ long set_block_size(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_log_size(Virtual *vwk, const char **ptr)
+
+static long set_log_size(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
-    log_size = atol(token) * 256;             /* Really number of long words */
+    log_size = atol(token) * 256;       /* Really number of long words */
     if (log_size < 1000)
         log_size = 1000;
 
     return 1;
 }
 
-long set_arc_split(Virtual *vwk, const char **ptr)
+
+static long set_arc_split(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     arc_split = atol(token);
     if (arc_split < 3)
@@ -643,12 +685,16 @@ long set_arc_split(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_arc_min(Virtual *vwk, const char **ptr)
+
+static long set_arc_min(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     arc_min = atol(token);
     if (arc_min < 3)
@@ -657,12 +703,16 @@ long set_arc_min(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_arc_max(Virtual *vwk, const char **ptr)
+
+static long set_arc_max(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     arc_max = atol(token);
     if (arc_max > 1000)
@@ -671,37 +721,46 @@ long set_arc_max(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long pre_allocate(Virtual *vwk, const char **ptr)
+
+static long pre_allocate(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     int amount;
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
-    amount = atol(token);
+    amount = (int) atol(token);
     if (amount > 0)
         allocate(amount);
 
     return 1;
 }
 
-long file_cache(Virtual *vwk, const char **ptr)
+
+static long file_cache(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
-    int amount;
+    long amount;
 
-    if (!(*ptr = skip_space(*ptr)))
-        ;  /* *********** Error, somehow */
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
+    {
+        /* *********** Error, somehow */
+    }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
     amount = atol(token);
-    if ((amount > 0) && (amount <= 32767))
-        file_cache_size = amount;
+    if (amount > 0 && amount <= 32767L)
+        file_cache_size = (short) amount;
 
     return 1;
 }
 
-long load_palette(Virtual *vwk, const char **ptr)
+
+static long load_palette(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE], name[NAME_SIZE];
     long size;
@@ -709,9 +768,9 @@ long load_palette(Virtual *vwk, const char **ptr)
     int file;
     void *palette;
 
-    if (!(*ptr = skip_space(*ptr)))
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("No palette file name!", 0);
+        error("No palette file name!", NULL);
         return -1;
     }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
@@ -723,7 +782,7 @@ long load_palette(Virtual *vwk, const char **ptr)
         cat(token, name);
         if ((size = get_size(name)) < 0)
         {
-            error("Can't find palette file!", 0);
+            error("Can't find palette file!", NULL);
             return -1;
         }
     }
@@ -732,32 +791,32 @@ long load_palette(Virtual *vwk, const char **ptr)
 
     if (size % (3 * sizeof(short)))
     {
-        error("Wrong palette file size!", 0);
+        error("Wrong palette file size!", NULL);
         return -1;
     }
 
     colours = size / (3 * sizeof(short));
-    switch (colours)
+    switch ((int) colours)
     {
-        case 2:
-        case 4:
-        case 16:
-        case 256:
-            break;
-        default:
-            error("Wrong palette file size!", 0);
-            return -1;
-    }
-
-    if (!(palette = malloc(size)))
-    {
-        error("Can't allocate memory for palette!", 0);
+    case 2:
+    case 4:
+    case 16:
+    case 256:
+        break;
+    default:
+        error("Wrong palette file size!", NULL);
         return -1;
     }
 
-    if ((file = Fopen(name, O_RDONLY)) < 0)
+    if ((palette = malloc(size)) == NULL)
     {
-        error("Can't open palette file!", 0);
+        error("Can't allocate memory for palette!", NULL);
+        return -1;
+    }
+
+    if ((file = (int) Fopen(name, O_RDONLY)) < 0)
+    {
+        error("Can't open palette file!", NULL);
         free(palette);
         return -1;
     }
@@ -772,37 +831,39 @@ long load_palette(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_debug_file(Virtual *vwk, const char **ptr)
+
+static long set_debug_file(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     int file, bytes;
 
-    if (!(*ptr = skip_space(*ptr)))
+    (void) vwk;
+    if ((*ptr = skip_space(*ptr)) == NULL)
     {
-        error("No debug file name!", 0);
+        error("No debug file name!", NULL);
         return -1;
     }
     *ptr = get_token(*ptr, token, TOKEN_SIZE);
 
-    if ((file = Fcreate(token, 0)) < 0)
+    if ((file = (int) Fcreate(token, 0)) < 0)
     {
-        error("Can't create debug file!", 0);
+        error("Can't create debug file!", NULL);
         return -1;
     }
 
-    bytes = Fwrite(file, 19, "fVDI debug output\x0d\x0a");
+    bytes = (int) Fwrite(file, 19, "fVDI debug output\x0d\x0a");
     Fclose(file);
 
     if (bytes != 19)
     {
-        error("Can't write to debug file!", 0);
+        error("Can't write to debug file!", NULL);
         return -1;
     }
 
     debug_file = malloc(strlen(token));
     if (!debug_file)
     {
-        error("Can't store debug file name!", 0);
+        error("Can't store debug file name!", NULL);
         return -1;
     }
     copy(token, debug_file);
@@ -811,35 +872,38 @@ long set_debug_file(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_silent(Virtual *vwk, const char **ptr)
+
+static long set_silent(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     long call;
     int i;
 
+    (void) vwk;
     do
     {
-        if (!(*ptr = skip_space(*ptr)))
-            ;  /* *********** Error, somehow */
+        if ((*ptr = skip_space(*ptr)) == NULL)
+        {
+            /* *********** Error, somehow */
+        }
         *ptr = get_token(*ptr, token, TOKEN_SIZE);
         if (equal(token, "oldallocation"))
         {
             silentx[0] ^= 0x01;
-        }
-        else if (equal(token, "allocation"))
+        } else if (equal(token, "allocation"))
         {
             silentx[0] ^= 0x03;
-        }
-        else
+        } else
         {
             call = atol(token);
             if ((call >= 0) && (call <= 255))
-                silent[call >> 3] ^= 1 << (call & 7);
-            else
             {
-                for(i = 0; i < 32; i++)
+                silent[call >> 3] ^= 1 << (call & 7);
+            } else
+            {
+                for (i = 0; i < 32; i++)
                     silent[i] = 0xff;
-                for(i = 0; i < 1; i++)
+                for (i = 0; i < 1; i++)
                     silentx[i] = 0xff;
             }
         }
@@ -849,20 +913,23 @@ long set_silent(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long set_size(Virtual *vwk, const char **ptr)
+
+static long set_size(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     long size;
     int i;
 
+    (void) vwk;
     do
     {
-        if (!(*ptr = skip_space(*ptr)))
-            ;  /* *********** Error, somehow */
+        if ((*ptr = skip_space(*ptr)) == NULL)
+        {
+            /* *********** Error, somehow */
+        }
         *ptr = get_token(*ptr, token, TOKEN_SIZE);
         size = atol(token);
-        if ((size > 0) && (size <= 100) &&
-                (size_count < sizeof(sizes) / sizeof(sizes[0])))
+        if (size > 0 && size <= 100 && (size_count < (short)(sizeof(sizes) / sizeof(sizes[0]))))
         {
             if (!size_user)
             {
@@ -875,7 +942,7 @@ long set_size(Virtual *vwk, const char **ptr)
                     break;
             if (i < 0)
             {
-                for(i = size_count; i > 0; i--)
+                for (i = size_count; i > 0; i--)
                 {
                     if (size > sizes[i - 1])
                     {
@@ -893,7 +960,8 @@ long set_size(Virtual *vwk, const char **ptr)
     return 1;
 }
 
-long check_token(Virtual *vwk, char *token, const char **ptr)
+
+static long check_token(Virtual *vwk, char *token, const char **ptr)
 {
     int i;
     int normal;
@@ -902,50 +970,54 @@ long check_token(Virtual *vwk, char *token, const char **ptr)
     xtoken = token;
     switch (token[0])
     {
-        case '+':
-            xtoken++;
-            normal = 1;
-            break;
-        case '-':
-            xtoken++;
-            normal = 0;
-            break;
-        case ':':    /* Label */
-            return 1;
-        default:
-            normal = 1;
-            break;
+    case '+':
+        xtoken++;
+        normal = 1;
+        break;
+    case '-':
+        xtoken++;
+        normal = 0;
+        break;
+    case ':':    /* Label */
+        return 1;
+    default:
+        normal = 1;
+        break;
     }
 
-    for (i = 0; i < sizeof(options) / sizeof(Option); i++)
+    for (i = 0; i < (int)(sizeof(options) / sizeof(Option)); i++)
     {
         if (equal(xtoken, options[i].name))
         {
             switch (options[i].type)
             {
-                case -1:     /* Function call */
-                    return ((long (*)(Virtual *, const char **))options[i].varfunc)(vwk, ptr);
-                case 0:      /* Default 1, set to 0 */
-                    *(short *)options[i].varfunc = 1 - normal;
-                    return 1;
-                case 1:     /* Default 0, set to 1 */
-                    *(short *)options[i].varfunc = normal;
-                    return 1;
-                case 2:     /* Increase */
-                    *(short *)options[i].varfunc += -1 + 2 * normal;
-                    return 1;
-                case 3:     /* Single character */
-                    if (!(*ptr = skip_space(*ptr)))
-                        ;  /* *********** Error, somehow */
-                    *ptr = get_token(*ptr, token, TOKEN_SIZE);
-                    *(short *)options[i].varfunc = token[0];
-                    return 1;
-                case 4:     /* Number */
-                    if (!(*ptr = skip_space(*ptr)))
-                        ;  /* *********** Error, somehow */
-                    *ptr = get_token(*ptr, token, TOKEN_SIZE);
-                    *(short *)options[i].varfunc = atol(token);
-                    return 1;
+            case -1:     /* Function call */
+                return ((long (*)(Virtual *, const char **))options[i].varfunc)(vwk, ptr);
+            case 0:      /* Default 1, set to 0 */
+                *(short *)options[i].varfunc = 1 - normal;
+                return 1;
+            case 1:     /* Default 0, set to 1 */
+                *(short *)options[i].varfunc = normal;
+                return 1;
+            case 2:     /* Increase */
+                *(short *)options[i].varfunc += -1 + 2 * normal;
+                return 1;
+            case 3:     /* Single character */
+                if ((*ptr = skip_space(*ptr)) == NULL)
+                {
+                    /* *********** Error, somehow */
+                }
+                *ptr = get_token(*ptr, token, TOKEN_SIZE);
+                *(short *)options[i].varfunc = token[0];
+                return 1;
+            case 4:     /* Number */
+                if ((*ptr = skip_space(*ptr)) == NULL)
+                {
+                    /* *********** Error, somehow */
+                }
+                *ptr = get_token(*ptr, token, TOKEN_SIZE);
+                *(short *)options[i].varfunc = atol(token);
+                return 1;
             }
         }
     }
@@ -961,7 +1033,7 @@ long tokenize(const char *buffer)
     long ret;
     int count;
 
-    if (!(ptr = skip_space(buffer)))
+    if ((ptr = skip_space(buffer)) == NULL)
         return 0;
 
     count = 0;
@@ -983,7 +1055,7 @@ long tokenize(const char *buffer)
         if (debug && !super->fvdi_log.start)
         {
             /* Set up log table if there isn't one */
-            if ((super->fvdi_log.start = malloc(log_size * sizeof(long))))
+            if ((super->fvdi_log.start = malloc(log_size * sizeof(long))) != NULL)
             {
                 super->fvdi_log.active = 1;
                 super->fvdi_log.current = super->fvdi_log.start;

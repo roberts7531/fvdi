@@ -1,4 +1,7 @@
-/* see javadoc at the bottom */ short Bics2Unicode[] = { 0x0020, 0x0021,
+#include "fvdi.h"
+#include "modules/ft2.h"
+/* see javadoc at the bottom */
+unsigned short const Bics2Unicode[] = { 0x0020, 0x0021,
 	0x0022,
 	0x0023,
 	0x0024,

@@ -123,7 +123,8 @@ extern void lib_vr_trn_fm(Virtual *, MFDB *, MFDB *);
 void opnvwk_values(Virtual *, VDIpars *);
 short isqrt(unsigned long x);
 
-extern long        (*external_init)(void);
+extern int (*external_init) (void);
+extern void (*external_term) (void);
 extern Fontheader* (*external_load_font)(Virtual *vwk, const char *font);
 extern long        (*external_vqt_extent)(Virtual *vwk, Fontheader *font, short *text, long length);
 extern long        (*external_vqt_width)(Virtual *vwk, Fontheader *font, long ch);
@@ -135,4 +136,5 @@ extern void*       (*external_char_advance)(Virtual *vwk, Fontheader *font, long
 
 extern void        (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info);
 extern void        (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr);
+
 #endif

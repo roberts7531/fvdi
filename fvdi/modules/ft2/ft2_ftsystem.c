@@ -45,6 +45,7 @@
 #include "globals.h"
 #include "utility.h"
 #include "function.h"
+#include "ft2.h"
 
 /* We are not a FreeMiNT kernel driver for now
  * -> we close the files immediately as we are done with the I/O operation.
@@ -651,17 +652,6 @@ static long fc_io(FT_Stream stream, unsigned long offset, unsigned char *buffer,
 
     return count;
 }
-
-
-#ifdef FT_DEBUG_MEMORY
-
-extern FT_Int
-ft_mem_debug_init(FT_Memory memory);
-
-extern void
-ft_mem_debug_done(FT_Memory memory);
-
-#endif
 
 
 /* Documentation is in ftobjs.h */

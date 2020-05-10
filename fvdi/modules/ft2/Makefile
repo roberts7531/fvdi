@@ -35,165 +35,177 @@ subdir      = ft2
 
 include $(top_srcdir)/CONFIGVARS
 
-ifneq ($(CPU),v4e)
-	CPUFLAGS = -mcpu=68$(CPU)
-else
-	CPUFLAGS = -mcpu=547x
-endif
-
 # we do not intend to fix any warnings we inherit from the FreeType2 sources
-# consequently, we suppress all warnings here
-NOWARN_CFLAGS := $(filter-out -Wall,$(M68K_ATARI_MINT_CFLAGS)) -w
+# consequently, we suppress most warnings here
+WARNINGS := -Wstrict-prototypes -Wmissing-prototypes
 
 ifneq ($(stdlib_srcdir),)
-CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include $(NOWARN_CFLAGS)
+CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(WARNINGS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include
 else
-CFLAGS = $(CPUFLAGS) -DFT2_BUILD_LIBRARY $(OPTS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include $(NOWARN_CFLAGS)
+CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(WARNINGS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include
 endif
 
 #
 # FreeType2 library base
 #
 ftbase.o: $(ft2_srcdir)/src/base/ftbase.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftinit.o: $(ft2_srcdir)/src/base/ftinit.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftsystem.o: $(ft2_srcdir)/src/base/ftsystem.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftdebug.o: $(ft2_srcdir)/src/base/ftdebug.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library base extensions
 #
 ftglyph.o: $(ft2_srcdir)/src/base/ftglyph.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftbbox.o: $(ft2_srcdir)/src/base/ftbbox.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftmm.o: $(ft2_srcdir)/src/base/ftmm.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftsynth.o: $(ft2_srcdir)/src/base/ftsynth.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftbitmap.o: $(ft2_srcdir)/src/base/ftbitmap.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 ftstroke.o: $(ft2_srcdir)/src/base/ftstroke.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library autohinting module
 #
-#autohint.o: $(ft2_srcdir)/src/autohint/autohint.c
-#	$(CC) -c $(CFLAGS) -o $@ $<
+autohint.o: $(ft2_srcdir)/src/autohint/autohint.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library autohinting module extensions
 #
 autofit.o: $(ft2_srcdir)/src/autofit/autofit.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library postscript hinting module
 #
 pshinter.o: $(ft2_srcdir)/src/pshinter/pshinter.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library PS support module
 #
 psaux.o: $(ft2_srcdir)/src/psaux/psaux.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library PS glyph names module
 #
 psnames.o: $(ft2_srcdir)/src/psnames/psnames.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library monochrome raster module
 #
 raster.o: $(ft2_srcdir)/src/raster/raster.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library anti-aliasing raster module
 #
 smooth.o: $(ft2_srcdir)/src/smooth/smooth.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library 'sfnt' module
 #
 sfnt.o: $(ft2_srcdir)/src/sfnt/sfnt.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library glyph and image caching system (still experimental)
 #
 ftcache.o: $(ft2_srcdir)/src/cache/ftcache.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library OpenType font driver
 #
 cff.o: $(ft2_srcdir)/src/cff/cff.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
+# opentype validator
+otvalid.o: $(ft2_srcdir)/src/otvalid/otvalid.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library TrueType font driver
 #
 truetype.o: $(ft2_srcdir)/src/truetype/truetype.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
+# TrueType GX validator
+gxvalid.o: $(ft2_srcdir)/src/gxvalid/gxvalid.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
 
 #
 # FreeType2 library Type1 font driver
 #
 type1.o: $(ft2_srcdir)/src/type1/type1.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library Type42 font driver
 #
 type42.o: $(ft2_srcdir)/src/type42/type42.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library CID-keyed Type1 font driver
 #
 type1cid.o: $(ft2_srcdir)/src/cid/type1cid.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library BDF bitmap font driver
 #
 bdf.o: $(ft2_srcdir)/src/bdf/bdf.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library PCF bitmap font driver
 #
 pcf.o: $(ft2_srcdir)/src/pcf/pcf.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
+ftbzip2.o: $(ft2_srcdir)/src/bzip2/ftbzip2.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
+ftgzip.o: $(ft2_srcdir)/src/gzip/ftgzip.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library PFR font driver
 #
 pfr.o: $(ft2_srcdir)/src/pfr/pfr.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 #
 # FreeType2 library Windows FNT/FON bitmap font driver
 #
 winfnt.o: $(ft2_srcdir)/src/winfonts/winfnt.c
-	$(CC) -c $(CFLAGS) -o $@ $<
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
+gemfnt.o: $(ft2_srcdir)/src/gemfonts/gemfnt.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
 BASEOBJ = ftinit.o ftbase.o ftglyph.o ftbbox.o ftmm.o ftsynth.o ftbitmap.o ftstroke.o
 
@@ -204,15 +216,16 @@ PSOBJ = psaux.o psnames.o pshinter.o
 
 RASTEROBJ = raster.o smooth.o
 
-FONTDOBJ = cff.o type1.o type42.o type1cid.o truetype.o bdf.o pfr.o winfnt.o
-# pcf.o  - needs GZLib and ZLib
+#GZOBJ = ftgzip.o
 
-OBJS = $(BASEOBJ) $(AHINTOBJ) $(PSOBJ) $(RASTEROBJ) sfnt.o ftcache.o $(FONTDOBJ)
+# pcf.o  - needs GZLib and ZLib
+#PCFOBJ = pcf.o
+FONTDOBJ = cff.o type1.o type42.o type1cid.o truetype.o bdf.o pfr.o winfnt.o $(PCFOBJ)
+
+OBJS = $(BASEOBJ) $(AHINTOBJ) $(PSOBJ) $(RASTEROBJ) sfnt.o ftcache.o $(FONTDOBJ) $(GZOBJ)
 
 $(TARGET): $(OBJS)
-	$(AR) cr $@ $(OBJS); $(RANLIB) $@
+	$(AM_V_AR)$(AR) cr $@ $(OBJS); $(RANLIB) $@
 
-clean:
-	- rm -rf $(OBJS)
-	- rm $(TARGET)
-
+clean::
+	$(RM) $(OBJS) $(TARGET)

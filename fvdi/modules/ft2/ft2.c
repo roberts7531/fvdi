@@ -28,12 +28,11 @@
 #include "utility.h"
 #include "function.h"
 #include "list.h"
+#include "modules/ft2.h"
+#include "ft2.h"
 
 #undef CACHE_YSIZE
 
-extern short Atari2Unicode[];
-extern short Atari2Bics[];
-extern short Bics2Unicode[];
 
 
 /* Cached glyph information */
@@ -88,13 +87,6 @@ typedef struct {
 static FT_Error ft2_find_glyph(Virtual *vwk, Fontheader *font, short ch, int want);
 static Fontheader *ft2_dup_font(Virtual *vwk, Fontheader *src, short ptsize);
 static void ft2_dispose_font(Fontheader *font);
-
-/* from ft2_ftsystem.c */
-void ft_keep_open(void);
-void ft_keep_closed(void);
-
-/* from engine/text.s */
-void CDECL bitmap_outline(void *src, void *dst, long pitch, long wdwidth, long lines);
 
 /* just debug temporarilly used in the bitmap_outline() */
 void CDECL bt( void *src, void *dst, long pitch, long wdwidth, long lines)
@@ -171,7 +163,7 @@ void ft2_term(void)
 }
 
 
-long ft2_init(void)
+int ft2_init(void)
 {
     FT_Error error;
 
@@ -2265,7 +2257,7 @@ long ft2_set_effects(Virtual *vwk, Fontheader *font, long effects)
 }
 
 
-Fontheader *ft2_vst_point(Virtual *vwk, long ptsize, unsigned short *sizes)
+Fontheader *ft2_vst_point(Virtual *vwk, long ptsize, short *sizes)
 {
     Fontheader *font = vwk->text.current_font;
 

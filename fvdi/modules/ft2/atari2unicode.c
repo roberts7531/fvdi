@@ -1,4 +1,6 @@
-short Atari2Unicode[] = {
+#include "fvdi.h"
+#include "modules/ft2.h"
+short const Atari2Unicode[256] = {
 	/* ISO/IEC 10646-1:2000 (UNICODE) Character Name */
 0,	/* (Nothing) */
 8679,	/* UPWARDS WHITE ARROW */
