@@ -280,7 +280,7 @@ long use_module(Virtual *vwk, const char **ptr)
 }
 
 
-long specify_cookie(Virtual *vwk, const char **ptr)
+static long specify_cookie(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
     short nvdi_val, speedo_val, calamus_val;
@@ -767,6 +767,7 @@ static long load_palette(Virtual *vwk, const char **ptr)
     long colours;
     int file;
     void *palette;
+	unsigned long magic;
 
     if ((*ptr = skip_space(*ptr)) == NULL)
     {
@@ -787,11 +788,22 @@ static long load_palette(Virtual *vwk, const char **ptr)
         }
     }
 
-    size -= strlen("PA01");             // NVDI palette files have a "PA01" header)
+    if ((file = (int) Fopen(name, O_RDONLY)) < 0)
+    {
+        error("Can't open palette file!", NULL);
+        return -1;
+    }
+
+    /* check the "PA01" header bytes) */
+    if (Fread(file, 4, &magic) == 4 && magic == 0x50413031UL)
+    	size -= 4;
+    else
+    	Fseek(file, 0, SEEK_SET);
 
     if (size % (3 * sizeof(short)))
     {
         error("Wrong palette file size!", NULL);
+        Fclose(file);
         return -1;
     }
 
@@ -805,23 +817,17 @@ static long load_palette(Virtual *vwk, const char **ptr)
         break;
     default:
         error("Wrong palette file size!", NULL);
+        Fclose(file);
         return -1;
     }
 
     if ((palette = malloc(size)) == NULL)
     {
         error("Can't allocate memory for palette!", NULL);
+        Fclose(file);
         return -1;
     }
 
-    if ((file = (int) Fopen(name, O_RDONLY)) < 0)
-    {
-        error("Can't open palette file!", NULL);
-        free(palette);
-        return -1;
-    }
-
-    Fread(file, 4, palette);            // skip the "PA01" header bytes)
     Fread(file, size, palette);
 
     Fclose(file);
