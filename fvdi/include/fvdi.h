@@ -290,6 +290,18 @@ typedef struct Fontheader_ {
     struct Fontheader_ *next;	/* Pointer to next font */
     Fontextra extra;
 } Fontheader;
+/*
+ * Fontheader flags
+ */
+#define FONTF_SYSTEM     0x0001            /* Default system font */
+#define FONTF_HORTABLE   0x0002            /* Use horizontal offsets table */
+#define FONTF_BIGENDIAN  0x0004            /* Font image is in byteswapped format */
+#define FONTF_MONOSPACED 0x0008            /* Font is monospaced */
+#define FONTF_EXTENDED   0x0020            /* Extended font header */
+#define FONTF_COMPRESSED FONTF_EXTENDED
+#define FONTF_FULLID     0x2000            /* Use 'full font ID' */
+#define FONTF_SCALABLE   0x4000            /* fVDI internal: scalable font */
+#define FONTF_EXTERNAL   0x8000            /* fVDI internal: external module being used (FT2) */
 
 typedef struct vwk_ {
     struct wk_ *real_address;
@@ -450,6 +462,17 @@ typedef struct XFNT_INFO_ {
     short pt_cnt;
     short pt_sizes[64];
 } XFNT_INFO;
+/*
+ * flags for vqt_xfntinfo()
+ */
+#define XFNT_INFO_FONT_NAME   0x0001
+#define XFNT_INFO_FAMILY_NAME 0x0002
+#define XFNT_INFO_STYLE_NAME  0x0004
+#define XFNT_INFO_FILE_NAME1  0x0008
+#define XFNT_INFO_FILE_NAME2  0x0010
+#define XFNT_INFO_FILE_NAME3  0x0020
+#define XFNT_INFO_SIZES       0x0100
+#define XFNT_INFO_SIZES2      0x0200
 
 
 typedef struct VQT_FHDR_ {

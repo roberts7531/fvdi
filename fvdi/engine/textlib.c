@@ -144,7 +144,7 @@ long CDECL lib_vqt_name(Virtual *vwk, long number, short *name)
     for (i = 31; i >= 0; i--)
         *name++ = *font_name++;
 
-    if (font->flags & 0x4000)
+    if (font->flags & FONTF_SCALABLE)
         *name = 1;   /* Vector font! */
     else
         *name = 0;
@@ -222,7 +222,7 @@ void CDECL lib_vqt_xfntinfo(Virtual *vwk, long flags, long id, long index, XFNT_
     info->id = id;
     info->index = index;
 
-    if ((font->flags & 0x8000) && external_xfntinfo)
+    if ((font->flags & FONTF_EXTERNAL) && external_xfntinfo)
     {
         set_stack_call_lvplp(vdi_stack_top, vdi_stack_size, external_xfntinfo, vwk, font, flags, info);
         return;
@@ -230,7 +230,7 @@ void CDECL lib_vqt_xfntinfo(Virtual *vwk, long flags, long id, long index, XFNT_
 
     info->format = 1;
 
-    if (flags & 0x01)
+    if (flags & XFNT_INFO_FONT_NAME)
     {
         for (i = 0; i < 32; i++)
         {
@@ -240,36 +240,36 @@ void CDECL lib_vqt_xfntinfo(Virtual *vwk, long flags, long id, long index, XFNT_
     }
 
     /* Dummy text */
-    if (flags & 0x02)
+    if (flags & XFNT_INFO_FAMILY_NAME)
     {
         strncpy(info->family_name, "Century 725 Italic BT", sizeof(info->family_name) - 1);
         info->family_name[sizeof(info->family_name) - 1] = 0;
     }
 
     /* Dummy text */
-    if (flags & 0x04)
+    if (flags & XFNT_INFO_STYLE_NAME)
     {
         strncpy(info->style_name, "Italic", sizeof(info->style_name) - 1);
         info->style_name[sizeof(info->style_name) - 1] = 0;
     }
 
-    if (flags & 0x08)
+    if (flags & XFNT_INFO_FILE_NAME1)
     {
         info->file_name1[0] = 0;
     }
 
-    if (flags & 0x10)
+    if (flags & XFNT_INFO_FILE_NAME2)
     {
         info->file_name2[0] = 0;
     }
 
-    if (flags & 0x20)
+    if (flags & XFNT_INFO_FILE_NAME3)
     {
         info->file_name3[0] = 0;
     }
 
     /* 0x100 is without enlargement, 0x200 with */
-    if (flags & 0x300)
+    if (flags & (XFNT_INFO_SIZES|XFNT_INFO_SIZES2))
     {
         i = 0;
         font = font->extra.first_size;
@@ -300,7 +300,7 @@ void CDECL lib_vqt_fontheader(Virtual *vwk, VQT_FHDR *fhdr)
     /* Is this correct? */
     font = vwk->text.current_font;
 
-    if ((font->flags & 0x8000) && external_fontheader)
+    if ((font->flags & FONTF_EXTERNAL) && external_fontheader)
     {
         set_stack_call_lvppl(vdi_stack_top, vdi_stack_size, external_fontheader, vwk, font, fhdr, 0);
         return;
@@ -408,7 +408,7 @@ void CDECL lib_vqt_extent(Virtual *vwk, long length, short *string, short *point
     short *char_tab;
 
     /* Some other method should be used for this! */
-    if (vwk->text.current_font->flags < 0)
+    if (vwk->text.current_font->flags & FONTF_EXTERNAL)
     {
         /* Handle differently? This is not really allowed at all! */
         if (!external_vqt_extent)
@@ -477,7 +477,7 @@ int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh, short *
     Fontheader *font;
 
     /* Some other method should be used for this! */
-    if (vwk->text.current_font->flags < 0)
+    if (vwk->text.current_font->flags & FONTF_EXTERNAL)
     {
         /* Handle differently? This is not really allowed at all! */
         if (!external_vst_point)
@@ -517,7 +517,7 @@ int CDECL lib_vst_arbpt(Virtual *vwk, long height, short *charw, short *charh, s
     Fontheader *font;
 
     /* Some other method should be used for this! */
-    if (vwk->text.current_font->flags < 0)
+    if (vwk->text.current_font->flags & FONTF_EXTERNAL)
     {
         /* Handle differently? This is not really allowed at all! */
         if (!external_vst_point)

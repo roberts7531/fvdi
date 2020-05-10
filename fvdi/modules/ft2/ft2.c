@@ -473,9 +473,9 @@ Fontheader *ft2_load_font(Virtual *vwk, const char *filename)
          *        e.g. the x.app decides what to call depending on the type of the font. */
 
         font->id = ft2_get_face_id(vwk, face);
-        font->flags = 0x8000 |				/* FT2 handled font */
-                      (FT_IS_SCALABLE(face)    ? 0x4000 : 0) |
-                      (FT_IS_FIXED_WIDTH(face) ? 0x0008 : 0);	/* .FNT compatible flag */
+        font->flags = FONTF_EXTERNAL |				/* FT2 handled font */
+            (FT_IS_SCALABLE(face) ? FONTF_SCALABLE : 0) |
+            (FT_IS_FIXED_WIDTH(face) ? FONTF_MONOSPACED : 0);	/* .FNT compatible flag */
         font->extra.filename = strdup(filename);		/* Font filename to load_glyphs on-demand */
         font->extra.index = 0;				/* Index to load, FIXME: how to we load multiple of them */
         font->extra.effects = 0;
@@ -763,9 +763,9 @@ void ft2_xfntinfo(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info)
     int i;
     FT_Face face = ft2_get_face(vwk, font);
 
-    info->format = (font->flags & 0x4000) ? 4 : 1;
+    info->format = (font->flags & FONTF_SCALABLE) ? 4 : 1;
 
-    if (flags & 0x01)
+    if (flags & XFNT_INFO_FONT_NAME)
     {
         for (i = 0; i < 32; i++)
         {
@@ -774,36 +774,36 @@ void ft2_xfntinfo(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info)
         info->font_name[i] = 0;
     }
 
-    if (flags & 0x02)
+    if (flags & XFNT_INFO_FAMILY_NAME)
     {
         strncpy(info->family_name, face->family_name, sizeof(info->family_name) - 1);
         info->family_name[sizeof(info->family_name) - 1] = 0;
     }
 
-    if (flags & 0x04)
+    if (flags & XFNT_INFO_STYLE_NAME)
     {
         strncpy(info->style_name, face->style_name, sizeof(info->style_name) - 1);
         info->style_name[sizeof(info->style_name) - 1] = 0;
     }
 
-    if (flags & 0x08)
+    if (flags & XFNT_INFO_FILE_NAME1)
     {
         strncpy(info->file_name1, font->extra.filename, sizeof(info->file_name1) - 1);
         info->file_name1[sizeof(info->file_name1) - 1] = 0;
     }
 
-    if (flags & 0x10)
+    if (flags & XFNT_INFO_FILE_NAME2)
     {
         info->file_name2[0] = 0;
     }
 
-    if (flags & 0x20)
+    if (flags & XFNT_INFO_FILE_NAME3)
     {
         info->file_name3[0] = 0;
     }
 
     /* 0x100 is without enlargement, 0x200 with */
-    if (flags & 0x300)
+    if (flags & (XFNT_INFO_SIZES|XFNT_INFO_SIZES2))
     {
         for (i = 0; i < size_count && sizes[i] != 0xffff; i++)
             info->pt_sizes[i] = sizes[i];
@@ -2034,7 +2034,7 @@ static Fontheader *ft2_find_fontsize(Virtual *vwk, Fontheader *font, short ptsiz
     Fontheader *f;
     FontheaderListItem *i;
 
-    if (!(font->flags & 0x4000))
+    if (!(font->flags & FONTF_SCALABLE))
     {
         /* Not a scalable font:
          *   Fall back to the common add way of finding the right font size */

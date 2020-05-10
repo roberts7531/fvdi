@@ -1406,7 +1406,7 @@ int load_prefs(Virtual *vwk, const char *sysname)
                 if (system_font)
                 {
                     new_font->id = 1;
-                    new_font->flags |= 0x01;
+                    new_font->flags |= FONTF_SYSTEM;
                 }
                 if (insert_font(&driver->default_vwk->real_address->writing.first_font, new_font))
                     driver->default_vwk->real_address->writing.fonts++;        /* It's assumed that a device has been initialized (driver exists) */
