@@ -51,7 +51,6 @@ extern Access *access;
 
 extern short *loaded_palette;
 
-extern short colours[][3];
 extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 
@@ -324,7 +323,7 @@ long CDECL initialize(Virtual *vwk)
      */
 
     if (loaded_palette)
-        access->funcs.copymem(loaded_palette, colours, 256 * 3 * sizeof(short));
+        access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
     if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
         old_palette_colours = wk->screen.palette.colours;
         wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
@@ -336,9 +335,9 @@ long CDECL initialize(Virtual *vwk)
             wk->screen.palette.colours = old_palette_colours;
     }
     if (*(short *)&c_set_colours != 0x4e75)		/* Look for C... */
-        c_initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
+        c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
     else
-        initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
+        initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
 
 #if 0
     if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
@@ -351,9 +350,9 @@ long CDECL initialize(Virtual *vwk)
                 access->funcs.copymem(old_palette_colours, &wk->screen.palette.colours[i], old_palette_size * sizeof(Colour));
 #else
             if (*(short *)&c_set_colours != 0x4e75)		/* Look for C... */
-                c_initialize_palette(vwk, 0, 256, colours, wk->screen.palette.colours);
+                c_initialize_palette(vwk, 0, 256, default_vdi_colors, wk->screen.palette.colours);
             else
-                initialize_palette(vwk, 0, 256, colours, wk->screen.palette.colours);
+                initialize_palette(vwk, 0, 256, default_vdi_colors, wk->screen.palette.colours);
 #endif
             access->funcs.free(old_palette_colours);		/* Release old (small) palette (a workaround) */
         }

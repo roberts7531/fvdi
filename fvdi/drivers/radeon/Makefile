@@ -39,20 +39,15 @@ SSRC = \
 	../common/lineachk.s
 
 CSRC = \
-	../common/init.c \
-	../common/colours.c \
+	init.c \
+	colours.c \
 	radeon_bas_interface.c \
 	radeon_spec.c \
 	radeon.c \
 	modeline_vesa.c \
 	radeon_pll.c \
 	radeon_mouse.c \
-	../16_bit/16b_exp.c \
-	../16_bit/16b_blit.c \
-	../16_bit/16b_line.c \
-	../16_bit/16b_fill.c \
-	../16_bit/16b_scr.c \
-	../16_bit/16b_pal.c
+	16_bit.c
 
 # handle DevPac -> gas conversions
 # defines SSRC_GNU and SINCSRC_GNU variables

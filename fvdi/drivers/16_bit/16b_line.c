@@ -36,7 +36,7 @@ extern long CDECL clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2
  */
 
 #ifdef BOTH
-static void s_replace(short *addr, short *addr_fast, int count,
+static void s_line_replace(short *addr, short *addr_fast, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
                       short foreground, short background)
 {
@@ -67,7 +67,7 @@ static void s_replace(short *addr, short *addr_fast, int count,
     }
 }
 
-static void s_replace_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_replace_p(short *addr, short *addr_fast, long pattern, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
                         short foreground, short background)
 {
@@ -117,7 +117,7 @@ static void s_replace_p(short *addr, short *addr_fast, long pattern, int count,
     }
 }
 
-static void s_transparent(short *addr, short *addr_fast, int count,
+static void s_line_transparent(short *addr, short *addr_fast, int count,
                           int d, int incrE, int incrNE, int one_step, int both_step,
                           short foreground, short background)
 {
@@ -148,7 +148,7 @@ static void s_transparent(short *addr, short *addr_fast, int count,
     }
 }
 
-static void s_transparent_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_transparent_p(short *addr, short *addr_fast, long pattern, int count,
                             int d, int incrE, int incrNE, int one_step, int both_step,
                             short foreground, short background)
 {
@@ -189,7 +189,7 @@ static void s_transparent_p(short *addr, short *addr_fast, long pattern, int cou
     }
 }
 
-static void s_xor(short *addr, short *addr_fast, int count, /* x00000 */
+static void s_line_xor(short *addr, short *addr_fast, int count, /* x00000 */
                   int d, int incrE, int incrNE, int one_step, int both_step,
                   short foreground, short background)
 {
@@ -233,7 +233,7 @@ static void s_xor(short *addr, short *addr_fast, int count, /* x00000 */
     }
 }
 
-static void s_xor_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_xor_p(short *addr, short *addr_fast, long pattern, int count,
                     int d, int incrE, int incrNE, int one_step, int both_step,
                     short foreground, short background)
 {
@@ -286,7 +286,7 @@ static void s_xor_p(short *addr, short *addr_fast, long pattern, int count,
     }
 }
 
-static void s_revtransp(short *addr, short *addr_fast, int count,
+static void s_line_revtransp(short *addr, short *addr_fast, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
                         short foreground, short background)
 {
@@ -318,7 +318,7 @@ static void s_revtransp(short *addr, short *addr_fast, int count,
     }
 }
 
-static void s_revtransp_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_revtransp_p(short *addr, short *addr_fast, long pattern, int count,
                           int d, int incrE, int incrNE, int one_step, int both_step,
                           short foreground, short background)
 {
@@ -370,7 +370,7 @@ static void s_revtransp_p(short *addr, short *addr_fast, long pattern, int count
  * when no shadow buffer is available
  */
 
-static void replace(short *addr, short *addr_fast, int count,
+static void line_replace(short *addr, short *addr_fast, int count,
                     int d, int incrE, int incrNE, int one_step, int both_step,
                     short foreground, short background)
 {
@@ -402,7 +402,7 @@ static void replace(short *addr, short *addr_fast, int count,
     }
 }
 
-static void replace_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_replace_p(short *addr, short *addr_fast, long pattern, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
                       short foreground, short background)
 {
@@ -453,7 +453,7 @@ static void replace_p(short *addr, short *addr_fast, long pattern, int count,
     }
 }
 
-static void transparent(short *addr, short *addr_fast, int count,
+static void line_transparent(short *addr, short *addr_fast, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
                         short foreground, short background)
 {
@@ -485,7 +485,7 @@ static void transparent(short *addr, short *addr_fast, int count,
     }
 }
 
-static void transparent_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_transparent_p(short *addr, short *addr_fast, long pattern, int count,
                           int d, int incrE, int incrNE, int one_step, int both_step,
                           short foreground, short background)
 {
@@ -527,7 +527,7 @@ static void transparent_p(short *addr, short *addr_fast, long pattern, int count
     }
 }
 
-static void xor(short *addr, short *addr_fast, int count,
+static void line_xor(short *addr, short *addr_fast, int count,
                 int d, int incrE, int incrNE, int one_step, int both_step,
                 short foreground, short background)
 {
@@ -572,7 +572,7 @@ static void xor(short *addr, short *addr_fast, int count,
     }
 }
 
-static void xor_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_xor_p(short *addr, short *addr_fast, long pattern, int count,
                   int d, int incrE, int incrNE, int one_step, int both_step,
                   short foreground, short background)
 {
@@ -626,7 +626,7 @@ static void xor_p(short *addr, short *addr_fast, long pattern, int count,
     }
 }
 
-static void revtransp(short *addr, short *addr_fast, int count,
+static void line_revtransp(short *addr, short *addr_fast, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
                       short foreground, short background)
 {
@@ -658,7 +658,7 @@ static void revtransp(short *addr, short *addr_fast, int count,
     }
 }
 
-static void revtransp_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_revtransp_p(short *addr, short *addr_fast, long pattern, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
                         short foreground, short background)
 {
@@ -776,31 +776,31 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
         if ((pattern & 0xffff) == 0xffff) {
             switch (mode) {
                 case 1:				/* Replace */
-                    s_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 2:				/* Transparent */
-                    s_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 3:				/* XOR */
-                    s_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 4:				/* Reverse transparent */
-                    s_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
             }
         } else {
             switch (mode) {
                 case 1:				/* Replace */
-                    s_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 2:				/* Transparent */
-                    s_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 3:				/* XOR */
-                    s_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 4:				/* Reverse transparent */
-                    s_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    s_line_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
             }
         }
@@ -810,31 +810,31 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
         if ((pattern & 0xffff) == 0xffff) {
             switch (mode) {
                 case 1:				/* Replace */
-                    replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 2:				/* Transparent */
-                    transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 3:				/* XOR */
-                    xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 4:				/* Reverse transparent */
-                    revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
             }
         } else {
             switch (mode) {
                 case 1:				/* Replace */
-                    replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 2:				/* Transparent */
-                    transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 3:				/* XOR */
-                    xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
                 case 4:				/* Reverse transparent */
-                    revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                    line_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
                     break;
             }
         }

@@ -38,19 +38,14 @@ SSRC = \
 	../common/lineachk.s
 
 CSRC = \
-	../common/init.c \
-	../common/colours.c \
+	init.c \
+	colours.c \
 	sag_spec.c \
 	saga.c \
 	modeline_vesa.c \
 	saga_pll.c \
-	../16_bit/16b_exp.c \
-	../16_bit/16b_blit.c \
-	../16_bit/16b_line.c \
-	../16_bit/16b_fill.c \
-	../16_bit/16b_scr.c \
-	../16_bit/16b_pal.c \
-	../uaegfx/uae_mous.c
+	16_bit.c \
+	sag_mous.c
 
 # handle DevPac -> gas conversions
 # defines SSRC_GNU and SINCSRC_GNU variables

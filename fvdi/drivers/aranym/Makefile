@@ -38,8 +38,8 @@ SSRC = \
 	irq.s
 
 CSRC = \
-	../common/init.c \
-	../common/colours.c \
+	init.c \
+	colours.c \
 	spec.c \
 	8b_pal.c \
 	16b_pal.c \

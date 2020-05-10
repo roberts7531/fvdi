@@ -59,7 +59,6 @@ extern Access *access;
 
 extern short *loaded_palette;
 
-extern short colours[][3];
 extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 
@@ -82,7 +81,7 @@ static void saga_puts(const char* message)
 {
 	access->funcs.puts("SAGA: ");
 	access->funcs.puts(message);
-	access->funcs.puts("\x0d\x0a");
+	access->funcs.puts("\n");
 }
 
 static void panic(const char* message)
@@ -306,7 +305,7 @@ long CDECL initialize(Virtual *vwk)
 	 */
 
 	if (loaded_palette)
-		access->funcs.copymem(loaded_palette, colours, 256 * 3 * sizeof(short));
+		access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
 	if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
 		old_palette_colours = wk->screen.palette.colours;
 		wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
@@ -317,7 +316,7 @@ long CDECL initialize(Virtual *vwk)
 		} else
 			wk->screen.palette.colours = old_palette_colours;
 	}
-	c_initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
+	c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
 
 	device.byte_width = wk->screen.wrap;
 	device.address = wk->screen.mfdb.address;

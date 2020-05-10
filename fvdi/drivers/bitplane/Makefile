@@ -36,8 +36,8 @@ SSRC = \
 	../common/lineachk.s
 
 CSRC = \
-	../common/init.c \
-	../common/colours.c \
+	init.c \
+	colours.c \
 	spec.c \
 	palette.c \
 	fill.c \

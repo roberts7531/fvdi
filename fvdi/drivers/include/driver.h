@@ -54,7 +54,7 @@ typedef struct _Mode {
 	short flags;
 	MBits bits;
 	short code;		/* 0, DEPTH_SUPPORT_565, ? */
-	short format;		/* 0 (interleaved), 2 (packed pixels) */
+	short format;	/* 0 (interleaved), 2 (packed pixels) */
 	short clut;		/* 1 (hardware), 2 (software) */
 	short org;		/* 1 (usual bit order), 0x81 (Falcon 5+6+5 bit order, but Intel byte order), ? */
 } Mode;
@@ -69,5 +69,16 @@ typedef struct _Mode {
 #define KEY_WAIT(x)
 #endif
 
+
+/*
+ * from common code
+ */
+extern Driver *me;
+extern Access *access;
+extern short *loaded_palette;
+extern short default_vdi_colors[256][3];
+extern long wk_extend;
+extern Device device;
+extern short debug;
 
 #endif

@@ -1,6 +1,7 @@
 #include "fvdi.h"
 #include "relocate.h"
 #include "driver.h"
+#include "string/memset.h"
 
 /* Should try to get rid of this! */
 #include "os.h"
@@ -111,7 +112,6 @@ extern Access *access;
 
 extern short *loaded_palette;
 
-extern short colours[][3];
 extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
 extern long tokenize(char *value);
@@ -427,7 +427,7 @@ static void setup_wk(Virtual *vwk)
 	 * palette needs the appropriate SDL_surface->format to be set prior
 	 * use i.e. _after_ the resolution change
 	 **/
-	c_initialize_palette(vwk, 0, wk->screen.palette.size, colours, wk->screen.palette.colours);
+	c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
 }
 
 
@@ -436,7 +436,7 @@ static void initialize_wk(Virtual *vwk)
 	Workstation *wk = vwk->real_address;
 
 	if (loaded_palette)
-		access->funcs.copymem(loaded_palette, colours, 256 * 3 * sizeof(short));
+		access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
 
 	/*
 	 * This code needs more work.
@@ -451,7 +451,9 @@ static void initialize_wk(Virtual *vwk)
 			if (old_palette_colours)
 				access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
 		} else
+		{
 			wk->screen.palette.colours = old_palette_colours;
+	    }
 	}
 
 

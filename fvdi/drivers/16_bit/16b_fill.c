@@ -33,7 +33,7 @@
  */
 
 #ifdef BOTH
-static void s_replace(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void s_fill_replace(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask;
@@ -85,7 +85,7 @@ static void s_replace(short *addr, short *addr_fast, int line_add, short *patter
     }
 }
 
-static void s_transparent(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void s_fill_transparent(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask;
@@ -136,7 +136,7 @@ static void s_transparent(short *addr, short *addr_fast, int line_add, short *pa
     }
 }
 
-static void s_xor(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void s_fill_xor(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask, v;
@@ -198,7 +198,7 @@ static void s_xor(short *addr, short *addr_fast, int line_add, short *pattern, i
     }
 }
 
-static void s_revtransp(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void s_fill_revtransp(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask;
@@ -260,7 +260,7 @@ static void s_revtransp(short *addr, short *addr_fast, int line_add, short *patt
  * when no shadow buffer is available
  */
 
-static void replace(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void fill_replace(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask;
@@ -313,7 +313,7 @@ static void replace(short *addr, short *addr_fast, int line_add, short *pattern,
     }
 }
 
-static void transparent(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void fill_transparent(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask;
@@ -365,7 +365,7 @@ static void transparent(short *addr, short *addr_fast, int line_add, short *patt
     }
 }
 
-static void xor(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void fill_xor(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask, v;
@@ -428,7 +428,7 @@ static void xor(short *addr, short *addr_fast, int line_add, short *pattern, int
     }
 }
 
-static void revtransp(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
+static void fill_revtransp(short *addr, short *addr_fast, int line_add, short *pattern, int x, int y, int w, int h, short foreground, short background)
 {
     int i, j;
     unsigned int pattern_word, mask;
@@ -527,16 +527,16 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
 #endif
         switch (mode) {
             case 1:				/* Replace */
-                s_replace(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                s_fill_replace(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
             case 2:				/* Transparent */
-                s_transparent(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                s_fill_transparent(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
             case 3:				/* XOR */
-                s_xor(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                s_fill_xor(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
             case 4:				/* Reverse transparent */
-                s_revtransp(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                s_fill_revtransp(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
         }
     } else {
@@ -544,16 +544,16 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
         addr += pos >> 1;
         switch (mode) {
             case 1:				/* Replace */
-                replace(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                fill_replace(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
             case 2:				/* Transparent */
-                transparent(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                fill_transparent(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
             case 3:				/* XOR */
-                xor(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                fill_xor(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
             case 4:				/* Reverse transparent */
-                revtransp(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
+                fill_revtransp(addr, addr_fast, line_add, pattern, x, y, w, h, foreground, background);
                 break;
         }
 #ifdef BOTH
