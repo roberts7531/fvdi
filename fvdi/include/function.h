@@ -81,14 +81,6 @@ void shutdown_vbl_handler(void);
 
 int lib_vst_font(Virtual *vwk, long fontID);
 int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh, short *cellw, short *cellh);
-long lib_vst_color(Virtual *vwk, unsigned long colour);
-void lib_vsl_color(Virtual *, short);
-void lib_vsl_type(Virtual *, short);
-void lib_vsm_color(Virtual *, short);
-void lib_vsm_type(Virtual *, short);
-void lib_vsf_color(Virtual *, short);
-void lib_vsf_interior(Virtual *, short);
-void lib_vsf_style(Virtual *, short);
 void lib_vrt_cpyfm_nocheck(Virtual *vwk, short mode, short *pxy, MFDB *src, MFDB *dst, short colors[]);
 void lib_vro_cpyfm(Virtual *vwk, short mode, short *pxy, MFDB *src, MFDB *dst);
 void lib_vs_clip(Virtual *, short, short *);

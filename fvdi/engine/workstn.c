@@ -176,6 +176,7 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
     long colors;
     short format;
     short bit_order;
+    unsigned short c;
 
     pars->control->handle = 0;	/* Assume failure */
     if ((hnd = find_free_handle(&handle_entry)) == 0)
@@ -335,25 +336,47 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
     *handle_entry = vwk;
 
     /* Call various setup functions (most with supplied data) */
-    lib_vdi_s(lib_vsl_type, vwk, pars->intin[1]);
-    lib_vdi_s(lib_vsl_color, vwk, pars->intin[2]);
-    lib_vdi_s(lib_vsm_type, vwk, pars->intin[3]);
-    lib_vdi_s(lib_vsm_color, vwk, pars->intin[4]);
+    c = pars->intin[1];
+    if (c < 1 || c > wk->drawing.line.types)
+        c = 1;
+    vwk->line.type = c;
+    c = pars->intin[2];
+    if (c >= wk->screen.palette.size)
+        c = BLACK;
+    vwk->line.colour.foreground = c;
+    c = pars->intin[3];
+    if (c < 1 || c > wk->drawing.marker.types)
+        c = 3; /* Asterisk */
+    vwk->marker.type = c;
+    c = pars->intin[4];
+    if (c >= wk->screen.palette.size)
+        c = BLACK;
+    vwk->marker.colour.foreground = c;
     lib_vst_font(vwk, pars->intin[5]);
     /* Default to 10 point font (or less) (should really depend on resolution) */
     lib_vst_point(vwk, 10, &dummy, &dummy, &dummy, &dummy);
-    lib_vst_color(vwk, pars->intin[6]);
-    lib_vdi_s(lib_vsf_interior, vwk, pars->intin[7]);
-    lib_vdi_s(lib_vsf_style, vwk, pars->intin[8]);
-    lib_vdi_s(lib_vsf_color, vwk, pars->intin[9]);
-    lib_vdi_sp(lib_vs_clip, vwk, 0, 0);			/* No clipping (set to max size) */
+    c = pars->intin[6];
+    if (c >= wk->screen.palette.size)
+        c = BLACK;
+    vwk->text.colour.foreground = c;
+    c = pars->intin[7];
+    if (c > 4)
+        c = 0; /* Hollow */
+    vwk->fill.interior = c;
+    c = pars->intin[8];
+    if (c < 1 || c > 24)
+        c = 1;
+    vwk->fill.style = c;
+    c = pars->intin[9];
+    if (c >= wk->screen.palette.size)
+        c = BLACK;
+    vwk->fill.colour.foreground = c;
+    lib_vs_clip(vwk, 0, NULL);  /* No clipping (set to max size) */
     /* Should also take care of the coordinate values that come now */
-
-    return;
 }
 
 
-void v_opnwk(VDIpars *pars)
+void CDECL v_opnwk(VDIpars *pars)
 {
     Driver *driver;
     Virtual *vwk, **handle_entry;
@@ -363,21 +386,30 @@ void v_opnwk(VDIpars *pars)
     /* For now, just assume that any
      * workstation handle >10 is non-fVDI
      */
-    if (pars->intin[0] > 10) {
+    if (pars->intin[0] > 10)
+    {
         int failed = 1;
+
         pars->control->handle = 0;	/* Assume failure */
         vwk = 0;
-        if (old_gdos != -2) {		/* No pass-through without old GDOS */
-            if ((hnd = find_free_handle(&handle_entry))) {
-                if ((vwk = malloc(6))) {
-                    if ((oldhnd = call_other(pars, 0))) {	/* Dummy handle for call */
+        if (old_gdos != -2)
+        {
+            /* No pass-through without old GDOS */
+            if ((hnd = find_free_handle(&handle_entry)) != 0)
+            {
+                if ((vwk = malloc(6)) != NULL)
+                {
+                    if ((oldhnd = call_other(pars, 0)) != 0)
+                    {
+                        /* Dummy handle for call */
                         failed = 0;
                         vwk->real_address = non_fvdi_wk;
                         /* Mark as pass-through handle */
                         vwk->standard_handle = oldhnd | 0x8000;
                         *handle_entry = vwk;
                         pars->control->handle = hnd;
-                    } else {
+                    } else
+                    {
                         PRINTF(("call_other failed (%d)\n", pars->intin[0]));
                     }
                 } else
@@ -391,9 +423,10 @@ void v_opnwk(VDIpars *pars)
         } else
         {
             PUTS("no old GDOS\n");
-		}
+        }
 
-        if (failed) {
+        if (failed)
+        {
             if (vwk)
                 free(vwk);		/* Couldn't open */
         }
@@ -402,13 +435,14 @@ void v_opnwk(VDIpars *pars)
     }
 
     /* Experimenting, 001217/010109 */
-    if (!old_wk_handle && !stand_alone) {
+    if (!old_wk_handle && !stand_alone)
+    {
         short intout[45], ptsout[12];
+
         old_wk_handle = scall_v_opnwk(1, intout, ptsout);
     }
 
     driver = (Driver *)driver_list->value;
-
     if ((vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual)))
         ;				/* Should probably do something */
     else
@@ -431,7 +465,7 @@ void v_opnwk(VDIpars *pars)
 }
 
 
-void v_clsvwk(Virtual *vwk, VDIpars *pars)
+void CDECL v_clsvwk(Virtual *vwk, VDIpars *pars)
 {
     Virtual **handle_entry;
     short hnd;
@@ -439,10 +473,12 @@ void v_clsvwk(Virtual *vwk, VDIpars *pars)
     hnd = vwk->standard_handle;
     if (hnd == 0)	/* Check if default VDI structure */
         return;
-    else if (hnd < 0) {
+    else if (hnd < 0)
+    {
         call_other(pars, hnd & 0x7fff);
         hnd = pars->control->handle;
-    } else {
+    } else
+    {
         if (vwk->fill.user.pattern.extra)
             free(vwk->fill.user.pattern.extra);
         if (vwk->palette != NULL)
@@ -469,7 +505,7 @@ void v_clsvwk(Virtual *vwk, VDIpars *pars)
 
 
 /* Needs to be able to deal with multiple fVDI workstations! */
-void v_clswk(Virtual *vwk, VDIpars *pars)
+void CDECL v_clswk(Virtual *vwk, VDIpars *pars)
 {
     Driver *driver;
     Workstation *wk;
@@ -477,7 +513,8 @@ void v_clswk(Virtual *vwk, VDIpars *pars)
     wk = vwk->real_address;
     v_clsvwk(vwk, pars);
 
-    if (wk != non_fvdi_wk) {
+    if (wk != non_fvdi_wk)
+    {
         unlink_mouse_routines();
         shutdown_vbl_handler();
 
@@ -489,19 +526,19 @@ void v_clswk(Virtual *vwk, VDIpars *pars)
         if (old_wk_handle)
             scall_v_clswk(old_wk_handle);
     }
-    return;
 }
 
 
-void vq_devinfo(VDIpars *pars)
+void CDECL vq_devinfo(VDIpars *pars)
 {
     /* For now, just assume that any
      * workstation handle >10 is non-fVDI
      */
-    if (pars->intin[0] > 10) {
-#ifdef FVDI_DEBUG
-        int failed = 1;
-        if (old_gdos != -2) {		/* No pass-through without old GDOS */
+    if (pars->intin[0] > 10)
+    {
+        if (old_gdos != -2)
+        {
+            /* No pass-through without old GDOS */
             call_other(pars, 0);	/* Dummy handle for call */
 #ifdef FVDI_DEBUG
             {
@@ -523,27 +560,30 @@ void vq_devinfo(VDIpars *pars)
         {
             PUTS("no old GDOS (vq_devinfo)\n");
         }
-#endif
         return;
     }
 
-    pars->intout[0] = 1;
-    pars->intout[1] = 1;
+    pars->intout[0] = 0;
+    pars->ptsout[0] = 1;
+    pars->ptsout[1] = 0;
+    pars->control->l_intout = 0;
+    pars->control->l_ptsout = 1;
     PUTS("fVDI handles currently don't support vq_devinfo\n");
 }
 
 
-int lib_vq_extnd(Virtual *vwk, long subfunction, long flag,
-                 short *intout, short *ptsout)
+int lib_vq_extnd(Virtual *vwk, long subfunction, long flag, short *intout, short *ptsout)
 {
     Workstation *wk = vwk->real_address;
 
-    if ((flag == 2) && (subfunction == 1)) {
+    if (flag == 2 && subfunction == 1)
+    {
         copymem_aligned(wk->driver->device, intout, sizeof(Device));
         ((Device *)intout)->address = wk->screen.mfdb.address;
         ((Device *)intout)->byte_width = wk->screen.wrap;
         return 1;
-    } else if (flag) {
+    } else if (flag)
+    {
         *intout++ = wk->screen.type;
         *intout++ = wk->screen.bkg_colours;
         *intout++ = wk->writing.effects;
@@ -604,9 +644,11 @@ int lib_vq_extnd(Virtual *vwk, long subfunction, long flag,
         *ptsout++ = 0;
 
         return 0;
-    } else {
+    } else
+    {
         long attributes;
         int i, n;
+
         *intout++ = wk->screen.coordinates.max_x;
         *intout++ = wk->screen.coordinates.max_y;
         *intout++ = wk->screen.coordinates.course;
@@ -625,10 +667,12 @@ int lib_vq_extnd(Virtual *vwk, long subfunction, long flag,
 
         attributes = wk->drawing.primitives.attributes;
         n = 0;
-        for(i = 9; i >= 0; i--) {
-            if (attributes & 0x07) {
+        for (i = 9; i >= 0; i--)
+        {
+            if (attributes & 0x07)
+            {
                 n++;
-                intout[i]      = 10 - i;
+                intout[i] = 10 - i;
                 intout[i + 10] = (attributes & 0x07) - 1;
             }
             attributes >>= 3;
@@ -661,5 +705,39 @@ int lib_vq_extnd(Virtual *vwk, long subfunction, long flag,
         *ptsout++ = wk->drawing.marker.size.width.max;
         *ptsout++ = wk->drawing.marker.size.height.max;
         return 0;
+    }
+}
+
+
+void lib_vs_clip(Virtual *vwk, short on, short *rect)
+{
+    vwk->clip.on = on;
+    Workstation *wk = vwk->real_address;
+    
+    if (on)
+    {
+        short x;
+        
+        x = *rect++;
+        if (x < 0)
+            x = 0;
+        vwk->clip.rectangle.x1 = x;
+        x = *rect++;
+        if (x < 0)
+            x = 0;
+        vwk->clip.rectangle.y1 = x;
+        x = *rect++;
+        if (x >= wk->screen.coordinates.max_x)
+            x = wk->screen.coordinates.max_x;
+        vwk->clip.rectangle.x2 = x;
+        x = *rect++;
+        if (x >= wk->screen.coordinates.max_y)
+            x = wk->screen.coordinates.max_y;
+        vwk->clip.rectangle.y2 = x;
+    } else
+    {
+        vwk->clip.rectangle.x1 = vwk->clip.rectangle.y1 = 0;
+        vwk->clip.rectangle.x2 = wk->screen.coordinates.max_x;
+        vwk->clip.rectangle.y2 = wk->screen.coordinates.max_y;
     }
 }

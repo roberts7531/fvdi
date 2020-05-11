@@ -25,9 +25,6 @@ transparent	equ	1		; Fall through?
 	xdef	vq_devinfo
 	xdef	vs_clip,vswr_mode,vq_extnd
 
-	xdef	lib_vs_clip,lib_vswr_mode
-	xdef	_lib_vs_clip
-
 	xdef	vq_chcells,v_exit_cur,v_enter_cur,v_curup,v_curdown
 	xdef	v_curright,v_curleft,v_curhome,v_eeos,v_eeol,vs_curaddress
 	xdef	v_curtext,v_rvon,v_rvoff,vq_curaddress,v_dspcur
@@ -196,51 +193,6 @@ vs_clip:
 	done_return
 
 
-* lib_vs_clip - Standard library function
-* Todo: Fix according to above!! Should allow for min_x/y coordinates as well
-* In:   a1      Parameters   lib_vs_clip(clip_flag, points)
-*       a0      VDI struct
-_lib_vs_clip:
-lib_vs_clip:
-	move.w	(a1)+,vwk_clip_on(a0)
-	lbeq	.no_clip,5				; Not sure this is a good idea
-	move.l	(a1),a2
-	move.l	vwk_real_address(a0),a1
-	move.w	(a2)+,d0				; left
-	lbge	.left_ok,1
-	moveq	#0,d0
- label .left_ok,1
-	move.w	d0,vwk_clip_rectangle_x1(a0)
-	move.w	(a2)+,d0				; top
-	lbge	.top_ok,2
-	moveq	#0,d0
- label .top_ok,2
-	move.w	d0,vwk_clip_rectangle_y1(a0)
-	move.w	(a2)+,d0
-	cmp.w	wk_screen_coordinates_max_x(a1),d0	; right
-	lble	.right_ok,3
-	move.w	wk_screen_coordinates_max_x(a1),d0
- label .right_ok,3
-	move.w	d0,vwk_clip_rectangle_x2(a0)
-	move.w	(a2)+,d0
-	cmp.w	wk_screen_coordinates_max_y(a1),d0	; bottom
-	lble	.bottom_ok,4
-	move.w	wk_screen_coordinates_max_y(a1),d0
- label .bottom_ok,4
-	move.w	d0,vwk_clip_rectangle_y2(a0)
-	rts
-
- label .no_clip,5
-	move.l	vwk_real_address(a0),a1
-	moveq	#0,d0
-	move.w	d0,vwk_clip_rectangle_x1(a0)
-	move.w	d0,vwk_clip_rectangle_y1(a0)
-	move.w	wk_screen_coordinates_max_x(a1),d0
-	move.w	d0,vwk_clip_rectangle_x2(a0)
-	move.w	wk_screen_coordinates_max_y(a1),d0
-	move.w	d0,vwk_clip_rectangle_y2(a0)
-	rts
-
 
 *
 * Various
@@ -265,22 +217,6 @@ vswr_mode:
 	move.w	d0,(a2)
 ;	return
 	done_return
-
-* lib_vswr_mode - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   mode_set = lib_vswr_mode(mode)
-*	a0	VDI struct
-lib_vswr_mode:
-	move.w	(a1),d0
-	lbeq	.not_ok,1
-	move.l	vwk_real_address(a0),a2
-	cmp.w	wk_drawing_writing_modes(a2),d0		; # write modes
-	lbls	.ok,2
- label .not_ok,1
-	moveq	#1,d0			; Replace
- label .ok,2
-	move.w	d0,vwk_mode(a0)
-	rts
 
 
 * vq_extnd - Standard Trap function

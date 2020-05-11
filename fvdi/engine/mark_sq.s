@@ -13,8 +13,7 @@ transparent	equ	1		; Fall through?
 
 	xdef	vsm_color,vsm_height,vsm_type,vqm_attributes
 
-	xdef	lib_vsm_color,lib_vsm_height,lib_vsm_type,lib_vqm_attributes
-	xdef	_lib_vsm_color,_lib_vsm_type
+	xdef	lib_vsm_height
 
 
 	text
@@ -35,21 +34,6 @@ vsm_color:
 	move.l	intout(a1),a2
 	move.w	d0,(a2)
 	done_return
-
-* lib_vsm_color - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   colour_set = lib_vsm_color(colour)
-*	a0	VDI struct
-_lib_vsm_color:
-lib_vsm_color:
-	move.w	(a1),d0
-	move.l	vwk_real_address(a0),a2
-	cmp.w	wk_screen_palette_size(a2),d0
-	lblo	.ok,1
-	moveq	#BLACK,d0
- label .ok,1
-	move.w	d0,vwk_marker_colour_bgfg_foreground(a0)
-	rts
 
 
 * vsm_height - Standard Trap function
@@ -118,23 +102,6 @@ vsm_type:
 	move.w	d0,(a2)
 	done_return
 
-* lib_vsm_type - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   type_set = lib_vsm_type(type)
-*	a0	VDI struct
-_lib_vsm_type:
-lib_vsm_type:
-	move.w	(a1),d0
-	lbeq	.not_ok,1
-	move.l	vwk_real_address(a0),a2
-	cmp.w	wk_drawing_marker_types(a2),d0		; # markers
-	lbls	.ok,2
- label .not_ok,1
-	moveq	#3,d0			; Asterisk
- label .ok,2
-	move.w	d0,vwk_marker_type(a0)
-	rts
-
 
 * vqm_attributes - Standard Trap function
 * Todo: -
@@ -151,20 +118,5 @@ vqm_attributes:
 	move.l	(a0),(a2)		; Width, height
 	done_return
 
-* lib_vqm_attributes - Standard Library function
-* Todo: -
-* In:   a1      Parameters   width = lib_vqm_attributes(settings)
-*       a0      VDI struct
-lib_vqm_attributes:
-	move.l	(a1),a1
-	move.w	vwk_mode(a0),d0
-	lea	vwk_marker(a0),a0	; a0 no longer -> VDI struct!
-	move.w	(a0),(a1)+		; Type
-	addq.l	#4,a0
-	move.w	(a0)+,(a1)+		; Foreground
-	move.w	d0,(a1)+		; Mode
-	move.w	(a0)+,d0		; Width
-	move.w	(a0),(a1)		; Height
-	rts
 
 	end

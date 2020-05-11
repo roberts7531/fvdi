@@ -27,17 +27,6 @@ static void set_current_font(Virtual *vwk, Fontheader *font)
 }
 
 
-/* colour_set = lib_vst_color(colour) */
-long lib_vst_color(Virtual *vwk, unsigned long colour)
-{
-    if ((short)colour >= vwk->real_address->screen.palette.size)
-        colour = BLACK;
-    vwk->text.colour.foreground = colour;
-
-    return colour;
-}
-
-
 /* effects_set = lib_vst_effects(effects) */
 long lib_vst_effects(Virtual *vwk, long effects)
 {

@@ -15,8 +15,7 @@ transparent	equ	1		; Fall through?
 
 	xdef	vsf_color,vsf_interior,vsf_style,vsf_perimeter,vsf_udpat,vqf_attributes
 
-	xdef	lib_vsf_color,lib_vsf_interior,lib_vsf_style,lib_vsf_perimeter,lib_vsf_udpat,lib_vqf_attributes
-	xdef	_lib_vsf_color,_lib_vsf_interior,_lib_vsf_style
+	xdef	lib_vsf_udpat
 
 
 	text
@@ -38,20 +37,6 @@ vsf_color:
 	move.w	d0,(a2)
 	done_return
 
-* lib_vsf_color - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   colour_set = lib_vsf_color(colour)
-*	a0	VDI struct
-_lib_vsf_color:
-lib_vsf_color:
-	move.w	(a1),d0
-	move.l	vwk_real_address(a0),a2
-	cmp.w	wk_screen_palette_size(a2),d0
-	lblo	.ok,1
-	moveq	#BLACK,d0
- label .ok,1
-	move.w	d0,vwk_fill_colour_bgfg_foreground(a0)
-	rts
 
 
 * vsf_interior - Standard Trap function
@@ -69,20 +54,6 @@ vsf_interior:
 	move.l	intout(a1),a2
 	move.w	d0,(a2)
 	done_return
-
-* lib_vsf_interior - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   pattern_set = lib_vsf_interior(pattern)
-*	a0	VDI struct
-_lib_vsf_interior:
-lib_vsf_interior:
-	move.w	(a1),d0
-	cmp.w	#4,d0			; # fill types (not from wk struct?)
-	lbls	.ok,1
-	moveq	#0,d0			; Hollow
- label .ok,1
-	move.w	d0,vwk_fill_interior(a0)
-	rts
 
 
 * vsf_style - Standard Trap function
@@ -103,21 +74,6 @@ vsf_style:
 	move.w	d0,(a2)
 	done_return
 
-* lib_vsf_style - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   index_set = lib_vsf_style(index)
-*	a0	VDI struct
-_lib_vsf_style:
-lib_vsf_style:
-	move.w	(a1),d0
-	lbeq	.not_ok,1
-	cmp.w	#24,d0			; # fill types (not from wk struct?)
-	lbls	.ok,2			;   really 12/24 pattern/hatch
- label .not_ok,1
-	moveq	#1,d0			; First
- label .ok,2
-	move.w	d0,vwk_fill_style(a0)
-	rts
 
 
 * vsf_perimeter - Standard Trap function
@@ -136,18 +92,6 @@ vsf_perimeter:
 	move.w	d0,(a2)
 	done_return
 
-* lib_vsf_perimeter - Standard Library function
-* Todo: ?
-* In:	a1	Parameters   vis_set = lib_vsf_perimeter(vis_flag)
-*	a0	VDI struct
-lib_vsf_perimeter:
-	move.w	(a1),d0
-	cmp.w	#1,d0			; Only on/off (not from wk struct?)
-	lbls	.ok,1
-	moveq	#0,d0			; Off
- label .ok,1
-	move.w	d0,vwk_fill_perimeter(a0)
-	rts
 
 
 * vsf_udpat - Standard Trap function
@@ -230,19 +174,5 @@ vqf_attributes:
 	move.w	(a0)+,(a2)+		; Perimeter
 	done_return
 
-* lib_vqf_attributes - Standard Library function
-* Todo: -
-* In:   a1      Parameters   outlining = lib_vqf_attributes(settings)
-*       a0      VDI struct
-lib_vqf_attributes:
-	move.l	(a1),a1
-	move.w	vwk_mode(a0),d0
-	lea	vwk_fill(a0),a0		; a0 no longer -> VDI struct!
-	move.w	(a0),(a1)+		; Interior
-	addq.l	#4,a0
-	move.l	(a0)+,(a1)+		; Foreground, style
-	move.w	d0,(a1)+		; Mode
-	move.w	(a0),d0			; Perimeter
-	rts
 
 	end
