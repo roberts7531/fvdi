@@ -16,7 +16,7 @@ extern Virtual *non_fvdi_vwk;
 extern Workstation *non_fvdi_wk;
 extern Workstation *screen_wk;
 extern List *driver_list;
-extern long old_gdos;
+extern short old_gdos;
 
 extern short old_wk_handle;
 

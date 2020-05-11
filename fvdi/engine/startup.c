@@ -40,7 +40,7 @@
 long basepage;
 static char fake_bp[256];
 
-long old_gdos = -2;
+short old_gdos;
 
 static short initialized = 0;
 

@@ -392,7 +392,7 @@ void CDECL v_opnwk(VDIpars *pars)
 
         pars->control->handle = 0;	/* Assume failure */
         vwk = 0;
-        if (old_gdos != -2)
+        if (old_gdos)
         {
             /* No pass-through without old GDOS */
             if ((hnd = find_free_handle(&handle_entry)) != 0)
@@ -536,7 +536,7 @@ void CDECL vq_devinfo(VDIpars *pars)
      */
     if (pars->intin[0] > 10)
     {
-        if (old_gdos != -2)
+        if (old_gdos)
         {
             /* No pass-through without old GDOS */
             call_other(pars, 0);	/* Dummy handle for call */
