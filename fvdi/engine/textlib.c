@@ -12,8 +12,6 @@
 #include "utility.h"
 #include "modules/ft2.h"
 
-#define BLACK 1
-
 
 static void set_current_font(Virtual *vwk, Fontheader *font)
 {

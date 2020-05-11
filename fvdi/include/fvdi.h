@@ -64,6 +64,9 @@ typedef struct {
 /* VDI structures */
 /* -------------- */
 
+#define WHITE 0
+#define BLACK 1
+
 typedef struct Control_ {
     short function;
     short l_ptsin;

@@ -14,8 +14,6 @@
 #include "globals.h"
 #include <stddef.h>     /* for offsetof() macro */
 
-#define WHITE 0
-#define BLACK 1
 #define MAX_OLD_HANDLE 16
 
 /*
