@@ -226,8 +226,10 @@ _trap2_temp:
 	move.l	trap2_address,-(a7)
 	rts
   else
-	cmp.w	#fvdi_magic,vdi_dispatch+2	; Just to be safe, check that
-	beq	.disabled1			;  fVDI is 'on top'
+    ; Just to be safe, check that fVDI is 'on top'
+    lea vdi_dispatch+2(pc),a0
+	cmp.w	#fvdi_magic,(a0)
+	beq	.disabled1
   ifne return_version
 	cmp.w	#$fffe,d0
 	beq	.version1
@@ -374,13 +376,10 @@ non_fvdi_ok:
 * The call didn't seem to really be to the VDI,
 * but check for a few other possibilities
 no_vdi:
-* Workaround to gas bug 25848:
-* https://sourceware.org/bugzilla/show_bug.cgi?id=25848
-* We make vdi_dispatch weak to prevent gas to optimize the address
-* to PC-relative mode with cmpi. Such addressing mode is unsupported on 68000.
-	.weak	vdi_dispatch
-	cmp.w	#fvdi_magic,vdi_dispatch+2	; Just to be safe, check that
-	beq	.disabled			;  fVDI is 'on top'
+    ; Just to be safe, check that fVDI is 'on top'
+    lea vdi_dispatch+2(pc),a0
+	cmp.w	#fvdi_magic,(a0)
+	beq	.disabled
   ifne return_version
 	cmp.w	#$fffe,d0
 	beq	.version
