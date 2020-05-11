@@ -22,12 +22,12 @@ SUB1		equ	0		; Subtract 1 from text width? (NVDI apparently doesn't)
 	xref	_display_output
 
 	xdef	vst_color,vst_effects,vst_alignment,vst_rotation,vst_font,vst_charmap
-	xdef	vqt_name,vqt_font_info,vst_height,vqt_attributes,vqt_extent
+	xdef	vqt_name,vqt_fontinfo,vst_height,vqt_attributes,vqt_extent
 	xdef	vst_load_fonts,vst_unload_fonts,vqt_width,vst_point
 	xdef	vqt_f_extent,vqt_xfntinfo,vqt_fontheader
 
 	xdef	lib_vst_effects,lib_vst_alignment,lib_vst_rotation
-	xdef	lib_vqt_font_info,lib_vst_height,lib_vqt_attributes
+	xdef	lib_vqt_fontinfo,lib_vst_height,lib_vqt_attributes
 	xdef	lib_vst_load_fonts,lib_vst_unload_fonts,lib_vqt_width
 
 	xdef	vst_arbpt
@@ -479,24 +479,23 @@ lib_vqt_ext_name:
 	rts
 
 
-* vqt_font_info - Standard Trap function
+* vqt_fontinfo - Standard Trap function
 * Todo:	?
 * In:   a1      Parameter block
 *       a0      VDI struct
-vqt_font_info:
+vqt_fontinfo:
+	uses_d1
+	move.l a1,-(a7)
+	move.l d2,-(a7)
 	movem.l	intout(a1),a1-a2	; Get ptsout too
-	move.l	vwk_text_current_font(a0),a0	; a0 no longer -> VDI struct!
-	move.l	font_code(a0),(a1)
-	move.w	font_widest_cell(a0),(a2)+
-	move.w	font_distance_bottom(a0),(a2)+
-	move.w	#0,(a2)+		; Temporary current spec. eff. change of width!
-	move.w	font_distance_descent(a0),(a2)+
-	move.w	#0,(a2)+		; Temporary current spec. eff. change to left!
-	move.w	font_distance_half(a0),(a2)+
-	move.w	#0,(a2)+		; Temporary current spec. eff. change to right!
-	move.w	font_distance_ascent(a0),(a2)+
-	move.w	#0,(a2)+
-	move.w	font_distance_top(a0),(a2)+
+	move.l	a2,-(a7)
+	move.l	a1,-(a7)
+	move.l	a0,-(a7)
+	jsr	_lib_vqt_fontinfo
+	lea		12(a7),a7
+	move.l (a7)+,d2
+	move.l (a7)+,a1
+	used_d1
 	done_return
 
 * vqt_fontheader - Standard Trap function

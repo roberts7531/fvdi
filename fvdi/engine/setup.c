@@ -379,7 +379,7 @@ static void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
     fvdi(vwk_no, 39, 0, 2);    /* vst_alignment */
 
     set_inout(0, 0, intout, ptsout);
-    vdi(vwk_no, 131, 0, 0);    /* vqt_font_info */
+    vdi(vwk_no, 131, 0, 0);    /* vqt_fontinfo */
     set_inout(0, 0, 0, 0);
     pts_in[0] = 0;
     pts_in[1] = ptsout[9];        /* Baseline to top line */
