@@ -173,51 +173,87 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
     Workstation *wk, *new_wk;
     Virtual *new_vwk, **handle_entry;
     MFDB *mfdb;
+    long colors;
+    short format;
+    short bit_order;
 
     pars->control->handle = 0;	/* Assume failure */
-    if (!(hnd = find_free_handle(&handle_entry)))
+    if ((hnd = find_free_handle(&handle_entry)) == 0)
+    {
+        PRINTF(("v_opnvwk: no free handle\n"));
         return;
+    }
 
+    wk = vwk->real_address;
     /* Check if really v_opnbm */
-    if ((pars->control->subfunction != 1) || (pars->control->l_intin < 20)) {
+    if (pars->control->subfunction != 1 || pars->control->l_intin < 20)
+    {
         extra_size = 32;
-        if (!(new_vwk = malloc(sizeof(Virtual) + extra_size)))
+        if ((new_vwk = malloc(sizeof(Virtual) + extra_size)) == NULL)
+        {
+            PRINTF(("v_opnbm[v_opnvwk]: out of memory\n"));
             return;
-        copymem(vwk->real_address->driver->default_vwk, new_vwk, sizeof(Virtual));
+        }
+        copymem(wk->driver->default_vwk, new_vwk, sizeof(Virtual));
         vwk = new_vwk;
-    } else {
+    } else
+    {
         mfdb = (MFDB *)pars->control->addr1;
         intin = pars->intin;
 
-        /* Doesn't allow the EdDI v1.1 variant yet */
-        if (!intin[15] || !intin[16] || !intin[17] ||
-                !intin[18] || !intin[19])
+        if (!mfdb)
+        {
+            PRINTF(("v_opnbm: NULL mfdb\n"));
             return;
-
-        wk = vwk->real_address;
-
+        }
+        /* Doesn't allow the EdDI v1.1 variant yet */
+        colors = *((long *)&intin[15]);
+        if (colors != 0 && colors != 2 && colors != (1L << wk->screen.mfdb.bitplanes))
+        {
+            PRINTF(("v_opnbm: unsupported colors %ld\n", colors));
+            return;
+        }
+        bitplanes = intin[17];
+        if (bitplanes != 0 && bitplanes != 1 && bitplanes != wk->screen.mfdb.bitplanes)
+        {
+            PRINTF(("v_opnbm: unsupported planes %d\n", bitplanes));
+            return;
+        }
+        format = intin[18];
+        if (format != 0 && format != 1)
+        {
+            PRINTF(("v_opnbm: unsupported format %d\n", format));
+            return;
+        }
+        bit_order = intin[19];
+        if (bit_order != 0 && bit_order != 1)
+        {
+            PRINTF(("v_opnbm: unsupported bit order %d\n", bit_order));
+            return;
+        }
+        
         extra_size = sizeof(Workstation) + sizeof(Virtual) + 32;	/* 32 - user fill pattern */
 
-        if (mfdb->address || intin[11] || intin[12]) {
-            width = mfdb->width;
-            height = mfdb->height;
-        } else {
+        if (mfdb->address || intin[11] || intin[12])
+        {
+            width = intin[11] ? (intin[11] + 1) : mfdb ? mfdb->width : wk->screen.mfdb.width;
+            height = intin[12] ? (intin[12] + 1) : mfdb ? mfdb->height : wk->screen.mfdb.height;
+        } else
+        {
             width = wk->screen.mfdb.width;		/* vwk/wk bug here in assembly file */
             height = wk->screen.mfdb.height;
         }
         width = (width + 15) & 0xfff0;
 
-        bitplanes = mfdb->bitplanes;
-        if ((bitplanes != 1) &&
-                (bitplanes != wk->screen.mfdb.bitplanes)) {
+        bitplanes = intin[17] ? intin[17] : mfdb ? mfdb->bitplanes : wk->screen.mfdb.bitplanes;
+        if (bitplanes != 1 && bitplanes != wk->screen.mfdb.bitplanes)
+        {
             if (bitplanes)			/* Only same as physical or one allowed */
             {
+                PRINTF(("v_opnbm: unsupported planes %d\n", bitplanes));
                 return;
             }
-            else
-            {
-                bitplanes = wk->screen.mfdb.bitplanes;
-            }
+            bitplanes = wk->screen.mfdb.bitplanes;
         }
 
         lwidth = (width >> 3) * bitplanes;	/* >> 4 in assembly file */
@@ -227,13 +263,17 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
             extra_size += size;
 
         /* New vwk, but it should really not always be for this driver! */
-        if (!(new_vwk = malloc(extra_size)))
+        if ((new_vwk = malloc(extra_size)) == NULL)
+        {
+            PRINTF(("v_opnbm: out of memory (%ld)\n", extra_size));
             return;
+        }
 
         new_wk = (Workstation *)((long)new_vwk + sizeof(Virtual) + 32);
         copymem(wk, new_wk, sizeof(Workstation));
 
-        if (!mfdb->address) {
+        if (!mfdb->address)
+        {
             mfdb->standard = 0;
             mfdb->address = (short *)((long)new_wk + sizeof(Workstation));
             memset(mfdb->address, 0, size);
@@ -281,6 +321,7 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
 
         new_vwk->real_address = new_wk;
         vwk = new_vwk;
+        wk = new_wk;
     }
 
     vwk->fill.user.pattern.in_use = (short *)((long)vwk + sizeof(Virtual));
