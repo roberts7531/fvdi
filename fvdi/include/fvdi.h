@@ -38,6 +38,11 @@
 
 #define HANDLES         32   /* Handles in default table (see also fvdi.s) */
 
+/* vst_charmap/vst_map_mode modes */
+#define MAP_BITSTREAM	0
+#define MAP_ATARI		1
+#define MAP_UNICODE		2
+
 struct fVDI_log {
     short active;
     long *start;

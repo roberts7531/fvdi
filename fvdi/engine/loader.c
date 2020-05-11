@@ -44,6 +44,7 @@ void *(*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bi
 void *(*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info) = ft2_char_advance;
 void (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info) = ft2_xfntinfo;
 void (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr) = ft2_fontheader;
+unsigned short (*external_char_index)(Virtual *vwk, Fontheader *font, short *intin) = ft2_char_index;
 
 #else
 
@@ -59,6 +60,7 @@ void *(*external_char_bitmap)(Virtual *vwk, Fontheader *font, long ch, short *bi
 void *(*external_char_advance)(Virtual *vwk, Fontheader *font, long ch, short *advance_info) = 0;
 void (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info) = 0;
 void (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr) = 0;
+unsigned short (*external_char_index)(Virtual *vwk, Fontheader *font, short *intin) = 0;
 
 #endif
 

@@ -88,15 +88,6 @@ static FT_Error ft2_find_glyph(Virtual *vwk, Fontheader *font, short ch, int wan
 static Fontheader *ft2_dup_font(Virtual *vwk, Fontheader *src, short ptsize);
 static void ft2_dispose_font(Fontheader *font);
 
-/* just debug temporarilly used in the bitmap_outline() */
-void CDECL bt( void *src, void *dst, long pitch, long wdwidth, long lines)
-{
-    char buf[255];
-
-    sprintf( buf, "src = %p, dst = %p, pitch = %ld, wdwidth = %ld, lines = %ld\n", src, dst, pitch, wdwidth, lines);
-    access->funcs.puts(buf);
-}
-
 #define USE_FREETYPE_ERRORS 1
 
 static char *ft2_error(const char *msg, FT_Error error)
@@ -831,9 +822,9 @@ static FT_Error ft2_load_glyph(Virtual *vwk, Fontheader *font, short ch, c_glyph
     if (!cached->index)
     {
         /* vwk->text.charmap  ~  vst_charmap (vst_map_mode()) mapping settings */
-        if (vwk->text.charmap == 1 /* ASCII */ && ch >= 0 && ch < 256)
+        if (vwk->text.charmap == MAP_ATARI /* ASCII */ && ch >= 0 && ch < 256)
         {
-            short cc = -1;
+            unsigned short cc = 0xffff;
 
             /* if there is no spdchar.map (or not enough data)
              * -> use built-in mapping */
@@ -854,7 +845,7 @@ static FT_Error ft2_load_glyph(Virtual *vwk, Fontheader *font, short ch, c_glyph
                 }
 
                 /* in case we don't have BICS code => fallback to the default mapping */
-                if (cc < 0 || cc > 563 || ch < 32)
+                if (cc >= BICS_COUNT || ch < 32)
                 {
                     cc = Atari2Bics[ch];
                 }
@@ -864,7 +855,7 @@ static FT_Error ft2_load_glyph(Virtual *vwk, Fontheader *font, short ch, c_glyph
             cc = Bics2Unicode[cc];
 
             /* get the font character index */
-            cached->index = FT_Get_Char_Index(face, cc);
+            cached->index = FT_Get_Char_Index(face, cc == 0xffff ? (FT_ULong)-1 : cc);
 
             /* When there is no such character in the font (or cc was -1)
              * we fallback to the default built-in mapping */
@@ -876,27 +867,28 @@ static FT_Error ft2_load_glyph(Virtual *vwk, Fontheader *font, short ch, c_glyph
                 cc = Bics2Unicode[cc];
 
                 /* sanity check */
-                if (cc < 0)
+                if (cc == 0xffff)
                     cc = ch;
 
                 /* get the font character index */
-                cached->index = FT_Get_Char_Index(face, cc);
+                cached->index = FT_Get_Char_Index(face, cc == 0xffff ? (FT_ULong)-1 : cc);
             }
 
 #if 0
             cached->index = FT_Get_Char_Index(face, Atari2Unicode[ch]);
 #endif
-        } else if (vwk->text.charmap == 2 /* UNICODE */)
+        } else if (vwk->text.charmap == MAP_UNICODE)
         {
             /* app use: used at least by the 'Highwire web browser' */
             cached->index = FT_Get_Char_Index(face, ch);
-        } else if (!vwk->text.charmap)
+        } else if (vwk->text.charmap == MAP_BITSTREAM)
         {
             /* BICS */ /* no char -> index translation, BICS char index is expected */
 
             /* app use: might perhaps be used by the 'charmap5' spdchar.map editor */
-            short cc = Bics2Unicode[ ch ];
-            if (cc < 0)
+            unsigned short cc = ch < 0 || ch >= BICS_COUNT ? 0xffff : Bics2Unicode[ch];
+
+            if (cc == 0xffff)
                 cc = ch;
             cached->index = FT_Get_Char_Index(face, cc);
         } else
@@ -2290,6 +2282,138 @@ Fontheader *ft2_vst_point(Virtual *vwk, long ptsize, short *sizes)
     /* ft2_close_face(font); */
 
     return font;
+}
+
+
+unsigned short CDECL ft2_char_index(Virtual *vwk, Fontheader *font, short *intin)
+{
+    unsigned short ch = intin[0];
+    short src_mode = intin[1];
+    short dst_mode = intin[2];
+    FT_Face face;
+    FT_UInt index;
+
+    face = ft2_get_face(vwk, font);
+    if (!face)
+    {
+        access->funcs.puts(ft2_error("FT2  Couldn't get face", 0));
+        return 0xffff;
+    }
+
+    /*
+     * same logic here as in ft2_load_glyph
+     */
+    if (src_mode == MAP_ATARI && ch < 256)
+    {
+        unsigned short cc = 0xffff;
+
+        /* if there is no spdchar.map (or not enough data)
+         * -> use built-in mapping */
+        if (spdchar_map_len < 450)
+        {
+            cc = Atari2Bics[ch];
+        } else
+        {
+            if (ch > 31)
+            {
+                /* NVDI really seems to be using the _first_ map '00' in the
+                 * spdchar.map file no matter what the font format is.
+                 *
+                 * The TT table seems to contain a lot of crap for non ASCII
+                 * chars commonly.
+                 */
+                cc = spdchar_map.bs_int.map[ch - 32];
+            }
+
+            /* in case we don't have BICS code => fallback to the default mapping */
+            if (cc >= BICS_COUNT || ch < 32)
+            {
+                cc = Atari2Bics[ch];
+            }
+        }
+
+        /* in case we don't have BICS -> UNICODE the cc value will be -1 */
+        cc = Bics2Unicode[cc];
+
+        /* get the font character index */
+        index = FT_Get_Char_Index(face, cc == 0xffff ? (FT_ULong)-1 : cc);
+
+        /* When there is no such character in the font (or cc was -1)
+         * we fallback to the default built-in mapping */
+        if (index == 0)
+        {
+            cc = Atari2Bics[ch];
+
+            /* valid BICS code => to unicode */
+            cc = Bics2Unicode[cc];
+
+            /* get the font character index */
+            index = FT_Get_Char_Index(face, cc == 0xffff ? (FT_ULong)-1 : cc);
+        }
+        ch = cc;
+    } else if (src_mode == MAP_UNICODE)
+    {
+        /* app use: used at least by the 'Highwire web browser' */
+        index = FT_Get_Char_Index(face, ch);
+    } else if (src_mode == MAP_BITSTREAM)
+    {
+        /* BICS */ /* no char -> index translation, BICS char index is expected */
+
+        /* app use: might perhaps be used by the 'charmap5' spdchar.map editor */
+        unsigned short cc = ch >= BICS_COUNT ? -1 : Bics2Unicode[ch];
+
+        index = FT_Get_Char_Index(face, cc == 0xffff ? (FT_ULong)-1 : cc);
+        ch = cc;
+    } else
+    {
+        kprintf("FT2 SRC MAPPING(%d) THAT SHOULD HAVE NEVER HAPPENED!!!\n", src_mode);
+        index = 0;
+    }
+
+    if (index == 0)
+        return 0xffff;
+
+    if (dst_mode == MAP_UNICODE)
+    {
+        return ch;
+    } else if (dst_mode == MAP_ATARI)
+    {
+        const short *table;
+        int i;
+        unsigned short cc;
+
+        if (spdchar_map_len < 450)
+        {
+            table = Atari2Bics;
+            i = 0;
+        } else
+        {
+            table = spdchar_map.bs_int.map - 32;
+            i = 32;
+        }
+        for (; i < 256; i++)
+        {
+            if (table[i] >= 0)
+            {
+                cc = table[i];
+                if (cc < BICS_COUNT && Bics2Unicode[cc] == ch)
+                    return i;
+            }
+        }
+    } else if (dst_mode == MAP_BITSTREAM)
+    {
+        const unsigned short *table = Bics2Unicode;
+        int i;
+
+        for (i = 0; i < 256; i++)
+            if (table[i] == ch)
+                return i;
+    } else
+    {
+        /* invalid mapping mode */
+    }
+
+    return 0xffff;
 }
 
 

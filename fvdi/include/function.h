@@ -133,6 +133,7 @@ extern void*       (*external_char_advance)(Virtual *vwk, Fontheader *font, long
 
 extern void        (*external_xfntinfo)(Virtual *vwk, Fontheader *font, long flags, XFNT_INFO *info);
 extern void        (*external_fontheader)(Virtual *vwk, Fontheader *font, VQT_FHDR *fhdr);
+extern unsigned short (*external_char_index) (Virtual *vwk, Fontheader *font, short *intin);
 
 #ifdef FVDI_DEBUG
 void display_output(VDIpars *pars);

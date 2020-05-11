@@ -33,8 +33,8 @@ short old_wk_handle = 0;   /* Was 1, [010109] */
 
 short vbl_handler_installed = 0;
 
-Workstation *screen_wk  = 0;
-Virtual     *screen_vwk = 0;
+Workstation *screen_wk = 0;
+Virtual *screen_vwk = 0;
 static void *old_curv = 0;
 void *old_timv = 0;
 
@@ -47,7 +47,7 @@ Virtual *initialize_vdi(void)
 {
     Workstation *wk, *dummy_wk;
     Virtual *vwk, *dummy_vwk;
-    void *tmp;
+    char *tmp;
     int i;
 
     typedef struct fake_wkst
@@ -230,7 +230,7 @@ Virtual *initialize_vdi(void)
     vwk->text.alignment.horizontal = 0;
     vwk->text.alignment.vertical = 0;
     vwk->text.rotation = 0;
-    vwk->text.charmap = 1;                  /* ASCII words mapping */
+    vwk->text.charmap = MAP_ATARI;          /* ASCII words mapping */
     vwk->text.font = 0;
     vwk->text.current_font = 0;             /* Address will be set on first call to vst_font */
 
@@ -277,7 +277,7 @@ Virtual *initialize_vdi(void)
 /*
  * Copy colours from an existing virtual workstation into an fVDI one.
  */
-void setup_colours(Virtual *vwk)
+static void setup_colours(Virtual *vwk)
 {
     Workstation *wk;
     short colours[256][3];
@@ -309,7 +309,7 @@ void setup_colours(Virtual *vwk)
  * Copy all available information from existing virtual workstation with handle 'vwk_no'
  * into an fVDI one created using 'def' as a template.
  */
-void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
+static void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
 {
     Virtual *vwk;
     short tmp;
@@ -593,5 +593,4 @@ void setup_fallback(void)
 
     sub_call = get_sub_call();
     old_wk_handle = call_v_opnwk(1, intout, ptsout);
-    intout[0] = ptsout[0];
 }

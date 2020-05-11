@@ -35,6 +35,9 @@ SUB1		equ	0		; Subtract 1 from text width? (NVDI apparently doesn't)
 	xdef	vqt_trackkern,vqt_pairkern,vst_kern,v_getbitmap_info
 	xdef	vqt_advance,vst_skew
 
+	xdef	vqt_char_index
+	xref	_lib_vqt_char_index
+	xref	_lib_vst_charmap
 
 	text
 
@@ -326,8 +329,37 @@ lib_vst_rotation:
 * In:   a1      Parameter block
 *       a0      VDI struct
 vst_charmap:
+	uses_d1
+	movem.l	d2/a1,-(a7)
 	move.l	intin(a1),a2
-	move.w	(a2),vwk_text_charmap(a0)
+	move.w	(a2),d0
+	ext.l	d0
+	move.l	d0,-(a7)
+	move.l	a0,-(a7)
+	jsr	_lib_vst_charmap
+	addq.l	#8,a7
+	movem.l	(a7)+,d2/a1
+	move.l	intout(a1),a1
+	move.w	d0,(a1)
+	used_d1
+	done_return
+
+
+* vqt_char_index - Standard Trap function
+* In:   a1      Parameter block
+*       a0      VDI struct
+vqt_char_index:
+	uses_d1
+	movem.l	d2/a1,-(a7)
+	move.l	intin(a1),a2
+	move.l	a2,-(a7)
+	move.l	a0,-(a7)
+	jsr	_lib_vqt_char_index
+	addq.l	#8,a7
+	movem.l	(a7)+,d2/a1
+	move.l	intout(a1),a1
+	move.w	d0,(a1)
+	used_d1
 	done_return
 
 

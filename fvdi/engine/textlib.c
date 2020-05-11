@@ -15,8 +15,6 @@
 #define BLACK 1
 
 
-void lib_vqt_extent(Virtual *vwk, long length, short *string, short *points);
-
 static void set_current_font(Virtual *vwk, Fontheader *font)
 {
     /* Adjust the font structure utilization counters */
@@ -62,6 +60,74 @@ void CDECL lib_vst_alignment(Virtual *vwk, unsigned long halign, unsigned long v
 
     *hresult = vwk->text.alignment.horizontal = halign;
     *vresult = vwk->text.alignment.vertical = valign;
+}
+
+
+unsigned short CDECL lib_vqt_char_index(Virtual *vwk, short *intin)
+{
+    Fontheader *font = vwk->text.current_font;
+    unsigned short scr_index = intin[0];
+    short src_mode = intin[1];
+    short dst_mode = intin[2];
+
+    if ((font->flags & FONTF_EXTERNAL) && external_char_index)
+    {
+        scr_index = set_stack_call_lvppl(vdi_stack_top, vdi_stack_size, external_char_index, vwk, font, intin, 0);
+    } else
+    {
+        /*
+         * only ASCII mapping supported for bitmap fonts
+         */
+        if (src_mode != MAP_ATARI || scr_index >= 256)
+        {
+            scr_index = 0xffff;
+        } else
+        {
+            scr_index = Bics2Unicode[Atari2Bics[scr_index]];
+            if (scr_index != 0xffff)
+            {
+                if (dst_mode == MAP_UNICODE)
+                {
+                    /* nothing to do */
+                } else if (dst_mode == MAP_ATARI)
+                {
+                    const short *table = Atari2Bics;
+                    int i;
+                    
+                    for (i = 0; i < 256; i++)
+                        if (table[i] >= 0 && Bics2Unicode[table[i]] == scr_index)
+                            return i;
+                    scr_index = 0xffff;
+                } else if (dst_mode == MAP_BITSTREAM)
+                {
+                    const unsigned short *table = Bics2Unicode;
+                    int i;
+
+                    for (i = 0; i < 256; i++)
+                        if (table[i] == scr_index)
+                            return i;
+                    scr_index = 0xffff;
+                } else
+                {
+                    /* invalid mapping mode */
+                    scr_index = 0xffff;
+                }
+            }
+        }
+    }
+
+    return scr_index;
+}
+
+
+short CDECL lib_vst_charmap(Virtual *vwk, long mode)
+{
+    Fontheader *font = vwk->text.current_font;
+
+    if (mode != MAP_ATARI && !(font->flags & FONTF_EXTERNAL))
+        mode = MAP_ATARI;
+    vwk->text.charmap = mode;
+    return mode;
 }
 
 
