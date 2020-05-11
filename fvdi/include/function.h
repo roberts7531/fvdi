@@ -29,6 +29,7 @@ void copy_workstations(Virtual *def, long really_copy);
 void setup_fallback(void);
 void shut_down(void);
 long tokenize(const char *buffer);
+void CDECL set_palette(Virtual *vwk, DrvPalette *palette_pars);
 
 void v_bez_accel(long vwk, short *points, long num_points, long totmoves, short *xmov, long pattern, long colour, long mode);
 void lib_v_pline(Virtual *, void *);

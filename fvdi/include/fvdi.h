@@ -137,15 +137,7 @@ typedef struct {
     long reserved2;
     long reserved3;
     long reserved4;
-#if 1
-#if defined(__GNUC__) || defined (__LATTICE__)
-    COLOR_ENTRY colors[0];
-#else
-    COLOR_ENTRY colors[];
-#endif
-#else
-    COLOR_ENTRY colors;   /* Really beginning of an array of COLOR_ENTRY */
-#endif
+    COLOR_ENTRY colors[256];
 } COLOR_TAB;
 
 
@@ -379,12 +371,7 @@ typedef struct vwk_ {
     } console;
     struct clip_ {
         short on;
-        struct rectangle_ {
-            short x1;
-            short y1;
-            short x2;
-            short y2;
-        } rectangle;
+        RECT16 rectangle;
     } clip;
     short mode;
     Colour *palette;		/* Odd when only negative (fg/bg) */

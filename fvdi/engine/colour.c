@@ -15,10 +15,6 @@
 #define neg_pal_n  9
 
 
-/* Necessary intermediate function, for now. */
-extern set_palette(Virtual *vwk, DrvPalette *palette_pars);
-
-
 static Colour *get_clut(Virtual *vwk)
 {
     Colour *palette;
@@ -28,10 +24,14 @@ static Colour *get_clut(Virtual *vwk)
     wk = vwk->real_address;
     palette = vwk->palette;
     if (wk->driver->device->clut == 1)          /* Hardware CLUT? (used to test look_up_table) */
-        palette = wk->screen.palette.colours;     /* Actually a common global */
-    else if (!palette || ((long)palette & 1)) { /* No or only negative palette allocated? */
+        palette = wk->screen.palette.colours;   /* Actually a common global */
+    else if (!palette || ((long)palette & 1))
+    {
+        /* No or only negative palette allocated? */
         addr = malloc((wk->screen.palette.size + neg_pal_n) * sizeof(Colour));
-        if (!addr) {                              /* If no memory for local palette, */
+        if (!addr)
+        {
+            /* If no memory for local palette, */
             palette = wk->screen.palette.colours;   /*  modify in global (BAD!) */
             PUTS("Could not allocate space for palette!\n");
         } else
@@ -56,7 +56,7 @@ static Colour *get_clut(Virtual *vwk)
 }
 
 
-void lib_vs_color(Virtual *vwk, long pen, RGB *values)
+void CDECL lib_vs_color(Virtual *vwk, long pen, RGB *values)
 {
     Workstation *wk = vwk->real_address;
     Colour *palette;
@@ -127,7 +127,7 @@ static int vdi2idx(Workstation *wk, int vdi_pen)
 }
 
 
-int lib_vq_color(Virtual *vwk, long pen, long flag, RGB *colour)
+int CDECL lib_vq_color(Virtual *vwk, long pen, long flag, RGB *colour)
 {
     int index;
     Colour *palette;
@@ -194,7 +194,7 @@ static int fg_bg_index(Virtual *vwk, int subfunction, short **fg, short **bg)
 }
 
 
-int lib_vs_fg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENTRY *values)
+int CDECL lib_vs_fg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENTRY *values)
 {
     short *fg, *bg, index;
     Colour *palette;
@@ -232,7 +232,7 @@ int lib_vs_fg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENT
 }
 
 
-int lib_vs_bg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENTRY *values)
+int CDECL lib_vs_bg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENTRY *values)
 {
     short *fg, *bg, index;
     Colour *palette;
@@ -270,7 +270,7 @@ int lib_vs_bg_color(Virtual *vwk, long subfunction, long colour_space, COLOR_ENT
 }
 
 
-long lib_vq_fg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
+long CDECL lib_vq_fg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
 {
     short *fg, *bg, index;
     Colour *palette;
@@ -293,7 +293,7 @@ long lib_vq_fg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
 }
 
 
-long lib_vq_bg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
+long CDECL lib_vq_bg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
 {
     short *fg, *bg, index;
     Colour *palette;
@@ -316,7 +316,7 @@ long lib_vq_bg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
 }
 
 
-int colour_entry(Virtual *vwk, long subfunction, short *intin, short *intout)
+int CDECL colour_entry(Virtual *vwk, long subfunction, short *intin, short *intout)
 {
     (void) vwk;
     (void) intin;
@@ -369,7 +369,7 @@ static int set_col_table(Virtual *vwk, long count, long start, COLOR_ENTRY *valu
 }
 
 
-int set_colour_table(Virtual *vwk, long subfunction, short *intin)
+int CDECL set_colour_table(Virtual *vwk, long subfunction, short *intin)
 {
     COLOR_TAB *ctab;
 
@@ -394,7 +394,7 @@ int set_colour_table(Virtual *vwk, long subfunction, short *intin)
 }
 
 
-int colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
+int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
 {
     switch (subfunction)
     {
@@ -498,7 +498,7 @@ int colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
 }
 
 
-int inverse_table(Virtual *vwk, long subfunction, short *intin, short *intout)
+int CDECL inverse_table(Virtual *vwk, long subfunction, short *intin, short *intout)
 {
     (void) vwk;
     (void) intin;
