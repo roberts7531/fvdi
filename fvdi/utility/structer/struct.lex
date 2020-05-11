@@ -17,53 +17,60 @@
 #include "struct.tab.h"
 
 int lineno = 1;
-char tmpbuf[32];   /* Maximum identifier or number must fit! */
 
 %}
 
 %option noyywrap
 
-D		[0-9]
-identifier	[a-zA-Z_]+[a-zA-Z0-9_]*
+D               [0-9]
+identifier      [a-zA-Z_]+[a-zA-Z0-9_]*
 %%
 
-"*"	{ yylval.line = lineno; return '*'; }
-"("	{ yylval.line = lineno; return '('; }
-")"	{ yylval.line = lineno; return ')'; }
-","	{ yylval.line = lineno; return ','; }
-"{"	{ yylval.line = lineno; return '{'; }
-"}"	{ yylval.line = lineno; return '}'; }
-"["	{ yylval.line = lineno; return '['; }
-"]"	{ yylval.line = lineno; return ']'; }
-"struct"	{ yylval.line = lineno; return TK_STRUCT; }
-"union"	{ yylval.line = lineno; return TK_UNION; }
-"void"	{ yylval.line = lineno; return TK_VOID; }
-"char"	{ yylval.line = lineno; return TK_CHAR; }
-"short"	{ yylval.line = lineno; return TK_SHORT; }
-"unsigned"	{ yylval.line = lineno; return TK_UNSIGNED; }
-"signed"	{ yylval.line = lineno; return TK_SIGNED; }
-"int"	{ yylval.line = lineno; return TK_INT; }
-"long"	{ yylval.line = lineno; return TK_LONG; }
-"typedef"	{ yylval.line = lineno; return TK_TYPEDEF; }
-"const"	{ yylval.line = lineno; return TK_CONST; }
-";"	{ yylval.line = lineno; return ';'; }
+"*"     { yylval.line = lineno; return '*'; }
+"("     { yylval.line = lineno; return '('; }
+")"     { yylval.line = lineno; return ')'; }
+","     { yylval.line = lineno; return ','; }
+"{"     { yylval.line = lineno; return '{'; }
+"}"     { yylval.line = lineno; return '}'; }
+"["     { yylval.line = lineno; return '['; }
+"]"     { yylval.line = lineno; return ']'; }
+"struct"        { yylval.line = lineno; return TK_STRUCT; }
+"union" { yylval.line = lineno; return TK_UNION; }
+"void"  { yylval.line = lineno; return TK_VOID; }
+"char"  { yylval.line = lineno; return TK_CHAR; }
+"short" { yylval.line = lineno; return TK_SHORT; }
+"unsigned"      { yylval.line = lineno; return TK_UNSIGNED; }
+"signed"        { yylval.line = lineno; return TK_SIGNED; }
+"int"   { yylval.line = lineno; return TK_INT; }
+"long"  { yylval.line = lineno; return TK_LONG; }
+"typedef"       { yylval.line = lineno; return TK_TYPEDEF; }
+"const" { yylval.line = lineno; return TK_CONST; }
+";"     { yylval.line = lineno; return ';'; }
 
-'.'	{ yylval.num = (long)yytext[0];
-	  return TK_NUMERAL;
-	}
-{identifier}	{ yylval.name = new_string(yytext, yyleng);
-		  return TK_IDENTIFIER;
-		}
-{D}+ 		{ strncpy(tmpbuf, yytext, yyleng);
+'.'     { yylval.num = yytext[0];
+          return TK_NUMERAL;
+        }
+{identifier}    { yylval.name = new_string(yytext, yyleng);
+                  return TK_IDENTIFIER;
+                }
+{D}+            {
+                  char *tmpbuf = (char *)malloc(yyleng + 1);
+                  if (tmpbuf == NULL)
+                  {
+                      error(lineno, "Out of memory!");
+                      exit(1);
+                  }
+                  memcpy(tmpbuf, yytext, yyleng);
                   tmpbuf[yyleng] = '\0';
-		  yylval.num = atol(tmpbuf);
-		  return TK_NUMERAL;
-               	}
+                  yylval.num = atol(tmpbuf);
+                  free(tmpbuf);
+                  return TK_NUMERAL;
+                }
 "/*".*"*/"  ;
-"//".*	;
-"#".*	;
-[ \t\r] 	;
-"\n"	{lineno++; }
+"//".*  ;
+"#".*   ;
+[ \t\r]         ;
+"\n"    {lineno++; }
 
-.	{ error(lineno, "Unallowed Character '%c'", *yytext); return TK_LEXERROR; }
+.       { error(lineno, "Unallowed Character '%c'", *yytext); return TK_LEXERROR; }
 %%
