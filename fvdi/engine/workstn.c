@@ -18,12 +18,10 @@
 
 Virtual **handle_link = 0;
 
-int lib_vq_extnd(Virtual *vwk, long subfunction, long flag,
-                 short *intout, short *ptsout);
+int lib_vq_extnd(Virtual *vwk, long subfunction, long flag, short *intout, short *ptsout);
 
 
-void
-linea_setup(Workstation *wk)
+void linea_setup(Workstation *wk)
 {
     unsigned short *linea, width, height, bitplanes;
     static unsigned short linea_orig[12];
@@ -31,7 +29,8 @@ linea_setup(Workstation *wk)
 
     linea = wk->screen.linea;
 
-    if (init) {
+    if (init)
+    {
         init = 0;
         linea_orig[0] = linea[-0x2b4 / 2];
         linea_orig[1] = linea[-0x2b2 / 2];
@@ -54,14 +53,17 @@ linea_setup(Workstation *wk)
     linea[-0x2b2 / 2] = height - 1;
     linea[-0x00c / 2] = width;
     linea[-0x004 / 2] = height;
-    if (lineafix) {			/* Should cover more really */
+    if (lineafix)
+    {
+        /* Should cover more really */
         bitplanes = wk->screen.mfdb.bitplanes;
         linea[-0x306 / 2] = bitplanes;
         linea[0] = bitplanes;	/* Can this perhaps be done always? */
         width = (width * bitplanes) >> 3;	/* Bug (<8 planes) here in original */
         linea[1] = width;
         linea[-1] = width;	/* Really the same? */
-    } else if (!init) {
+    } else if (!init)
+    {
         linea[-0x306 / 2] = linea_orig[4];
         linea[0] = linea_orig[5];
         linea[1] = linea_orig[6];
@@ -76,32 +78,32 @@ linea_setup(Workstation *wk)
 
 
 /* Find virtual workstation entry for a handle */
-static Virtual** find_handle_entry(short hnd)
+static Virtual **find_handle_entry(short hnd)
 {
     short handles;
-    Virtual ***link, **handle_table;
+    Virtual **link;
 
     handles = HANDLES;
     if (hnd < handles)
         return &handle[hnd];
 
-    link = &handle_link;
-    while ((link))
+    link = handle_link;
+    while (link)
     {
-        handle_table = *link;
         hnd -= handles;
         if (debug)
         {
             PUTS("Looking for handle in extra table\n");
         }
-        handles = (long) handle_table[-2];
+        handles = (long) link[-2];
         if (hnd < handles)
-            return &handle_table[hnd];
-        link = (Virtual **) handle_table[-1];
+            return &link[hnd];
+        link = (Virtual **) link[-1];
     }
 
     return 0;
 }
+
 
 /* Find (or create, if necessary) a free handle */
 static short find_free_handle(Virtual ***handle_entry)
@@ -110,8 +112,10 @@ static short find_free_handle(Virtual ***handle_entry)
     Virtual ***link, ***last, **handle_table;
 
     handles = HANDLES;
-    for (hnd = 1; hnd < handles; hnd++) {
-        if (handle[hnd] == non_fvdi_vwk) {
+    for (hnd = 1; hnd < handles; hnd++)
+    {
+        if (handle[hnd] == non_fvdi_vwk)
+        {
             *handle_entry = &handle[hnd];
             return hnd;
         }
@@ -119,13 +123,17 @@ static short find_free_handle(Virtual ***handle_entry)
 
     link = &handle_link;
     last = link;
-    while ((handle_table = *link)) {
-        if (debug) {
+    while ((handle_table = *link) != NULL)
+    {
+        if (debug)
+        {
             PUTS("Looking for free handle in extra table\n");
         }
         handles += (long)handle_table[-2];
-        for(; hnd < handles; hnd++) {
-            if (handle_table[hnd] == non_fvdi_vwk) {
+        for (; hnd < handles; hnd++)
+        {
+            if (handle_table[hnd] == non_fvdi_vwk)
+            {
                 *handle_entry = &handle[hnd];
                 return hnd;
             }
@@ -135,14 +143,16 @@ static short find_free_handle(Virtual ***handle_entry)
     }
 
     handle_table = (Virtual **)malloc(64 * sizeof(Virtual *));
-    if (handle_table) {
+    if (handle_table)
+    {
         handles = *(long *)handle_table / sizeof(Virtual *) - 2;
-        if (debug) {
+        if (debug)
+        {
             PRINTF(("Allocated space for %d extra handles\n", handles));
         }
         handle_table[0] = (Virtual *)((long)handles);
         handle_table[1] = 0;
-        for(handles--; handles >= 2; handles--)
+        for (handles--; handles >= 2; handles--)
             handle_table[handles] = non_fvdi_vwk;
         *last = &handle_table[2];
         *handle_entry = &handle_table[2];
@@ -153,11 +163,12 @@ static short find_free_handle(Virtual ***handle_entry)
 }
 
 
-// Needs to deal with virtuals on non-screen workstations!
-void v_opnvwk(Virtual *vwk, VDIpars *pars)
+/* Needs to deal with virtuals on non-screen workstations! */
+void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
 {
     short *intin;
-    short hnd, width, height, bitplanes, lwidth, dummy, extra_size;
+    short hnd, width, height, bitplanes, lwidth, dummy;
+    long extra_size;
     long size;
     Workstation *wk, *new_wk;
     Virtual *new_vwk, **handle_entry;
