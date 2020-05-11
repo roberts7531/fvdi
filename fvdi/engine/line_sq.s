@@ -270,12 +270,12 @@ v_bez_con:
 	beq		.v_bez_off
 	move.w	#1,vwk_bezier_on(a0)
 	move.w	#1,L_intout(a2)
-	move.w	vwk_real_address(a0),a2
+	move.l	vwk_real_address(a0),a2
 	move.w	wk_drawing_bezier_depth_scale_max(a2),d0
 	move.w	d0,vwk_bezier_depth_scale(a0)
 	move.w	wk_drawing_bezier_depth_max(a2),d0
 	move.l	intout(a1),a2
-	move.w	d0,0(a2)
+	move.w	d0,(a2)
 .v_bez_end:
 	done_return
 .v_bez_off:
