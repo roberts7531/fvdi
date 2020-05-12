@@ -102,7 +102,7 @@ extern char driver_name[];
  * These must be initialized by the driver.
  */
 extern long CDECL (*get_colour_r)(Virtual *vwk, long colour);
-extern void CDECL (*get_colours_r)(Virtual *vwk, long colour, long *foreground, long *background);
+extern void CDECL (*get_colours_r)(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background);
 extern void CDECL (*set_colours_r)(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]);
 extern long CDECL (*write_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);
 extern long CDECL (*read_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y);

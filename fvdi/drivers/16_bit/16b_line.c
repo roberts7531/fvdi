@@ -15,6 +15,10 @@
 #include "driver.h"
 #include "../bitplane/bitplane.h"
 
+#define PIXEL		short
+#define PIXEL_SIZE	sizeof(PIXEL)
+#define PIXEL_32    long
+
 /*
  * Make it as easy as possible for the C compiler.
  * The current code is written to produce reasonable results with Lattice C.
@@ -26,9 +30,9 @@
  */
 
 #ifdef BOTH
-static void s_line_replace(short *addr, short *addr_fast, int count,
+static void s_line_replace(PIXEL *addr, PIXEL *addr_fast, int count,
                     int d, int incrE, int incrNE, int one_step, int both_step,
-                    short foreground, short background)
+                    PIXEL foreground, PIXEL background)
 {
 #ifdef BOTH
     *addr_fast = foreground;
@@ -58,9 +62,9 @@ static void s_line_replace(short *addr, short *addr_fast, int count,
     }
 }
 
-static void s_line_replace_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_replace_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
-                      short foreground, short background)
+                      PIXEL foreground, PIXEL background)
 {
     unsigned short mask = 0x8000;
 
@@ -109,9 +113,9 @@ static void s_line_replace_p(short *addr, short *addr_fast, long pattern, int co
     }
 }
 
-static void s_line_transparent(short *addr, short *addr_fast, int count,
+static void s_line_transparent(PIXEL *addr, PIXEL *addr_fast, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
-                        short foreground, short background)
+                        PIXEL foreground, PIXEL background)
 {
 #ifdef BOTH
     *addr_fast = foreground;
@@ -141,9 +145,9 @@ static void s_line_transparent(short *addr, short *addr_fast, int count,
     }
 }
 
-static void s_line_transparent_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_transparent_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                           int d, int incrE, int incrNE, int one_step, int both_step,
-                          short foreground, short background)
+                          PIXEL foreground, PIXEL background)
 {
     unsigned short mask = 0x8000;
 
@@ -183,9 +187,9 @@ static void s_line_transparent_p(short *addr, short *addr_fast, long pattern, in
     }
 }
 
-static void s_line_xor(short *addr, short *addr_fast, int count, /* x00000 */
+static void s_line_xor(PIXEL *addr, PIXEL *addr_fast, int count,
                 int d, int incrE, int incrNE, int one_step, int both_step,
-                short foreground, short background)
+                PIXEL foreground, PIXEL background)
 {
     int v;
 
@@ -228,9 +232,9 @@ static void s_line_xor(short *addr, short *addr_fast, int count, /* x00000 */
     }
 }
 
-static void s_line_xor_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_xor_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                   int d, int incrE, int incrNE, int one_step, int both_step,
-                  short foreground, short background)
+                  PIXEL foreground, PIXEL background)
 {
     int v;
     unsigned short mask = 0x8000;
@@ -282,9 +286,9 @@ static void s_line_xor_p(short *addr, short *addr_fast, long pattern, int count,
     }
 }
 
-static void s_line_revtransp(short *addr, short *addr_fast, int count,
+static void s_line_revtransp(PIXEL *addr, PIXEL *addr_fast, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
-                      short foreground, short background)
+                      PIXEL foreground, PIXEL background)
 {
 #ifdef BOTH
     *addr_fast = foreground;
@@ -314,9 +318,9 @@ static void s_line_revtransp(short *addr, short *addr_fast, int count,
     }
 }
 
-static void s_line_revtransp_p(short *addr, short *addr_fast, long pattern, int count,
+static void s_line_revtransp_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
-                        short foreground, short background)
+                        PIXEL foreground, PIXEL background)
 {
     unsigned short mask = 0x8000;
 
@@ -367,9 +371,9 @@ static void s_line_revtransp_p(short *addr, short *addr_fast, long pattern, int 
  * when no shadow buffer is available
  */
 
-static void line_replace(short *addr, short *addr_fast, int count,
+static void line_replace(PIXEL *addr, PIXEL *addr_fast, int count,
                     int d, int incrE, int incrNE, int one_step, int both_step,
-                    short foreground, short background)
+                    PIXEL foreground, PIXEL background)
 {
 #ifdef BOTH
     *addr_fast = foreground;
@@ -399,9 +403,9 @@ static void line_replace(short *addr, short *addr_fast, int count,
     }
 }
 
-static void line_replace_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_replace_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
-                      short foreground, short background)
+                      PIXEL foreground, PIXEL background)
 {
     unsigned short mask = 0x8000;
 
@@ -450,9 +454,9 @@ static void line_replace_p(short *addr, short *addr_fast, long pattern, int coun
     }
 }
 
-static void line_transparent(short *addr, short *addr_fast, int count,
+static void line_transparent(PIXEL *addr, PIXEL *addr_fast, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
-                        short foreground, short background)
+                        PIXEL foreground, PIXEL background)
 {
 #ifdef BOTH
     *addr_fast = foreground;
@@ -482,9 +486,9 @@ static void line_transparent(short *addr, short *addr_fast, int count,
     }
 }
 
-static void line_transparent_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_transparent_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                           int d, int incrE, int incrNE, int one_step, int both_step,
-                          short foreground, short background)
+                          PIXEL foreground, PIXEL background)
 {
     unsigned short mask = 0x8000;
 
@@ -525,9 +529,9 @@ static void line_transparent_p(short *addr, short *addr_fast, long pattern, int 
     }
 }
 
-static void line_xor(short *addr, short *addr_fast, int count,
+static void line_xor(PIXEL *addr, PIXEL *addr_fast, int count,
                 int d, int incrE, int incrNE, int one_step, int both_step,
-                short foreground, short background)
+                PIXEL foreground, PIXEL background)
 {
     int v;
 
@@ -570,9 +574,9 @@ static void line_xor(short *addr, short *addr_fast, int count,
     }
 }
 
-static void line_xor_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_xor_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                   int d, int incrE, int incrNE, int one_step, int both_step,
-                  short foreground, short background)
+                  PIXEL foreground, PIXEL background)
 {
     int v;
     unsigned short mask = 0x8000;
@@ -624,9 +628,9 @@ static void line_xor_p(short *addr, short *addr_fast, long pattern, int count,
     }
 }
 
-static void line_revtransp(short *addr, short *addr_fast, int count,
+static void line_revtransp(PIXEL *addr, PIXEL *addr_fast, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
-                      short foreground, short background)
+                      PIXEL foreground, PIXEL background)
 {
 #ifdef BOTH
     *addr_fast = foreground;
@@ -656,9 +660,9 @@ static void line_revtransp(short *addr, short *addr_fast, int count,
     }
 }
 
-static void line_revtransp_p(short *addr, short *addr_fast, long pattern, int count,
+static void line_revtransp_p(PIXEL *addr, PIXEL *addr_fast, long pattern, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
-                        short foreground, short background)
+                        PIXEL foreground, PIXEL background)
 {
     unsigned short mask = 0x8000;
 
@@ -706,9 +710,8 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
                        long pattern, long colour, long mode)
 {
     Workstation *wk;
-    short *addr, *addr_fast;
-    long colours;
-    short foreground, background;
+    PIXEL *addr, *addr_fast;
+    unsigned long foreground, background;
     int line_add;
     long pos;
     int x_step, y_step;
@@ -724,9 +727,7 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
     if (!clip_line(vwk, &x1, &y1, &x2, &y2))
         return 1;
 
-    colours = c_get_colour(vwk, colour);
-    foreground = colours;
-    background = colours >> 16;
+    c_get_colours(vwk, colour, &foreground, &background);
 
     wk = vwk->real_address;
 
@@ -786,18 +787,18 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
             }
         } else {
             switch (mode) {
-                case 1:				/* Replace */
-                    s_line_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 2:				/* Transparent */
-                    s_line_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 3:				/* XOR */
-                    s_line_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 4:				/* Reverse transparent */
-                    s_line_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
+            case 1:             /* Replace */
+                s_line_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 2:             /* Transparent */
+                s_line_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 3:             /* XOR */
+                s_line_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 4:             /* Reverse transparent */
+                s_line_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
             }
         }
     } else
@@ -806,35 +807,35 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
         addr += pos >> 1;
         if ((pattern & 0xffff) == 0xffff) {
             switch (mode) {
-                case 1:				/* Replace */
-                    line_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 2:				/* Transparent */
-                    line_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 3:				/* XOR */
-                    line_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 4:				/* Reverse transparent */
-                    line_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
+            case 1:             /* Replace */
+                line_replace(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 2:             /* Transparent */
+                line_transparent(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 3:             /* XOR */
+                line_xor(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 4:             /* Reverse transparent */
+                line_revtransp(addr, addr_fast, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
             }
         } else {
             switch (mode) {
-                case 1:				/* Replace */
-                    line_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 2:				/* Transparent */
-                    line_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 3:				/* XOR */
-                    line_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
-                case 4:				/* Reverse transparent */
-                    line_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
-                    break;
+            case 1:             /* Replace */
+                line_replace_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 2:             /* Transparent */
+                line_transparent_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 3:             /* XOR */
+                line_xor_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
+            case 4:             /* Reverse transparent */
+                line_revtransp_p(addr, addr_fast, pattern, count, d, incrE, incrNE, one_step, both_step, foreground, background);
+                break;
             }
         }
     }
-    return 1;		/* Return as completed */
+    return 1;       /* Return as completed */
 }

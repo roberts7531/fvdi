@@ -101,7 +101,7 @@ long CDECL (*text_area_r)(Virtual *vwk, short *text, long length, long dst_x, lo
 long CDECL (*mouse_draw_r)(Workstation *wk, long x, long y, Mouse *mouse) = c_mouse_draw;
 
 long CDECL (*get_colour_r)(Virtual *vwk, long colour) = c_get_colour_16;
-void CDECL (*get_colours_r)(Virtual *vwk, long colour, long *foreground, long *background) = c_get_colours_16;
+void CDECL (*get_colours_r)(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background) = c_get_colours_16;
 void CDECL (*set_colours_r)(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]) = c_set_colours_16;
 
 long wk_extend = 0;

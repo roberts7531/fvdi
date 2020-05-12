@@ -1,13 +1,13 @@
 long CDECL c_get_colour_8(Virtual *vwk, long colour);
-void CDECL c_get_colours_8(Virtual *vwk, long colour, long *foreground, long *background);
+void CDECL c_get_colours_8(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background);
 void CDECL c_set_colours_8(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]);
 
 long CDECL c_get_colour_16(Virtual *vwk, long colour);
-void CDECL c_get_colours_16(Virtual *vwk, long colour, long *foreground, long *background);
+void CDECL c_get_colours_16(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background);
 void CDECL c_set_colours_16(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]);
 
 long CDECL c_get_colour_32(Virtual *vwk, long colour);
-void CDECL c_get_colours_32(Virtual *vwk, long colour, long *foreground, long *background);
+void CDECL c_get_colours_32(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background);
 void CDECL c_set_colours_32(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]);
 
 long CDECL c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);

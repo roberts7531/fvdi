@@ -53,9 +53,9 @@ long CDECL GET1NAME(Virtual *vwk, long colour)
 
 
 #ifdef NORMAL_NAME
-void CDECL c_get_colours(Virtual *vwk, long colour, long *foreground, long *background)
+void CDECL c_get_colours(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background)
 #else
-void CDECL GETNAME(Virtual *vwk, long colour, long *foreground, long *background)
+void CDECL GETNAME(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background)
 #endif
 {
 #ifdef NORMAL_NAME

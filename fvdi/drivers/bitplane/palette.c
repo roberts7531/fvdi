@@ -40,7 +40,7 @@ long CDECL c_get_colour(Virtual *vwk, long colour)
 }
 
 
-void CDECL c_get_colours(Virtual *vwk, long colour, long *foreground, long *background)
+void CDECL c_get_colours(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background)
 {
     *foreground = x_get_colour(vwk->real_address, colour & 0xffff);
     *background = x_get_colour(vwk->real_address, (colour >> 16) & 0xffff);

@@ -472,8 +472,8 @@ static void draw_rect(Virtual *vwk, long x1, long y1, long w, long h, short *pat
 long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h, short *pattern,
             long colour, long mode, long interior_style)
 {
-  long foreground;
-  long background;
+  unsigned long foreground;
+  unsigned long background;
 
   /* Don't understand any table operations yet */
   if ((long)vwk & 1)

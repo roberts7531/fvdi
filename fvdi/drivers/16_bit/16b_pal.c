@@ -55,7 +55,7 @@ long CDECL c_get_colour(Virtual *vwk, long colour)
 }
 
 
-void CDECL c_get_colours(Virtual *vwk, long colour, long *foreground, long *background)
+void CDECL c_get_colours(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background)
 {
     Colour *local_palette, *global_palette;
     Colour *fore_pal, *back_pal;

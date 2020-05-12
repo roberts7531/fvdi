@@ -44,8 +44,8 @@ long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
     unsigned short msk;
     int plane;
     unsigned short linemask;    /* Linestyle bits */
-    long color;                 /* Color index */
-	long dummy;
+    unsigned long color;        /* Color index */
+	unsigned long dummy;
 
 #if 0
     if (line->y1 == line->y2)
