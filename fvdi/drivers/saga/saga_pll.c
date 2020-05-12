@@ -13,6 +13,8 @@
  *  PLL data set: Copyright 2016, Christoph Hoehne <ceaich@gmx.de>
  */
 
+#include "fvdi.h"
+#include "driver.h"
 #include "saga.h"
 #include "video.h"
 
@@ -1642,7 +1644,7 @@ static struct saga_pll_data {
                 0x01,0x40,0x60,0x00,0x08,0x00,0x02,0x00,0x00 } },
 };
 
-#define PLL_CLOCKS (sizeof(saga_pll)/sizeof(saga_pll[0]))
+#define PLL_CLOCKS (int)(sizeof(saga_pll)/sizeof(saga_pll[0]))
 
 int saga_pll_clock_count(void)
 {
@@ -1746,4 +1748,3 @@ int saga_pll_clock_program(int clock)
 
     return 0;
 }
-

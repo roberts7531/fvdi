@@ -23,7 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "relocate.h"
 #include "uaegfx.h"
 
@@ -64,12 +64,11 @@ long CDECL c_get_colour(Virtual *vwk, long colour)
 	foreground = *realp;
 	realp = (unsigned short *)&back_pal[colour >> 16].real;
 	background = *realp;
-	return ((unsigned long)background << 16) | (unsigned long)foreground;
+	return ((unsigned long) background << 16) | (unsigned long) foreground;
 }
 
 
-void CDECL
-c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[])
+void CDECL c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[])
 {
 	unsigned short colour;
 	unsigned short component;
@@ -79,6 +78,7 @@ c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested,
 	
 	KDEBUG(("c_set_colours start=%ld entries=%ld\n", start, entries));
 
+	(void) vwk;
 	if ((long)requested & 1) {			/* New entries? */
 		requested = (unsigned short *)((long)requested & 0xfffffffeL);
 		for(i = 0; i < entries; i++) {

@@ -21,6 +21,8 @@
 
 /*#define ENABLE_KDEBUG*/
 
+#include "fvdi.h"
+#include "driver.h"
 #include "uaegfx.h"
 #include "uaelib.h"
 

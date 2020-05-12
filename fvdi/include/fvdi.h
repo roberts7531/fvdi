@@ -418,21 +418,16 @@ typedef struct Module_ {
     short flags;				/* From FVDI.SYS (and elsewhere) 1 - resident */
     char *file_name;			/* From FVDI.SYS */
     char *name;				/* Identification string */
-    /*   void (*initialize)(Virtual *vwk);		*//* Called after fVDI is initialized */
-    /*   long (*setup)(long type, long value);	*//* Called to modify settings */
-    /*   void (*shutdown)(Virtual *vwk);		*//* Called when shutting down */
-    void *initialize;
-    void *setup;
-    void *shutdown;
+    long CDECL (*initialize)(Virtual *vwk);		/* Called after fVDI is initialized */
+    long CDECL (*setup)(long type, long value);	/* Called to modify settings */
+    void CDECL (*shutdown)(Virtual *vwk);		/* Called when shutting down */
     void *priv;			/* Info the module wants to keep around */
 } Module;
 
 typedef struct Driver_ {
     Module module;
-    /*   Virtual (*opnwk)(Virtual *vwk);	*//* Called on v_opnwk() */
-    /*   void    (*clswk)(Virtual *vwk);	*//* Called on v_clswk() */
-    void *opnwk;
-    void *clswk;
+    Virtual *CDECL (*opnwk)(Virtual *vwk);	/* Called on v_opnwk() */
+    void    CDECL (*clswk)(Virtual *vwk);	/* Called on v_clswk() */
     Virtual *default_vwk;		/* Used directly by fVDI v_opnvwk */
     Device *device;
 } Driver;
@@ -666,17 +661,17 @@ typedef struct wk_ {
         short frequency;
     } vblank;
     struct r_ {
-        void *set_palette;
-        void *get_colour;
-        void *set_pixel;
-        void *get_pixel;
-        void *line;
-        void *expand;
-        void *fill;
-        void *fillpoly;
-        void *blit;
-        void *text;
-        void *mouse;
+        void CDECL (*set_palette)(Virtual *vwk, DrvPalette *palette_pars);
+        long CDECL (*get_colour)(Virtual *vwk, long colours);
+        void CDECL (*set_pixel)(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);
+        long CDECL (*get_pixel)(Virtual *vwk, MFDB *mfdb, long x, long y);
+        long CDECL (*line)(Virtual *vwk, DrvLine *pars);
+        void CDECL (*expand)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation, long colour);
+        void CDECL (*fill)(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style);
+        void CDECL (*fillpoly)(Virtual *vwk, short points[], long n, short index[], long moves, short *pattern, long colour, long mode, long interior_style);
+        long CDECL (*blit)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation);
+        void CDECL (*text)(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets);
+        void CDECL (*mouse)(struct wk_ *wk, long x, long y, Mouse *mouse);
     } r;
     Function dummy;		/* Table really extends to -1 */
     Function function[256];

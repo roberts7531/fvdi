@@ -23,7 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "uaegfx.h"
 #include "uaelib.h"
 
@@ -78,8 +78,7 @@ blit_or(PIXEL *src_addr, int src_line_add,
 }
 
 
-static void
-blit(PIXEL *src_addr, int src_line_add,
+static void uae_blit(PIXEL *src_addr, int src_line_add,
      PIXEL *dst_addr, int dst_line_add,
      int w, int h, int operation)
 {
@@ -353,7 +352,7 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 			blit_or(src_addr, src_line_add, dst_addr, dst_line_add, w, h);
 			break;
 		default:
-			blit(src_addr, src_line_add, dst_addr, dst_line_add, w, h, operation);
+			uae_blit(src_addr, src_line_add, dst_addr, dst_line_add, w, h, operation);
 			break;
 		}
 	}

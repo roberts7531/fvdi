@@ -21,16 +21,15 @@
  */
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
-#include "relocate.h"
+#include "driver.h"
 #include "radeon.h"
 #include "video.h"
 #include <os.h>
+#include "string/memset.h"
 
 #include "radeon_bas_interface.h"
 #include "stdint.h"
 #include "driver_vec.h"
-#include "driver.h"
 
 char r_16[] = {5, 11, 12, 13, 14, 15};
 char g_16[] = {6,  5,  6,  7,  8,  9, 10};
@@ -39,8 +38,6 @@ char none[] = {0};
 
 Mode mode[1] =
 {{16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, {r_16, g_16, b_16, none, none, none}, 0,  2, 2, 1}};
-
-extern Device device;
 
 char driver_name[] = "Radeon BaS_gcc";
 
@@ -61,28 +58,19 @@ struct {
     short height;
 } pixel;
 
-extern Driver *me;
-extern Access *access;
+long CDECL (*write_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y, long colour) = c_write_pixel;
+long CDECL (*read_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y) = c_read_pixel;
+long CDECL (*line_draw_r)(Virtual *vwk, long x1, long y1, long x2, long y2, long pattern, long colour, long mode) = c_line_draw;
+long CDECL (*expand_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation, long colour) = c_expand_area;
+long CDECL (*fill_area_r)(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style) = c_fill_area;
+long CDECL (*fill_poly_r)(Virtual *vwk, short points[], long n, short index[], long moves, short *pattern, long colour, long mode, long interior_style) = 0;
+long CDECL (*blit_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation) = c_blit_area;
+long CDECL (*text_area_r)(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets) = 0;
+long CDECL (*mouse_draw_r)(Workstation *wk, long x, long y, Mouse *mouse) = c_mouse_draw;
 
-extern short *loaded_palette;
-
-void initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-void c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-
-extern long tokenize(const char *ptr);
-
-void *write_pixel_r = &c_write_pixel;
-void *read_pixel_r  = &c_read_pixel;
-void *line_draw_r   = &c_line_draw;
-void *expand_area_r = &c_expand_area;
-void *fill_area_r   = &c_fill_area;
-void *fill_poly_r   = 0;
-void *blit_area_r   = &c_blit_area;
-void *text_area_r   = 0;
-void *mouse_draw_r  = &c_mouse_draw;
-void *set_colours_r = &c_set_colours;
-void *get_colours_r = 0;
-void *get_colour_r  = &c_get_colour;
+long CDECL (*get_colour_r)(Virtual *vwk, long colour) = c_get_colour;
+void CDECL (*get_colours_r)(Virtual *vwk, long colour, long *foreground, long *background) = 0;
+void CDECL (*set_colours_r)(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]) = c_set_colours;
 
 static void fbee_puts(const char* message)
 {
@@ -104,19 +92,9 @@ long wk_extend = 0;
 short accel_s = 0;
 short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE | A_MOUSE;
 
-Mode *graphics_mode = &mode[0];
+const Mode *graphics_mode = &mode[0];
 
-short debug = 0;
-
-long set_mode(const char **ptr);
-
-Option options[] =
-{
-    {"debug",      &debug,             2},  /* debug, turn on debugging aids */
-    {"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
-};
-
-char *get_num(char *token, short *num)
+static char *get_num(char *token, short *num)
 {
     char buf[10], c;
     int i;
@@ -138,7 +116,7 @@ char *get_num(char *token, short *num)
     return token;
 }
 
-int set_bpp(int bpp)
+static int set_bpp(int bpp)
 {
     switch (bpp)
     {
@@ -154,12 +132,14 @@ int set_bpp(int bpp)
     return bpp;
 }
 
-long set_mode(const char **ptr)
+static long set_mode(const char **ptr)
 {
     char token[80], *tokenptr;
 
-    if (!(*ptr = access->funcs.skip_space(*ptr)))
-        ;		/* *********** Error, somehow */
+    if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
+    {
+        ;       /* *********** Error, somehow */
+    }
     *ptr = access->funcs.get_token(*ptr, token, 80);
 
     tokenptr = token;
@@ -174,6 +154,12 @@ long set_mode(const char **ptr)
 
     return 1;
 }
+
+Option options[] =
+{
+    {"debug",      &debug,             2},  /* debug, turn on debugging aids */
+    {"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+};
 
 /*
  * Handle any driver specific parameters
@@ -200,7 +186,7 @@ long check_token(char *token, const char **ptr)
             break;
     }
 
-    for(i = 0; i < sizeof(options) / sizeof(Option); i++)
+    for(i = 0; i < (int)(sizeof(options) / sizeof(Option)); i++)
     {
         if (access->funcs.equal(xtoken, options[i].name))
         {
@@ -218,8 +204,10 @@ long check_token(char *token, const char **ptr)
                     * (short *) options[i].varfunc += -1 + 2 * normal;
                     return 1;
                 case 3:
-                    if (!(*ptr = access->funcs.skip_space(*ptr)))
+                    if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
+                    {
                         ;  /* *********** Error, somehow */
+                    }
                     *ptr = access->funcs.get_token(*ptr, token, 80);
                     * (short *) options[i].varfunc = token[0];
                     return 1;
@@ -253,7 +241,7 @@ static struct ModeInfo *find_mode_info(void)
     for (i = 0; i < modeline_vesa_entries; i++)
     {
         struct ModeInfo *p = &modeline_vesa_entry[i];
-        if (p->Width == res.width && p->Height == res.height)
+        if (p->Width == (unsigned short)res.width && p->Height == (unsigned short)res.height)
             return p;
     }
 
@@ -262,7 +250,7 @@ static struct ModeInfo *find_mode_info(void)
 }
 
 /* Allocate screen buffer */
-unsigned char *fbee_alloc_vram(unsigned short width, unsigned short height)
+static unsigned char *fbee_alloc_vram(unsigned short width, unsigned short height)
 {
     unsigned long buffer;
     unsigned long vram_size = (unsigned long) width * height * sizeof(short);
@@ -289,8 +277,9 @@ long initialize(Virtual *vwk)
     int old_palette_size;
     Colour *old_palette_colours;
     struct fb_info *bas_if;
+#if 0
     struct fb_ops *radeon_accel_ops;
-
+#endif
 
 
     /* Display startup banner */
@@ -314,18 +303,19 @@ long initialize(Virtual *vwk)
     }
     access->funcs.puts("BaS driver interface found\r\n");
 
-    // radeon_accel_ops = bas_if->fbops;
-
+#if 0
+    radeon_accel_ops = bas_if->fbops;
+#endif
 
     fix_all_mode_info();
     mi = find_mode_info();
 
     screen_address = fbee_alloc_vram(res.width, res.height);
 
-    vwk = me->default_vwk;	/* This is what we're interested in */
+    vwk = me->default_vwk;  /* This is what we're interested in */
     wk = vwk->real_address;
 
-    wk->screen.look_up_table = 0;			/* Was 1 (???)  Shouldn't be needed (graphics_mode) */
+    wk->screen.look_up_table = 0;           /* Was 1 (???)  Shouldn't be needed (graphics_mode) */
     wk->screen.mfdb.standard = 0;
     if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
         wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
@@ -348,12 +338,12 @@ long initialize(Virtual *vwk)
     {
         /* Started from different graphics mode? */
         old_palette_colours = wk->screen.palette.colours;
-        wk->screen.palette.colours = access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
+        wk->screen.palette.colours = access->funcs.malloc(256L * sizeof(Colour), 3);    /* Assume malloc won't fail. */
         if (wk->screen.palette.colours)
         {
             wk->screen.palette.size = 256;
             if (old_palette_colours)
-                access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
+                access->funcs.free(old_palette_colours);    /* Release old (small) palette (a workaround) */
         }
         else
             wk->screen.palette.colours = old_palette_colours;
@@ -422,17 +412,17 @@ Virtual* opnwk(Virtual *vwk)
     wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
     wk->screen.coordinates.max_y = wk->screen.mfdb.height - 1;
 
-    wk->screen.look_up_table = 0;			/* Was 1 (???)	Shouldn't be needed (graphics_mode) */
+    wk->screen.look_up_table = 0;           /* Was 1 (???)  Shouldn't be needed (graphics_mode) */
     wk->screen.mfdb.standard = 0;
 
-    if (pixel.width > 0)			/* Starts out as screen width */
+    if (pixel.width > 0)            /* Starts out as screen width */
         wk->screen.pixel.width = (pixel.width * 1000L) / wk->screen.mfdb.width;
-    else								   /*	or fixed DPI (negative) */
+    else                                   /*   or fixed DPI (negative) */
         wk->screen.pixel.width = 25400 / -pixel.width;
 
-    if (pixel.height > 0)		/* Starts out as screen height */
+    if (pixel.height > 0)       /* Starts out as screen height */
         wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
-    else									/*	 or fixed DPI (negative) */
+    else                                    /*   or fixed DPI (negative) */
         wk->screen.pixel.height = 25400 / -pixel.height;
 
     return 0;
@@ -443,4 +433,5 @@ Virtual* opnwk(Virtual *vwk)
  */
 void clswk(Virtual *vwk)
 {
+    (void) vwk;
 }

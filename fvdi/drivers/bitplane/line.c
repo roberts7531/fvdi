@@ -29,26 +29,27 @@
  */
 
 #include "fvdi.h"
+#include "driver.h"
+#include "bitplane.h"
 
-extern void c_get_colours(Virtual *vwk, long colour, short *foreground, short* background);
-extern long clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
 
-
-long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
+long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
             long pattern, long colour, long mode)
 {
     void *adr;                  /* Using void pointer is much faster */
-    short dx;                    /* Width of rectangle around line */
-    short dy;                    /* Height of rectangle around line */
-    short xinc;                  /* Positive increase for each x step */
-    short yinc;                  /* In/decrease for each y step */
+    short dx;                   /* Width of rectangle around line */
+    short dy;                   /* Height of rectangle around line */
+    short xinc;                 /* Positive increase for each x step */
+    short yinc;                 /* In/decrease for each y step */
     unsigned short msk;
     int plane;
-    unsigned short linemask;             /* Linestyle bits */
-    unsigned short color;                /* Color index */
+    unsigned short linemask;    /* Linestyle bits */
+    long color;                 /* Color index */
+	long dummy;
 
 #if 0
-    if (line->y1 == line->y2) {
+    if (line->y1 == line->y2)
+    {
         kprintf("Y = %d, MODE = %d.\n", line->y1, vwk->wrt_mode);
         horzline(X1, line);
         return;
@@ -62,16 +63,14 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
     if (!clip_line(vwk, &x1, &y1, &x2, &y2))
         return 1;
 
-    c_get_colours(vwk, colour, &color, (short *) &plane); /* Dummy background */
-#if 0
-    color = colour & 0xffff;
-#endif
+    c_get_colours(vwk, colour, &color, &dummy);
     linemask = pattern;                 /* To avoid compiler warning */
 
     /* Make x axis always going up */
     dy = y2 - y1;
     dx = x2 - x1;
-    if (dx < 0) {
+    if (dx < 0)
+    {
         /* if delta x < 0 then draw from point 2 to 1 */
         dx = -dx;
         dy = -dy;
@@ -81,7 +80,8 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 
     /* Calculate increase values for x and y to add to actual address */
     yinc = vwk->real_address->screen.wrap;
-    if (dy < 0) {
+    if (dy < 0)
+    {
         dy = -dy;
         yinc = -yinc;
     }
@@ -90,7 +90,7 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
     adr = vwk->real_address->screen.mfdb.address;
     adr += (x1 / 16) * vwk->real_address->screen.mfdb.bitplanes * 2;
     adr += (long)y1 * vwk->real_address->screen.wrap;
-    msk = 0x8000 >> (x1 & 0xf);         /* Initial bit position in short */
+    msk = 0x8000 >> (x1 & 0xf);         /* Initial bit position in word */
 
     for (plane = vwk->real_address->screen.mfdb.bitplanes - 1; plane >= 0; plane--)
     {
@@ -103,7 +103,7 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 
         /* Load values fresh for this bitplane */
         addr = adr;             /* Initial start address for changes */
-        bit = msk;              /* Initial bit position in short */
+        bit = msk;              /* Initial bit position in word */
         linemask = pattern;
 
         /* Skip back one step to make for easier check below */
@@ -117,51 +117,32 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 
             switch(mode)
             {
-                case 4:              /* Reverse transparent  */
-                    if (color & 0x0001)
-                    {
-                        bit = ~bit;
-                        for (loopcnt = dx; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr &= bit;
-                            bit = (bit >> 1) | (bit << 15);
-                            if (!(bit & 0x8000))
-                                addr += xinc;
-                            eps += e1;
-                            if (eps >= 0) {
-                                eps -= e2;
-                                addr += yinc;       /* Increment y */
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (loopcnt = dx; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr |= bit;
-                            bit = (bit >> 1) | (bit << 15);
-                            if (bit & 0x8000)
-                                addr += xinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                addr += yinc;       /* Increment y */
-                            }
-                        }
-                    }
-                    break;
-
-                case 3:              /* xor */
+            case 4:              /* Reverse transparent  */
+                if (color & 0x0001)
+                {
+                    bit = ~bit;
                     for (loopcnt = dx; loopcnt >= 0; loopcnt--)
                     {
                         linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
                         if (linemask & 0x8000)
-                            *(short *)addr ^= bit;
+                            *(short *)addr &= bit;
+                        bit = (bit >> 1) | (bit << 15);
+                        if (!(bit & 0x8000))
+                            addr += xinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            addr += yinc;       /* Increment y */
+                        }
+                    }
+                } else
+                {
+                    for (loopcnt = dx; loopcnt >= 0; loopcnt--)
+                    {
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
+                            *(short *)addr |= bit;
                         bit = (bit >> 1) | (bit << 15);
                         if (bit & 0x8000)
                             addr += xinc;
@@ -172,88 +153,106 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
                             addr += yinc;       /* Increment y */
                         }
                     }
-                    break;
+                }
+                break;
 
-                case 2:              /* or */
-                    if (color & 0x0001) {
-                        for (loopcnt = dx; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr |= bit;
-                            bit = (bit >> 1) | (bit << 15);
-                            if (bit & 0x8000)
-                                addr += xinc;
-                            eps += e1;
-                            if (eps >= 0) {
-                                eps -= e2;
-                                addr += yinc;       /* Increment y */
-                            }
-                        }
-                    }
-                    else
+            case 3:              /* xor */
+                for (loopcnt = dx; loopcnt >= 0; loopcnt--)
+                {
+                    linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                    if (linemask & 0x8000)
+                        *(short *)addr ^= bit;
+                    bit = (bit >> 1) | (bit << 15);
+                    if (bit & 0x8000)
+                        addr += xinc;
+                    eps += e1;
+                    if (eps >= 0)
                     {
-                        bit = ~bit;
-                        for (loopcnt = dx; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr &= bit;
-                            bit = (bit >> 1) | (bit << 15);
-                            if (!(bit & 0x8000))
-                                addr += xinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                addr += yinc;       /* Increment y */
-                            }
-                        }
+                        eps -= e2;
+                        addr += yinc;       /* Increment y */
                     }
-                    break;
+                }
+                break;
 
-                case 1:              /* Replace */
-                    if (color & 0x0001)
+            case 2:              /* or */
+                if (color & 0x0001)
+                {
+                    for (loopcnt = dx; loopcnt >= 0; loopcnt--)
                     {
-                        for (loopcnt = dx; loopcnt >= 0; loopcnt--)
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
+                            *(short *)addr |= bit;
+                        bit = (bit >> 1) | (bit << 15);
+                        if (bit & 0x8000)
+                            addr += xinc;
+                        eps += e1;
+                        if (eps >= 0)
                         {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *) addr |= bit;
-                            else
-                                *(short *) addr &= ~bit;
-                            bit = (bit >> 1) | (bit << 15);
-                            if (bit & 0x8000)
-                                addr += xinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                addr += yinc;       /* Increment y */
-                            }
+                            eps -= e2;
+                            addr += yinc;       /* Increment y */
                         }
                     }
-                    else
+                } else
+                {
+                    bit = ~bit;
+                    for (loopcnt = dx; loopcnt >= 0; loopcnt--)
                     {
-                        bit = ~bit;
-                        for (loopcnt = dx; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
                             *(short *)addr &= bit;
-                            bit = (bit >> 1) | (bit << 15);
-                            if (!(bit & 0x8000))
-                                addr += xinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                addr += yinc;       /* Increment y */
-                            }
+                        bit = (bit >> 1) | (bit << 15);
+                        if (!(bit & 0x8000))
+                            addr += xinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            addr += yinc;       /* Increment y */
                         }
                     }
+                }
+                break;
+
+            case 1:              /* Replace */
+                if (color & 0x0001)
+                {
+                    for (loopcnt = dx; loopcnt >= 0; loopcnt--)
+                    {
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
+                            *(short *)addr |= bit;
+                        else
+                            *(short *)addr &= ~bit;
+                        bit = (bit >> 1) | (bit << 15);
+                        if (bit & 0x8000)
+                            addr += xinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            addr += yinc;       /* Increment y */
+                        }
+                    }
+                } else
+                {
+                    bit = ~bit;
+                    for (loopcnt = dx; loopcnt >= 0; loopcnt--)
+                    {
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        *(short *)addr &= bit;
+                        bit = (bit >> 1) | (bit << 15);
+                        if (!(bit & 0x8000))
+                            addr += xinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            addr += yinc;       /* Increment y */
+                        }
+                    }
+                }
             }
-        }
-        else
+        } else
         {
             e1 = 2 * dx;
             eps = -dy;
@@ -261,51 +260,32 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
 
             switch (mode)
             {
-                case 4:              /* Reverse transparent */
-                    if (color & 0x0001)
-                    {
-                        bit = ~bit;
-                        for (loopcnt = dy; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr &= bit;
-                            addr += yinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                bit = (bit >> 1) | (bit << 15);
-                                if (!(bit & 0x8000))
-                                    addr += xinc;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (loopcnt = dy; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr |= bit;
-                            addr += yinc;
-                            eps += e1;
-                            if (eps >= 0) {
-                                eps -= e2;
-                                bit = (bit >> 1) | (bit << 15);
-                                if (bit & 0x8000)
-                                    addr += xinc;
-                            }
-                        }
-                    }
-                    break;
-
-                case 3:              /* xor */
+            case 4:              /* Reverse transparent */
+                if (color & 0x0001)
+                {
+                    bit = ~bit;
                     for (loopcnt = dy; loopcnt >= 0; loopcnt--)
                     {
                         linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
                         if (linemask & 0x8000)
-                            *(short *)addr ^= bit;
+                            *(short *)addr &= bit;
+                        addr += yinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            bit = (bit >> 1) | (bit << 15);
+                            if (!(bit & 0x8000))
+                                addr += xinc;
+                        }
+                    }
+                } else
+                {
+                    for (loopcnt = dy; loopcnt >= 0; loopcnt--)
+                    {
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
+                            *(short *)addr |= bit;
                         addr += yinc;
                         eps += e1;
                         if (eps >= 0)
@@ -316,87 +296,104 @@ long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
                                 addr += xinc;
                         }
                     }
-                    break;
+                }
+                break;
 
-                case 2:              /* or */
-                    if (color & 0x0001)
+            case 3:              /* xor */
+                for (loopcnt = dy; loopcnt >= 0; loopcnt--)
+                {
+                    linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                    if (linemask & 0x8000)
+                        *(short *)addr ^= bit;
+                    addr += yinc;
+                    eps += e1;
+                    if (eps >= 0)
                     {
-                        for (loopcnt = dy; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr |= bit;
-                            addr += yinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                bit = (bit >> 1) | (bit << 15);
-                                if (bit & 0x8000)
-                                    addr += xinc;
-                            }
-                        }
+                        eps -= e2;
+                        bit = (bit >> 1) | (bit << 15);
+                        if (bit & 0x8000)
+                            addr += xinc;
                     }
-                    else
-                    {
-                        bit = ~bit;
-                        for(loopcnt = dy; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr &= bit;
-                            addr += yinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                bit = (bit >> 1) | (bit << 15);
-                                if (!(bit & 0x8000))
-                                    addr += xinc;
-                            }
-                        }
-                    }
-                    break;
+                }
+                break;
 
-                case 1:              /* Replace */
-                    if (color & 0x0001)
+            case 2:              /* or */
+                if (color & 0x0001)
+                {
+                    for (loopcnt = dy; loopcnt >= 0; loopcnt--)
                     {
-                        for (loopcnt = dy; loopcnt >= 0; loopcnt--)
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
+                            *(short *)addr |= bit;
+                        addr += yinc;
+                        eps += e1;
+                        if (eps >= 0)
                         {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
-                            if (linemask & 0x8000)
-                                *(short *)addr |= bit;
-                            else
-                                *(short *)addr &= ~bit;
-                            addr += yinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                bit = (bit >> 1) | (bit << 15);
-                                if (bit & 0x8000)
-                                    addr += xinc;
-                            }
+                            eps -= e2;
+                            bit = (bit >> 1) | (bit << 15);
+                            if (bit & 0x8000)
+                                addr += xinc;
                         }
                     }
-                    else
+                } else
+                {
+                    bit = ~bit;
+                    for(loopcnt = dy; loopcnt >= 0; loopcnt--)
                     {
-                        bit = ~bit;
-                        for (loopcnt = dy; loopcnt >= 0; loopcnt--)
-                        {
-                            linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
                             *(short *)addr &= bit;
-                            addr += yinc;
-                            eps += e1;
-                            if (eps >= 0)
-                            {
-                                eps -= e2;
-                                bit = (bit >> 1) | (bit << 15);
-                                if (!(bit & 0x8000))
-                                    addr += xinc;
-                            }
+                        addr += yinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            bit = (bit >> 1) | (bit << 15);
+                            if (!(bit & 0x8000))
+                                addr += xinc;
                         }
                     }
+                }
+                break;
+
+            case 1:              /* Replace */
+                if (color & 0x0001)
+                {
+                    for (loopcnt = dy; loopcnt >= 0; loopcnt--)
+                    {
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        if (linemask & 0x8000)
+                            *(short *)addr |= bit;
+                        else
+                            *(short *)addr &= ~bit;
+                        addr += yinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            bit = (bit >> 1) | (bit << 15);
+                            if (bit & 0x8000)
+                                addr += xinc;
+                        }
+                    }
+                } else
+                {
+                    bit = ~bit;
+                    for (loopcnt = dy; loopcnt >= 0; loopcnt--)
+                    {
+                        linemask = (linemask >> 15) | (linemask << 1);     /* Get next bit of line style */
+                        *(short *)addr &= bit;
+                        addr += yinc;
+                        eps += e1;
+                        if (eps >= 0)
+                        {
+                            eps -= e2;
+                            bit = (bit >> 1) | (bit << 15);
+                            if (!(bit & 0x8000))
+                                addr += xinc;
+                        }
+                    }
+                }
             }
         }
         adr += 2;

@@ -5,7 +5,7 @@ long CDECL x_get_colour(Workstation *wk, long colour);
 void CDECL x_get_colours(Workstation *wk, long colour, short *foreground, short *background);
 
 long CDECL c_get_colour(Virtual *vwk, long colour);
-void CDECL c_get_colours(Virtual *vwk, long colour, short *foreground, short *background);
+void CDECL c_get_colours(Virtual *vwk, long colour, long *foreground, long *background);
 void CDECL c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]);
 
 long CDECL c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);

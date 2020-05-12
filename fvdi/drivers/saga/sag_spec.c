@@ -21,13 +21,12 @@
  */
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "relocate.h"
 #include "saga.h"
 #include "video.h"
 #include <os.h>
-
-#include "driver.h"
+#include "string/memset.h"
 
 char r_16[] = {5, 11, 12, 13, 14, 15};
 char g_16[] = {6,  5,  6,  7,  8,  9, 10};
@@ -37,11 +36,9 @@ char none[] = {0};
 Mode mode[1] =
 	{{16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, {r_16, g_16, b_16, none, none, none}, 0,  2, 2, 1}};
 
-extern Device device;
-
 char driver_name[] = "SAGA";
 
-struct {
+static struct {
 	short used; /* Whether the mode option was used or not. */
 	short width;
 	short height;
@@ -54,28 +51,19 @@ struct {
 	short height;
 } pixel;
 
-extern Driver *me;
-extern Access *access;
+long CDECL (*write_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y, long colour) = c_write_pixel;
+long CDECL (*read_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y) = c_read_pixel;
+long CDECL (*line_draw_r)(Virtual *vwk, long x1, long y1, long x2, long y2, long pattern, long colour, long mode) = c_line_draw;
+long CDECL (*expand_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation, long colour) = c_expand_area;
+long CDECL (*fill_area_r)(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style) = c_fill_area;
+long CDECL (*fill_poly_r)(Virtual *vwk, short points[], long n, short index[], long moves, short *pattern, long colour, long mode, long interior_style) = 0;
+long CDECL (*blit_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation) = c_blit_area;
+long CDECL (*text_area_r)(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets) = 0;
+long CDECL (*mouse_draw_r)(Workstation *wk, long x, long y, Mouse *mouse) = c_mouse_draw;
 
-extern short *loaded_palette;
-
-extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-
-extern long tokenize(const char *ptr);
-
-void *write_pixel_r = &c_write_pixel;
-void *read_pixel_r  = &c_read_pixel;
-void *line_draw_r   = &c_line_draw;
-void *expand_area_r = &c_expand_area;
-void *fill_area_r   = &c_fill_area;
-void *fill_poly_r   = 0;
-void *blit_area_r   = &c_blit_area;
-void *text_area_r   = 0;
-void *mouse_draw_r  = &c_mouse_draw;
-void *set_colours_r = &c_set_colours;
-void *get_colours_r = 0;
-void *get_colour_r  = &c_get_colour;
+long CDECL (*get_colour_r)(Virtual *vwk, long colour) = c_get_colour;
+void CDECL (*get_colours_r)(Virtual *vwk, long colour, long *foreground, long *background) = 0;
+void CDECL (*set_colours_r)(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]) = c_set_colours;
 
 static void saga_puts(const char* message)
 {
@@ -97,18 +85,10 @@ long wk_extend = 0;
 short accel_s = 0;
 short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE | A_MOUSE;
 
-Mode *graphics_mode = &mode[0];
+const Mode *graphics_mode = &mode[0];
 
-short debug = 0;
 
-long set_mode(const char **ptr);
-
-Option options[] = {
-	{"debug",      &debug,             2},  /* debug, turn on debugging aids */
-	{"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
-};
-
-char *get_num(char *token, short *num)
+static char *get_num(char *token, short *num)
 {
 	char buf[10], c;
 	int i;
@@ -129,7 +109,7 @@ char *get_num(char *token, short *num)
 	return token;
 }
 
-int set_bpp(int bpp)
+static int set_bpp(int bpp)
 {
 	switch (bpp) {
 	case -1:
@@ -144,12 +124,14 @@ int set_bpp(int bpp)
 	return bpp;
 }
 
-long set_mode(const char **ptr)
+static long set_mode(const char **ptr)
 {
 	char token[80], *tokenptr;
 
-	if (!(*ptr = access->funcs.skip_space(*ptr)))
+	if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
+	{
 		;		/* *********** Error, somehow */
+	}
 	*ptr = access->funcs.get_token(*ptr, token, 80);
 
 	tokenptr = token;
@@ -164,6 +146,11 @@ long set_mode(const char **ptr)
 
 	return 1;
 }
+
+static Option options[] = {
+	{"debug",      &debug,             2},  /* debug, turn on debugging aids */
+	{"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+};
 
 /*
  * Handle any driver specific parameters
@@ -188,7 +175,7 @@ long check_token(char *token, const char **ptr)
       normal = 1;
       break;
    }
-   for(i = 0; i < sizeof(options) / sizeof(Option); i++) {
+   for(i = 0; i < (int)(sizeof(options) / sizeof(Option)); i++) {
       if (access->funcs.equal(xtoken, options[i].name)) {
          switch (options[i].type) {
          case -1:     /* Function call */
@@ -203,9 +190,11 @@ long check_token(char *token, const char **ptr)
             *(short *)options[i].varfunc += -1 + 2 * normal;
             return 1;
          case 3:
-           if (!(*ptr = access->funcs.skip_space(*ptr)))
+           if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
+           {
               ;  /* *********** Error, somehow */
-            *ptr = access->funcs.get_token(*ptr, token, 80);
+           }
+           *ptr = access->funcs.get_token(*ptr, token, 80);
            *(short *)options[i].varfunc = token[0];
            return 1;
          }
@@ -236,7 +225,7 @@ static struct ModeInfo *find_mode_info(void)
 
 	for (i = 0; i < modeline_vesa_entries; i++) {
 		struct ModeInfo *p = &modeline_vesa_entry[i];
-		if (p->Width == resolution.width && p->Height == resolution.height)
+		if (p->Width == (UWORD)resolution.width && p->Height == (UWORD)resolution.height)
 			return p;
 	}
 
@@ -245,7 +234,7 @@ static struct ModeInfo *find_mode_info(void)
 }
 
 /* Allocate screen buffer */
-UBYTE *saga_alloc_vram(UWORD width, UWORD height)
+static UBYTE *saga_alloc_vram(UWORD width, UWORD height)
 {
 	ULONG buffer;
 	ULONG vram_size = (ULONG)width * height * sizeof(short);
@@ -400,4 +389,5 @@ Virtual* CDECL opnwk(Virtual *vwk)
  */
 void CDECL clswk(Virtual *vwk)
 {
+	(void) vwk;
 }

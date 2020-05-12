@@ -11,9 +11,8 @@
  * of license.
  */
 
-#define BOTH	/* Write in both FastRAM and on screen */
-
 #include "fvdi.h"
+#include "driver.h"
 #include "../bitplane/bitplane.h"
 #include "relocate.h"
 
@@ -60,7 +59,8 @@ c_read_pixel(Virtual *vwk, MFDB *src, long x, long y)
     if (!src || !src->address || (src->address == wk->screen.mfdb.address)) {
         offset = wk->screen.wrap * y + x * sizeof(short);
 #ifdef BOTH
-        if (wk->screen.shadow.address) {
+        if (wk->screen.shadow.address)
+        {
             colour = *(unsigned short *)((long)wk->screen.shadow.address + offset);
         } else {
 #endif

@@ -22,12 +22,8 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
-
-#define NULL    (void *) 0L
-
-/* External data and functions */
-extern Driver *me;
+#include "driver.h"
+#include "radeon.h"
 
 /* We must remember if the mouse is visible or not */
 static int mouse_visible = 0;
@@ -107,7 +103,7 @@ c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse)
     Virtual *vwk = me->default_vwk;
 
     (void) wk;
-    /*  KDEBUG(("c_mouse_draw %ld,%ld %p (old=%lu)\n", x & 0xffff, y, mouse, (ULONG)x >> 16)); */
+    /* KDEBUG(("c_mouse_draw %ld,%ld %p (old=%lu)\n", x & 0xffff, y, mouse, (ULONG)x >> 16)); */
 
     if ((long)mouse > 7) /* Set new mouse cursor shape */
     {

@@ -46,16 +46,25 @@ static short initialized = 0;
 
 short int_is_short = sizeof(int) == sizeof(short);
 
-static long remove_fvdi(void);
-static long setup_fvdi(unsigned long, long);
+static long CDECL remove_fvdi(void);
+static long CDECL setup_fvdi(unsigned long, long);
 
 static int nvdi_patch(void);
+
+/* called from startup assembler code */
+long CDECL startup(void);
+void CDECL recheck_mtask(void);
+void CDECL vdi_debug(VDIpars * pars, char *vector);
+void CDECL trap2_debug(long type, VDIpars * pars, long *stack);
+void CDECL lineA_debug(long opcode, long pc);
+
+
 
 struct fVDI_cookie {
     short version;
     short flags;
-    long (*remove)(void);
-    long (*setup)(unsigned long type, long value);
+    long CDECL(*remove)(void);
+    long CDECL(*setup)(unsigned long type, long value);
     struct fVDI_log *log;
 };	/* cookie = {VERSION, 0, remove_fvdi, setup_fvdi, &fvdi_log}; */
 
@@ -273,7 +282,7 @@ long startup(void)
             {
                 PRINTF((" %s at $%08lx\n", driver->module.name, (long) driver->module.initialize));
             }
-            if (!((long (*)(Virtual *))(driver->module.initialize))(driver->default_vwk))
+            if (driver->module.initialize(driver->default_vwk) == 0)
             {
                 /* Driver that fails initialization should be removed! */
                 error("Failed driver initialization of ", driver->module.name);
@@ -372,7 +381,7 @@ long startup(void)
  * Shutdown support
  * Unlinks fVDI and releases all allocated memory.
  */
-static long remove_fvdi(void)
+static long CDECL remove_fvdi(void)
 {
     long ret;
 
@@ -422,7 +431,7 @@ static Driver *find_driver(long n)
 /*
  * Post-install setup
  */
-static long setup_fvdi(unsigned long type, long value)
+static long CDECL setup_fvdi(unsigned long type, long value)
 {
     Driver *driver;
     long ret;
@@ -535,7 +544,7 @@ void recheck_mtask(void)
 
 
 #ifdef FVDI_DEBUG
-void vdi_debug(VDIpars *pars, char *vector)
+void CDECL vdi_debug(VDIpars *pars, char *vector)
 {
     static long count = 1;
     static int entered = 0;
@@ -784,7 +793,7 @@ void display_output(VDIpars *pars)
 }
 
 
-void trap2_debug(long type, VDIpars *pars, long *stack)
+void CDECL trap2_debug(long type, VDIpars *pars, long *stack)
 {
     int i;
 

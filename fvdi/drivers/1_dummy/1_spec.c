@@ -54,8 +54,6 @@ short accel_c = 0;
 
 Mode *graphics_mode = &mode[0];
 
-short colour_bits = 18;
-
 short debug = 0;
 
 short depth = 0;

@@ -31,6 +31,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include "fvdi.h"
+#include "driver.h"
 #include "radeon.h"
 #include "video.h"
 

@@ -11,6 +11,8 @@
 
 #include "fvdi.h"
 #include "relocate.h"
+#include "driver.h"
+#include "bitplane.h"
 #include <stdbool.h>
 
 #define DBG_BLIT 0      /* See, what happens (a bit) */
@@ -23,13 +25,8 @@
 #define PAT_FLAG        16
 
 
-extern Access *access;
 static long dbg = 0;
 
-long x_get_colour(Workstation *wk, long colour);
-void c_get_colours(Virtual *vwk, long colour, short *foreground, short* background);
-void x_get_colours(Workstation *wk, long colour, short *foreground, short* background);
-long clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
 
 
 /* Passes parameters to bitblt */
@@ -81,7 +78,6 @@ struct blit_frame
 
 
 /* Blitter registers */
-typedef struct blit blit;
 struct blit
 {
     short  src_x_inc;
@@ -378,7 +374,7 @@ do_blit_15(blit * blt)
 #endif
 
 
-static void do_blit_short_32(blit *blt)
+static void do_blit_short_32(struct blit *blt)
 {
     unsigned long blt_src_in;
     unsigned short blt_src_out, blt_dst_in;
@@ -508,7 +504,7 @@ op_end:
 
 
 
-static void do_blit_short(blit *blt)
+static void do_blit_short(struct blit *blt)
 {
     unsigned long blt_src_in;
     unsigned short blt_src_out, blt_dst_in;
@@ -634,7 +630,7 @@ op_end:
     } while (--yc > 0);
 }
 
-static void do_blit(blit *blt)
+static void do_blit(struct blit *blt)
 {
     unsigned long blt_src_in;
     unsigned short blt_src_out, blt_dst_in, blt_dst_out;
@@ -1037,9 +1033,9 @@ bit_blt(struct blit_frame *info)
     short s_span, s_xmin_off, s_xmax_off;
     short d_span, d_xmin_off, d_xmax_off;
     unsigned long s_addr, d_addr;
-    blit blitter;
+    struct blit blitter;
 
-    blit *blt = &blitter;
+    struct blit *blt = &blitter;
 
     /* Setting of skew flags */
 
@@ -1468,8 +1464,8 @@ long c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
               long operation, long colour)
 {
     struct blit_frame info;     /* Holds some internal info for bit_blt */
-    short foreground;
-    short background;
+    long foreground;
+    long background;
 
     c_get_colours((Virtual *)((long)vwk & ~1), colour, &foreground, &background);
 

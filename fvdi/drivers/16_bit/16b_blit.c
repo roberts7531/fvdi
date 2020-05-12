@@ -1,4 +1,4 @@
-/* 
+/*
  * A 16 bit graphics blit routine, by Johan Klockars.
  *
  * This file is an example of how to write an
@@ -11,14 +11,6 @@
  * of license.
  */
 
-#if 1
-#define FAST		/* Write in FastRAM buffer */
-#define BOTH		/* Write in both FastRAM and on screen */
-#else
-#undef FAST
-#undef BOTH
-#endif
-
 #include "fvdi.h"
 #include "driver.h"
 #include "../bitplane/bitplane.h"
@@ -27,11 +19,6 @@
 #define PIXEL_SIZE	sizeof(PIXEL)
 
 #ifdef FVDI_DEBUG
-#include "relocate.h"
-extern short debug;
-extern Access *access;
-extern char err_msg[];
-
 static void debug_out(char *text1, int w, int old_w, int h, int src_x, int src_y, int dst_x, int dst_y)
 {
     PRINTF(("%s%d", w));
@@ -54,6 +41,7 @@ static void debug_out(char *text1, int w, int old_w, int h, int src_x, int src_y
  */
 
 #ifdef BOTH
+
 static void
 s_blit_copy(PIXEL *src_addr, int src_line_add,
             PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
@@ -67,6 +55,8 @@ s_blit_copy(PIXEL *src_addr, int src_line_add,
             v = *src_addr++;
 #ifdef BOTH
             *(volatile PIXEL *) dst_addr_fast++ = v;
+#else
+			(void) dst_addr_fast;
 #endif
             *dst_addr++ = v;
         }
@@ -95,6 +85,7 @@ s_blit_or(PIXEL *src_addr, int src_line_add,
             *(volatile PIXEL *)dst_addr_fast++ = v;
             *dst_addr++ = v;
 #else
+			(void) dst_addr_fast;
             *dst_addr++ |= v;
 #endif
         }
@@ -121,6 +112,7 @@ s_blit(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             vd = *dst_addr_fast;
 #else
+			(void) dst_addr_fast;
             vd = *dst_addr;
 #endif
             switch(operation) {
@@ -200,6 +192,8 @@ s_pan_backwards_copy(PIXEL *src_addr, int src_line_add,
             v = *--src_addr;
 #ifdef BOTH
             *(volatile PIXEL *)--dst_addr_fast = v;
+#else
+			(void) dst_addr_fast;
 #endif
             *--dst_addr = v;
         }
@@ -228,6 +222,7 @@ s_pan_backwards_or(PIXEL *src_addr, int src_line_add,
             *(volatile PIXEL *)dst_addr_fast = v;
             *--dst_addr = v;
 #else
+			(void) dst_addr_fast;
             *--dst_addr |= v;
 #endif
         }
@@ -254,6 +249,7 @@ s_pan_backwards(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             vd = *--dst_addr_fast;
 #else
+			(void) dst_addr_fast;
             vd = *--dst_addr;
 #endif
             switch(operation) {
@@ -399,6 +395,7 @@ blit_16b(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             vd = *dst_addr_fast;
 #else
+			(void) dst_addr_fast;
             vd = *dst_addr;
 #endif
             switch(operation) {
@@ -730,6 +727,9 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
             }
         }
     }
+#else
+	(void) to_screen;
+	(void) dst_addr_fast;
 #endif
     return 1;	/* Return as completed */
 }

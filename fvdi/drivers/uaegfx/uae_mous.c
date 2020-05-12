@@ -22,12 +22,9 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "uaegfx.h"
 #include "uaelib.h"
-
-/* External data and functions */
-extern Driver *me;
 
 /* We must remember if the mouse is visible or not */
 static int mouse_visible = 0;
@@ -104,8 +101,8 @@ static void show_mouse(Virtual *vwk, short x, short y)
 	mouse_visible = 1;
 }
 
-long CDECL
-c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse)
+
+long CDECL c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse)
 {
 	/* See mouse_timer and wk_r_mouse in engine/mouse.s for parameters meaning */
 	Virtual *vwk = me->default_vwk;

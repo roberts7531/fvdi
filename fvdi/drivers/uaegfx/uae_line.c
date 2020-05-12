@@ -23,11 +23,8 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "uaegfx.h"
-
-
-extern long CDECL clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2);
 
 /*
  * Make it as easy as possible for the C compiler.
@@ -45,6 +42,8 @@ static void replace(short *addr, short *addr_fast, int count,
 {
 	*addr = foreground;
 
+	(void) addr_fast;
+	(void) background;
 	for(--count; count >= 0; count--) {
 		if (d < 0) {
 			d += incrE;
@@ -63,6 +62,7 @@ static void replace_p(short *addr, short *addr_fast, long pattern, int count,
 {
 	unsigned int mask = 0x8000;
 
+	(void) addr_fast;
 	if (pattern & mask) {
 		*addr = foreground;
 	} else {
@@ -93,6 +93,9 @@ static void transparent(short *addr, short *addr_fast, int count,
                         int d, int incrE, int incrNE, int one_step, int both_step,
                         short foreground, short background)
 {
+	(void) addr_fast;
+	(void) background;
+
 	*addr = foreground;
 
 	for(--count; count >= 0; count--) {
@@ -113,6 +116,8 @@ static void transparent_p(short *addr, short *addr_fast, long pattern, int count
 {
 	unsigned int mask = 0x8000;
 
+	(void) addr_fast;
+	(void) background;
 	if (pattern & mask) {
 		*addr = foreground;
 	}
@@ -141,6 +146,9 @@ static void xor(short *addr, short *addr_fast, int count,
 {
 	int v;
 
+	(void) addr_fast;
+	(void) foreground;
+	(void) background;
 	v = ~*addr;
 	*addr = v;
 
@@ -164,6 +172,9 @@ static void xor_p(short *addr, short *addr_fast, long pattern, int count,
 	int v;
 	unsigned int mask = 0x8000;
 
+	(void) addr_fast;
+	(void) foreground;
+	(void) background;
 	if (pattern & mask) {
 		v = ~*addr;
 		*addr = v;
@@ -192,6 +203,9 @@ static void revtransp(short *addr, short *addr_fast, int count,
                       int d, int incrE, int incrNE, int one_step, int both_step,
                       short foreground, short background)
 {
+	(void) addr_fast;
+	(void) background;
+
 	*addr = foreground;
 
 	for(--count; count >= 0; count--) {
@@ -212,6 +226,8 @@ static void revtransp_p(short *addr, short *addr_fast, long pattern, int count,
 {
 	unsigned int mask = 0x8000;
 
+	(void) addr_fast;
+	(void) background;
 	if (!(pattern & mask)) {
 		*addr = foreground;
 	}
@@ -234,8 +250,7 @@ static void revtransp_p(short *addr, short *addr_fast, long pattern, int count,
 	}
 }
 
-long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
-                       long pattern, long colour, long mode)
+long CDECL c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2, long pattern, long colour, long mode)
 {
 	Workstation *wk;
 	short *addr, *addr_fast;

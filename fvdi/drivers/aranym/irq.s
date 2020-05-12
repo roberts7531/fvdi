@@ -17,7 +17,6 @@
 * XBRA chain for IRQ level 3
 	dc.b	"XBRA"
 	dc.b	"ARAf"
-next_handler:
 _next_handler:
 	dc.l	0
 
@@ -25,7 +24,7 @@ _event_trampoline:
 	movem.l	d0-d2/a0-a2,-(a7)
 	jsr	_event_handler
 	movem.l	(a7)+,d0-d2/a0-a2
-	move.l	next_handler,-(a7)	; Continue to next in chain
+	move.l	_next_handler,-(a7)	; Continue to next in chain
 	rts
 
 	end

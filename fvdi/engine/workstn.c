@@ -443,7 +443,7 @@ void CDECL v_opnwk(VDIpars *pars)
     }
 
     driver = (Driver *)driver_list->value;
-    if ((vwk = ((Virtual *(*)(Virtual *))(driver->opnwk))(default_virtual)))
+    if ((vwk = driver->opnwk(default_virtual)) != NULL)
         ;				/* Should probably do something */
     else
         vwk = driver->default_vwk;
@@ -521,7 +521,7 @@ void CDECL v_clswk(Virtual *vwk, VDIpars *pars)
         screen_wk = 0;
         driver = (Driver *)driver_list->value;
 
-        ((void (*)(Virtual *))(driver->clswk))(vwk);
+        driver->clswk(vwk);
 
         if (old_wk_handle)
             scall_v_clswk(old_wk_handle);

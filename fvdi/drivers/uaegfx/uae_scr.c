@@ -23,7 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "relocate.h"
 #include "uaegfx.h"
 	
@@ -32,8 +32,7 @@
  * x or table address
  * y or table length (high) and type (0 - coordinates)
  */
-long CDECL
-c_write_pixel(Virtual *vwk, MFDB *dst, long x, long y, long colour)
+long CDECL c_write_pixel(Virtual *vwk, MFDB *dst, long x, long y, long colour)
 {
 	Workstation *wk;
 	long offset;
@@ -56,8 +55,7 @@ c_write_pixel(Virtual *vwk, MFDB *dst, long x, long y, long colour)
 }
 
 
-long CDECL
-c_read_pixel(Virtual *vwk, MFDB *src, long x, long y)
+long CDECL c_read_pixel(Virtual *vwk, MFDB *src, long x, long y)
 {
 	Workstation *wk;
 	long offset;

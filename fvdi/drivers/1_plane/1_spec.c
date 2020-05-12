@@ -73,8 +73,6 @@ short graphics_mode = CHECK_PREVIOUS;
 Mode *graphics_mode = &mode[0];
 #endif
 
-short colour_bits = 18;
-
 int shadow = 0;
 
 short debug = 0;

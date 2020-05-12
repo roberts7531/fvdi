@@ -9,9 +9,11 @@
 
 
 #include "fvdi.h"
+#include "driver.h"
+#include "bitplane.h"
 
 
-long x_get_colour(Workstation *wk, long colour)
+long CDECL x_get_colour(Workstation *wk, long colour)
 {
     static signed char tos_colours[] = { 0, -1, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13 };
     int ret;
@@ -32,31 +34,31 @@ long x_get_colour(Workstation *wk, long colour)
 }
 
 
-long CDECL
-c_get_colour(Virtual *vwk, long colour)
+long CDECL c_get_colour(Virtual *vwk, long colour)
 {
     return x_get_colour(vwk->real_address, colour);
 }
 
 
-void CDECL
-c_get_colours(Virtual *vwk, long colour, short *foreground, short* background)
+void CDECL c_get_colours(Virtual *vwk, long colour, long *foreground, long *background)
 {
     *foreground = x_get_colour(vwk->real_address, colour & 0xffff);
     *background = x_get_colour(vwk->real_address, (colour >> 16) & 0xffff);
 }
 
 
-void CDECL
-x_get_colours(Workstation *wk, long colour, short *foreground, short* background)
+void CDECL x_get_colours(Workstation *wk, long colour, short *foreground, short *background)
 {
     *foreground = x_get_colour(wk, colour & 0xffff);
     *background = x_get_colour(wk, (colour >> 16) & 0xffff);
 }
 
 
-void CDECL
-c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested,
-              Colour palette[])
+void CDECL c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[])
 {
+	(void) vwk;
+	(void) start;
+	(void) entries;
+	(void) requested;
+	(void) palette;
 }

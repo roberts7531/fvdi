@@ -23,7 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "uaegfx.h"
 #include "uaelib.h"
 
@@ -72,6 +72,7 @@ static void transparent(short *src_addr, int src_line_add, PIXEL *dst_addr, int 
 	int i, j;
 	unsigned int expand_word, mask;
 
+	(void) background;
 	x = 1 << (15 - (x & 0x000f));
 
 	for(i = h - 1; i >= 0; i--) {
@@ -98,6 +99,8 @@ static void xor(short *src_addr, int src_line_add, PIXEL *dst_addr, int dst_line
 	int i, j, v;
 	unsigned int expand_word, mask;
 
+	(void) background;
+	(void) foreground;
 	x = 1 << (15 - (x & 0x000f));
 
 	for(i = h - 1; i >= 0; i--) {
@@ -125,6 +128,7 @@ static void revtransp(short *src_addr, int src_line_add, PIXEL *dst_addr, int ds
 	int i, j;
 	unsigned int expand_word, mask;
 
+	(void) background;
 	x = 1 << (15 - (x & 0x000f));
 
 	for(i = h - 1; i >= 0; i--) {

@@ -19,10 +19,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "fvdi.h"
+#include "driver.h"
 #include "uaegfx.h"
 #include "relocate.h"
-
-extern Access *access;
 
 void uaegfx_puts(const char* message)
 {

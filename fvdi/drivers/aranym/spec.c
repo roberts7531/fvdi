@@ -1,29 +1,11 @@
 #include "fvdi.h"
 #include "relocate.h"
 #include "driver.h"
+#include "aranym.h"
 #include "string/memset.h"
 
 /* Should try to get rid of this! */
 #include "os.h"
-
-int nf_initialize(void);
-
-/* Mouse event handling */
-extern void (*next_handler)(void);
-extern void event_trampoline(void);
-extern long CDECL event_query(void);
-extern long CDECL event_init(void);
-
-long CDECL c_get_videoramaddress(void);
-void CDECL c_set_resolution(long width, long height, long depth, long freq);
-long CDECL c_get_width(void);
-long CDECL c_get_height(void);
-void CDECL c_openwk(Virtual *vwk);
-void CDECL c_closewk(Virtual *vwk);
-long CDECL c_get_bpp(void);
-#if 0
-void CDECL c_get_component(long component, long *mask, long *shift, long *loss);
-#endif
 
 /* color bit organization */
 char none[] = {0};
@@ -75,262 +57,246 @@ char b_32f[] = {8, 24, 25, 26, 27, 28, 29, 30, 31};
  **/
 Mode mode[7] = /* FIXME: big and little endian differences. */
 {
-	                   /* ... 0, interleaved, hardware clut, usual bit order */
-	{ 1, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
-	{ 2, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
-	{ 4, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
-	{ 8, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
+                       /* ... 0, interleaved, hardware clut, usual bit order */
+    { 1, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
+    { 2, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
+    { 4, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
+    { 8, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
 
-	          /* ... 0, packed pixels, software clut (none), usual bit order */
-	{16, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
+              /* ... 0, packed pixels, software clut (none), usual bit order */
+    {16, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
                               {r_16f, g_16f, b_16f, none, none, none}, 0, 2, 2, 1},
-	{24, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
+    {24, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
                               {r_32f, g_32f, b_32f, none, none, none}, 0, 2, 2, 1},
-	{32, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
+    {32, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
                               {r_32,  g_32,  b_32,  none, none, none}, 0, 2, 2, 1}
 };
 
-extern Device device;
-
 char driver_name[] = "NatFeat/ARAnyM 2005-01-24 (xx bit)";
 
-struct {
-	short used; /* Whether the mode option was used or not. */
-	short width;
-	short height;
-	short bpp;
-	short freq;
+static struct {
+    short used;                          /* Whether the mode option was used or not. */
+    short width;
+    short height;
+    short bpp;
+    short freq;
 } resolution = {0, 640, 480, 16, 85};
 
-struct {
-	short width;
-	short height;
+static struct
+{
+    short width;
+    short height;
 } pixel;
 
-extern Driver *me;
-extern Access *access;
 
-extern short *loaded_palette;
 
-extern void CDECL initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-extern void CDECL c_initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[]);
-extern long tokenize(char *value);
+long CDECL (*write_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y, long colour) = c_write_pixel;
+long CDECL (*read_pixel_r)(Virtual *vwk, MFDB *mfdb, long x, long y) = c_read_pixel;
+long CDECL (*line_draw_r)(Virtual *vwk, long x1, long y1, long x2, long y2, long pattern, long colour, long mode) = c_line_draw;
+long CDECL (*expand_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation, long colour) = c_expand_area;
+long CDECL (*fill_area_r)(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style) = c_fill_area;
+long CDECL (*fill_poly_r)(Virtual *vwk, short points[], long n, short index[], long moves, short *pattern, long colour, long mode, long interior_style) = c_fill_polygon;
+long CDECL (*blit_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation) = c_blit_area;
+long CDECL (*text_area_r)(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets) = c_text_area;;
+long CDECL (*mouse_draw_r)(Workstation *wk, long x, long y, Mouse *mouse) = c_mouse_draw;
+
+long CDECL (*get_colour_r)(Virtual *vwk, long colour) = c_get_colour_16;
+void CDECL (*get_colours_r)(Virtual *vwk, long colour, long *foreground, long *background) = c_get_colours_16;
+void CDECL (*set_colours_r)(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]) = c_set_colours_16;
 
 long wk_extend = 0;
-
 short accel_s = 0;
 short accel_c = A_SET_PIX | A_GET_PIX | A_MOUSE | A_LINE | A_BLIT | A_FILL | A_EXPAND | A_FILLPOLY | A_SET_PAL | A_GET_COL | A_TEXT;
+const Mode *graphics_mode = &mode[1];
 
-Mode *graphics_mode = &mode[1];
+static short irq = 0;
 
-short debug = 0;
-short irq = 0;
-
-extern void *c_write_pixel;
-extern void *c_read_pixel;
-extern void *c_line_draw;
-extern void *c_expand_area;
-extern void *c_fill_area;
-extern void *c_fill_polygon;
-extern void *c_blit_area;
-extern void *c_text_area;
-extern void *c_mouse_draw;
-extern void *c_set_colours_8, *c_set_colours_16, *c_set_colours_32;
-extern void *c_get_colours_8, *c_get_colours_16, *c_get_colours_32;
-extern void *c_get_colour_8, *c_get_colour_16, *c_get_colour_32;
-
-void *write_pixel_r = &c_write_pixel;
-void *read_pixel_r  = &c_read_pixel;
-void *line_draw_r   = &c_line_draw;
-void *expand_area_r = &c_expand_area;
-void *fill_area_r   = &c_fill_area;
-void *fill_poly_r   = &c_fill_polygon;
-void *blit_area_r   = &c_blit_area;
-void *text_area_r   = &c_text_area;;
-void *mouse_draw_r  = &c_mouse_draw;
-void *set_colours_r = &c_set_colours_16;
-void *get_colours_r = &c_get_colours_16;
-void *get_colour_r  = &c_get_colour_16;
-
-long set_mode(const char **ptr);
-long set_scrninfo(const char **ptr);
+static long set_mode(const char **ptr);
+static long set_scrninfo(const char **ptr);
 
 
-Option options[] = {
-	{"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
-	{"scrninfo",   set_scrninfo,      -1},  /* scrninfo fb, make vq_scrninfo return values regarding actual fb layout */
-	{"debug",      &debug,             2},  /* debug, turn on debugging aids */
-	{"irq",        &irq,               1}   /* irq, turn on IRQ handling of events */
+static Option options[] = {
+    {"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+    {"scrninfo",   set_scrninfo,      -1},  /* scrninfo fb, make vq_scrninfo return values regarding actual fb layout */
+    {"debug",      &debug,             2},  /* debug, turn on debugging aids */
+    {"irq",        &irq,               1}   /* irq, turn on IRQ handling of events */
 };
 
 
-char *get_num(char *token, short *num)
+static char *get_num(char *token, short *num)
 {
-	char buf[10], c;
-	int i;
+    char buf[10], c;
+    int i;
 
-	*num = -1;
-	if (!*token)
-		return token;
-	for(i = 0; i < 10; i ++) {
-		c = buf[i] = *token++;
-		if ((c < '0') || (c > '9'))
-			break;
-	}
-	if (i > 5)
-		return token;
+    *num = -1;
+    if (!*token)
+        return token;
+    for(i = 0; i < 10; i ++)
+    {
+        c = buf[i] = *token++;
+        if ((c < '0') || (c > '9'))
+            break;
+    }
+    if (i > 5)
+        return token;
 
-	buf[i] = '\0';
-	*num = access->funcs.atol(buf);
-	return token;
+    buf[i] = '\0';
+    *num = access->funcs.atol(buf);
+    return token;
 }
 
 
-int set_bpp(int bpp)
+static int set_bpp(int bpp)
 {
-	switch (bpp) {
-	case 1:
-		graphics_mode = &mode[0];
-		driver_name[28] = '1';
-		break;
-	case 2:
-		graphics_mode = &mode[1];
-		driver_name[28] = '2';
-		break;
-	case 4:
-		graphics_mode = &mode[2];
-		driver_name[28] = '4';
-		break;
-	case 8:
-		driver_name[28] = '8';
-	case 16:
-	case 24:
-	case 32:
-		graphics_mode = &mode[bpp / 8 + 2];
-		break;
-	default:
-		bpp = 16;		/* Default as 16 bit */
-	}
+    switch (bpp)
+    {
+    case 1:
+        graphics_mode = &mode[0];
+        driver_name[28] = '1';
+        break;
+    case 2:
+        graphics_mode = &mode[1];
+        driver_name[28] = '2';
+        break;
+    case 4:
+        graphics_mode = &mode[2];
+        driver_name[28] = '4';
+        break;
+    case 8:
+        driver_name[28] = '8';
+        /* fall through */
+    case 16:
+    case 24:
+    case 32:
+        graphics_mode = &mode[bpp / 8 + 2];
+        break;
+    default:
+        bpp = 16;       /* Default as 16 bit */
+    }
 
 #if 0
-	/* Update various bitmasks */
-	if (bpp > 8) {
-		long r_mask,  g_mask,  b_mask;
-		long r_shift, g_shift, b_shift;
-		long r_loss,  g_loss,  b_loss;
-		int i;
+    /* Update various bitmasks */
+    if (bpp > 8) {
+        long r_mask,  g_mask,  b_mask;
+        long r_shift, g_shift, b_shift;
+        long r_loss,  g_loss,  b_loss;
+        int i;
 
-		/* Update R */
-		c_get_component(0, &r_mask, &r_shift, &r_loss);
-		for(i = 0; i < graphics_mode->bits.red[0]; i++) {
-			graphics_mode->bits.red[i + 1] = i + r_shift;
-		}
-		/* Update G */
-		c_get_component(1, &g_mask, &g_shift, &g_loss);
-		for(i = 0; i < graphics_mode->bits.green[0]; i++) {
-			graphics_mode->bits.green[i + 1] = i + g_shift;
-		}
-		/* Update B */
-		c_get_component(2, &b_mask, &b_shift, &b_loss);
-		for(i = 0; i < graphics_mode->bits.blue[0]; i++) {
-			graphics_mode->bits.blue[i + 1] = i + b_shift;
-		}
-	}
+        /* Update R */
+        c_get_component(0, &r_mask, &r_shift, &r_loss);
+        for(i = 0; i < graphics_mode->bits.red[0]; i++) {
+            graphics_mode->bits.red[i + 1] = i + r_shift;
+        }
+        /* Update G */
+        c_get_component(1, &g_mask, &g_shift, &g_loss);
+        for(i = 0; i < graphics_mode->bits.green[0]; i++) {
+            graphics_mode->bits.green[i + 1] = i + g_shift;
+        }
+        /* Update B */
+        c_get_component(2, &b_mask, &b_shift, &b_loss);
+        for(i = 0; i < graphics_mode->bits.blue[0]; i++) {
+            graphics_mode->bits.blue[i + 1] = i + b_shift;
+        }
+    }
 #endif
 
-	switch (bpp) {
-	case 16:
-		set_colours_r = &c_set_colours_16;
-		get_colours_r = &c_get_colours_16;
-		get_colour_r  = &c_get_colour_16;
-		driver_name[27] = '1';
-		driver_name[28] = '6';
-		break;
-	case 24:
-	case 32:
-		set_colours_r = &c_set_colours_32;
-		get_colours_r = &c_get_colours_32;
-		get_colour_r  = &c_get_colour_32;
-		driver_name[27] = '3';
-		driver_name[28] = '2';
-		break;
-	/* indexed color modes */
-	default:
-		set_colours_r = &c_set_colours_8;
-		get_colours_r = &c_get_colours_8;
-		get_colour_r  = &c_get_colour_8;
-		driver_name[27] = ' ';
-		break;
-	}
+    switch (bpp) {
+    case 16:
+        set_colours_r = c_set_colours_16;
+        get_colours_r = c_get_colours_16;
+        get_colour_r  = c_get_colour_16;
+        driver_name[27] = '1';
+        driver_name[28] = '6';
+        break;
+    case 24:
+    case 32:
+        set_colours_r = c_set_colours_32;
+        get_colours_r = c_get_colours_32;
+        get_colour_r  = c_get_colour_32;
+        driver_name[27] = '3';
+        driver_name[28] = '2';
+        break;
+    /* indexed color modes */
+    default:
+        set_colours_r = c_set_colours_8;
+        get_colours_r = c_get_colours_8;
+        get_colour_r  = c_get_colour_8;
+        driver_name[27] = ' ';
+        break;
+    }
 
-	return bpp;
+    return bpp;
 }
 
 
-long set_mode(const char **ptr)
+static long set_mode(const char **ptr)
 {
-	char token[80], *tokenptr;
-	
-	if (!(*ptr = access->funcs.skip_space(*ptr)))
-		;		/* *********** Error, somehow */
-	*ptr = access->funcs.get_token(*ptr, token, 80);
+    char token[80], *tokenptr;
 
-	tokenptr = token;
-	tokenptr = get_num(tokenptr, &resolution.width);
-	tokenptr = get_num(tokenptr, &resolution.height);
-	tokenptr = get_num(tokenptr, &resolution.bpp);
-	tokenptr = get_num(tokenptr, &resolution.freq);
+    if ((*ptr = access->funcs.skip_space(*ptr)) == 0)
+    {
+        access->funcs.error("missing parameter for mode option", NULL);
+    }
+    *ptr = access->funcs.get_token(*ptr, token, 80);
 
-	resolution.used = 1;
+    tokenptr = token;
+    tokenptr = get_num(tokenptr, &resolution.width);
+    tokenptr = get_num(tokenptr, &resolution.height);
+    tokenptr = get_num(tokenptr, &resolution.bpp);
+    tokenptr = get_num(tokenptr, &resolution.freq);
 
-	resolution.bpp = set_bpp(resolution.bpp);
+    resolution.used = 1;
 
-	return 1;
+    resolution.bpp = set_bpp(resolution.bpp);
+
+    return 1;
 }
 
 
-void setup_scrninfo(Device *device, Mode *graphics_mode); /* from init.c */
-
-long set_scrninfo(const char** ptr)
+static long set_scrninfo(const char **ptr)
 {
-	char token[80];
+    char token[80];
 
-	if (!(*ptr = access->funcs.skip_space(*ptr)))
-		;		/* *********** Error, somehow */
-	*ptr = access->funcs.get_token(*ptr, token, 80);
+    if ((*ptr = access->funcs.skip_space(*ptr)) == 0)
+    {
+        access->funcs.error("missing parameter for scrninfo option", NULL);
+    }
+    *ptr = access->funcs.get_token(*ptr, token, 80);
 
-	if (access->funcs.equal(token, "fb")) {
-		mode[4].bits.red = r_16;
-		mode[4].bits.green = g_16;
-		mode[4].bits.blue = b_16;
-		mode[4].org = 0x81;
-		mode[5].bits.red = r_32;
-		mode[5].bits.green = g_32;
-		mode[5].bits.blue = b_32;
-		mode[5].org = 0x81;
-		mode[6].bits.red = r_32;
-		mode[6].bits.green = g_32;
-		mode[6].bits.blue = b_32;
-		mode[6].org = 0x81;
-	} else {
-		mode[4].bits.red = r_16f;
-		mode[4].bits.green = g_16f;
-		mode[4].bits.blue = b_16f;
-		mode[4].org = 0x01;
-		mode[5].bits.red = r_32f;
-		mode[5].bits.green = g_32f;
-		mode[5].bits.blue = b_32f;
-		mode[5].org = 0x01;
-		mode[6].bits.red = r_32f;
-		mode[6].bits.green = g_32f;
-		mode[6].bits.blue = b_32f;
-		mode[6].org = 0x01;
-	}
+    if (access->funcs.equal(token, "fb"))
+    {
+        mode[4].bits.red = r_16;
+        mode[4].bits.green = g_16;
+        mode[4].bits.blue = b_16;
+        mode[4].org = 0x81;
+        mode[5].bits.red = r_32;
+        mode[5].bits.green = g_32;
+        mode[5].bits.blue = b_32;
+        mode[5].org = 0x81;
+        mode[6].bits.red = r_32;
+        mode[6].bits.green = g_32;
+        mode[6].bits.blue = b_32;
+        mode[6].org = 0x81;
+    } else
+    {
+        mode[4].bits.red = r_16f;
+        mode[4].bits.green = g_16f;
+        mode[4].bits.blue = b_16f;
+        mode[4].org = 0x01;
+        mode[5].bits.red = r_32f;
+        mode[5].bits.green = g_32f;
+        mode[5].bits.blue = b_32f;
+        mode[5].org = 0x01;
+        mode[6].bits.red = r_32f;
+        mode[6].bits.green = g_32f;
+        mode[6].bits.blue = b_32f;
+        mode[6].org = 0x01;
+    }
 
-	if (me && me->device)
-		setup_scrninfo(me->device, graphics_mode);
+    if (me && me->device)
+        setup_scrninfo(me->device, graphics_mode);
 
-	return 1;
+    return 1;
 }
 
 
@@ -339,126 +305,134 @@ long set_scrninfo(const char** ptr)
  */
 long check_token(char *token, const char **ptr)
 {
-	int i;
-	int normal;
-	char *xtoken;
+    int i;
+    int normal;
+    char *xtoken;
 
-	xtoken = token;
-	switch (token[0]) {
-	case '+':
-		xtoken++;
-		normal = 1;
-		break;
-	case '-':
-		xtoken++;
-		normal = 0;
-		break;
-	default:
-		normal = 1;
-		break;
-	}
+    xtoken = token;
+    switch (token[0])
+    {
+    case '+':
+        xtoken++;
+        normal = 1;
+        break;
+    case '-':
+        xtoken++;
+        normal = 0;
+        break;
+    default:
+        normal = 1;
+        break;
+    }
 
-	for(i = 0; i < sizeof(options) / sizeof(Option); i++) {
-		if (access->funcs.equal(xtoken, options[i].name)) {
-			switch (options[i].type) {
-			case -1:	  /* Function call */
-				return ((long (*)(const char **))options[i].varfunc)(ptr);
-			case 0:	  /* Default 1, set to 0 */
-				*(short *)options[i].varfunc = 1 - normal;
-				return 1;
-			case 1:	 /* Default 0, set to 1 */
-				*(short *)options[i].varfunc = normal;
-				return 1;
-			case 2:	 /* Increase */
-				*(short *)options[i].varfunc += -1 + 2 * normal;
-				return 1;
-			case 3:
-				if (!(*ptr = access->funcs.skip_space(*ptr)))
-					;	 /* *********** Error, somehow */
-				*ptr = access->funcs.get_token(*ptr, token, 80);
-				*(short *)options[i].varfunc = token[0];
-				return 1;
-			}
-		}
-	}
+    for (i = 0; i < (int)(sizeof(options) / sizeof(Option)); i++)
+    {
+        if (access->funcs.equal(xtoken, options[i].name))
+        {
+            switch (options[i].type)
+            {
+            case -1:                /* Function call */
+                return ((long (*)(const char **))options[i].varfunc)(ptr);
+            case 0:                 /* Default 1, set to 0 */
+                *(short *)options[i].varfunc = 1 - normal;
+                return 1;
+            case 1:                 /* Default 0, set to 1 */
+                *(short *)options[i].varfunc = normal;
+                return 1;
+            case 2:                 /* Increase */
+                *(short *)options[i].varfunc += -1 + 2 * normal;
+                return 1;
+            case 3:
+                if ((*ptr = access->funcs.skip_space(*ptr)) == 0)
+                {
+                    access->funcs.error("missing parameter for ", token);
+                }
+                *ptr = access->funcs.get_token(*ptr, token, 80);
+                *(short *)options[i].varfunc = token[0];
+                return 1;
+            }
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 
 static void setup_wk(Virtual *vwk)
 {
-	Workstation *wk = vwk->real_address;
+    Workstation *wk = vwk->real_address;
 
-	/* update the settings */
-	wk->screen.mfdb.width = resolution.width;
-	wk->screen.mfdb.height = resolution.height;
-	wk->screen.mfdb.bitplanes = resolution.bpp;
+    /* update the settings */
+    wk->screen.mfdb.width = resolution.width;
+    wk->screen.mfdb.height = resolution.height;
+    wk->screen.mfdb.bitplanes = resolution.bpp;
 
-	/*
-	 * Some things need to be changed from the
-	 * default workstation settings.
-	 */
-	wk->screen.mfdb.address = (void *)c_get_videoramaddress();
-	wk->screen.mfdb.wdwidth = (wk->screen.mfdb.width + 15) / 16;
-	wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
+    /*
+     * Some things need to be changed from the
+     * default workstation settings.
+     */
+    wk->screen.mfdb.address = (void *) c_get_videoramaddress();
+    wk->screen.mfdb.wdwidth = (wk->screen.mfdb.width + 15) / 16;
+    wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
 
-	wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
-	wk->screen.coordinates.max_y = (wk->screen.mfdb.height & 0xfff0) - 1;	/* Desktop can't deal with non-16N heights */
+    wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
+    wk->screen.coordinates.max_y = (wk->screen.mfdb.height & 0xfff0) - 1;   /* Desktop can't deal with non-16N heights */
 
-	wk->screen.look_up_table = 0;			/* Was 1 (???)	Shouldn't be needed (graphics_mode) */
-	wk->screen.mfdb.standard = 0;
+    wk->screen.look_up_table = 0;       /* Was 1 (???)  Shouldn't be needed (graphics_mode) */
+    wk->screen.mfdb.standard = 0;
 
-	if (pixel.width > 0)			/* Starts out as screen width */
-		wk->screen.pixel.width = (pixel.width * 1000L) / wk->screen.mfdb.width;
-	else								   /*	or fixed DPI (negative) */
-		wk->screen.pixel.width = 25400 / -pixel.width;
+    if (pixel.width > 0)                /* Starts out as screen width */
+        wk->screen.pixel.width = (pixel.width * 1000L) / wk->screen.mfdb.width;
+    else                                /*   or fixed DPI (negative) */
+        wk->screen.pixel.width = 25400 / -pixel.width;
 
-	if (pixel.height > 0)		/* Starts out as screen height */
-		wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
-	else									/*	 or fixed DPI (negative) */
-		wk->screen.pixel.height = 25400 / -pixel.height;
-	
-	device.address		= wk->screen.mfdb.address;
-	device.byte_width	= wk->screen.wrap;
+    if (pixel.height > 0)               /* Starts out as screen height */
+        wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
+    else                                /*   or fixed DPI (negative) */
+        wk->screen.pixel.height = 25400 / -pixel.height;
 
-	/**
-	 * The following needs to be here due to bpp > 8 modes where the SDL
-	 * palette needs the appropriate SDL_surface->format to be set prior
-	 * use i.e. _after_ the resolution change
-	 **/
-	c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
+    device.address = wk->screen.mfdb.address;
+    device.byte_width = wk->screen.wrap;
+
+    /**
+     * The following needs to be here due to bpp > 8 modes where the SDL
+     * palette needs the appropriate SDL_surface->format to be set prior
+     * use i.e. _after_ the resolution change
+     **/
+    c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
 }
 
 
 static void initialize_wk(Virtual *vwk)
 {
-	Workstation *wk = vwk->real_address;
+    Workstation *wk = vwk->real_address;
 
-	if (loaded_palette)
-		access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
+    if (loaded_palette)
+        access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
 
-	/*
-	 * This code needs more work.
-	 * Especially if there was no VDI started since before.
-	 */
+    /*
+     * This code needs more work.
+     * Especially if there was no VDI started since before.
+     */
 
-	if (wk->screen.palette.size != 256) {	/* Started from different graphics mode? */
-		Colour *old_palette_colours = wk->screen.palette.colours;
-		wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
-		if (wk->screen.palette.colours) {
-			wk->screen.palette.size = 256;
-			if (old_palette_colours)
-				access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
-		} else
-		{
-			wk->screen.palette.colours = old_palette_colours;
-	    }
-	}
+    if (wk->screen.palette.size != 256)         /* Started from different graphics mode? */
+    {
+        Colour *old_palette_colours = wk->screen.palette.colours;
 
+        wk->screen.palette.colours = (Colour *) access->funcs.malloc(256L * sizeof(Colour), 3); /* Assume malloc won't fail. */
+        if (wk->screen.palette.colours)
+        {
+            wk->screen.palette.size = 256;
+            if (old_palette_colours)
+                access->funcs.free(old_palette_colours);    /* Release old (small) palette (a workaround) */
+        } else
+        {
+            wk->screen.palette.colours = old_palette_colours;
+        }
+    }
 
-	pixel.width = wk->screen.pixel.width;
-	pixel.height = wk->screen.pixel.height;
+    pixel.width = wk->screen.pixel.width;
+    pixel.height = wk->screen.pixel.height;
 }
 
 
@@ -469,34 +443,33 @@ static void initialize_wk(Virtual *vwk)
  */
 long CDECL initialize(Virtual *vwk)
 {
-	vwk = me->default_vwk;  /* This is what we're interested in */
-	
-	if (!nf_initialize()) {
-		access->funcs.puts("  No or incompatible NatFeat fVDI!");
-		access->funcs.puts("\x0d\x0a");
-		return 0;
-	}
+    vwk = me->default_vwk;              /* This is what we're interested in */
 
-	initialize_wk(vwk);
+    if (!nf_initialize())
+    {
+        access->funcs.puts("  No or incompatible NatFeat fVDI!\n");
+        return 0;
+    }
 
-	setup_wk(vwk);
+    initialize_wk(vwk);
 
-	if (event_query()) {
-		irq = 1;
-		access->funcs.event(((long)me->module.id << 16) | 0, 0);
-	} else {
-		irq = 0;
-	}
+    setup_wk(vwk);
 
-	if (debug > 2) {
-		char buf[10];
-		access->funcs.puts("  fb_base  = $");
-		access->funcs.ltoa(buf, c_get_videoramaddress(), 16);
-		access->funcs.puts(buf);
-		access->funcs.puts("\x0d\x0a");
-	}
+    if (event_query())
+    {
+        irq = 1;
+        access->funcs.event(((long) me->module.id << 16) | 0, 0);
+    } else
+    {
+        irq = 0;
+    }
 
-	return 1;
+    if (debug > 2)
+    {
+        PRINTF(("  fb_base = $%08lx\n", c_get_videoramaddress()));
+    }
+
+    return 1;
 }
 
 
@@ -505,19 +478,20 @@ long CDECL initialize(Virtual *vwk)
  */
 long CDECL setup(long type, long value)
 {
-	long ret;
+    long ret;
 
-	ret = -1;
-	switch((int)type) {
-	case Q_NAME:
-		ret = (long)driver_name;
-		break;
-	case S_DRVOPTION:
-		ret = tokenize((char *)value);
-		break;
-	}
+    ret = -1;
+    switch ((int) type)
+    {
+    case Q_NAME:
+        ret = (long) driver_name;
+        break;
+    case S_DRVOPTION:
+        ret = tokenize((char *) value);
+        break;
+    }
 
-	return ret;
+    return ret;
 }
 
 
@@ -526,38 +500,42 @@ long CDECL setup(long type, long value)
  * Create new (or use old) Workstation and default Virtual.
  * Supplied is the default fVDI virtual workstation.
  */
-Virtual* CDECL opnwk(Virtual *vwk)
+Virtual *CDECL opnwk(Virtual *vwk)
 {
-	vwk = me->default_vwk;  /* This is what we're interested in */
+    vwk = me->default_vwk;              /* This is what we're interested in */
 
-	/* switch off VIDEL */
-	c_openwk(vwk);
+    /* switch off VIDEL */
+    c_openwk(vwk);
 
-	if (resolution.used) {
-		resolution.bpp = graphics_mode->bpp; /* Table value (like rounded down) --- e.g. no 23bit but 16 etc */
+    if (resolution.used)
+    {
+        resolution.bpp = graphics_mode->bpp;    /* Table value (like rounded down) --- e.g. no 23bit but 16 etc */
 
-		c_set_resolution(resolution.width, resolution.height, resolution.bpp, resolution.freq);
-	} else {
-		/* FIXME: Hack to get it working after boot in less than 16bit */
-		resolution.bpp = graphics_mode->bpp; /* 16 bit by default */
-	}
+        c_set_resolution(resolution.width, resolution.height, resolution.bpp, resolution.freq);
+    } else
+    {
+        /* FIXME: Hack to get it working after boot in less than 16bit */
+        resolution.bpp = graphics_mode->bpp;    /* 16 bit by default */
+    }
 
-	/* update the width/height if restricted by the native part */
-	resolution.width = c_get_width();
-	resolution.height = c_get_height();
-	resolution.bpp = set_bpp(c_get_bpp());
+    /* update the width/height if restricted by the native part */
+    resolution.width = c_get_width();
+    resolution.height = c_get_height();
+    resolution.bpp = set_bpp((int) c_get_bpp());
 
-	setup_wk(vwk);
+    setup_wk(vwk);
 
-	if (irq) {
-		next_handler = Setexc(27, (long)event_trampoline);
-		if (event_init() != 1) {
-			irq = 0;
-			Setexc(27, (long)next_handler);
-		}
-	}
+    if (irq)
+    {
+        next_handler = Setexc(27, event_trampoline);
+        if (event_init() != 1)
+        {
+            irq = 0;
+            (void) Setexc(27, next_handler);
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 
@@ -566,8 +544,7 @@ Virtual* CDECL opnwk(Virtual *vwk)
  */
 void CDECL clswk(Virtual *vwk)
 {
-	c_closewk(vwk);
+    c_closewk(vwk);
 
-	/* Get rid of the event_trampoline! */
+    /* Get rid of the event_trampoline! */
 }
-

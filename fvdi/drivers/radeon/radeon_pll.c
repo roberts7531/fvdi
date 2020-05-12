@@ -13,6 +13,8 @@
  *  PLL data set: Copyright 2016, Christoph Hoehne <ceaich@gmx.de>
  */
 
+#include "fvdi.h"
+#include "driver.h"
 #include "radeon.h"
 #include "video.h"
 #include <mint/osbind.h>
@@ -1646,6 +1648,7 @@ static struct saga_pll_data {
 #define PLL_NUM_CLOCKS (sizeof(fbee_pll) / sizeof(fbee_pll[0]))
 
 
+#if 0
 static unsigned long get_timer(void)
 {
     return * (volatile unsigned long *) 0x4ba;
@@ -1654,7 +1657,7 @@ static unsigned long get_timer(void)
 #define SYSTEM_CLOCK    264UL
 #define PLL_TIMEOUT     (1000 * SYSTEM_CLOCK)
 
-void radeon_wait_pll(void)
+static void radeon_wait_pll(void)
 {
     unsigned long timeout = Supexec(get_timer);
 
@@ -1662,11 +1665,12 @@ void radeon_wait_pll(void)
     {
         if (Supexec(get_timer) - timeout >= PLL_TIMEOUT)
         {
-            // KDEBUG("wait for PLL not busy timed out\r\n");
+            /* KDEBUG("wait for PLL not busy timed out\r\n"); */
             break;
         }
     }
 }
+#endif
 
 
 int radeon_pll_clock_count(void)
@@ -1678,7 +1682,7 @@ int fbee_pll_clock_freq(int id, bool is_ntsc, unsigned long *freq)
 {
     int type = is_ntsc ? SAGA_PLL_NTSC : SAGA_PLL_PAL;
 
-    if (id < 0 || id >= PLL_NUM_CLOCKS)
+    if (id < 0 || id >= (int)PLL_NUM_CLOCKS)
         return -1;
 
     *freq = fbee_pll[id].freq[type];
@@ -1698,7 +1702,7 @@ int radeon_pll_clock_lookup(bool is_ntsc, unsigned long *freqp)
     freq = *freqp;
 
     /* Find the closest clock */
-    for (i = 0; i < PLL_NUM_CLOCKS-1; i++) {
+    for (i = 0; i < (int)PLL_NUM_CLOCKS-1; i++) {
         unsigned long split;
 
         if (freq <= fbee_pll[i].freq[type])
@@ -1722,7 +1726,7 @@ int radeon_pll_clock_program(int clock)
 {
     int i;
 
-    if (clock < 0 || clock >= PLL_NUM_CLOCKS)
+    if (clock < 0 || clock >= (int)PLL_NUM_CLOCKS)
          return -1;
 
     for (i = 0; i < 18; i++) {
@@ -1771,4 +1775,3 @@ int radeon_pll_clock_program(int clock)
 
     return 0;
 }
-

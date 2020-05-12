@@ -23,7 +23,7 @@
 /*#define ENABLE_KDEBUG*/
 
 #include "fvdi.h"
-#include "../bitplane/bitplane.h"
+#include "driver.h"
 #include "uaegfx.h"
 #include "uaelib.h"
 
@@ -43,6 +43,7 @@ static void replace(short *addr, short *addr_fast, int line_add, short *pattern,
 	int i, j;
 	unsigned int pattern_word, mask;
 
+	(void) addr_fast;
 	i = y;
 	h = y + h;
 	x = 1 << (15 - (x & 0x000f));
@@ -80,6 +81,8 @@ static void transparent(short *addr, short *addr_fast, int line_add, short *patt
 	int i, j;
 	unsigned int pattern_word, mask;
 
+	(void) addr_fast;
+	(void) background;
 	i = y;
 	h = y + h;
 	x = 1 << (15 - (x & 0x000f));
@@ -116,6 +119,9 @@ static void xor(short *addr, short *addr_fast, int line_add, short *pattern, int
 	int i, j;
 	unsigned int pattern_word, mask, v;
 
+	(void) addr_fast;
+	(void) foreground;
+	(void) background;
 	i = y;
 	h = y + h;
 	x = 1 << (15 - (x & 0x000f));
@@ -154,6 +160,8 @@ static void revtransp(short *addr, short *addr_fast, int line_add, short *patter
 	int i, j;
 	unsigned int pattern_word, mask;
 
+	(void) addr_fast;
+	(void) background;
 	i = y;
 	h = y + h;
 	x = 1 << (15 - (x & 0x000f));
@@ -198,8 +206,7 @@ static int is_solid_pattern(short *pattern, short value)
     return 1;
 }
 
-long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
-                       short *pattern, long colour, long mode, long interior_style)
+long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style)
 {
 	Workstation *wk;
 	short *addr, *addr_fast;
@@ -210,6 +217,7 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h,
 
 	KDEBUG(("c_fill_area %ld,%ld at %ld,%ld\n", w, h, x, y));
 
+	(void) interior_style;
 	if ((long)vwk & 1) {
 		if ((y & 0xffff) != 0)
 			return -1;		/* Don't know about this kind of table operation */

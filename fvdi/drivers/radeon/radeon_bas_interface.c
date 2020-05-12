@@ -2,6 +2,8 @@
 #include <mint/osbind.h>
 #include <stdint.h>
 #include <driver_vec.h>
+#include "radeon_bas_interface.h"
+
 
 /*
  * BaS_gcc driver API backdoor.
@@ -11,7 +13,7 @@
  * matches, BaS_gcc returns the API call's result (the address of the internal driver table) in d0.
  * If it's not detected, the call gets forwarded to TOS as normal trap #0 exception.
  */
-struct driver_table *get_bas_drivers(void)
+static struct driver_table *get_bas_drivers(void)
 {
     struct driver_table *ret = NULL;
 
@@ -64,23 +66,23 @@ long get_driver(void)
          * yes, we found the EmuTOS signature
          */
 
-        old_vector = Setexc(0x20, trap0_catcher);			/* catch trap #0 to avoid crash */
-        dt = get_bas_drivers();								/* trap #0 */
-        (void) Setexc(0x20, old_vector);					/* set vector to what it was before */
+        old_vector = Setexc(0x20, trap0_catcher);           /* catch trap #0 to avoid crash */
+        dt = get_bas_drivers();                             /* trap #0 */
+        (void) Setexc(0x20, old_vector);                    /* set vector to what it was before */
 
         if (dt)
         {
             struct generic_interface *ifc = &dt->interfaces[0];
 
             /*
-            printf("BaS driver table found at %p, BaS version is %d.%d\r\n", dt,
+            kprintf("BaS driver table found at %p, BaS version is %d.%d\r\n", dt,
                     dt->bas_version, dt->bas_revision);
             */
 
             while (ifc->type != END_OF_DRIVERS)
             {
                 /*
-                printf("driver\"%s (%s)\" found,\r\n"
+                kprintf("driver\"%s (%s)\" found,\r\n"
                         "interface type is %d (%s),\r\n"
                         "version %d.%d\r\n\r\n",
                         ifc->name, ifc->description, ifc->type, dt_to_str(ifc->type),
@@ -90,7 +92,7 @@ long get_driver(void)
                 if (ifc->type == VIDEO_DRIVER)
                 {
                     /*
-                    printf("\r\nvideo driver found at %p\r\n", ifc);
+                    kprintf("\r\nvideo driver found at %p\r\n", ifc);
                     */
 
                     return (long) ifc->interface.fb;
@@ -101,14 +103,14 @@ long get_driver(void)
         else
         {
             /*
-            printf("driver table not found.\r\n");
+            kprintf("driver table not found.\r\n");
             */
         }
     }
     else
     {
         /*
-        printf("not running on EmuTOS,\r\n(signature 0x%08x instead of 0x%08x\r\n",
+        kprintf("not running on EmuTOS,\r\n(signature 0x%08x instead of 0x%08x\r\n",
                 (uint32_t) sig, 0x45544f53);
         */
     }

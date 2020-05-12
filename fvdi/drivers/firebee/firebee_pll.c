@@ -13,6 +13,8 @@
  *  PLL data set: Copyright 2016, Christoph Hoehne <ceaich@gmx.de>
  */
 
+#include "fvdi.h"
+#include "driver.h"
 #include "firebee.h"
 #include "video.h"
 #include <mint/osbind.h>
@@ -305,6 +307,7 @@ static struct saga_pll_data {
 #define PLL_NUM_CLOCKS (sizeof(fbee_pll) / sizeof(fbee_pll[0]))
 
 
+#if 0
 static unsigned long get_timer(void)
 {
     return * (volatile unsigned long *) 0x4ba;
@@ -326,13 +329,16 @@ void fbee_wait_pll(void)
         }
     }
 }
+#endif
 
+#if 0
 static long fbee_init_videl(void)
 {
     unsigned long fbee_video_control = FBEE_FIFO_ON | FBEE_REFRESH_ON | FBEE_VCS | FBEE_VCKE | FBEE_VDAC_ON | FBEE_CLK_PLL;
 
     return 0;
 }
+#endif
 
 int fbee_pll_clock_count(void)
 {
@@ -341,7 +347,8 @@ int fbee_pll_clock_count(void)
 
 int fbee_pll_clock_freq(int id, BOOL is_ntsc, ULONG *freq)
 {
-    if (id < 0 || id >= PLL_NUM_CLOCKS)
+    (void)is_ntsc;
+    if (id < 0 || id >= (int)PLL_NUM_CLOCKS)
         return -1;
 
     *freq = fbee_pll[id].freq;
@@ -354,13 +361,14 @@ int fbee_pll_clock_lookup(BOOL is_ntsc, ULONG *freqp)
     int i;
     ULONG freq;
 
+    (void)is_ntsc;
     if (!freqp)
         return -1;
 
     freq = *freqp;
 
     /* Find the closest clock */
-    for (i = 0; i < PLL_NUM_CLOCKS-1; i++) {
+    for (i = 0; i < (int)PLL_NUM_CLOCKS-1; i++) {
         ULONG split;
 
         if (freq <= fbee_pll[i].freq)
@@ -384,7 +392,7 @@ int fbee_pll_clock_program(int clock)
 {
     int i;
 
-    if (clock < 0 || clock >= PLL_NUM_CLOCKS)
+    if (clock < 0 || clock >= (int)PLL_NUM_CLOCKS)
          return -1;
 
     for (i = 0; i < 18; i++) {
@@ -433,4 +441,3 @@ int fbee_pll_clock_program(int clock)
 
     return 0;
 }
-
