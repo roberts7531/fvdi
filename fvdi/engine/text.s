@@ -15,7 +15,7 @@ transparent	equ	1		; Fall through?
 	xref	setup_plot,tos_colour
 	xref	line_types
 	xref	_lib_vqt_extent,lib_vrt_cpyfm
-	xref	allocate_block,free_block
+	xref	asm_allocate_block,asm_free_block
 	xref	text_area, _bt
 	xref	_vdi_stack_top,_vdi_stack_size,_external_renderer
 
@@ -265,7 +265,7 @@ lib_v_justified:
 	movem.l	d2-d6/a3-a4,-(a7)
 
 	move.l	#4*1024,-(a7)
-	bsr	allocate_block
+	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
 	beq	.lib_v_justified_end
@@ -384,7 +384,7 @@ lib_v_justified:
 	move.l	wk_r_text(a3),a3
 	jsr	(a3)
 
-	bsr	free_block	; Address still on stack
+	bsr	asm_free_block	; Address still on stack
 	addq.l	#4,a7
 
 .lib_v_justified_end:		; .end:
@@ -429,7 +429,7 @@ _default_text:
 
 	move.l	d0,a3
 	move.l	#0,-(a7)			; Get a memory block of any size (hopefully large)
-	bsr	allocate_block
+	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
 	exg	d0,a3
@@ -729,7 +729,7 @@ _default_text:
 
 	add.l	#18+16+20+4,a7
 
-	bsr	free_block
+	bsr	asm_free_block
 	addq.l	#4,a7
 
 	movem.l	(a7)+,d3-d7/a3-a6

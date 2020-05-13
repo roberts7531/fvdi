@@ -18,9 +18,10 @@ transparent	equ	1		; Fall through?
 	xref	setup_plot,tos_colour
 	xref	_line_types
 	xref	lib_vqt_extent,lib_vrt_cpyfm
-	xref	allocate_block,free_block
+	xref	asm_allocate_block,asm_free_block
 	xref	_pattern_ptrs
 	xref	_filled_poly,_filled_poly_m,_ellipsearc,_wide_line,_calc_bez
+	xref	_do_arrow
 	xref	_arc_split,_arc_min,_arc_max
 	xref	_lib_v_bez,_rounded_box
 	xref	_retry_line
@@ -73,45 +74,6 @@ _call_draw_line:
 	bsr	_call_default_line
 	lbra	.call_dl_done,1
 
-* This is meant to be called from old assembly routines
-* which expect all registers to be save.
-call_draw_line:
-	movem.l	d0-d2/a0-a2,-(a7)
-	sub.w	#drvline_struct_size,a7
-	move.l	a7,a1
-	move.l	d1,drvline_x1(a1)
-	move.l	d2,drvline_y1(a1)
-	move.l	d3,drvline_x2(a1)
-	move.l	d4,drvline_y2(a1)
-	move.l	d5,drvline_pattern(a1)
-	move.l	d0,drvline_colour(a1)
-	move.l	d6,drvline_mode(a1)
-	move.l	#1,drvline_draw_last(a1)
-
-	move.l	a1,-(a7)
-	move.l	a0,-(a7)
-	move.w	#$c0de,d0
-	move.l	vwk_real_address(a0),a2
-	move.l	wk_r_line(a2),a2
-	jsr	(a2)
-	tst.l	d0
-	lbgt	.call_dl_done,1
-	lbeq	.call_dl_fallback,2
-	jsr	_retry_line
- label .call_dl_done,1
-	addq.l	#8,a7
-
-	add.w	#drvline_struct_size,a7
-	movem.l	(a7)+,d0-d2/a0-a2
-	rts
-
-* Should never get here, since driver is supposed to deal with this itself.
-* That's the only way to make use of any possible non-default fallback.
- label .call_dl_fallback,2
-	bsr	_call_default_line
-	lbra	.call_dl_done,1
-
-
 * c_pline(vwk, numpts, colour, points)
 _c_pline:
 	move.l	a2,-(a7)
@@ -154,16 +116,20 @@ v_pline:
 
 
 v_bez:
-	sub.w	#22,a7
-	move.w	L_ptsin(a2),0(a7)
-	move.l	ptsin(a1),2(a7)
-	move.l	intin(a1),6(a7)
+	sub.w	#v_bez_pars_struct_size,a7
+	move.w	L_ptsin(a2),v_bez_pars_num_pts(a7)
+	move.l	ptsin(a1),v_bez_pars_points(a7)
+	move.l	intin(a1),v_bez_pars_bezarr(a7)
 	move.l	ptsout(a1),a2
-	move.l	a2,10(a7)
+	move.l	a2,v_bez_pars_extent(a7)
 	move.l	intout(a1),a2
-	move.l	a2,14(a7)
+	move.l	a2,v_bez_pars_totpoints(a7)
 	addq.l	#2,a2
-	move.l	a2,18(a7)
+	move.l	a2,v_bez_pars_totmoves(a7)
+
+	addq.l	#2,a2 ; clear reserved intout values
+	clr.l	(a2)
+	clr.l	4(a2)
 
 	move.l	control(a1),a2
 	move.w	#2,L_ptsout(a2)
@@ -171,7 +137,7 @@ v_bez:
 
 	move.l	a7,a1
 	bsr	lib_v_bez
-	add.w	#22,a7
+	add.w	#v_bez_pars_struct_size,a7
 	used_d1
 	done_return
 
@@ -205,7 +171,6 @@ _v_bez_accel:
 * In:	a1	Parameters  lib_v_bez(num_pts, points, bezarr, extent, totpoints, totmoves)
 *	a0	VDI struct
 lib_v_bez:
-  ifeq 0
 	movem.l	d0-d2/a2,-(a7)
 	move.l	a1,-(a7)
 	move.l	a0,-(a7)
@@ -214,8 +179,6 @@ lib_v_bez:
 	move.l	(a7)+,a1
 	movem.l	(a7)+,d0-d2/a2
 	rts
-  endc
-; Removed old code
 
 
 * lib_v_pline - Standard Library function
@@ -232,7 +195,6 @@ lib_v_pline:
 	move.l	vwk_line_colour(a0),d0
 c_v_pline:
 
-	; bra	.no_wide
 	cmp.w	#1,vwk_line_width(a0)
 	bhi	.wide_line
 
@@ -242,7 +204,6 @@ c_v_pline:
 	cmp.w	#2,d6
 	blt	.end_v_pline	; .end		; No coordinates?  (-1 in Kandinsky)
 	move.l	(a1),a2			; List of coordinates
-  ifne 1
 	bgt	.poly_line
 
 	movem.w	(a2),d1-d4		; Optimized check for single lines outside clip rectangle (test 000618)
@@ -294,12 +255,36 @@ c_v_pline:
 
 	jsr	(a1)
 
+	move.w	vwk_line_ends_beginning(a0),d5
+	or.w	vwk_line_ends_end(a0),d5
+	and.w	#1,d5
+	beq		no_arrow
+
+	move.l	d0,d1
+	clr.l	-(a7)
+	bsr	asm_allocate_block
+	addq.l	#4,a7
+	tst.l	d0
+	beq	no_arrow
+
+	move.l	d6,-(a7)	; mode
+	move.l	d0,-(a7)	; points
+	move.l	d1,-(a7)	; colour
+	move.q	#2,d6		; numpts
+	move.l	d6,-(a7)
+	move.l	a2,-(a7)	; pts
+	move.l	a0,-(a7)	; vwk
+	jsr	_do_arrow
+	add.w	#16,a7
+	bsr	asm_free_block
+	addq.l	#8,a7
+
+no_arrow:
 	movem.l	(a7)+,d2-d6
 	rts
 
 
 .poly_line:
-  endc
 	move.w	vwk_line_user_mask(a0),d5
 	move.w	vwk_line_type(a0),d1
 	cmp.w	#7,d1
@@ -314,25 +299,6 @@ c_v_pline:
 	move.l	wk_r_line(a1),d1
 	move.l	d1,a1
 
-  ifne 0
-	subq.w	#1,d6
-	bra	.loop_end
-.loop:
-	movem.w	(a2),d1-d4
-	bsr	clip_line
-	bvs	.no_draw
-	move.l	d6,-(a7)
-	moveq	#0,d6
-	move.w	vwk_mode(a0),d6
-	jsr	(a1)
-	move.l	(a7)+,d6
-.no_draw:
-	addq.l	#4,a2
-.loop_end:
-	dbra	d6,.loop
-
-;	bra	.end_v_pline
-  else
 	move.l	a2,d1
 	move.w	d6,d2
 	swap	d2
@@ -341,7 +307,6 @@ c_v_pline:
 	move.w	vwk_mode(a0),d6
 	addq.l	#1,a0
 	jsr	(a1)
-  endc
 
 .end_v_pline:		; .end
 	movem.l	(a7)+,d2-d6
@@ -352,7 +317,7 @@ c_v_pline:
 	; call allocate_block(0);
 	move.l	d0,d1		; this is the line color
 	clr.l	-(a7)
-	bsr	allocate_block
+	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
 	beq	.no_wide	; fall back to thin line if no memory
@@ -368,20 +333,17 @@ c_v_pline:
 	move.l	d0,-(a7)	; this is the address of the allocated block
 	move.l	d1,-(a7)	; color
 
-	moveq	#0,d0		;
-	move.w	0(a1),d0	;
+	moveq	#0,d0
+	move.w	0(a1),d0
 	move.l	d0,-(a7)
-
 	move.l	2(a1),-(a7)
-
 	move.l	a0,-(a7)
-
 	jsr	_wide_line
 	add.w	#24,a7
 
 	move.l	(a7)+,d2	; restore d2
 
-	bsr	free_block	; Block address is already on the stack
+	bsr	asm_free_block	; Block address is already on the stack
 	addq.l	#4,a7
 
 	rts
@@ -854,15 +816,6 @@ v_pmarker:
 	beq	.end_v_pmarker	; .end		; No coordinates?
 	move.l	ptsin(a1),a2		; List of coordinates
 
-;	move.w	vwk_line_user_mask(a0),d5
-;	move.w	vwk_line_type(a0),d1
-;	cmp.w	#7,d1
-;	beq	.userdef
-;	lea	_line_types,a1
-;	subq.w	#1,d1
-;	add.w	d1,d1
-;	move.w	0(a1,d1.w),d5
-;.userdef:
 	move.w	#$ffff,d5
 
 	move.l	vwk_real_address(a0),a1
@@ -870,22 +823,6 @@ v_pmarker:
 
 	move.l	d1,a1
 
-;	subq.w	#1,d6
-;	bra	.loop_end
-;.loop:
-;	movem.w	(a2),d1-d4
-;	bsr	clip_line
-;	bvs	.no_draw
-;	move.l	d6,-(a7)
-;	moveq	#0,d6
-;	move.w	vwk_mode(a0),d6
-;	jsr	(a1)
-;	move.l	(a7)+,d6
-;.no_draw:
-;	addq.l	#4,a2
-;.loop_end:
-;	dbra	d6,.loop
-;
 	movem.w	(a2),d1-d2	; Only a single dot for now
 	move.w	d1,d3
 	move.w	d2,d4
@@ -989,13 +926,6 @@ bezier_size:
 * In:	a1	Parameters  lib_v_bez_fill(num_pts, points, bezarr, extent, totpoints, totmoves)
 *	a0	VDI struct
 lib_v_bez_fill:
-  ifne 0
-	move.l	d2,-(a7)
-	move.l	a7,d2				; Give renderer
-	move.l	_vdi_stack_top,a7		;  extra stack space
-	move.l	d2,-(a7)			; (Should be improved)
-  endc
-
 	sub.w	#10,a7
 	move.l	a7,a2
 	movem.l	a0-a1,-(a7)
@@ -1091,7 +1021,7 @@ lib_v_bez_fill:
 
 .no_accel_poly:
 	move.l	#0,-(a7)	; Get a memory block of any size (hopefully large)
-	bsr	allocate_block
+	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
 	beq	.no_poly
@@ -1127,7 +1057,7 @@ lib_v_bez_fill:
 	jsr	_filled_poly_m
 	add.w	#40,a7
 
-	bsr	free_block	; Block address is already on the stack
+	bsr	asm_free_block	; Block address is already on the stack
 	addq.l	#4,a7
 .no_poly:		; .end
 
@@ -1182,15 +1112,11 @@ lib_v_bez_fill:
 	move.l	2(a7),d0
 	beq	.no_free_f
 	move.l	d0,-(a7)
-	bsr	free_block
+	bsr	asm_free_block
 	addq.l	#4,a7
 .no_free_f:
 	add.w	#10,a7
 
-  ifne 0
-	move.l	(a7),a7		; Return to original stack
-	move.l	(a7)+,d2
-  endc
 	rts
 
 .no_jumps:
@@ -1217,7 +1143,7 @@ lib_v_bez_fill:
 	jsr	_filled_poly
 	add.w	#32,a7
 
-	bsr	free_block	; Block address is already on the stack
+	bsr	asm_free_block	; Block address is already on the stack
 	addq.l	#4,a7
 	bra	.no_poly
 
@@ -1237,7 +1163,7 @@ lib_v_bez_fill:
 .wide_bez_f:
 	move.l	d0,d1
 	clr.l	-(a7)
-	bsr	allocate_block
+	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
 	beq	.no_wide_bez_f
@@ -1248,7 +1174,7 @@ lib_v_bez_fill:
 	move.w	vwk_mode(a0),d2
 	move.l	d2,-(a7)
 
-	move.l	d0,-(a7)
+	move.l	d0,-(a7)	; For _wide_line call
 	move.l	d1,-(a7)
 	ext.l	d6
 	move.l	d6,-(a7)
@@ -1257,7 +1183,7 @@ lib_v_bez_fill:
 	jsr	_wide_line
 	add.w	#24,a7
 
-	bsr	free_block	; Block address is already on the stack
+	bsr	asm_free_block	; Block address is already on the stack
 	addq.l	#4,a7
 
 	bra	.end_bez_draw_f
@@ -1293,7 +1219,7 @@ lib_v_fillarea:
 
  label .no_accel_poly,1
 	move.l	#0,-(a7)	; Get a memory block of any size (hopefully large)
-	bsr	allocate_block
+	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
 	beq	.end_lib_v_fillarea
@@ -1321,7 +1247,7 @@ lib_v_fillarea:
 	jsr	_filled_poly
 	add.w	#32,a7
 
-	bsr	free_block	; Block address is already on the stack
+	bsr	asm_free_block	; Block address is already on the stack
 	addq.l	#4,a7
 
 .end_lib_v_fillarea:		; .end

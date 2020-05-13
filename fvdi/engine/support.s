@@ -18,10 +18,10 @@ transparent	equ	1		; Fall through?
 
 	xdef	_flip_words,_flip_longs
 	xdef	redirect,redirect_d0
-	xdef	call_other,_call_other
+	xdef	_call_other
 	xdef	_initialize_palette
-	xdef	allocate_block,free_block
-	xdef	cache_flush,_cache_flush
+	xdef	asm_allocate_block,asm_free_block
+	xdef	_cache_flush
 
 
 	text
@@ -73,12 +73,12 @@ redirect:
 .call:
 	tst.w	_stand_alone
 	bne	.no_redirect
-	bsr	call_other
+	bsr	asm_call_other
 .no_redirect:
 	real_return
 
 redirect_d0:
-	bsr	call_other
+	bsr	asm_call_other
 	real_return
 
 
@@ -90,7 +90,7 @@ redirect_d0:
 _call_other:
 	move.l	4(a7),a1
 	move.l	8(a7),d0
-call_other:
+asm_call_other:
 	move.l	a1,d1			; That's where the VDI wants it
 ;	move.l	a0,-(a7)		; Remember workstation struct
 	move.l	control(a1),a0
@@ -103,7 +103,7 @@ call_other:
  ifeq mcoldfire
 	move.w	#$ffff,-(a7)		; Mark old stack
 	move.w	#$88,-(a7)		; In case we're on >='020
-	pea	.vdi_ret(pc)	
+	pea	.vdi_ret(pc)
 	move.w	sr,-(a7)
 	move.l	vdi_address(pc),-(a7)
 	rts
@@ -155,7 +155,7 @@ _initialize_palette:
 
 * long allocate_block(long size)
 * Allocate a block from the internal memory pool
-allocate_block:
+asm_allocate_block:
 	movem.l	d1-d2/a0-a2,-(a7)
 	move.l	4+5*4(a7),-(a7)
 	bsr	_allocate_block
@@ -166,7 +166,7 @@ allocate_block:
 
 * free_block(void *addr)
 * Free a block and return it to the internal memory pool
-free_block:
+asm_free_block:
 	movem.l	d0-d2/a0-a2,-(a7)
 	move.l	4+6*4(a7),-(a7)
 	bsr	_free_block
@@ -175,24 +175,16 @@ free_block:
 	rts
 
 
-* cache_flush(void)
+* void DRIVER_EXPORT cache_flush(void)
 * Flush both caches
-cache_flush:
 _cache_flush:
 	movem.l	d0-d1,-(a7)
 	move.l	_cpu,d0
 	cmp.w	#20,d0
-	blo	.cache_end
+	blo	cache_end
 	cmp.w	#30,d0
-	beq	.is_030
+	beq	is_030
 
- ifne lattice
-  ifeq mc68000
-	cpusha	bc		; This is an '040 or '060
-  else
-	dc.w	$f4f8		; cpusha bc
-  endc
-  else
   ifeq	mcoldfire
 	dc.w	$f4f8		; cpusha bc
   else
@@ -219,21 +211,12 @@ _cache_flush:
 	movem.l	(sp),d0-d1/a0
 	lea	3 * 4(sp),sp
   endc 			; mcoldfire
- endc ; m68000
-.cache_end:
+
+cache_end:
 	movem.l	(a7)+,d0-d1
 	rts
 
-.is_030:
-  ifeq mc68000
-  ifeq mcoldfire
-	movec	cacr,d0
-	move.l	d0,d1
-	or.w	#$808,d1
-	movec	d1,cacr
-	movec	d0,cacr
-  endc
-  else
+is_030:
 	dc.w	$4e7a		; movec cacr,d0
 	dc.w	$0002
 	move.l	d0,d1
@@ -242,7 +225,6 @@ _cache_flush:
 	dc.w	$1002
 	dc.w	$4e7b		; movec d0,cacr
 	dc.w	$0002
-  endc
-	bra	.cache_end
+	bra	cache_end
 
 	end

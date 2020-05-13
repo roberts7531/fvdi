@@ -13,19 +13,19 @@
 #include "function.h"
 
 #ifdef __GNUC__
-#define SMUL_DIV(x,y,z)	((short)(((short)(x)*(long)((short)(y)))/(short)(z)))
+#define SMUL_DIV(x,y,z) ((short)(((short)(x)*(long)((short)(y)))/(short)(z)))
 #else
 #ifdef __PUREC__
-#define SMUL_DIV(x,y,z)	((short)(((x)*(long)(y))/(z)))
+#define SMUL_DIV(x,y,z) ((short)(((x)*(long)(y))/(z)))
 #else
-int SMUL_DIV(int, int, int);   //   d0d1d0d2
+int SMUL_DIV(int, int, int);            /*   d0d1d0d2 */
 #pragma inline d0 = SMUL_DIV(d0, d1, d2) { "c1c181c2"; }
 #endif
 #endif
 
 
 void filled_poly(Virtual *vwk, short p[][2], long n, long colour,
-short *pattern, short *points, long mode, long interior_style)
+    short *pattern, short *points, long mode, long interior_style)
 {
     int i, j;
     short y;
@@ -47,7 +47,7 @@ short *pattern, short *points, long mode, long interior_style)
     for (i = 1; i < n; i++)
     {
         y = *coords;
-        coords += 2;		/* Skip to next y */
+        coords += 2;                    /* Skip to next y */
         if (y < miny)
         {
             miny = y;
@@ -84,8 +84,7 @@ short *pattern, short *points, long mode, long interior_style)
                 {
                     points[ints++] = SMUL_DIV((y - y1), (x2 - x1), (y2 - y1)) + x1;
                 }
-            }
-            else if (y1 > y2)
+            } else if (y1 > y2)
             {
                 if ((y >= y2) && (y < y1))
                 {
@@ -121,7 +120,7 @@ short *pattern, short *points, long mode, long interior_style)
         x2 = vwk->clip.rectangle.x2;
         for (i = 0; i < ints - 1; i += 2)
         {
-            y1 = points[i];		/* Really x-values, but... */
+            y1 = points[i];             /* Really x-values, but... */
             y2 = points[i + 1];
             if (y1 < x1)
                 y1 = x1;
@@ -140,8 +139,9 @@ short *pattern, short *points, long mode, long interior_style)
         fill_spans(vwk, &points[n], spans, colour, pattern, mode, interior_style);
 }
 
-void filled_poly_m(Virtual *vwk, short p[][2], long n, long colour, short *pattern,
-short *points, short index[], long moves, long mode, long interior_style)
+
+void filled_poly_m(Virtual *vwk, short p[][2], long n, long colour,
+    short *pattern, short *points, short index[], long moves, long mode, long interior_style)
 {
     int i, j;
     short tmp, y;
@@ -164,17 +164,21 @@ short *points, short index[], long moves, long mode, long interior_style)
 
     miny = maxy = p[0][1];
     coords = &p[1][1];
-    for(i = 1; i < n; i++) {
+    for (i = 1; i < n; i++)
+    {
         y = *coords;
-        coords += 2;		/* Skip to next y */
-        if (y < miny) {
+        coords += 2;                    /* Skip to next y */
+        if (y < miny)
+        {
             miny = y;
         }
-        if (y > maxy) {
+        if (y > maxy)
+        {
             maxy = y;
         }
     }
-    if (vwk->clip.on) {
+    if (vwk->clip.on)
+    {
         if (miny < vwk->clip.rectangle.y1)
             miny = vwk->clip.rectangle.y1;
         if (maxy > vwk->clip.rectangle.y2)
@@ -184,40 +188,49 @@ short *points, short index[], long moves, long mode, long interior_style)
     spans = 0;
     coords = &points[n];
 
-    for(y = miny; y <= maxy; y++) {
+    for (y = miny; y <= maxy; y++)
+    {
         move_n = moves;
         movepnt = (index[move_n] + 4) / 2;
         ints = 0;
+
         x2 = p[0][0];
         y2 = p[0][1];
-        for(i = 1; i < n; i++) {
+        for (i = 1; i < n; i++)
+        {
             x1 = x2;
             y1 = y2;
             x2 = p[i][0];
             y2 = p[i][1];
-            if (i == movepnt) {
+            if (i == movepnt)
+            {
                 if (--move_n >= 0)
                     movepnt = (index[move_n] + 4) / 2;
                 else
-                    movepnt = -1;		/* Never again equal to n */
+                    movepnt = -1;       /* Never again equal to n */
                 continue;
             }
-            x2 = *coords++;
-            y2 = *coords++;
-            if (y1 < y2) {
-                if ((y >= y1) && (y < y2)) {
+            if (y1 < y2)
+            {
+                if ((y >= y1) && (y < y2))
+                {
                     points[ints++] = SMUL_DIV((y - y1), (x2 - x1), (y2 - y1)) + x1;
                 }
-            } else if (y1 > y2) {
-                if ((y >= y2) && (y < y1)) {
+            } else if (y1 > y2)
+            {
+                if ((y >= y2) && (y < y1))
+                {
                     points[ints++] = SMUL_DIV((y - y2), (x1 - x2), (y1 - y2)) + x2;
                 }
             }
         }
 
-        for(i = 0; i < ints - 1; i++) {
-            for(j = i + 1; j < ints; j++) {
-                if (points[i] > points[j]) {
+        for (i = 0; i < ints - 1; i++)
+        {
+            for (j = i + 1; j < ints; j++)
+            {
+                if (points[i] > points[j])
+                {
                     tmp = points[i];
                     points[i] = points[j];
                     points[j] = tmp;
@@ -225,7 +238,9 @@ short *points, short index[], long moves, long mode, long interior_style)
             }
         }
 
-        if (spans > 1000) {			/* Should really check against size of points array! */
+        if (spans > 1000)
+        {
+            /* Should really check against size of points array! */
             fill_spans(vwk, &points[n], spans, colour, pattern, mode, interior_style);
             spans = 0;
             coords = &points[n];
@@ -233,14 +248,16 @@ short *points, short index[], long moves, long mode, long interior_style)
 
         x1 = vwk->clip.rectangle.x1;
         x2 = vwk->clip.rectangle.x2;
-        for(i = 0; i < ints - 1; i += 2) {
-            y1 = points[i];		/* Really x-values, but... */
+        for (i = 0; i < ints - 1; i += 2)
+        {
+            y1 = points[i];             /* Really x-values, but... */
             y2 = points[i + 1];
             if (y1 < x1)
                 y1 = x1;
             if (y2 > x2)
                 y2 = x2;
-            if (y1 <= y2) {
+            if (y1 <= y2)
+            {
                 *coords++ = y;
                 *coords++ = y1;
                 *coords++ = y2;
