@@ -59,7 +59,7 @@ short mask[16][4];		/* Allocate instead? */
 Driver *me = 0;			/* Access to this seems to be needed */
 Device device;
 short *loaded_palette = 0;
-static char tos_colours[] = {0, 255, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13};
+static unsigned char tos_colours[] = { 0, 255, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13 };
 static int accelerate;
 static int oldmouse;
 
@@ -175,6 +175,7 @@ void setup_scrninfo(Device *device, const Mode *graphics_mode)
             for (; i < 256; i++)
                 device->scrmap.vdi2pix[i] = 0;
         }
+        device->scrmap.vdi2pix[1] = (1 << (graphics_mode->bpp > 8 ? 8 : graphics_mode->bpp)) - 1;
     }
 }
 

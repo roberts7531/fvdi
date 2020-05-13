@@ -41,12 +41,12 @@
 #endif
 
 typedef struct _MBits {
-	char *red;
-	char *green;
-	char *blue;
-	char *alpha;
-	char *genlock;
-	char *unused;
+	const char *red;
+	const char *green;
+	const char *blue;
+	const char *alpha;
+	const char *genlock;
+	const char *unused;
 } MBits;
 
 typedef struct _Mode {

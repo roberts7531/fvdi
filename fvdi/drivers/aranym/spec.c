@@ -8,22 +8,28 @@
 #include "os.h"
 
 /* color bit organization */
-char none[] = {0};
-char r_8[] = {8};
-char g_8[] = {8};
-char b_8[] = {8};
-char r_16[] = {5, 3, 4, 5, 6, 7};
-char g_16[] = {6, 13, 14, 15, 0, 1, 2};
-char b_16[] = {5, 8, 9, 10, 11, 12};
-char r_16f[] = {5, 11, 12, 13, 14, 15};
-char g_16f[] = {6, 5, 6, 7, 8, 9, 10};
-char b_16f[] = {5, 0, 1, 2, 3, 4};
-char r_32[] = {8, 16, 17, 18, 19, 20, 21, 22, 23};
-char g_32[] = {8,  8,  9, 10, 11, 12, 13, 14, 15};
-char b_32[] = {8,  0,  1,  2,  3,  4,  5,  6,  7};
-char r_32f[] = {8,  8,  9, 10, 11, 12, 13, 14, 15};
-char g_32f[] = {8, 16, 17, 18, 19, 20, 21, 22, 23};
-char b_32f[] = {8, 24, 25, 26, 27, 28, 29, 30, 31};
+static char const none[] = { 0 };
+
+static char const r_8[] = { 8 };
+static char const g_8[] = { 8 };
+static char const b_8[] = { 8 };
+
+static char const r_16[] = { 5, 3, 4, 5, 6, 7 };
+static char const g_16[] = { 6, 13, 14, 15, 0, 1, 2 };
+static char const b_16[] = { 5, 8, 9, 10, 11, 12 };
+
+static char const r_16f[] = { 5, 11, 12, 13, 14, 15 };
+static char const g_16f[] = { 6, 5, 6, 7, 8, 9, 10 };
+static char const b_16f[] = { 5, 0, 1, 2, 3, 4 };
+
+static char const r_32[] = { 8, 16, 17, 18, 19, 20, 21, 22, 23 };
+static char const g_32[] = { 8,  8,  9, 10, 11, 12, 13, 14, 15 };
+static char const b_32[] = { 8,  0,  1,  2,  3,  4,  5,  6,  7 };
+
+static char const r_32f[] = { 8,  8,  9, 10, 11, 12, 13, 14, 15 };
+static char const g_32f[] = { 8, 16, 17, 18, 19, 20, 21, 22, 23 };
+static char const b_32f[] = { 8, 24, 25, 26, 27, 28, 29, 30, 31 };
+
 
 /**
  * Mode *graphics_mode
@@ -55,32 +61,36 @@ char b_32f[] = {8, 24, 25, 26, 27, 28, 29, 30, 31};
  *           0x01 - usual bit order
  *           0x80 - Intel byte order
  **/
-Mode mode[7] = /* FIXME: big and little endian differences. */
+static Mode const mode[] =                          /* FIXME: big and little endian differences. */
 {
-                       /* ... 0, interleaved, hardware clut, usual bit order */
-    { 1, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
-    { 2, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
-    { 4, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
-    { 8, CHECK_PREVIOUS, {r_8,   g_8,   b_8,    none, none, none}, 0, 0, 1, 1},
+    /* ... 0, interleaved, hardware clut, usual bit order */
+    {  1, CHECK_PREVIOUS, { r_8, g_8, b_8, none, none, none }, 0, 0, 1, 1 },
+    {  2, CHECK_PREVIOUS, { r_8, g_8, b_8, none, none, none }, 0, 0, 1, 1 },
+    {  4, CHECK_PREVIOUS, { r_8, g_8, b_8, none, none, none }, 0, 0, 1, 1 },
+    {  8, CHECK_PREVIOUS, { r_8, g_8, b_8, none, none, none }, 0, 0, 1, 1 },
 
-              /* ... 0, packed pixels, software clut (none), usual bit order */
-    {16, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
-                              {r_16f, g_16f, b_16f, none, none, none}, 0, 2, 2, 1},
-    {24, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
-                              {r_32f, g_32f, b_32f, none, none, none}, 0, 2, 2, 1},
-    {32, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR,
-                              {r_32,  g_32,  b_32,  none, none, none}, 0, 2, 2, 1}
+    /* ... 0, packed pixels, software clut (none), usual bit order */
+    { 16, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, { r_16f, g_16f, b_16f, none, none, none }, 0, 2, 2, 1 },
+    { 24, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, { r_32f, g_32f, b_32f, none, none, none }, 0, 2, 2, 1 },
+    { 32, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, { r_32f, g_32f, b_32f, none, none, none }, 0, 2, 2, 1 },
+
+    /* ... 0, packed pixels, software clut (none), fb layout */
+    { 16, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0, 2, 2, 0x81 },
+    { 24, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, { r_32, g_32, b_32, none, none, none }, 0, 2, 2, 0x81 },
+    { 32, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, { r_32, g_32, b_32, none, none, none }, 0, 2, 2, 0x81 }
 };
 
 char driver_name[] = "NatFeat/ARAnyM 2005-01-24 (xx bit)";
 
 static struct {
-    short used;                          /* Whether the mode option was used or not. */
+    short used;                         /* Whether the mode option was used or not. */
     short width;
     short height;
     short bpp;
     short freq;
-} resolution = {0, 640, 480, 16, 85};
+} resolution = {
+    0, 640, 480, 16, 85
+};
 
 static struct
 {
@@ -110,12 +120,13 @@ short accel_c = A_SET_PIX | A_GET_PIX | A_MOUSE | A_LINE | A_BLIT | A_FILL | A_E
 const Mode *graphics_mode = &mode[1];
 
 static short irq = 0;
+static short fb_scrninfo;
 
 static long set_mode(const char **ptr);
 static long set_scrninfo(const char **ptr);
 
 
-static Option options[] = {
+static Option const options[] = {
     {"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
     {"scrninfo",   set_scrninfo,      -1},  /* scrninfo fb, make vq_scrninfo return values regarding actual fb layout */
     {"debug",      &debug,             2},  /* debug, turn on debugging aids */
@@ -131,7 +142,7 @@ static char *get_num(char *token, short *num)
     *num = -1;
     if (!*token)
         return token;
-    for(i = 0; i < 10; i ++)
+    for (i = 0; i < 10; i++)
     {
         c = buf[i] = *token++;
         if ((c < '0') || (c > '9'))
@@ -151,77 +162,93 @@ static int set_bpp(int bpp)
     switch (bpp)
     {
     case 1:
-        graphics_mode = &mode[0];
+        driver_name[27] = ' ';
         driver_name[28] = '1';
+        graphics_mode = &mode[0];
         break;
     case 2:
-        graphics_mode = &mode[1];
+        driver_name[27] = ' ';
         driver_name[28] = '2';
+        graphics_mode = &mode[1];
         break;
     case 4:
-        graphics_mode = &mode[2];
+        driver_name[27] = ' ';
         driver_name[28] = '4';
+        graphics_mode = &mode[2];
         break;
     case 8:
+        driver_name[27] = ' ';
         driver_name[28] = '8';
-        /* fall through */
-    case 16:
-    case 24:
-    case 32:
-        graphics_mode = &mode[bpp / 8 + 2];
+        graphics_mode = &mode[3];
         break;
     default:
-        bpp = 16;       /* Default as 16 bit */
+        bpp = 16;                       /* Default as 16 bit */
+        /* fall through */
+    case 16:
+        driver_name[27] = '1';
+        driver_name[28] = '6';
+        graphics_mode = fb_scrninfo ? &mode[7] : &mode[4];
+        break;
+    case 24:
+        driver_name[27] = '2';
+        driver_name[28] = '4';
+        graphics_mode = fb_scrninfo ? &mode[8] : &mode[5];
+        break;
+    case 32:
+        driver_name[27] = '3';
+        driver_name[28] = '2';
+        graphics_mode = fb_scrninfo ? &mode[9] : &mode[6];
+        break;
     }
 
 #if 0
     /* Update various bitmasks */
-    if (bpp > 8) {
-        long r_mask,  g_mask,  b_mask;
+    if (bpp > 8)
+    {
+        long r_mask, g_mask, b_mask;
         long r_shift, g_shift, b_shift;
-        long r_loss,  g_loss,  b_loss;
+        long r_loss, g_loss, b_loss;
         int i;
 
         /* Update R */
         c_get_component(0, &r_mask, &r_shift, &r_loss);
-        for(i = 0; i < graphics_mode->bits.red[0]; i++) {
+        for (i = 0; i < graphics_mode->bits.red[0]; i++)
+        {
             graphics_mode->bits.red[i + 1] = i + r_shift;
         }
         /* Update G */
         c_get_component(1, &g_mask, &g_shift, &g_loss);
-        for(i = 0; i < graphics_mode->bits.green[0]; i++) {
+        for (i = 0; i < graphics_mode->bits.green[0]; i++)
+        {
             graphics_mode->bits.green[i + 1] = i + g_shift;
         }
         /* Update B */
         c_get_component(2, &b_mask, &b_shift, &b_loss);
-        for(i = 0; i < graphics_mode->bits.blue[0]; i++) {
+        for (i = 0; i < graphics_mode->bits.blue[0]; i++)
+        {
             graphics_mode->bits.blue[i + 1] = i + b_shift;
         }
     }
 #endif
 
-    switch (bpp) {
+    switch (bpp)
+    {
     case 16:
         set_colours_r = c_set_colours_16;
         get_colours_r = c_get_colours_16;
-        get_colour_r  = c_get_colour_16;
-        driver_name[27] = '1';
-        driver_name[28] = '6';
+        get_colour_r = c_get_colour_16;
         break;
     case 24:
     case 32:
         set_colours_r = c_set_colours_32;
         get_colours_r = c_get_colours_32;
-        get_colour_r  = c_get_colour_32;
-        driver_name[27] = '3';
-        driver_name[28] = '2';
+        get_colour_r = c_get_colour_32;
         break;
-    /* indexed color modes */
     default:
+        /* indexed color modes */
         set_colours_r = c_set_colours_8;
         get_colours_r = c_get_colours_8;
-        get_colour_r  = c_get_colour_8;
-        driver_name[27] = ' ';
+        get_colour_r = c_get_colour_8;
         break;
     }
 
@@ -265,33 +292,13 @@ static long set_scrninfo(const char **ptr)
 
     if (access->funcs.equal(token, "fb"))
     {
-        mode[4].bits.red = r_16;
-        mode[4].bits.green = g_16;
-        mode[4].bits.blue = b_16;
-        mode[4].org = 0x81;
-        mode[5].bits.red = r_32;
-        mode[5].bits.green = g_32;
-        mode[5].bits.blue = b_32;
-        mode[5].org = 0x81;
-        mode[6].bits.red = r_32;
-        mode[6].bits.green = g_32;
-        mode[6].bits.blue = b_32;
-        mode[6].org = 0x81;
+        fb_scrninfo = 1;
     } else
     {
-        mode[4].bits.red = r_16f;
-        mode[4].bits.green = g_16f;
-        mode[4].bits.blue = b_16f;
-        mode[4].org = 0x01;
-        mode[5].bits.red = r_32f;
-        mode[5].bits.green = g_32f;
-        mode[5].bits.blue = b_32f;
-        mode[5].org = 0x01;
-        mode[6].bits.red = r_32f;
-        mode[6].bits.green = g_32f;
-        mode[6].bits.blue = b_32f;
-        mode[6].org = 0x01;
+        fb_scrninfo = 0;
     }
+
+    resolution.bpp = set_bpp(resolution.bpp);
 
     if (me && me->device)
         setup_scrninfo(me->device, graphics_mode);

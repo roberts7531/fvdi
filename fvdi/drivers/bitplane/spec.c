@@ -23,13 +23,14 @@
 #endif
 
 
-char red[] = { 6 };
-char green[] = { 6 };
-char blue[] = { 6 };
-char none[] = { 0 };
+static char const red[] = { 6 };
+static char const green[] = { 6 };
+static char const blue[] = { 6 };
+static char const none[] = { 0 };
 
-Mode mode[1] =
-    {{1, CHECK_PREVIOUS, {red, green, blue, none, none, none}, 0, 0, 1, 1}};
+static Mode const mode[1] = {
+    { 1, CHECK_PREVIOUS, { red, green, blue, none, none, none}, 0, 0, 1, 1 }
+};
 
 char driver_name[] = "Bitplane (shadow)";
 

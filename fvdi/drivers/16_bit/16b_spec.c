@@ -17,18 +17,18 @@
 #include "../bitplane/bitplane.h"
 #include "string/memset.h"
 
-static char r_16[] = { 5, 11, 12, 13, 14, 15 };
-static char g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
-static char b_16[] = { 5,  0,  1,  2,  3,  4 };
-static char none[] = { 0 };
+static char const r_16[] = { 5, 11, 12, 13, 14, 15 };
+static char const g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
+static char const b_16[] = { 5,  0,  1,  2,  3,  4 };
+static char const none[] = { 0 };
 
 #if 0
-static char red[] = { 5, 11, 12, 13, 14, 15 };
-static char green[] = { 5, 6, 7, 8, 9, 10 };
-static char blue[] = { 5, 0, 1, 2, 3, 4 };
-static char alpha[] = { 0 };
-static char genlock[] = { 0 };
-static char unused[] = { 1, 5 };
+static char const red[] = { 5, 11, 12, 13, 14, 15 };
+static char const green[] = { 5, 6, 7, 8, 9, 10 };
+static char const blue[] = { 5, 0, 1, 2, 3, 4 };
+static char const alpha[] = { 0 };
+static char const genlock[] = { 0 };
+static char const unused[] = { 1, 5 };
 #endif
 
 static Mode const mode[1] = {
@@ -84,22 +84,7 @@ static const char *const preset[] = {
     "1920x1080x16@60 ",
     "2560x1440x16@60 "
 };
-
-long set_mode(const char **ptr);
 #endif
-
-static Option const options[] = {
-#if 0
-    {"mode",       set_mode,       -1},  /* mode key/<n>/WIDTHxHEIGHTxDEPTH@FREQ */
-    {"aesbuf",     set_aesbuf,     -1},  /* aesbuf address, set AES background buffer address */
-    {"screen",     set_screen,     -1},  /* screen address, set old screen address */
-    {"imgcache",   &cache_img,      1},  /* imgcache, turn on caching of images blitted to the screen */
-    {"screencache",&cache_from_screen, 1},  /* screencache, turn on caching of images blitted from the screen */
-#endif
-    {"shadow",     &shadow,         1},  /* shadow, use a FastRAM buffer */
-    {"debug",      &debug,          2}   /* debug, turn on debugging aids */
-};
-
 
 #if 0
 static const char *get_num(const char *token, short *num)
@@ -205,6 +190,19 @@ static long set_screen(const char **ptr)
     return 1;
 }
 #endif
+
+
+static Option const options[] = {
+#if 0
+    {"mode",       set_mode,       -1},  /* mode key/<n>/WIDTHxHEIGHTxDEPTH@FREQ */
+    {"aesbuf",     set_aesbuf,     -1},  /* aesbuf address, set AES background buffer address */
+    {"screen",     set_screen,     -1},  /* screen address, set old screen address */
+    {"imgcache",   &cache_img,      1},  /* imgcache, turn on caching of images blitted to the screen */
+    {"screencache",&cache_from_screen, 1},  /* screencache, turn on caching of images blitted from the screen */
+#endif
+    {"shadow",     &shadow,         1},  /* shadow, use a FastRAM buffer */
+    {"debug",      &debug,          2}   /* debug, turn on debugging aids */
+};
 
 
 /*
