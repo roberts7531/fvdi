@@ -2,8 +2,6 @@
  *	Drawing function dispatch
  */
 
-#define FVDI_DEBUG
-
 #include "fvdi.h"
 #include "relocate.h"
 

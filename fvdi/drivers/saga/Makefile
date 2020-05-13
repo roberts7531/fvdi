@@ -39,6 +39,7 @@ SSRC = \
 CSRC = \
 	init.c \
 	colours.c \
+	printf.c \
 	sag_spec.c \
 	saga.c \
 	modeline_vesa.c \

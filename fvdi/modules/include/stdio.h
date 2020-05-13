@@ -1,10 +1,10 @@
 #include "libkern.h"
 
-#if 0
-#define sprintf	 ksprintf_old
-#define snprintf ksprintf
-#endif
-extern int sprintf(char *str, const char *format, ...);
+long ksprintf(char *str, const char *format, ...) __attribute__((format(printf, 2, 3)));
+long kvsprintf(char *str, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
+long kprintf(const char *format, ...) __attribute__((format(printf, 1, 2)));
+
+int sprintf(char *str, const char *format, ...) __attribute__((format(printf, 2, 3)));
 
 /* The possibilities for the third argument to `fseek'.
    These values should not be changed.  */

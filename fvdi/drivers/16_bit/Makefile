@@ -37,6 +37,7 @@ SSRC = \
 CSRC = \
 	init.c \
 	colours.c \
+	printf.c \
 	16_bit.c
 
 # handle DevPac -> gas conversions

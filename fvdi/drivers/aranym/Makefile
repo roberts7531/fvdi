@@ -39,6 +39,7 @@ SSRC = \
 CSRC = \
 	init.c \
 	colours.c \
+	printf.c \
 	spec.c \
 	8b_pal.c \
 	16b_pal.c \

@@ -37,6 +37,7 @@ SSRC = \
 CSRC = \
 	init.c \
 	colours.c \
+	printf.c \
 	uaegfx.c \
 	uaelib.c \
 	uae_spec.c \

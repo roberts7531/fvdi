@@ -38,6 +38,7 @@ SSRC = \
 CSRC = \
 	init.c \
 	colours.c \
+	printf.c \
 	fb_spec.c \
 	firebee.c \
 	modeline_vesa.c \

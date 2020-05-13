@@ -62,7 +62,10 @@ typedef struct _Mode {
 #ifdef FVDI_DEBUG
 #define PUTS(x) access->funcs.puts(x)
 #define PRINTF(x) kprintf x
-#define KEY_WAIT(x) key_wait(x)
+#define KEY_WAIT(x) (void) Crawcin()
+long kprintf(const char *format, ...) __attribute__((format(printf, 1, 2)));
+long ksprintf(char *str, const char *format, ...) __attribute__((format(printf, 2, 3)));
+long kvsprintf(char *str, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
 #else
 #define PUTS(x)
 #define PRINTF(x)

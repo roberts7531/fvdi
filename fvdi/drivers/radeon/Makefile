@@ -40,6 +40,7 @@ SSRC = \
 CSRC = \
 	init.c \
 	colours.c \
+	printf.c \
 	radeon_bas_interface.c \
 	radeon_spec.c \
 	radeon.c \
