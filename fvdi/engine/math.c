@@ -33,16 +33,21 @@
  * Integer sine and cosine functions.
  */
 
-#define HALFPI	900
-#define PI	1800
-#define TWOPI	3600
+#include "fvdi.h"
+#include "function.h"
+#include "relocate.h"
+#include "utility.h"
+
+#define HALFPI  900
+#define PI      1800
+#define TWOPI   3600
 
 /* Sines of angles 1 - 90 degrees normalized between 0 and 32767. */
 
 static short sin_tbl[92] = {
-    0,   572,  1144,  1716,  2286,  2856,  3425,  3993,
-    4560,  5126,  5690,  6252,  6813,  7371,  7927,  8481,
-    9032,  9580, 10126, 10668, 11207, 11743, 12275, 12803,
+    0, 572, 1144, 1716, 2286, 2856, 3425, 3993,
+    4560, 5126, 5690, 6252, 6813, 7371, 7927, 8481,
+    9032, 9580, 10126, 10668, 11207, 11743, 12275, 12803,
     13328, 13848, 14364, 14876, 15383, 15886, 16383, 16876,
     17364, 17846, 18323, 18794, 19260, 19720, 20173, 20621,
     21062, 21497, 21925, 22347, 22762, 23170, 23571, 23964,
@@ -63,12 +68,14 @@ static short sin_tbl[92] = {
 short Isin(unsigned short angle)
 {
     short index;
-    unsigned short remainder, tmpsin;	/* Holder for sin. */
-    short  half;			/* 0-1 = 1st/2nd, 3rd/4th. */
+    unsigned short remainder;
+    unsigned short tmpsin;              /* Holder for sin. */
+    short half;                         /* 0-1 = 1st/2nd, 3rd/4th. */
     short *table;
 
     half = 0;
-    while (angle >= PI) {
+    while (angle >= PI)
+    {
         half ^= 1;
         angle -= PI;
     }
@@ -79,8 +86,8 @@ short Isin(unsigned short angle)
     remainder = angle % 10;
     table = &sin_tbl[index];
     tmpsin = *table++;
-    if (remainder)		/* Add interpolation. */
-        tmpsin += (unsigned short)((unsigned short)(*table - tmpsin) * remainder) / 10;
+    if (remainder)                      /* Add interpolation. */
+        tmpsin += (unsigned short) ((unsigned short) (*table - tmpsin) * remainder) / 10;
 
     if (half > 0)
         return -tmpsin;
@@ -107,14 +114,16 @@ short isqrt(unsigned long x)
 
     s1 = x;
     s2 = 2;
-    do {
+    do
+    {
         s1 /= 2;
         s2 *= 2;
     } while (s1 > s2);
 
     s2 = (s1 + (s2 / 2)) / 2;
 
-    do {
+    do
+    {
         s1 = s2;
         s2 = (x / s1 + s1) / 2;
     } while (s1 > s2);

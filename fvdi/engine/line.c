@@ -48,17 +48,6 @@ int SMUL_DIV(int, int, int);			/*   d0d1d0d2 */
 #endif
 
 
-/* m_dot, m_plus, m_star, m_square, m_cross, m_dmnd */
-static signed char row1[] = { 1, 2, 0, 0, 0, 0 };
-static signed char row2[] = { 2, 2, 0, -3, 0, 3, 2, -4, 0, 4, 0 };
-static signed char row3[] = { 3, 2, 0, -3, 0, 3, 2, 3, 2, -3, -2, 2, 3, -2, -3, 2 };
-static signed char row4[] = { 1, 5, -4, -3, 4, -3, 4, 3, -4, 3, -4, -3 };
-static signed char row5[] = { 2, 2, -4, -3, 4, 3, 2, -4, 3, 4, -3 };
-static signed char row6[] = { 1, 5, -4, 0, 0, -3, 4, 0, 0, 3, -4, 0 };
-static signed char *marker[] = { row1, row2, row3, row4, row5, row6 };
-
-
-
 static int wide_setup(Virtual *vwk, int width, short *q_circle)
 {
     int i;
@@ -290,11 +279,14 @@ static void arrow(Virtual *vwk, short *xy, short inc, int numpts, long colour, s
 {
     short i, arrow_len, arrow_wid, line_len;
     short *xybeg;
-    short dx = 0, dy = 0;
+    short dx, dy;
     short base_x, base_y, ht_x, ht_y;
-    long arrow_len2, line_len2 = 0;
+    long arrow_len2, line_len2;
     int xsize, ysize;
 
+    if (numpts <= 1)
+        return;
+    
     xsize = vwk->real_address->screen.pixel.width;
     ysize = vwk->real_address->screen.pixel.height;
 
@@ -492,128 +484,5 @@ void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points
          */
         wx1 = wx2;
         wy1 = wy2;
-    }
-}
-
-
-
-static void
-draw_line(int x1, int y1, int x2, int y2, int w, char* addr)
-{
-    unsigned int pos = (short)y1 * (short)w + x1;
-    int count;
-    int one_step, both_step;
-    int d, incrE, incrNE;
-    int dx, dy;
-    int x_step = 1;
-    int y_step = w;
-
-    dx = x2 - x1;
-    if (dx < 0)
-    {
-        dx = -dx;
-        x_step = -x_step;
-    }
-
-    dy = y2 - y1;
-    if (dy < 0)
-    {
-        dy = -dy;
-        y_step = -y_step;
-    }
-
-    if (dx > dy)
-    {
-        count = dx;
-        one_step = x_step;
-        both_step = y_step;
-        incrE = 2 * dy;
-        incrNE = -2 * dx;
-        d = -dx;
-    }
-    else
-    {
-        count = dy;
-        one_step = y_step;
-        both_step = x_step;
-        incrE = 2 * dx;
-        incrNE = -2 * dy;
-        d = -dy;
-    }
-
-    for (; count >= 0; count--)
-    {
-        addr[pos / 8] |= 1 << (7 - pos % 8);
-        d += incrE;
-        if (d >= 0)
-        {
-            d += incrNE;
-            pos += both_step;
-        }
-        pos += one_step;
-    }
-}
-
-
-void pmarker(int type, int size, int w_in, int h_in, char *buf)
-{
-    short i, j, num_lines;
-    int x_center, y_center;
-    int num_points;
-    signed char *m_ptr;
-    int w, h;
-    signed char nwidth[5], width[5], nheight[5], height[5];
-    short tmp;
-    int x1, y1, x2, y2;
-
-    for (i = 0; i <= 4; i++)
-    {
-        if (!w_in)
-        {
-            tmp = (short)((short)size * i * 4 + 11) / 22 + 1;
-        }
-        else
-            tmp = ((short)w_in * i + 2) / 4;
-        nwidth[i] = -(tmp / 2);
-        width[i] = tmp + nwidth[i] - 1;
-        if (!h_in)
-            tmp = (short)((short)size * i * 4 + 11) / 22 + 1;
-        else
-            tmp = (short)((short)h_in * i * 2 + 3) / 6;
-        nheight[i] = -(tmp / 2);
-        height[i] = tmp + nheight[i] - 1;
-    }
-
-    w = width[4] - nwidth[4] + 1;
-    h = height[3] - nheight[3] + 1;
-    x_center = w / 2;
-    y_center = h / 2;
-
-    m_ptr = marker[type];
-    num_lines = *m_ptr++;
-    x1 = y1 = 0;    /* To make the compiler happy */
-    for (i = 0; i < num_lines; i++)
-    {
-        num_points = *m_ptr++;
-        for(j = 0; j < num_points; j++)
-        {
-            x2 = *m_ptr++;
-            y2 = *m_ptr++;
-
-            if (x2 <= 0)
-                x2 = nwidth[-x2] + x_center;
-            else
-                x2 = width[x2] + x_center;
-            if (y2 <= 0)
-                y2 = nheight[-y2] + y_center;
-            else
-                y2 = height[y2] + y_center;
-
-            if (j > 0)
-                draw_line(x1, y1, x2, y2, w, buf);
-
-            x1 = x2;
-            y1 = y2;
-        }
     }
 }

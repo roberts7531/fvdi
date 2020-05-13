@@ -423,8 +423,6 @@ void link_mouse_routines(void)
         vdi(old_wk_handle, 127, 0, 0);
     lp = (long *)&control[9];
     old_curv = (void *)(*lp);
-    lp = (long *)&control[9];
-    old_curv = (void *)(*lp);
     /* vex_timv */
     lp = (long *) &control[7];
     *lp = (long) mouse_timer;

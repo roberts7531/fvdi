@@ -20,7 +20,7 @@ void CDECL vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm, RE
 void call_draw_line(Virtual *vwk, DrvLine *line);
 
 
-void retry_line(Virtual *vwk, DrvLine *pars)
+void CDECL retry_line(Virtual *vwk, DrvLine *pars)
 {
     short *table, length, *index, moves;
     short n;
@@ -30,20 +30,19 @@ void retry_line(Virtual *vwk, DrvLine *pars)
 
     table = index = 0;
     length = moves = 0;
-    if ((long)vwk & 1)
+    if ((long) vwk & 1)
     {
-        if ((unsigned long)(pars->y1 & 0xffff) > 1)
-            return;		/* Don't know about this kind of table operation */
-        table = (short *)pars->x1;
+        if ((unsigned long) (pars->y1 & 0xffff) > 1)
+            return;                     /* Don't know about this kind of table operation */
+        table = (short *) pars->x1;
         length = (pars->y1 >> 16) & 0xffff;
         if ((pars->y1 & 0xffff) == 1)
         {
-            index = (short *)pars->y2;
+            index = (short *) pars->y2;
             moves = pars->x2 & 0xffff;
         }
-        vwk = (Virtual *)((long)vwk - 1);
-    }
-    else
+        vwk = (Virtual *) ((long) vwk - 1);
+    } else
         return;
 
     /* Clear high words of coordinate unions? */
@@ -66,7 +65,7 @@ void retry_line(Virtual *vwk, DrvLine *pars)
             movepnt = (index[moves] + 4) / 2;
     }
 
-    for(n = 1; n < length; n++)
+    for (n = 1; n < length; n++)
     {
         x2 = *table++;
         y2 = *table++;
@@ -75,17 +74,16 @@ void retry_line(Virtual *vwk, DrvLine *pars)
             if (--moves >= 0)
                 movepnt = (index[moves] + 4) / 2;
             else
-                movepnt = -1;		/* Never again equal to n */
+                movepnt = -1;           /* Never again equal to n */
             init_x = line.x1 = x2;
             init_y = line.y1 = y2;
             continue;
         }
 
-        if (((n == length - 1) || (n == movepnt - 1)) &&
-                ((x2 != init_x) || (y2 != init_y)))
-            line.draw_last = 1;	/* Draw last pixel in the line */
+        if (((n == length - 1) || (n == movepnt - 1)) && ((x2 != init_x) || (y2 != init_y)))
+            line.draw_last = 1;         /* Draw last pixel in the line */
         else
-            line.draw_last = 0;	/* Do not draw last pixel in the line */
+            line.draw_last = 0;         /* Do not draw last pixel in the line */
 
 #if 0
         c_draw_line(vwk, x1, y1, x2, y2, pattern, colour, mode, draw_last);
@@ -104,8 +102,7 @@ void retry_line(Virtual *vwk, DrvLine *pars)
 /* This is in a rather adhoc state at the moment, unfortunately.
  * But it does seem to work, for what it does, and is not complicated.
  */
-void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
-                      RECT16 *src_rect, RECT16 *dst_rect, long mode)
+void CDECL vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm, RECT16 *src_rect, RECT16 *dst_rect, long mode)
 {
     int error = 0;
 
@@ -510,361 +507,3 @@ void vr_transfer_bits(Virtual *vwk, GCBITMAP *src_bm, GCBITMAP *dst_bm,
 #endif
     }
 }
-
-
-#if 0
-dc.b	0,"default_line",0
-* _default_line - Pixel by pixel line routine
-* In:	a0	VDI struct (odd address marks table operation)
-  *	d0	Colour
-  *	d1	x1 or table address
-  *	d2	y1 or table length (high) and type (0 - coordinate pairs, 1 - pairs+moves)
-  *	d3	x2 or move point count
-  *	d4	y2 or move index address
-  *	d5.w	Pattern
-  *	d6	Logic operation
-  * Call:	a0	VDI struct, 0 (destination MFDB)
-  *	d1-d2.w	Coordinates
-  *	a3-a4	Set/get pixel
-  _default_line:
-  movem.l	d6-d7/a1/a3-a4,-(a7)
-
-  move.w	a0,d7
-               and.w	#1,d7
-               sub.w	d7,a0
-
-               move.l	vwk_real_address(a0),a1
-                                             move.l	wk_r_get_colour(a1),a1	; Index to real colour
-jsr	(a1)
-
-clr.l	-(a7)			; No MFDB => draw on screen
-        move.l	a0,-(a7)
-
-move.w	d6,-(a7)
-bsr	setup_plot		; Setup pixel plot functions (a1/a3/a4)
-addq.l	#2,a7
-
-tst.w	d7
-bne	.multiline
-
-bsr	clip_line
-bvs	.skip_draw
-
-move.l	a7,a0			; a0 no longer -> VDI struct!
-
-        bsr	.draw
-        .skip_draw:
-
-        move.l	(a7),a0
-addq.l	#8,a7
-
-movem.l	(a7)+,d6-d7/a1/a3-a4
-rts
-
-.draw:
-    move.l	#$00010001,d7		; d7 = y-step, x-step
-
-sub.w	d1,d3			; d3 = dx
-        bge	.ok1
-        neg.w	d3
-        neg.w	d7
-        .ok1:
-        sub.w	d2,d4			; d4 = dy
-        bge	.ok2
-        neg.w	d4
-        swap	d7
-        neg.w	d7
-        swap	d7
-        .ok2:
-        and.l	#$ffff,d5
-cmp.w	d3,d4
-bls	.xmajor
-or.l	#$80000000,d5
-exg	d3,d4
-.xmajor:
-    add.w	d4,d4			; d4 = incrE = 2dy
-        move.w	d4,d6
-sub.w	d3,d6			; d6 = lines, d = 2dy - dx
-        swap	d4
-        move.w	d6,d4
-sub.w	d3,d4			; d4 = incrE, incrNE = 2(dy - dx)
-
-        rol.w	#1,d5
-jsr	(a1)
-
-swap	d1
-move.w	d2,d1
-swap	d1			; d1 = y, x
-bra	.loop_end1
-
-.loop1:
-    tst.w	d6
-    bgt	.both
-    swap	d4
-    add.w	d4,d6
-    swap	d4
-    tst.l	d5
-    bmi	.ymajor
-    add.w	d7,d1
-    bra	.plot
-    .ymajor:
-    swap	d7
-    swap	d1
-    add.w	d7,d1
-    swap	d7
-    swap	d1
-    bra	.plot
-    .both:
-    add.w	d4,d6
-    ;	add.l	d7,d1
-add.w	d7,d1
-swap	d7
-swap	d1
-add.w	d7,d1
-swap	d7
-swap	d1
-.plot:
-    move.l	d1,d2
-    swap	d2
-    rol.w	#1,d5
-    jsr	(a1)
-
-  .loop_end1:
-  dbra	d3,.loop1
-            rts
-
-            .multiline:				; Transform multiline to single ones
-cmp.w	#1,d2
-bhi	.line_done		; Only coordinate pairs and pairs+marks available so far
-beq	.use_marks
-moveq	#0,d3			; Move count
-.use_marks:
-    swap	d3
-    move.w	#1,d3			; Current index in high word
-swap	d3
-movem.l	d0/d2/d3/d5/a0/a5-a6,-(a7)
-move.l	d1,a5			; Table address
-move.l	d4,a6			; Move index address
-tst.w	d3			;  may not be set
-beq	.no_start_move
-add.w	d3,a6
-add.w	d3,a6
-subq.l	#2,a6
-cmp.w	#-4,(a6)
-bne	.no_start_movex
-subq.l	#2,a6
-sub.w	#1,d3
-.no_start_movex:
-    cmp.w	#-2,(a6)
-  bne	.no_start_move
-  subq.l	#2,a6
-               sub.w	#1,d3
-               .no_start_move:
-               bra	.line_loop_end
-               .line_loop:
-               movem.w	(a5),d1-d4
-                             move.l	7*4(a7),a0
-                                            bsr	clip_line
-                                            bvs	.no_draw
-                                            move.l	0(a7),d6		; Colour
-move.l	3*4(a7),d5		; Pattern
-;	move.l	xxx(a7),d0		; Logic operation
-lea	7*4(a7),a0
-bsr	.draw
-.no_draw:
-    move.l	2*4(a7),d3
-                    tst.w	d3
-                    beq	.no_marks
-                    swap	d3
-                    addq.w	#1,d3
-                    move.w	d3,d4
-                    add.w	d4,d4
-                    subq.w	#4,d4
-                    cmp.w	(a6),d4
-                                 bne	.no_move
-                                 subq.l	#2,a6
-                                 addq.w	#1,d3
-                                 swap	d3
-                                 subq.w	#1,d3
-                                 swap	d3
-                                 addq.l	#4,a5
-                                 subq.w	#1,1*4(a7)
-  .no_move:
-  swap	d3
-  move.l	d3,2*4(a7)
-  .no_marks:
-  addq.l	#4,a5
-               .line_loop_end:
-               subq.w	#1,1*4(a7)
-  bgt	.line_loop
-  movem.l	(a7)+,d0/d2/d3/d5/a0/a5-a6
-                  .line_done:
-                  move.l	(a7),a0
-                                 addq.l	#8,a7
-
-                                 movem.l	(a7)+,d6-d7/a1/a3-a4
-                                                  rts
-
-                                                  dc.b	0,"default_fill",0
-                                                  * _default_fill - Line by line (or pixel by pixel) fill routine
-  * In:	a0	VDI struct (odd address marks table operation)
-  *	d0	Colours
-  *	d1	x1 destination or table address
-  *	d2	y1   - "" -     or table length (high) and type (0 - y/x1/x2 spans)
-  *	d3-d4.w	x2,y2 destination
-               *	d5	Pointer to pattern
-               *	d6	Mode
-               *	d7	Interior/style
-               * Call:	a0	VDI struct, 0 (destination MFDB)
-  *	d0	Colours
-  *	d1-d2.w	Start coordinates
-  *	d3-d4.w	End coordinates
-  *	d5	Pattern
-  _default_fill:
-  movem.l	d1-d7/a0-a2,-(a7)
-
-  move.w	a0,d7
-               and.w	#1,d7
-               sub.w	d7,a0
-
-               move.l	d5,a2
-
-               cmp.w	#1,d6			; Not replace?
-        bne	.pattern
-
-        move.l	a2,a1
-moveq	#8-1,d5
-move.l	d6,-(a7)
-.check_pattern:
-    move.l	(a1)+,d6		; All ones?
-        addq.l	#1,d6
-dbne	d5,.check_pattern
-beq	.no_pattern
-move.l	(a7)+,d6
-bra	.pattern
-.no_pattern:
-    move.l	(a7)+,d6
-                  moveq	#-1,d5
-
-                  move.l	vwk_real_address(a0),a1
-                                                 move.l	wk_r_line(a1),a1
-                                                                      cmp.l	#_default_line,a1	; No real acceleration?
-        beq	.pattern
-
-        tst.w	d7
-        bne	.table_lfill
-
-        move.w	d4,d7
-moveq	#0,d6
-move.w	vwk_mode(a0),d6
-.loopy_sl:
-    move.w	d2,d4
-    jsr	(a1)
-  addq.w	#1,d2
-               cmp.w	d7,d2
-               ble	.loopy_sl
-
-               .end_default_fill:
-               movem.l	(a7)+,d1-d7/a0-a2
-                              rts
-
-                              .table_lfill:
-                              tst.w	d2
-                              bne	.end_default_fill	; Only y/x1/x2 spans available so far
-move.l	d2,d6
-swap	d6
-subq.w	#1,d6
-blt	.end_default_fill
-move.l	d1,a2
-.tlfill_loop:
-    moveq	#0,d2
-    move.w	(a2)+,d2
-                  move.w	d2,d4
-                  moveq	#0,d1
-                  move.w	(a2)+,d1
-                                  move.w	(a2)+,d3
-                                                  jsr	(a1)
-  dbra	d6,.tlfill_loop
-            bra	.end_default_fill
-
-            * Call:	a0	VDI struct, 0 (destination MFDB)
-  *	d0	Colour values
-  *	d1-d2.w	Coordinates
-  *	d6	Mode
-  *	a3-a4	Set/get pixel
-  .pattern:
-  movem.l	a3-a4,-(a7)
-
-  move.l	vwk_real_address(a0),a1
-                                 move.l	wk_r_get_colour(a1),a1	; Index to real colour
-jsr	(a1)
-
-move.w	d6,-(a7)
-bsr	setup_plot
-addq.l	#2,a7
-
-;	move.l	d5,a2
-
-clr.l	-(a7)			; No MFDB => draw on screen
-        move.l	a0,-(a7)
-move.l	a7,a0			; a0 no longer -> VDI struct!
-
-        tst.w	d7
-        bne	.table_pfill
-
-        move.w	d1,d6
-        .loopy_pp:
-        move.w	d6,d1			; x
-move.w	d2,d5
-and.w	#$000f,d5
-add.w	d5,d5
-move.w	0(a2,d5.w),d5
-rol.w	d1,d5
-.loopx_pp:
-    rol.w	#1,d5
-    jsr	(a1)
-  addq.w	#1,d1
-               cmp.w	d3,d1
-               ble	.loopx_pp
-               addq.w	#1,d2
-               cmp.w	d4,d2
-               ble	.loopy_pp
-               .end_pfill:
-               move.l	(a7),a0
-                             addq.l	#8,a7
-                             movem.l	(a7)+,a3-a4
-                                              bra	.end_default_fill
-
-                                              .table_pfill:
-                                              tst.w	d2
-                                              bne	.end_pfill		; Only y/x1/x2 spans available so far
-move.l	d2,d6
-swap	d6
-subq.w	#1,d6
-blt	.end_pfill
-
-move.l	a5,-(a7)
-move.l	d1,a5
-.tploopy_pp:
-    moveq	#0,d2
-    move.w	(a5)+,d2
-                  moveq	#0,d1
-                  move.w	(a5)+,d1
-                                  move.w	(a5)+,d3
-
-                                                  move.w	d2,d5
-                                                  and.w	#$000f,d5
-                                                  add.w	d5,d5
-                                                  move.w	0(a2,d5.w),d5
-                                                                       rol.w	d1,d5
-                                                                       .tploopx_pp:
-                                                                       rol.w	#1,d5
-                                                                       jsr	(a1)
-  addq.w	#1,d1
-               cmp.w	d3,d1
-               ble	.tploopx_pp
-               dbra	d6,.tploopy_pp
-               move.l	(a7)+,a5
-                              bra	.end_pfill
-
-                              #endif

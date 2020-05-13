@@ -37,29 +37,34 @@
 #define MAX_ARC_CT 256
 
 #ifdef __GNUC__
-#define SMUL_DIV(x,y,z)	((short)(((short)(x)*(long)((short)(y)))/(short)(z)))
+#define SMUL_DIV(x,y,z) ((short)(((short)(x)*(long)((short)(y)))/(short)(z)))
 #else
 #ifdef __PUREC__
-#define SMUL_DIV(x,y,z)	((short)(((x)*(long)(y))/(z)))
+#define SMUL_DIV(x,y,z) ((short)(((x)*(long)(y))/(z)))
 #else
-int SMUL_DIV(int, int, int);   //   d0d1d0d2
+int SMUL_DIV(int, int, int);   /* d0d1d0d2 */
 #pragma inline d0 = SMUL_DIV(d0, d1, d2) { "c1c181c2"; }
 #endif
 #endif
 
 
-void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, long yrad,
+void ellipsearc(Virtual * vwk, long gdp_code, long xc, long yc, long xrad, long yrad, long beg_ang, long end_ang);
+void rounded_box(Virtual * vwk, long gdp_code, short *coords);
+
+
+static void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, long yrad,
              long beg_ang, long end_ang, long del_ang, long n_steps,
              Fgbg fill_colour, Fgbg border_colour,
              short *pattern, short *points, long mode, long interior_style)
 {
     short i, j, start, angle;
 
-    if (vwk->clip.on) {
-        if (((xc + xrad) < vwk->clip.rectangle.x1)
-                || ((xc - xrad) > vwk->clip.rectangle.x2)
-                || ((yc + yrad ) < vwk->clip.rectangle.y1)
-                || ((yc - yrad) > vwk->clip.rectangle.y2))
+    if (vwk->clip.on)
+    {
+        if (((xc + xrad) < vwk->clip.rectangle.x1) ||
+            ((xc - xrad) > vwk->clip.rectangle.x2) ||
+            ((yc + yrad) < vwk->clip.rectangle.y1) ||
+            ((yc - yrad) > vwk->clip.rectangle.y2))
             return;
     }
     start = angle = beg_ang;
@@ -91,19 +96,20 @@ void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, long yrad
         *points++ = yc;
     }
 
-    if ((gdp_code == 2) || (gdp_code == 6))	/* Open arc */
-        c_pline(vwk, n_steps + 1, * (long *) &border_colour, points - (n_steps + 1) * 2);
-    else
+    if ((gdp_code == 2) || (gdp_code == 6)) /* Open arc */
+    {
+        c_pline(vwk, n_steps + 1, border_colour.l, points - (n_steps + 1) * 2);
+    } else
     {
         fill_poly(vwk, points - (n_steps + 1) * 2, n_steps + 1,
-                  * (long *) &fill_colour, pattern, points, mode, interior_style);
+                  fill_colour.l, pattern, points, mode, interior_style);
         if (vwk->fill.perimeter)
-            c_pline(vwk, n_steps + 1, * (long *) &border_colour, points - (n_steps + 1) * 2);
+            c_pline(vwk, n_steps + 1, border_colour.l, points - (n_steps + 1) * 2);
     }
 }
 
 
-void col_pat(Virtual *vwk, Fgbg *fill_colour, Fgbg *border_colour, short **pattern)
+static void col_pat(Virtual *vwk, Fgbg *fill_colour, Fgbg *border_colour, short **pattern)
 {
     short interior;
 
@@ -111,23 +117,27 @@ void col_pat(Virtual *vwk, Fgbg *fill_colour, Fgbg *border_colour, short **patte
 
     *border_colour = vwk->fill.colour;
     if (interior)
+    {
         *fill_colour = vwk->fill.colour;
-    else {
+    } else
+    {
         fill_colour->background = vwk->fill.colour.foreground;
         fill_colour->foreground = vwk->fill.colour.background;
     }
 
     if (interior == 4)
+    {
         *pattern = vwk->fill.user.pattern.in_use;
-    else {
+    } else
+    {
         *pattern = pattern_ptrs[interior];
-        if (interior & 2)     /* interior 2 or 3 */
+        if (interior & 2)               /* interior 2 or 3 */
             *pattern += (vwk->fill.style - 1) * 16;
     }
 }
 
 
-long clc_nsteps(long xrad, long yrad)
+static long clc_nsteps(long xrad, long yrad)
 {
     long n_steps;
 
@@ -164,22 +174,21 @@ void ellipsearc(Virtual *vwk, long gdp_code,
     if (n_steps == 0)
         return;
 
-    if (!(points = (short *)allocate_block(0)))
+    if (!(points = (short *) allocate_block(0)))
         return;
 
     pattern = 0;
     interior_style = 0;
     border_colour = vwk->line.colour;
-    if (gdp_code == 7 || gdp_code == 5) {
+    if (gdp_code == 7 || gdp_code == 5)
+    {
         col_pat(vwk, &fill_colour, &border_colour, &pattern);
-        interior_style = ((long)vwk->fill.interior << 16) |
-                (vwk->fill.style & 0xffffL);
+        interior_style = ((long) vwk->fill.interior << 16) | (vwk->fill.style & 0xffffL);
     }
 
     /* Dummy fill colour, pattern and interior style since not filled */
     clc_arc(vwk, gdp_code, xc, yc, xrad, yrad, beg_ang, end_ang, del_ang,
-            n_steps, fill_colour, border_colour, pattern, points, vwk->mode,
-            interior_style);
+            n_steps, fill_colour, border_colour, pattern, points, vwk->mode, interior_style);
 
     free_block(points);
 }
@@ -197,29 +206,33 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
     Fgbg fill_colour, border_colour;
     long interior_style;
 
-    if (!(points = (short *)allocate_block(0)))
+    if (!(points = (short *) allocate_block(0)))
         return;
 
     pattern = 0;
     interior_style = 0;
     border_colour = vwk->line.colour;
-    if (gdp_code == 9) {
+    if (gdp_code == 9)
+    {
         col_pat(vwk, &fill_colour, &border_colour, &pattern);
-        interior_style = ((long)vwk->fill.interior << 16) |
-                (vwk->fill.style & 0xffffL);
+        interior_style = ((long) vwk->fill.interior << 16) | (vwk->fill.style & 0xffffL);
     }
 
     x1 = coords[0];
     y1 = coords[1];
     if (x1 <= coords[2])
+    {
         x2 = coords[2];
-    else {
+    } else
+    {
         x2 = x1;
         x1 = coords[2];
     }
     if (y1 <= coords[3])
+    {
         y2 = coords[3];
-    else {
+    } else
+    {
         y2 = y1;
         y1 = coords[3];
     }
@@ -232,55 +245,63 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
         xrad = rdeltax;
 
     yrad = SMUL_DIV(xrad, wk->screen.pixel.width, wk->screen.pixel.height);
-    if (yrad > rdeltay) {
+    if (yrad > rdeltay)
+    {
         yrad = rdeltay;
         xrad = SMUL_DIV(yrad, wk->screen.pixel.height, wk->screen.pixel.width);
     }
     yrad = -yrad;
 
-    (void) clc_nsteps(xrad, yrad);
+    /* n_steps = clc_nsteps(xrad, yrad); */
 
-    for(i = 0; i < 5; i++) {
-        points[i * 2]     = SMUL_DIV(Icos(900 - 225 * i), xrad, 32767);
+    for (i = 0; i < 5; i++)
+    {
+        points[i * 2] = SMUL_DIV(Icos(900 - 225 * i), xrad, 32767);
         points[i * 2 + 1] = SMUL_DIV(Isin(900 - 225 * i), yrad, 32767);
     }
 
     xc = x2 - xrad;
     yc = y1 - yrad;
     j = 10;
-    for(i = 9; i >= 0; i--) {
+    for (i = 9; i >= 0; i--)
+    {
         points[j + 1] = yc + points[i--];
         points[j] = xc + points[i];
         j += 2;
     }
     xc = x1 + xrad;
     j = 20;
-    for(i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++)
+    {
         points[j++] = xc - points[i++];
         points[j++] = yc + points[i];
     }
     yc = y2 + yrad;
     j = 30;
-    for(i = 9; i >= 0; i--) {
+    for (i = 9; i >= 0; i--)
+    {
         points[j + 1] = yc - points[i--];
         points[j] = xc - points[i];
         j += 2;
     }
     xc = x2 - xrad;
     j = 0;
-    for(i = 0; i < 10; i++) {
+    for (i = 0; i < 10; i++)
+    {
         points[j++] = xc + points[i++];
         points[j++] = yc - points[i];
     }
     points[40] = points[0];
     points[41] = points[1];
 
-    if (gdp_code == 8) {
-        c_pline(vwk, 21, *(long *)&border_colour, points);
-    } else {
-        fill_poly(vwk, points, 21, *(long *)&fill_colour, pattern, &points[42], vwk->mode, interior_style);
+    if (gdp_code == 8)
+    {
+        c_pline(vwk, 21, border_colour.l, points);
+    } else
+    {
+        fill_poly(vwk, points, 21, fill_colour.l, pattern, &points[42], vwk->mode, interior_style);
         if (vwk->fill.perimeter)
-            c_pline(vwk, 21, *(long *)&border_colour, points);
+            c_pline(vwk, 21, border_colour.l, points);
     }
 
     free_block(points);
