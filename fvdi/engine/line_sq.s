@@ -29,7 +29,7 @@ vsl_color:
 	lblo	.ok,1
 	moveq	#BLACK,d0
  label .ok,1
-	move.w	d0,vwk_line_colour_bgfg_foreground(a0)
+	move.w	d0,vwk_line_colour_foreground(a0)
 	move.l	intout(a1),a2
 	move.w	d0,(a2)
 	done_return

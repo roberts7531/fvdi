@@ -98,13 +98,13 @@ static void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, lo
 
     if ((gdp_code == 2) || (gdp_code == 6)) /* Open arc */
     {
-        c_pline(vwk, n_steps + 1, border_colour.l, points - (n_steps + 1) * 2);
+        c_pline(vwk, n_steps + 1, border_colour, points - (n_steps + 1) * 2);
     } else
     {
         fill_poly(vwk, points - (n_steps + 1) * 2, n_steps + 1,
-                  fill_colour.l, pattern, points, mode, interior_style);
+                  fill_colour, pattern, points, mode, interior_style);
         if (vwk->fill.perimeter)
-            c_pline(vwk, n_steps + 1, border_colour.l, points - (n_steps + 1) * 2);
+            c_pline(vwk, n_steps + 1, border_colour, points - (n_steps + 1) * 2);
     }
 }
 
@@ -296,12 +296,12 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
 
     if (gdp_code == 8)
     {
-        c_pline(vwk, 21, border_colour.l, points);
+        c_pline(vwk, 21, border_colour, points);
     } else
     {
-        fill_poly(vwk, points, 21, fill_colour.l, pattern, &points[42], vwk->mode, interior_style);
+        fill_poly(vwk, points, 21, fill_colour, pattern, &points[42], vwk->mode, interior_style);
         if (vwk->fill.perimeter)
-            c_pline(vwk, 21, border_colour.l, points);
+            c_pline(vwk, 21, border_colour, points);
     }
 
     free_block(points);

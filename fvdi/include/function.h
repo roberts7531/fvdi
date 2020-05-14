@@ -31,17 +31,17 @@ void shut_down(void);
 long tokenize(const char *buffer);
 void CDECL set_palette(Virtual *vwk, DrvPalette *palette_pars);
 
-void v_bez_accel(long vwk, short *points, long num_points, long totmoves, short *xmov, long pattern, long colour, long mode);
-void lib_v_pline(Virtual *, void *);
-void c_pline(Virtual *vwk, long num_pts, long colour, short *points);
-void filled_poly(Virtual *vwk, short p[][2], long n, long colour, short *pattern, short *points, long mode, long interior_style);
-void filled_poly_m(Virtual *vwk, short p[][2], long n, long colour, short *pattern, short *points, short index[], long moves, long mode, long interior_style);
-void fill_poly(Virtual *vwk, short *p, long n, long colour, short *pattern, short *points, long mode, long interior_style);
-void fill_area(Virtual *vwk, long x1, long y1, long x2, long y2, long colour);
+void v_bez_accel(long vwk, short *points, long num_points, long totmoves, short *xmov, long pattern, Fgbg colour, long mode);
+void lib_v_pline(Virtual *, struct v_bez_pars *);
+void c_pline(Virtual *vwk, long num_pts, Fgbg colour, short *points);
+void filled_poly(Virtual *vwk, short p[][2], long n, Fgbg colour, short *pattern, short *points, long mode, long interior_style);
+void filled_poly_m(Virtual *vwk, short p[][2], long n, Fgbg colour, short *pattern, short *points, short index[], long moves, long mode, long interior_style);
+void fill_poly(Virtual *vwk, short *p, long n, Fgbg colour, short *pattern, short *points, long mode, long interior_style);
+void fill_area(Virtual *vwk, long x1, long y1, long x2, long y2, Fgbg colour);
 void get_extent(Virtual *vwk, long length, short *text, short points[]);
-void draw_text(Virtual *vwk, long x, long y, short *text, long length, long colour);
-void hline(Virtual *vwk, long x1, long y1, long y2, long colour, short *pattern, long mode, long interior_style);
-void fill_spans(void *, short *, long n, long colour, short *pattern, long mode, long interior_style);
+void draw_text(Virtual *vwk, long x, long y, short *text, long length, Fgbg colour);
+void hline(Virtual *vwk, long x1, long y1, long y2, Fgbg colour, short *pattern, long mode, long interior_style);
+void fill_spans(void *, short *, long n, Fgbg colour, short *pattern, long mode, long interior_style);
 
 
 
@@ -133,8 +133,8 @@ extern unsigned short (*external_char_index) (Virtual *vwk, Fontheader *font, sh
 void display_output(VDIpars *pars);
 #endif
 
-void CDECL wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode);
-void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode);
+void CDECL wide_line(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points, long mode);
+void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points, long mode);
 
 void CDECL v_opnvwk(Virtual *vwk, VDIpars * pars);
 void CDECL v_opnwk(VDIpars *pars);

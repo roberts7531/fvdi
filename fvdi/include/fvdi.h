@@ -167,17 +167,8 @@ typedef struct Colour_ {
 } Colour;
 
 typedef struct Fgbg_ {
-    union {
-        struct {
-            short background;
-            short foreground;
-#ifndef ANONYMOUS
-        };
-#else
-        } bgfg;
-#endif
-        long l;
-    };
+    short background;
+    short foreground;
 } Fgbg;
 
 

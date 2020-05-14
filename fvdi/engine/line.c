@@ -226,7 +226,7 @@ static void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
 /*
  * draw a filled circle
  */
-static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, long color, short mode)
+static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, Fgbg color, short mode)
 {
     /* simplified bresenham */
     int d;
@@ -266,7 +266,7 @@ static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, long co
 }
 
 
-static void do_rounded(Virtual *vwk, short *pts, long colour, long mode)
+static void do_rounded(Virtual *vwk, short *pts, Fgbg colour, long mode)
 {
     if (vwk->line.ends.beginning & ROUNDED)
         draw_filled_circle(vwk, pts[0], pts[1],  vwk->line.width / 2, colour, mode);
@@ -275,7 +275,7 @@ static void do_rounded(Virtual *vwk, short *pts, long colour, long mode)
 }
 
 
-static void arrow(Virtual *vwk, short *xy, short inc, int numpts, long colour, short *points, long mode)
+static void arrow(Virtual *vwk, short *xy, short inc, int numpts, Fgbg colour, short *points, long mode)
 {
     short i, arrow_len, arrow_wid, line_len;
     short *xybeg;
@@ -362,7 +362,7 @@ static void arrow(Virtual *vwk, short *xy, short inc, int numpts, long colour, s
 }
 
 
-void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode)
+void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points, long mode)
 {
     short x_start, y_start, new_x_start, new_y_start;
 
@@ -391,7 +391,7 @@ void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, long colour, short *p
 }
 
 
-void wide_line(Virtual *vwk, short *pts, long numpts, long colour, short *points, long mode)
+void wide_line(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points, long mode)
 {
     int i, j, k;
     int wx1, wy1, wx2, wy2, vx, vy;

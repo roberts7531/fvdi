@@ -19,17 +19,19 @@
 #include "function.h"
 
 
-static long get_colour(Virtual *vwk, long reversed)
+static Fgbg get_colour(Virtual *vwk, int reversed)
 {
-    long colour = vwk->text.colour.foreground & 0xffffL;
+    Fgbg colour;
 
-    if (vwk->console.reversed)
-        colour = (colour << 16) | (vwk->text.colour.background & 0xffffL);
-    else
-        colour = colour | ((long)vwk->text.colour.background << 16);
-    if (reversed)
-        colour = (colour << 16) | ((colour >> 16) & 0xffffL);
-
+    if (vwk->console.reversed ^ reversed)
+    {
+        colour.foreground = vwk->text.colour.background;
+        colour.background = vwk->text.colour.foreground;
+    } else
+    {
+        colour.background = vwk->text.colour.background;
+        colour.foreground = vwk->text.colour.foreground;
+    }
     return colour;
 }
 
@@ -90,7 +92,7 @@ void CDECL v_curleft(Virtual *vwk)
 void CDECL v_eeol(Virtual *vwk)
 {
     Workstation *wk = vwk->real_address;
-    long colour = get_colour(vwk, !vwk->console.reversed);
+    Fgbg colour = get_colour(vwk, !vwk->console.reversed);
 
     fill_area(vwk, vwk->console.pos.x, vwk->console.pos.y, wk->screen.coordinates.max_x,
               vwk->console.pos.y + vwk->text.cell.height - 1, colour);
@@ -100,7 +102,7 @@ void CDECL v_eeol(Virtual *vwk)
 void CDECL v_eeos(Virtual *vwk)
 {
     Workstation *wk = vwk->real_address;
-    long colour = get_colour(vwk, !vwk->console.reversed);
+    Fgbg colour = get_colour(vwk, !vwk->console.reversed);
 
     if (vwk->console.pos.x)
     {
@@ -162,7 +164,7 @@ void CDECL vs_curaddress(Virtual *vwk, long row, long column)
 void CDECL v_curtext(Virtual *vwk, short *text, long length)
 {
     Workstation *wk = vwk->real_address;
-    long colour = get_colour(vwk, vwk->console.reversed);
+    Fgbg colour = get_colour(vwk, vwk->console.reversed);
     short points[8];
 
     lib_vqt_extent(vwk, length, text, points);

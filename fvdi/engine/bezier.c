@@ -197,7 +197,7 @@ void CDECL lib_v_bez(Virtual *vwk, struct v_bez_pars *par)
         points = xpts;
         if ((vwk->line.width > 1) && (block = (short *) allocate_block(0)))
         {
-            wide_line(vwk, points, num_points, vwk->line.colour.l, block, vwk->mode);
+            wide_line(vwk, points, num_points, vwk->line.colour, block, vwk->mode);
             free_block(block);
         } else
         {
@@ -206,7 +206,7 @@ void CDECL lib_v_bez(Virtual *vwk, struct v_bez_pars *par)
                 pattern = line_types[vwk->line.type - 1];
             v_bez_accel((long) vwk + 1, points, ((long) num_points << 16) | 1,
                         (long) *par->totmoves, xmov, (long) pattern,
-                        vwk->line.colour.l, (long) vwk->mode);
+                        vwk->line.colour, (long) vwk->mode);
         }
     } else
     {

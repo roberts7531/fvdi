@@ -24,7 +24,7 @@ int SMUL_DIV(int, int, int);            /*   d0d1d0d2 */
 #endif
 
 
-void filled_poly(Virtual *vwk, short p[][2], long n, long colour,
+void filled_poly(Virtual *vwk, short p[][2], long n, Fgbg colour,
     short *pattern, short *points, long mode, long interior_style)
 {
     int i, j;
@@ -140,7 +140,7 @@ void filled_poly(Virtual *vwk, short p[][2], long n, long colour,
 }
 
 
-void filled_poly_m(Virtual *vwk, short p[][2], long n, long colour,
+void filled_poly_m(Virtual *vwk, short p[][2], long n, Fgbg colour,
     short *pattern, short *points, short index[], long moves, long mode, long interior_style)
 {
     int i, j;

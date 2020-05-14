@@ -194,7 +194,7 @@ vst_color:
 	blo	.ok
 	moveq	#BLACK,d0
 .ok:
-	move.w	d0,vwk_text_colour_bgfg_foreground(a0)
+	move.w	d0,vwk_text_colour_foreground(a0)
 	move.l	intout(a1),a2
 	move.w	d0,(a2)
 	done_return
@@ -1136,7 +1136,7 @@ vqt_attributes:
 	lea	vwk_text(a0),a0		; a0 no longer -> VDI struct!
 	movem.l	intout(a1),a1-a2	; Get ptsout too
 	move.w	(a0),(a1)+		; Font
-	addq.l	#4,a0
+	addq.l	#vwk_text_colour_foreground-vwk_text,a0
 	move.l	(a0)+,(a1)+		; Foreground, rotation
 	move.l	(a0)+,(a1)+		; Horizontal and vertical alignment
 	move.w	d0,(a1)+		; Mode
