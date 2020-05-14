@@ -140,6 +140,9 @@ void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format)
 
     Write16(SAGA_VIDEO_MODE, SAGA_VIDEO_MODE_FORMAT(Format) |
                              SAGA_VIDEO_MODE_DBLSCN(doublescan));
+
+    /* turn on video out enable/video RTG */
+    Write16(0xDFF100, 0x0280);
 }
 
 /*
