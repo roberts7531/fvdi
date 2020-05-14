@@ -43,7 +43,7 @@ extern short _app;
  #ifndef NOT_A_DA
   #include <acc.h>
 
-STACK(4096);	// Hopefully plenty
+STACK(4096);	/* Hopefully plenty */
  #endif
 
  #ifndef NOT_A_DA
@@ -79,13 +79,13 @@ unsigned long driver_no;
 
 int buffer[4096];
 
-long get_cookie(char *cname)
+long get_cookie(const char *cname)
 {
    long oldstack, *ptr, value, name;
 
    name = 0;
    while(*cname)
-      name = (name << 8) | (int)*cname++;
+      name = (name << 8) | (unsigned char)*cname++;
 
    oldstack = (long)Super(0L);
    ptr = (long *)*(long *)0x5a0;
@@ -161,7 +161,7 @@ int set_screen(int dialog, int but)
 
 int xfsel_exinput(char *dir, char *fname, short *button, char *title)
 {
-   if ((aes_version >= 0x130)) // || options.xtra.fselexinput)
+   if ((aes_version >= 0x130)) /* || options.xtra.fselexinput) */
       return fsel_exinput(dir, fname, button, title);
    else
       return fsel_input(dir, fname, button);
@@ -255,7 +255,7 @@ int main(void)
 		return 0;
 
 	if (!_app)
-		menu_register(ap_id, "  fVDI");	// Register as a DA
+		menu_register(ap_id, "  fVDI");	/* Register as a DA */
 	else
 		add_xdialog(frm_find(FRM_MAIN), no_more, W_TYPE, dlogtext);
 
@@ -276,7 +276,7 @@ int main(void)
 		return 0;
 
  #ifndef NOT_A_DA
-	menu_register(ap_id, "  fVDI");	// Register as a DA
+	menu_register(ap_id, "  fVDI");	/* Register as a DA */
  #else
 	add_xdialog(frm_find(FRM_MAIN), no_more, W_TYPE, dlogtext);
  #endif
@@ -316,8 +316,6 @@ static int initialise(void)
    init_windows();
 
    finished = 0;
-
-//   *edit = 0;   
 
    return 1;
 }

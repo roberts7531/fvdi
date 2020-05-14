@@ -51,13 +51,13 @@ struct Info {
 struct Profile *prof;
 struct Info *info;
 
-long get_cookie(char *cname)
+long get_cookie(const char *cname)
 {
    long oldstack, *ptr, value, name;
 
    name = 0;
    while(*cname)
-      name = (name << 8) | (int)*cname++;
+      name = (name << 8) | (unsigned char)*cname++;
 
    oldstack = (long)Super(0L);
    ptr = (long *)*(long *)0x5a0;
@@ -178,7 +178,7 @@ void output(FILE *outfile, int i, long this, long so_far, long total)
 	fprintf(outfile, buf);
 }
 
-int cmp_count(const void *elem1, const void *elem2)
+static int cmp_count(const void *elem1, const void *elem2)
 {
 	if (prof[*(int*)elem1].count < prof[*(int*)elem2].count)
 		return 1;
@@ -188,7 +188,8 @@ int cmp_count(const void *elem1, const void *elem2)
 		return 0;
 }
 
-int cmp_time(const void *elem1, const void *elem2)
+
+static int cmp_time(const void *elem1, const void *elem2)
 {
 	long time1, time2;
 	
@@ -213,17 +214,17 @@ int main(void)
 	long vdi_count, this, accumulated;
 	
 	if ((tmp = get_cookie("VDIp")) == -1)
-		exit(-1);
+		return 1;
 	
 	info = (struct Info *)tmp;
 
 	if (info->table_version != SUPPORTED_TABLE)
-		exit(-1);
+		return 1;
 
 	prof = info->prof;
 
 	if ((outfile = fopen("vdi_prof.txt", "w")) == NULL)
-		exit(-1);
+		return 1;
 
 	total_time = (get_time() - info->start_time) / 2;
 
@@ -241,7 +242,7 @@ int main(void)
 	count_order = (int *)Malloc(2 * nonzero * sizeof(int));
 	if (!count_order) {
 		fclose(outfile);
-		exit(-1);
+		return 1;
 	}
 	time_order = &count_order[nonzero];
 
@@ -265,8 +266,8 @@ int main(void)
 			n++;
 		}
 
-	qsort(count_order, nonzero, sizeof(int), cmp_count);
-	qsort(time_order, nonzero, sizeof(int), cmp_time);
+	qsort(count_order, nonzero, sizeof(*count_order), cmp_count);
+	qsort(time_order, nonzero, sizeof(*time_order), cmp_time);
 
 	fprintf(outfile, "\n\nSorted by number of calls\n");
 	

@@ -42,13 +42,13 @@ struct Info {
 	long (*relink)(void);
 } ;
 	
-long get_cookie(char *cname)
+long get_cookie(const char *cname)
 {
    long oldstack, *ptr, value, name;
 
    name = 0;
    while(*cname)
-      name = (name << 8) | (int)*cname++;
+      name = (name << 8) | (unsigned char)*cname++;
 
    oldstack = (long)Super(0L);
    ptr = (long *)*(long *)0x5a0;
@@ -73,7 +73,7 @@ int main(void)
 	struct Info *info;
 	
 	if ((tmp = get_cookie("VDIp")) == -1)
-		exit(-1);
+		return 1;
 	
 	info = (struct Info *)tmp;
 

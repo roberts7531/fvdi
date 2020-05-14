@@ -71,12 +71,13 @@ void init_strings(void)
         if (form[i].texts)
             for(j = 0; j < form[i].texts->number * form[i].texts->length; j++) {
                 n = form[i].texts->text[j];
-                switch(n) {
-                    case '_':
-                        n = 0;
-                        break;
-                    default:
-                        break;
+                switch(n)
+                {
+                case '_':
+                    n = 0;
+                    break;
+                default:
+                    break;
                 }
                 form[i].texts->text[j] = n;
             }
@@ -124,7 +125,7 @@ void get_tedinfo(OBJECT *tree, int obj, char *dest)
 #if defined(__TURBOC__) || (defined(__GNUC__) && defined(NEW_GEMLIB))
     source = tree[obj].ob_spec.tedinfo->te_ptext;
 #else
-    source = ((TEDINFO *)tree[obj].ob_spec)->te_ptext;   /* extract address */
+    source = ((TEDINFO *)tree[obj].ob_spec)->te_ptext;    /* extract address */
 #endif
     strcpy(dest, source);
 }
@@ -367,7 +368,8 @@ int add_xdialog(int dialog, int (*return_func)(int), int gadgets, char *text)
     rsrc_gaddr(R_TREE, form[dialog].index, &dlog);
 
     if ((form[dialog].pos[0] == -1) && (form[dialog].pos[1] == -1) &&
-            (form[dialog].pos[2] == -1) && (form[dialog].pos[3] == -1)) {
+        (form[dialog].pos[2] == -1) && (form[dialog].pos[3] == -1))
+    {
         form_center(dlog, &p.g_x, &p.g_y, &p.g_w, &p.g_h);
 
         wind_calc(WC_BORDER, gadgets, p.g_x, p.g_y, p.g_w, p.g_h, &p.g_x, &p.g_y, &p.g_w, &p.g_h);
