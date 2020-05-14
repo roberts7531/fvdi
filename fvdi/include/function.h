@@ -113,6 +113,7 @@ int CDECL set_colour_table(Virtual *vwk, long subfunction, short *intin);
 int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *intout);
 int CDECL inverse_table(Virtual *vwk, long subfunction, short *intin, short *intout);
 
+extern char const ft2_version[];
 extern int (*external_init) (void);
 extern void (*external_term) (void);
 extern Fontheader* (*external_load_font)(Virtual *vwk, const char *font);

@@ -245,7 +245,8 @@ long startup(void)
 #endif
 #endif
 #ifdef FT2
-    access->funcs.puts("-FT2");
+    access->funcs.puts("-FT-");
+    access->funcs.puts(ft2_version);
 #endif
     access->funcs.puts(" now installed.\n");
 

@@ -33,7 +33,13 @@
 
 #undef CACHE_YSIZE
 
-
+#ifndef __STRINGIFY
+#ifndef __STRING
+#define __STRING(x)	#x
+#endif
+#define __STRINGIFY(x)	__STRING(x)
+#endif
+char const ft2_version[] = __STRINGIFY(FREETYPE_MAJOR) "." __STRINGIFY(FREETYPE_MINOR) "." __STRINGIFY(FREETYPE_PATCH);
 
 /* Cached glyph information */
 typedef struct cached_glyph
