@@ -13,3 +13,4 @@
 #include "../16_bit/16b_scr.c"
 #include "../16_bit/16b_pal.c"
 #include "../16_bit/16b_spec.c"
+#include "../16_bit/16b_mouse.c"
