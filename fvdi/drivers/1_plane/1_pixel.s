@@ -18,7 +18,7 @@ shift		equ	1
 	xdef		_write_pixel
 	xdef		_read_pixel
 
-	xref		get_colour_masks
+	xref		_get_colour_masks
 
 	ifeq		shift
 	xref		dot,lline,rline
@@ -42,7 +42,7 @@ _write_pixel:
 	bne		.unknown_write
 	move.l		d3,a1
 
-	bsr		get_colour_masks
+	bsr		_get_colour_masks
 	move.l		4(a1),d0
 	beq		.normal
 

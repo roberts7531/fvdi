@@ -21,7 +21,7 @@ shift		equ	1
 
 	xdef		mreplace,replace	; temporary
 
-	xref		get_colour
+	xref		_get_colour
 
   ifeq shift
 	xref		dot,lline,rline
@@ -39,7 +39,7 @@ shift		equ	1
 *	d7	logic operation
 _expand_area:
 	exg		d0,d6
-	bsr		get_colour
+	bsr		_get_colour
 	exg		d0,d6
 	move.l		d6,-(a7)		; Colours to stack
 	lsl.w		#3,d7

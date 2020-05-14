@@ -6,7 +6,7 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
-both		set	0	; Write in both FastRAM and on screen
+both		set	1	; Write in both FastRAM and on screen
 longs		equ	1
 get		equ	1
 mul		equ	1	; Multiply rather than use table
@@ -15,7 +15,7 @@ shift		equ	1
 	include		"pixelmac.inc"
 	include		"vdi.inc"
 
-	xdef		blit_area,_blit_area
+	xdef		_blit_area
 
 	ifeq		shift
 	xref		dot,lline,rline
@@ -31,7 +31,6 @@ shift		equ	1
 *	d3-d4	destination coordinates
 *	d7	logic operation
 _blit_area:
-blit_area:
 	move.w		d7,-(a7)		; operation
 	cmp.w		d1,d3
 	shi		-(a7)

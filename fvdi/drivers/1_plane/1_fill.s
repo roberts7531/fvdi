@@ -15,7 +15,7 @@ shift		equ	1
 	include		"pixelmac.inc"
 	include		"vdi.inc"
 
-	xdef		fill_area,_fill_area
+	xdef		_fill_area
 
 	ifeq		shift
 	xref		dot,lline,rline
@@ -24,7 +24,7 @@ shift		equ	1
 	xref		row
 	endc
 
-	xref		get_colour,get_colour_masks
+	xref		_get_colour,_get_colour_masks
 
 
 * In:	a1	VDI struct (odd address marks table operation)
@@ -34,7 +34,6 @@ shift		equ	1
 *	d3	pattern address
 *	d4	colour
 _fill_area:
-fill_area:
 	move.l		a1,d5
 	bclr		#0,d5
 	bne		.unknown_fill
@@ -46,8 +45,8 @@ fill_area:
 	bmi		.error
 
 	exg		d4,d0
-	bsr		get_colour
-	bsr		get_colour_masks
+	bsr		_get_colour
+	bsr		_get_colour_masks
 	move.l		d0,-(a7)		; Pointer to background bits
 	move.l		d4,d0
 

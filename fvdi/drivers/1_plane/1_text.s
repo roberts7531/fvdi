@@ -18,13 +18,13 @@ only_16		equ	1
 	include		"pixelmac.inc"
 	include		"vdi.inc"
 
-	xdef		text_area,_text_area
+	xdef		_text_area
 
 	xref		mode_table
 
 	xref		mreplace,replace	; temporary
 
-	xref		get_colour
+	xref		_get_colour
 
   ifeq shift
 	xref		dot,lline,rline
@@ -64,7 +64,6 @@ normal_font equ     font_line-4
 **	a5	font structure address  
 ; Needs to do its own clipping
 _text_area:
-text_area:
 	cmp.l		#0,a2
 	bne		.must_return
 	tst.w		vwk_text_effects(a1)
@@ -90,7 +89,7 @@ text_area:
 .colour_ok:
 ;
 
-	bsr		get_colour		; Convert from VDI to TOS
+	bsr		_get_colour		; Convert from VDI to TOS
 	move.l		d0,colours(a7)		; Colours to stack
 	move.w		vwk_mode(a1),d7
 	lsl.w		#3,d7

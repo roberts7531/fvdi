@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI Bconout(con) redirection
  *
  * Copyright 1993, Johan Klockars, 2005 Standa Opichal

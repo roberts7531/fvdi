@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI colour handling
  *
  * Copyright 2005, Johan Klockars

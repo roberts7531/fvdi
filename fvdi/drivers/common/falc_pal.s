@@ -11,7 +11,7 @@
 colour_bits	equ	8
 
 	xdef		_set_colours
-	xdef		get_colour,_get_colour
+	xdef		_get_colour
 
 ;	xref		_bitplane_palette_colour_mode
 
@@ -31,7 +31,6 @@ colour_bits	equ	8
 *	d0	VDI colours in high and low word
 * Out:	d0	TOS colours in high and low word
 _get_colour:
-get_colour:
 	move.l	a1,-(a7)
 	lea	tos_colours,a1
 	move.b	0(a1,d0.w),d0

@@ -45,7 +45,6 @@
 *	d2	y or table length (high) and type (0 - coordinates)
 *---------
 _c_set_pixel:
-c_set_pixel:
 	movem.l		d0-d2/a0-a2,-(a7)
 
 	ext.l		d1
@@ -91,7 +90,6 @@ c_set_pixel:
 * Out:	d0	pixel colour
 *---------
 _c_get_pixel:
-c_get_pixel:
 	movem.l		d1-d2/a0-a2,-(a7)
 
 	ext.l		d1
@@ -120,7 +118,6 @@ c_get_pixel:
 *	d6	mode
 *---------
 _c_line:
-c_line:
 	cmp.w		#$c0de,d0
 	beq		new_api_line
 old_api_line:
@@ -508,7 +505,6 @@ _c_blit:
 *	d1	x1,y1 destination
 *---------
 _c_text:
-c_text:
 	movem.l		d0-d2/a0-a2,-(a7)	; Was d2
 
 	ext.l		d0
@@ -547,7 +543,6 @@ c_text:
 * Out:	d0	mouse op to try again (low), pointer delay (high)
 *---------
 _c_mouse:
-c_mouse:
 	move.l		d2,-(a7)
 	ext.l		d1
 	move.l		d1,-(a7)
@@ -569,7 +564,6 @@ c_mouse:
 *	a2	colour palette
 *---------
 _c_set_palette:
-c_set_palette:
 	cmp.w		#$c0de,d0
 	beq		new_api_set_palette
 
@@ -615,7 +609,6 @@ new_api_set_palette:
 * Out:	d0	fore- and background colour
 *---------
 _c_colour:
-c_colour:
 	movem.l		d1-d2/a0-a2,-(a7)
 
 	move.l		d0,-(a7)

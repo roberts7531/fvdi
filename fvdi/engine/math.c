@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI integer sin/cos/sqrt code
  *
  * Copyright 1999/2001/2003, Johan Klockars

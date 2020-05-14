@@ -158,6 +158,3 @@ cont\@:
 noredirect\@:
   .endc
 	.endm
-
-	.macro	.section
-	.endm

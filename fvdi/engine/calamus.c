@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI Calamus functions
  *
  * Copyright 2004, Standa Opichal

@@ -7,15 +7,18 @@
 	xdef	_Mxalloc,_Malloc,_Mfree
 	xdef	_Cconws,_Cconis,_Crawcin
 	xdef	_Bconout
-	xref	__ulmod,__uldiv,__ldiv,__lmul
+	xdef	__ulmod,__uldiv,__ldiv,__lmul
 	xdef	_Super,_Setexc
 	xdef	_Fopen,_Fread,_Fclose
 	xdef	_Fsetdta,_Fsfirst
 
 	xdef	_lib_vdi_s,_lib_vdi_sp,_lib_vdi_spppp,_lib_vdi_pp
 
-	xdef	_set_stack_call_pvlpl,_set_stack_call_lppll,_set_stack_call_lpppll
-	xdef	_set_stack_call_lplll,_set_stack_call_lvplp
+	xdef	_set_stack_call_pvlpl
+	xdef	_set_stack_call_lppll
+	xdef	_set_stack_call_lpppll
+	xdef	_set_stack_call_lplll
+	xdef	_set_stack_call_lvplp
 	xdef	_set_stack_call_lvppl
 
 

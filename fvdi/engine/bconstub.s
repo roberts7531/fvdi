@@ -9,6 +9,7 @@
 	xdef	_bconout_address
 
 	xref	_screen_wk
+	xref	_bconout_char
 
 	text
 
@@ -29,11 +30,11 @@ _bconout_stub:
 	movem.l	(a7)+,d0-d2/a0-a2
 
 	tst.l	_screen_wk
-	beq	.bconout_orig
+	beq	bconout_orig
 	
 	rts
 
-.bconout_orig:
+bconout_orig:
 	move.l	_bconout_address,a0
 	jmp	(a0)
 

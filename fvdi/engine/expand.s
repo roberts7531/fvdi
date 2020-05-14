@@ -22,13 +22,13 @@ shift		equ	1
 	include		"vdi.inc"
 	include		"pixelmac.inc"
 
-	xdef		expand_area,_expand_area
+	xdef		_expand_area
 
 	xdef		mode_table
 
 	xdef		mreplace,replace	; temporary
 
-	xref		get_colour
+	xref		_get_colour
 
   ifeq shift
 	xref		dot,lline,rline
@@ -47,10 +47,9 @@ shift		equ	1
 *	d6	background and foreground colour
 *	d7	logic operation
 _expand_area:
-expand_area:
   ifne 0
 	exg		d0,d6
-	bsr		get_colour
+	bsr		_get_colour
 	exg		d0,d6
   else
 	neg.w		d6			; Appropriate outside driver

@@ -28,7 +28,7 @@ upto8		equ	0	; Handle 8 bit drawing
 	xdef		_set_palette
 	xdef		_colour
 	xdef		_initialize_palette
-	xdef		get_colour_masks
+	xdef		_get_colour_masks
 
 	xref		_line_draw_r,_write_pixel_r,_read_pixel_r,_expand_area_r
 	xref		_fill_area_r,_fill_poly_r,_blit_area_r,_text_area_r,_mouse_draw_r
@@ -96,7 +96,6 @@ _set_pixel:
 * Out:	d0	line colour
 *---------
 _get_pixel:
-get_pixel:
 	movem.l		d1-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
 
 	move.l		a0,a1
@@ -579,7 +578,6 @@ _mouse:
 *	a2	colour palette
 *---------
 _set_palette:
-set_palette:
 	movem.l		d0-d7/a0-a6,-(a7)	; Overkill
 
 	ijsr		_set_colours_r
@@ -636,7 +634,7 @@ _initialize_palette:
 *	d0	Pointer to colour bits for background
 * XXX:	d0
 *---------
-get_colour_masks:
+_get_colour_masks:
 	lea		_mask,a3
   ifne	upto8
 	move.w		d0,a2

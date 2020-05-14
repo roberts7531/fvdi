@@ -26,7 +26,7 @@ smartdraw	equ	1
 	endc
 
 	xref		clip_line
-	xref		get_colour,get_colour_masks
+	xref		_get_colour,_get_colour_masks
 
 
 *----------
@@ -55,8 +55,8 @@ line_draw:
 
 	move.w		d0,-(a7)		; Save for later use
 	move.l		d6,d0
-	bsr		get_colour
-	bsr		get_colour_masks
+	bsr		_get_colour
+	bsr		_get_colour_masks
 
 	move.l		vwk_real_address(a1),a1	; a1 - workstation
 	ifne	mul

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * fVDI circle/ellipse/pie/arc code
  *
  * Copyright 1999/2001-2003, Johan Klockars

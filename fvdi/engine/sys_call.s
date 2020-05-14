@@ -7,7 +7,6 @@
 	xref		_sub_call
 
 	xdef		_appl_init,_appl_exit
-	xdef		_wind_get
 	xdef		_vq_extnd,_vq_color
 	xdef		_graf_handle
 	xdef		_call_v_opnwk,_call_v_opnvwk,_call_v_clsvwk
@@ -16,7 +15,6 @@
 	xdef		_set_inout
 	xdef		_vdi,_sub_vdi,_fvdi
 	xdef		_vq_gdos
-	xdef		_AES,_VDI,_subVDI,_fVDI
 	xdef		_linea_fonts
 
 	xdef		_control;
@@ -35,7 +33,7 @@ _appl_init:
 	move.w		#1,(a0)+
 	move.w		#0,(a0)+
 	move.w		#0,(a0)+
-	bsr		AES
+	bsr		_AES
 	moveq		#0,d0
 	move.w		int_out,d0
 	rts
@@ -51,27 +49,9 @@ _appl_exit:
 	move.w		#0,(a0)+
 	move.w		#0,(a0)+
 	clr.w		int_out
-	bsr		AES
+	bsr		_AES
 	moveq		#0,d0
 	move.w		int_out,d0
-	rts
-
-* long addr = wind_get(void)
-* 5 words to int_out
-*
-_wind_get:
-	lea		_control,a0
-	move.w		#104,(a0)+
-	move.w		#2,(a0)+
-	move.w		#5,(a0)+
-	move.w		#0,(a0)+
-	move.w		#0,(a0)+
-	lea		int_in,a0
-	move.w		#0,(a0)+
-	move.w		#17,(a0)+
-	clr.w		int_out
-	bsr		AES
-	move.l		int_out+2,d0
 	rts
 
 * handle = graf_handle();
@@ -83,7 +63,7 @@ _graf_handle:
 	move.w		#5,(a0)+
 	move.w		#0,(a0)+
 	move.w		#0,(a0)+
-	bsr		AES
+	bsr		_AES
 	moveq		#0,d0
 	move.w		int_out,d0
 	rts
@@ -113,7 +93,7 @@ _call_v_opnwk:
 	move.w		#2,(a0)+
 	move.l		8(a7),vdi_int_out_addr
 	move.l		12(a7),vdi_pts_out_addr
-	bsr		VDI
+	bsr		_VDI
 	move.l		#int_out,vdi_int_out_addr
 	move.l		#pts_out,vdi_pts_out_addr
 	moveq		#0,d0
@@ -144,7 +124,7 @@ _scall_v_opnwk:
 	move.w		#2,(a0)+
 	move.l		8(a7),vdi_int_out_addr
 	move.l		12(a7),vdi_pts_out_addr
-	bsr		subVDI
+	bsr		_subVDI
 	move.l		#int_out,vdi_int_out_addr
 	move.l		#pts_out,vdi_pts_out_addr
 	moveq		#0,d0
@@ -160,7 +140,7 @@ _scall_v_clswk:
 	move.w		#0,6(a0)
 	move.l		4(a7),d0
 	move.w		d0,12(a0)
-	bsr		subVDI
+	bsr		_subVDI
 	moveq		#0,d0
 	rts
 
@@ -192,7 +172,7 @@ _call_v_opnvwk:
 	move.w		#2,(a0)+
 	move.l		8(a7),vdi_int_out_addr
 	move.l		12(a7),vdi_pts_out_addr
-	bsr		VDI
+	bsr		_VDI
 	move.l		#int_out,vdi_int_out_addr
 	move.l		#pts_out,vdi_pts_out_addr
 	moveq		#0,d0
@@ -211,7 +191,7 @@ _call_v_clsvwk:
 	move.w		#0,(a0)+
 	move.l		4(a7),d0
 	move.w		d0,(a0)+
-	bsr		VDI
+	bsr		_VDI
 	rts
 
 * void vq_extnd(long handle, long info_flag, short *int_out, short *pts_out);
@@ -230,7 +210,7 @@ _vq_extnd:
 	move.w		d0,int_in
 	move.l		12(a7),vdi_int_out_addr
 	move.l		16(a7),vdi_pts_out_addr
-	bsr		VDI
+	bsr		_VDI
 	move.l		#int_out,vdi_int_out_addr
 	move.l		#pts_out,vdi_pts_out_addr
 	rts
@@ -252,7 +232,7 @@ _vq_color:
 	move.l		12(a7),d0
 	move.w		d0,int_in+2
 	move.l		16(a7),vdi_int_out_addr
-	bsr		VDI
+	bsr		_VDI
 	move.l		#int_out,vdi_int_out_addr
 	rts
 
@@ -292,7 +272,7 @@ _vdi:
 	move.w		d0,_control+2
 	move.l		16(a7),d0
 	move.w		d0,_control+4
-	bsr		VDI
+	bsr		_VDI
 	rts
 
 * void sub_vdi(long handle, long func, long pts, long ints);
@@ -306,7 +286,7 @@ _sub_vdi:
 	move.w		d0,_control+2
 	move.l		16(a7),d0
 	move.w		d0,_control+4
-	bsr		subVDI
+	bsr		_subVDI
 	rts
 
 * void fvdi(long handle, long func, long pts, long ints);
@@ -320,7 +300,7 @@ _fvdi:
 	move.w		d0,_control+2
 	move.l		16(a7),d0
 	move.w		d0,_control+4
-	bsr		fVDI
+	bsr		_fVDI
 	rts
 
 
@@ -340,7 +320,6 @@ _vq_gdos:
 	rts
 
 
-AES:
 _AES:
 	movem.l		d2/a2,-(a7)	; Necessary?
 	move.l		#aespb,d1
@@ -349,7 +328,6 @@ _AES:
 	movem.l		(a7)+,d2/a2
 	rts
 
-VDI:
 _VDI:
 	movem.l		d2/a2,-(a7)	; Necessary?
 	move.l		#vdipb,d1
@@ -358,7 +336,6 @@ _VDI:
 	movem.l		(a7)+,d2/a2
 	rts
 
-subVDI:
 _subVDI:
 	movem.l		d2/a2,-(a7)	; Necessary?
 	move.l		#vdipb,d1
@@ -368,7 +345,6 @@ _subVDI:
 	movem.l		(a7)+,d2/a2
 	rts
 
-fVDI:
 _fVDI:
 	movem.l		d2/a2,-(a7)	; Necessary?
 	move.l		#vdipb,d1
@@ -383,7 +359,7 @@ _linea_fonts:
 	ifne mcoldfire
 	dc.w		$a920
 	else
-	dc.w		$A000
+	dc.w		$a000
 	endc
 
 	move.l		a1,d0
