@@ -39,11 +39,7 @@ include $(top_srcdir)/CONFIGVARS
 # consequently, we suppress most warnings here
 WARNINGS := -Wstrict-prototypes -Wmissing-prototypes
 
-ifneq ($(stdlib_srcdir),)
-CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(WARNINGS) -I$(srcdir)/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include -I$(stdlib_srcdir)/include
-else
 CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(WARNINGS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include
-endif
 
 #
 # FreeType2 library base

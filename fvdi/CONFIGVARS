@@ -64,12 +64,6 @@ LIBS := $(shell $(CC) $(CPUOPTS) --print-file-name=libgcc.a)
 # Set these to point to the correct directories for FreeType support!
 ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype
 
-ifeq ($(DEBUG),yes)
- FT2_DEBUG_OPTS = -I$(top_srcdir)/modules/ft2/devel
-else
- FT2_DEBUG_OPTS =
-endif
-
 
 #
 # for silent make rules

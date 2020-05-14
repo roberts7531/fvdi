@@ -17,11 +17,7 @@ srcdir     = .
 
 include $(top_srcdir)/CONFIGVARS
 
-ifneq ($(stdlib_srcdir),)
- STDLIB_CFLAGS = -I$(stdlib_srcdir)/include
-else
- STDLIB_CFLAGS = -I$(top_srcdir)/modules/include
-endif
+STDLIB_CFLAGS = -I$(top_srcdir)/modules/include
 
 CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
 ASFLAGS := $(ASFLAGS) -I$(top_srcdir)/drivers/1_plane

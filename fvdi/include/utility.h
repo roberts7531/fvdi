@@ -115,7 +115,6 @@ long DRIVER_EXPORT get_size(const char *name);
  */
 short appl_init(void);
 short appl_exit(void);
-long wind_get(void);
 short graf_handle(void);
 short call_v_opnwk(long handle, short *int_out, short *pts_out);
 short scall_v_opnwk(long handle, short *int_out, short *pts_out);
