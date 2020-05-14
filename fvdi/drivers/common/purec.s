@@ -10,6 +10,7 @@
 
 	xdef	__ulmod,__uldiv,__ldiv,__ulmul,__lmul
 	xdef	_Physbase
+	xdef	_Setexc
 
 	text
 
@@ -36,6 +37,16 @@ _Physbase:
 	trap	#14
 	addq.l	#2,a7
 	move.l	d0,a0
+	move.l	(a7)+,a2
+	rts
+
+_Setexc:
+	move.l	a2,-(a7)
+	move.l	8+2(a7),-(a7)
+	move.w	8+4+0(a7),-(a7)
+	move.w	#$05,-(a7)
+	trap	#13
+	addq.l	#8,a7
 	move.l	(a7)+,a2
 	rts
 

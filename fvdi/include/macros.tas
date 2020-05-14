@@ -184,3 +184,6 @@ name:
 	dbeq	reg,name
 	endm
 	
+	macro	redir number
+	beq	redirect
+	endm
