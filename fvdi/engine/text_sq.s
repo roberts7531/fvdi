@@ -1139,6 +1139,7 @@ vqt_attributes:
 	addq.l	#vwk_text_colour_foreground-vwk_text,a0
 	move.l	(a0)+,(a1)+		; Foreground, rotation
 	move.l	(a0)+,(a1)+		; Horizontal and vertical alignment
+	subq.w #1,d0            ; Mode is returned with -1 here!
 	move.w	d0,(a1)+		; Mode
 	move.l	(a0)+,(a2)+		; Character height and width
 	move.l	(a0)+,(a2)+		; Cell height and width
