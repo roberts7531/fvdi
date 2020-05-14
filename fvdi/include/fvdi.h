@@ -54,13 +54,6 @@ struct Super_data {
     struct fVDI_log fvdi_log;
 };
 
-typedef struct {
-    char *name;
-    void *varfunc;
-    short type;
-} Option;
-
-
 /* VDI structures */
 /* -------------- */
 
@@ -690,5 +683,16 @@ struct v_bez_pars {
     short *totpoints;
     short *totmoves;
 };
+
+typedef struct {
+    const char *name;
+    union {
+        void *v;
+        short *s;
+        long (*func)(const char **);
+        long (*vfunc)(Virtual *, const char **);
+    } var;
+    short type;
+} Option;
 
 #endif

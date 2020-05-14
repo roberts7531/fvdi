@@ -149,8 +149,8 @@ static long set_mode(const char **ptr)
 }
 
 static Option const options[] = {
-	{"debug",      &debug,             2},  /* debug, turn on debugging aids */
-	{"mode",       set_mode,          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+	{"debug",      { &debug },             2},  /* debug, turn on debugging aids */
+	{"mode",       { set_mode },          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
 };
 
 /*
@@ -180,15 +180,15 @@ long check_token(char *token, const char **ptr)
       if (access->funcs.equal(xtoken, options[i].name)) {
          switch (options[i].type) {
          case -1:     /* Function call */
-            return ((long (*)(const char **))options[i].varfunc)(ptr);
+            return (options[i].var.func)(ptr);
          case 0:      /* Default 1, set to 0 */
-            *(short *)options[i].varfunc = 1 - normal;
+            *options[i].var.s = 1 - normal;
             return 1;
          case 1:     /* Default 0, set to 1 */
-            *(short *)options[i].varfunc = normal;
+            *options[i].var.s = normal;
             return 1;
          case 2:     /* Increase */
-            *(short *)options[i].varfunc += -1 + 2 * normal;
+            *options[i].var.s += -1 + 2 * normal;
             return 1;
          case 3:
            if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
@@ -196,7 +196,7 @@ long check_token(char *token, const char **ptr)
               ;  /* *********** Error, somehow */
            }
            *ptr = access->funcs.get_token(*ptr, token, 80);
-           *(short *)options[i].varfunc = token[0];
+           *options[i].var.s = token[0];
            return 1;
          }
       }

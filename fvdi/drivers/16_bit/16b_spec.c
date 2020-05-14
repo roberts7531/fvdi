@@ -194,14 +194,14 @@ static long set_screen(const char **ptr)
 
 static Option const options[] = {
 #if 0
-    {"mode",       set_mode,       -1},  /* mode key/<n>/WIDTHxHEIGHTxDEPTH@FREQ */
-    {"aesbuf",     set_aesbuf,     -1},  /* aesbuf address, set AES background buffer address */
-    {"screen",     set_screen,     -1},  /* screen address, set old screen address */
-    {"imgcache",   &cache_img,      1},  /* imgcache, turn on caching of images blitted to the screen */
-    {"screencache",&cache_from_screen, 1},  /* screencache, turn on caching of images blitted from the screen */
+    {"mode",       { set_mode }, -1 },           /* mode key/<n>/WIDTHxHEIGHTxDEPTH@FREQ */
+    {"aesbuf",     { set_aesbuf }, -1 },         /* aesbuf address, set AES background buffer address */
+    {"screen",     { set_screen }, -1 },         /* screen address, set old screen address */
+    {"imgcache",   { &cache_img }, 1 },          /* imgcache, turn on caching of images blitted to the screen */
+    {"screencache", { &cache_from_screen }, 1 }, /* screencache, turn on caching of images blitted from the screen */
 #endif
-    {"shadow",     &shadow,         1},  /* shadow, use a FastRAM buffer */
-    {"debug",      &debug,          2}   /* debug, turn on debugging aids */
+    {"shadow",     { &shadow }, 1 },             /* shadow, use a FastRAM buffer */
+    {"debug",      { &debug }, 2 },              /* debug, turn on debugging aids */
 };
 
 
@@ -236,15 +236,15 @@ long check_token(char *token, const char **ptr)
             switch (options[i].type)
             {
             case -1:                /* Function call */
-                return ((long (*)(const char **))options[i].varfunc)(ptr);
+                return (options[i].var.func) (ptr);
             case 0:                 /* Default 1, set to 0 */
-                *(short *)options[i].varfunc = 1 - normal;
+                *options[i].var.s = 1 - normal;
                 return 1;
             case 1:                 /* Default 0, set to 1 */
-                *(short *)options[i].varfunc = normal;
+                *options[i].var.s = normal;
                 return 1;
             case 2:                 /* Increase */
-                *(short *)options[i].varfunc += -1 + 2 * normal;
+                *options[i].var.s += -1 + 2 * normal;
                 return 1;
             case 3:
                 if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
@@ -252,7 +252,7 @@ long check_token(char *token, const char **ptr)
                     ;               /* *********** Error, somehow */
                 }
                 *ptr = access->funcs.get_token(*ptr, token, 80);
-                *(short *)options[i].varfunc = token[0];
+                *options[i].var.s = token[0];
                 return 1;
             }
         }
