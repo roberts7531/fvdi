@@ -4,6 +4,7 @@
  * Most of the code here come from the SAGA Picasso96 driver.
  * https://github.com/ezrec/saga-drivers/tree/master/saga.card
  * Glued by Vincent Riviere
+ * Additions by Thorsten Otto
  */
 
 /*
@@ -35,6 +36,12 @@
 #include "driver.h"
 #include "saga.h"
 #include "video.h"
+#include "board.h"
+
+/* The delta allows negative positioning */
+#define SAGA_MOUSE_DELTAX  16
+#define SAGA_MOUSE_DELTAY  8
+
 
 /*
  * Inspired from:
@@ -152,4 +159,102 @@ void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format)
 void saga_set_panning(UBYTE *mem)
 {
     Write32(SAGA_VIDEO_PLANEPTR, (IPTR)mem);
+}
+
+
+void saga_set_mouse_position(short x, short y)
+{
+	if (x < -16)
+	{
+		/* put position outside window */
+		Write16(SAGA_VIDEO_SPRITEX, SAGA_VIDEO_MAXHV - 1);
+		Write16(SAGA_VIDEO_SPRITEY, SAGA_VIDEO_MAXVV - 1);
+	} else
+	{
+		UBYTE boardid = ( *(volatile UWORD*)VREG_BOARD ) >> 8;
+		
+		if (boardid == VREG_BOARD_V4SA)
+		{
+			x += SAGA_MOUSE_DELTAX;
+			y += SAGA_MOUSE_DELTAY;
+		}
+		Write16(SAGA_VIDEO_SPRITEX, x);
+		Write16(SAGA_VIDEO_SPRITEY, y);
+	}
+}
+
+
+static unsigned short rgb16to4(unsigned short color)
+{
+	/*
+	 * Input : 0xRRRRRGGGGGGBBBBB
+	 * Output: 0x0000RRRRGGGGBBBB
+	 */
+	return ((color >> 4) & 0xf00) |
+	       ((color >> 3) & 0x0f0) |
+	       ((color >> 1) & 0x00f);
+}
+
+
+/*
+ * In amiga sprites, each pixel can be one of three colors
+ * or transparent. Figure below shows how the color of each pixel in a sprite
+ *  is determined.
+ * 
+ *                                                  high-order word of
+ *                                                   sprite data line
+ *    _______________________________
+ *   |            _|#|_              |    _ _0 0 0 0 0 1 1 1 0 1 1 1 0 0 0 0
+ *   |          _|o|#|o|_            |   |
+ *   |_ _ _ _ _|o|o|#|o|o|_ _ _ _ _ _|       |
+ *   |_|_|_|_|#|#|#|_|#|#|#|_|_|_|_|_|- -|   |
+ *   |    |    |o|o|#|o|o|           |       |
+ *   |    |      |o|#|o|             |   |_ _|_0 0 0 0 0 1 1 1 0 1 1 1 0 0 0 0
+ *   |____|________|#|_______________|       |
+ *        |                                  | |      low-order word of
+ *        |                                  | |      sprite data line
+ *                                           | |
+ *   transparent                             | |
+ *                  Forms a binary code,
+ *                    used as the color  --> 0 0
+ *                  choice from a group
+ *                   of color registers.
+ *
+ * For our purposes, we set index 1 to the mask color,
+ * and index 2&3 to the data color of the mouse definition
+ */
+
+void saga_set_mouse_sprite(Workstation *wk, Mouse *mouse)
+{
+	unsigned short fg, bg;
+	Colour *global_palette;
+	unsigned short *realp;
+	unsigned short mousedata[2 * 16];
+	unsigned long *lp;
+	int i;
+	
+	/* c_get_colour(wk, *pp, &foreground, &background); */
+	global_palette = wk->screen.palette.colours;
+	realp = (unsigned short *)&global_palette[wk->mouse.colour.foreground].real;
+	fg = *realp;
+	realp = (unsigned short *)&global_palette[wk->mouse.colour.background].real;
+	bg = *realp;
+
+	fg = rgb16to4(fg);
+	bg = rgb16to4(bg);
+
+	/* SAGA HW MOUSE => COLORS */
+	Write16(SAGA_VIDEO_SPRITECLUT + 0, bg);  /* COLOR1 */
+	Write16(SAGA_VIDEO_SPRITECLUT + 2, fg);  /* COLOR2 */
+	Write16(SAGA_VIDEO_SPRITECLUT + 4, fg);  /* COLOR3 */
+	
+	/* SAGA HW MOUSE => BITPLANES DATA */
+	for (i = 0; i < 16; i++)
+	{
+		mousedata[i * 2 + 0] = mouse->mask[i];
+		mousedata[i * 2 + 1] = mouse->data[i];
+	}
+	lp = (unsigned long *)mousedata;
+	for (i = 0; i < 16; i++)
+		Write32(SAGA_VIDEO_SPRITEBPL + i * 4, lp[i]);
 }

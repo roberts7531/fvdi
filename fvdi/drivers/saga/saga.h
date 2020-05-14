@@ -91,6 +91,8 @@ struct ModeInfo
 #define GMF_COMPATVIDEO         (1UL << GMB_COMPATVIDEO)
 #define GMF_DOUBLEVERTICAL      (1UL << GMB_DOUBLEVERTICAL)
 
+extern short hwmouse;
+
 /*
  * Inspired from:
  * https://github.com/ezrec/saga-drivers/blob/master/saga.card/saga_intern.h
@@ -126,6 +128,8 @@ void saga_fix_mode(struct ModeInfo *mi);
 void saga_set_clock(const struct ModeInfo *mi);
 void saga_set_modeline(const struct ModeInfo *mi, UBYTE Format);
 void saga_set_panning(UBYTE *mem);
+void saga_set_mouse_position(short x, short y);
+void saga_set_mouse_sprite(Workstation *wk, Mouse *mouse);
 
 long CDECL c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);
 long CDECL c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y);

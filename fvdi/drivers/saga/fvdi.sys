@@ -231,6 +231,10 @@ singlebend
 # experiment
 #     Test a few things.
 
+# The SAGA driver recognizes
+# hwmouse
+#     use SAGA hardware sprite for mouse cursor
+
 
 # fVDI should be able to deal with any standard fonts.
 # Just list what you want to use below the driver definition.
@@ -243,7 +247,7 @@ singlebend
 #01r 1dummy.sys
 #01r 1plane.sys
 #01r 4plane.sys
-#01r 16bit.sys shadow oldmouse accelerate xxxxxx-
+#01r 16bit.sys shadow oldmouse accelerate xxxxxxx
 #01r rage.sys screencache onlysrc 4mb mode key imgcache
 
 #01r rage_lc.sys pcibios screencache imgcache mode key accelerate xxxxxxx

@@ -25,6 +25,7 @@
 #include "relocate.h"
 #include "saga.h"
 #include "video.h"
+#include "board.h"
 #include <os.h>
 #include "string/memset.h"
 
@@ -65,6 +66,10 @@ long CDECL (*mouse_draw_r)(Workstation *wk, long x, long y, Mouse *mouse) = c_mo
 long CDECL (*get_colour_r)(Virtual *vwk, long colour) = c_get_colour;
 void CDECL (*get_colours_r)(Virtual *vwk, long colour, unsigned long *foreground, unsigned long *background) = 0;
 void CDECL (*set_colours_r)(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]) = c_set_colours;
+
+
+short hwmouse = -1;
+
 
 static void saga_puts(const char* message)
 {
@@ -151,6 +156,7 @@ static long set_mode(const char **ptr)
 static Option const options[] = {
 	{"debug",      { &debug },             2},  /* debug, turn on debugging aids */
 	{"mode",       { set_mode },          -1},  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+	{"hwmouse",    { &hwmouse },           1},  /* [+/-]hwmouse, use hardware mouse sprite */
 };
 
 /*
@@ -314,6 +320,30 @@ long CDECL initialize(Virtual *vwk)
 	pixel.width = wk->screen.pixel.width;
 	pixel.height = wk->screen.pixel.height;
 
+	/*
+	 * wk->mouse.type is set by fVDI kernel,
+	 * if oldmouse was not specified in config line for driver,
+	 * and accelerated mouse routines are in use
+	 */
+	if (wk->mouse.type)
+	{
+		/* check whether hardware sprites are supported */
+		UBYTE boardid = ( *(volatile UWORD*)VREG_BOARD ) >> 8;
+		int has_hwsprite;
+		
+		has_hwsprite = boardid == VREG_BOARD_V4 || boardid == VREG_BOARD_V4SA;
+		/* above does not seem to apply */
+		has_hwsprite = TRUE;
+		if (hwmouse < 0)
+		{
+			hwmouse = has_hwsprite;
+		} else if (hwmouse && !has_hwsprite)
+		{
+			access->funcs.puts("saga: hwmouse not supported, disabled\r\n");
+			hwmouse = FALSE;
+		}
+	}
+
 	return 1;
 }
 
@@ -381,6 +411,12 @@ Virtual* CDECL opnwk(Virtual *vwk)
 		wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
 	else									/*	 or fixed DPI (negative) */
 		wk->screen.pixel.height = 25400 / -pixel.height;
+
+	if (wk->mouse.type)
+	{
+		wk->mouse.position.x = ((wk->screen.coordinates.max_x - wk->screen.coordinates.min_x + 1) >> 1) + wk->screen.coordinates.min_x;
+		wk->mouse.position.y = ((wk->screen.coordinates.max_y - wk->screen.coordinates.min_y + 1) >> 1) + wk->screen.coordinates.min_y;
+	}
 
 	return 0;
 }
