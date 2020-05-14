@@ -35,11 +35,7 @@ subdir      = ft2
 
 include $(top_srcdir)/CONFIGVARS
 
-# we do not intend to fix any warnings we inherit from the FreeType2 sources
-# consequently, we suppress most warnings here
-WARNINGS := -Wstrict-prototypes -Wmissing-prototypes
-
-CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(WARNINGS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include
+CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(FT2_WARNINGS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include
 
 #
 # FreeType2 library base
@@ -188,6 +184,9 @@ ftbzip2.o: $(ft2_srcdir)/src/bzip2/ftbzip2.c
 ftgzip.o: $(ft2_srcdir)/src/gzip/ftgzip.c
 	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
 
+ftlzw.o: $(ft2_srcdir)/src/lzw/ftlzw.c
+	$(AM_V_CC)$(CC) -c $(CFLAGS) -o $@ $<
+
 #
 # FreeType2 library PFR font driver
 #
@@ -212,19 +211,27 @@ PSOBJ = psaux.o psnames.o pshinter.o
 
 RASTEROBJ = raster.o smooth.o
 
-#GZOBJ = ftgzip.o
+GZOBJ = ftgzip.o ftlzw.o
 
 # pcf.o  - needs GZLib and ZLib
-#PCFOBJ = pcf.o
+PCFOBJ = pcf.o
 FONTDOBJ = cff.o type1.o type42.o type1cid.o truetype.o bdf.o pfr.o winfnt.o $(PCFOBJ)
+ifneq (,$(wildcard $(ft2_srcdir)/src/gemfonts/gemfnt.c))
+FONTDOBJ += gemfnt.o
+endif
 
 OBJS = $(BASEOBJ) $(AHINTOBJ) $(PSOBJ) $(RASTEROBJ) sfnt.o ftcache.o $(FONTDOBJ) $(GZOBJ)
 
+ifneq ($(ft2_srcdir),)
 $(TARGET): $(OBJS)
-	$(AM_V_AR)$(AR) cr $@ $(OBJS); $(RANLIB) $@
+	$(AM_V_AR)$(AR) crs $@ $(OBJS)
+else
+$(TARGET):
+	@:
+endif
 
 clean::
-	$(RM) $(OBJS) $(TARGET)
+	$(RM) *.o *.a
 
 install::
 	@:

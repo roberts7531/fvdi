@@ -31,8 +31,8 @@ ifneq ($(ft2_srcdir),)
 
  LIBFT2  = $(top_srcdir)/modules/ft2/libft2.a
  LIBFILES= $(LIBFT2)
- CFLAGS += -DFT2 -I$(top_srcdir)/modules/ft2/include $(FT2_DEBUG_OPTS) \
-	   -I$(ft2_srcdir)/include
+ FT2_CFLAGS = -DFT2 -I$(top_srcdir)/modules/ft2/include -I$(ft2_srcdir)/include
+ CFLAGS += $(FT2_CFLAGS)
 endif
 
 
@@ -99,6 +99,16 @@ ifneq ($(ft2_srcdir),)
   CSRC+= \
 	$(top_srcdir)/modules/ft2/ft2_ftdebug.c
  endif
+
+$(top_srcdir)/modules/ft2/ft2_ftsystem.o: $(top_srcdir)/modules/ft2/ft2_ftsystem.c
+	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+
+$(top_srcdir)/modules/ft2/ft2_ftdebug.o: $(top_srcdir)/modules/ft2/ft2_ftdebug.c
+	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+
+$(top_srcdir)/modules/ft2/ft2.o: $(top_srcdir)/modules/ft2/ft2.c
+	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+
 endif
 
 CSRC+= \

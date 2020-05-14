@@ -46,6 +46,11 @@ ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 # General compilation and optimization options (CFLAGS)
 WARNINGS = -Wall -W -Wunused -Wundef -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs
+# Warnings to use when compiling FreeType2 code
+# we do not intend to fix any warnings we inherit from the FreeType2 sources
+# consequently, we suppress most warnings here
+FT2_WARNINGS = -Wstrict-prototypes -Wmissing-prototypes
+
 ifeq ($(OPTS),)
 OPTS   = -O2 -fomit-frame-pointer -fno-common
 endif
@@ -62,7 +67,10 @@ endif
 LIBS := $(shell $(CC) $(CPUOPTS) --print-file-name=libgcc.a)
 
 # Set these to point to the correct directories for FreeType support!
+# Note: "freetype" is expected to be symlink to the actual source tree
+ifneq (,$(wildcard $(top_srcdir)/modules/ft2/freetype))
 ft2_srcdir     = $(top_srcdir)/modules/ft2/freetype
+endif
 
 
 #
