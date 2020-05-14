@@ -1251,14 +1251,14 @@ static long load_fonts(Virtual *vwk, const char **ptr)
 {
     char fonts[PATH_SIZE];
 
+    if (get_pathname(ptr, fonts) != 1)
+        return -1;
+
     if (!external_init)
     {
         error("Font directory specified without FreeType support!", NULL);
-        return -1;
+        return 1;
     }
-
-    if (get_pathname(ptr, fonts) != 1)
-        return -1;
 
     PRINTF(("Fonts: %s\n", fonts));
 
