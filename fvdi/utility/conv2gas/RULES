@@ -46,7 +46,7 @@ PORTASM_FLAGS = \
 	-a gnu \
 	-gnu_locals \
 	-out_syntax standard \
-	-nowarning 402,502,600,900,1111,1150 \
+	-nowarning 402,502,600,900,1111,1150,1700 \
 	-noerrfile
 
 # externally defined assembler symbols syntax to pacf style

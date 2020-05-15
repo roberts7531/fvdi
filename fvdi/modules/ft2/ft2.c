@@ -265,7 +265,7 @@ static Fontheader *ft2_load_metrics(Virtual *vwk, Fontheader *font, FT_Face face
             PRINTF((" => %ld\n", (long) face->available_sizes[pick].size / 64));
         }
 
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR > 1
+#if FREETYPE_VERSION >= 2002000L
         /* FreeType 2.2 and onwards */
         error = FT_Select_Size(face, pick);
 #else
@@ -2433,3 +2433,142 @@ int sprintf(char *str, const char *format, ...)
     va_end(args);
     return ret;
 }
+
+
+/*
+ * since freetype 2.6.5, some calls to atol() were replaced by strtol.
+ */
+#if FREETYPE_VERSION >= 2006005L
+#define ISSPACE(c) ((c) == ' '|| (c) == '\t')
+#define ISDIGIT(c) ((c) >= '0' && (c) <= '9')
+
+static unsigned long __strtoul_internal(const char *nptr, char **endptr, int base, int *sign)
+{
+	long ret = 0;
+	const char *ptr = nptr;
+	int val;
+	short ret_ok = 0;
+	char overflow = 0;
+
+	if (base != 0 && 2 > base && base > 36)
+		goto error;
+
+	while (*ptr && ISSPACE(*ptr))
+		ptr++;							/* skip spaces */
+
+	if ((*sign = (*ptr == '-')))
+		ptr++;
+
+	if (!*ptr)
+		goto error;
+
+	if (*ptr == '0')
+	{
+		ret_ok = 1;
+		switch (*++ptr & ~0x20)
+		{
+		case 'B':
+			if (base != 0 && base != 2)
+				goto error;
+			base = 2;
+			ptr++;
+			break;
+		case 'X':
+			if (base != 0 && base != 16)
+				goto error;
+			base = 16;
+			ptr++;
+			break;
+		default:
+			if (base == 0)
+				base = 8;
+			break;
+		}
+	} else if (base == 0)
+		base = 10;
+
+	for (; *ptr; ptr++)
+	{
+		if (ISDIGIT(*ptr))
+			val = *ptr - '0';
+		else
+		{
+			val = 10 + (*ptr & ~0x20 /*TOUPPER*/) - 'A';
+			if (val < 10)
+				val = 37;
+		}
+		ret_ok = 1;
+		if (val >= base)
+			break;
+		if (!overflow)
+		{
+			if (ret)
+				ret = ret * base;
+			ret = ret + val;
+		}
+	}
+	if (ret_ok)
+	{
+		if (endptr)
+			*endptr = (char *) ptr;
+		return overflow ? ULONG_MAX : ret;
+	}
+  error:
+	if (endptr)
+		*endptr = (char *) nptr;
+	/* TODO set errno */
+	return 0;
+}
+
+/* redefined in libkern.h */
+long _mint_strtol(const char *nptr, char **endptr, long base)
+{
+	int sign;
+	unsigned long ret = __strtoul_internal(nptr, endptr, base, &sign);
+	return ret > LONG_MAX ? (sign ? LONG_MIN : LONG_MAX) : (sign ? -ret : ret);
+}
+
+/*
+ * we may also need getenv
+ */
+char *getenv(const char *str)
+{
+	(void) str;
+	return 0;
+}
+
+#endif
+
+
+/*
+ * In some versions, ftlcdfil.c is not compiled as part of the base module,
+ * and we get symbol reference errors if FT_CONFIG_OPTION_SUBPIXEL_RENDERING
+ * was defined
+ */
+#if FREETYPE_VERSION < 2009001 && FREETYPE_VERSION >= 2008000 && defined(FT_CONFIG_OPTION_SUBPIXEL_RENDERING)
+#include <freetype/ftlcdfil.h>
+  FT_BASE( void )
+  ft_lcd_filter_fir( FT_Bitmap*           bitmap,
+                     FT_Render_Mode       mode,
+                     FT_LcdFiveTapFilter  weights )
+  {
+    FT_UNUSED( bitmap );
+    FT_UNUSED( mode );
+    FT_UNUSED( weights );
+  }
+#endif
+
+
+#if FREETYPE_VERSION >= 201000
+FT_BASE_DEF(void)
+FT_Trace_Disable( void )
+{
+	/* nothing */
+}
+
+FT_BASE_DEF(void)
+FT_Trace_Enable( void )
+{
+	/* nothing */
+}
+#endif
