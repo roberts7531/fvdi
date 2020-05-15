@@ -30,7 +30,12 @@ CSRC = \
 	wind.c
 
 # engine binary objects
-OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
+ifeq ($(CPU),v4e)
+OBJECTS = $(SSRC_GNU_CF:.s=.o)
+else
+OBJECTS = $(SSRC_GNU:.s=.o)
+endif
+OBJECTS += $(CSRC:.c=.o)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
 	$(AM_V_LD)$(CC) $(CFLAGS) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)

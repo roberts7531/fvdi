@@ -1,3 +1,12 @@
+SUBDIRS =
+
+ifeq ($(CPU),v4e)
+
+SUBDIRS += firebee
+# SUBDIRS += radeon
+
+else
+
 SUBDIRS = \
 	aranym \
 	bitplane \
@@ -6,8 +15,7 @@ SUBDIRS = \
 	saga \
 	$(empty)
 
-SUBDIRS += firebee
-# SUBDIRS += radeon
+endif
 
 all clean install::
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || exit 1; done

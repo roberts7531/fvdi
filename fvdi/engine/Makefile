@@ -119,14 +119,16 @@ CSRC+= \
 # Defines SSRC_GNU and SINCSRC_GNU variables
 include $(top_srcdir)/utility/conv2gas/RULES
 
-# Need to convert the .inc files as well
-$(SSRC_GNU): $(SINCSRC_GNU)
-
 # Engine binary objects
-OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
+ifeq ($(CPU),v4e)
+OBJECTS = $(SSRC_GNU_CF:.s=.o)
+else
+OBJECTS = $(SSRC_GNU:.s=.o)
+endif
+OBJECTS += $(CSRC:.c=.o)
 
-%.S.o: %.S
-	$(AM_V_AS)$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 -o $@ -c $<
+# Need to convert the .inc files as well
+$(OBJECTS): $(SINCSRC_GNU)
 
 $(LIBFT2):
 	$(MAKE) -C $(top_srcdir)/modules/ft2

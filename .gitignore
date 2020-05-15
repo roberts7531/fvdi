@@ -1,6 +1,9 @@
 *.sys
 *.gnu
 *.cf_gnu
+*.gnu.s
+*.cf_gnu.s
+*.cf_gnu.se
 *.gnue
 *.ino
 *.inf

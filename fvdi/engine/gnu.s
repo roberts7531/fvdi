@@ -7,7 +7,6 @@
 	xdef	_Mxalloc,_Malloc,_Mfree
 	xdef	_Cconws,_Cconis,_Crawcin
 	xdef	_Bconout
-	xdef	__ulmod,__uldiv,__ldiv,__lmul
 	xdef	_Super,_Setexc
 	xdef	_Fopen,_Fread,_Fclose
 	xdef	_Fsetdta,_Fsfirst

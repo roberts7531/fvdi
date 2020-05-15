@@ -270,7 +270,7 @@ c_v_pline:
 	move.l	d6,-(a7)	; mode
 	move.l	d0,-(a7)	; points
 	move.l	d1,-(a7)	; colour
-	move.q	#2,d6		; numpts
+	moveq	#2,d6		; numpts
 	move.l	d6,-(a7)
 	move.l	a2,-(a7)	; pts
 	move.l	a0,-(a7)	; vwk

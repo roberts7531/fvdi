@@ -50,11 +50,16 @@ CSRC = \
 # defines SSRC_GNU and SINCSRC_GNU variables
 include $(top_srcdir)/utility/conv2gas/RULES
 
-# need to convert the .inc file as well
-$(SSRC_GNU): $(SINCSRC_GNU)
-
 # engine binary objects
-OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
+ifeq ($(CPU),v4e)
+OBJECTS = $(SSRC_GNU_CF:.s=.o)
+else
+OBJECTS = $(SSRC_GNU:.s=.o)
+endif
+OBJECTS += $(CSRC:.c=.o)
+
+# need to convert the .inc file as well
+$(OBJECTS): $(SINCSRC_GNU)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
 	$(AM_V_LD)$(LD) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)

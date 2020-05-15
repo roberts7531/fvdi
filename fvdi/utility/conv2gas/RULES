@@ -30,7 +30,8 @@ $(CONV2GAS): $(top_srcdir)/utility/conv2gas/conv2gas.c
 	$(MAKE) -C $(top_srcdir)/utility/conv2gas
 
 SINCSRC_GNU = $(SINCSRC:=.gnu)
-SSRC_GNU    = $(SSRC:=.gnu)
+SSRC_GNU    = $(SSRC:.s=.gnu.s)
+$(SINCSRC_GNU): $(SINCSRC)
 
 # special treatment for ColdFire target (uses Micro APL's PortAsm to convert the sources for ColdFire)
 ifeq ($(CPU),v4e)
@@ -57,39 +58,36 @@ PORTASM_FLAGS += $(PACF_SYMBOLS)
 PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include,$(top_srcdir)/drivers/1_plane
 
 # intermediate filenames for PortAsm output
-SSRC_GNU_CF := $(subst .gnu,.cf_gnu,$(SSRC_GNU))
+SSRC_GNU_CF    = $(SSRC:.s=.cf_gnu.s)
 
 # dependencies for include files and PortAsm converted sources
-$(SINCSRC_GNU): $(SINCSRC)
-$(SSRC_GNU):$(SSRC_GNU_CF)
+$(SSRC_GNU_CF): $(SSRC_GNU) $(SINCSRC_GNU)
 
 # pattern rule for assembler sources (traditional assembler to gas syntax)
-# after conversion, move result file to the name originally expected
-%.cf_gnu: $(basename %.gnu) $(CONV2GAS)
-	$(AM_V_GEN)$(CONV2GAS).sh $<
-	$(AM_V_at)mv $<.gnu $@
+# after conversion, process by PortAsm pacf (gas m68k sources to ColdFire).
+# need to hack section statements that m68k-atari-mint-as doesn't translate
+%.cf_gnu.s: %.gnu.s
+	$(AM_V_GEN)$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
+	$(AM_V_at)sed -ie 's/\.section.*\(text\|data\|bss\).*/.\1/' $@
+
+# Assember for .gnu
+%.cf_gnu.o: %.cf_gnu.s
+	$(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ $<
+
+endif
 
 # assembler includes only need to go through conv2gas
 # (will be milled through PortAsm with the sources they include them)
-%.inc.gnu: $(basename %.inc.gnu) $(CONV2GAS)
+%.inc.gnu: %.inc $(CONV2GAS)
 	$(AM_V_GEN)$(CONV2GAS).sh $<
-
-# assembler source files processed by PortAsm pacf (gas m68k sources to ColdFire).
-# need to delete one line with a section statement that m68k-atari-mint-as doesn't translate
-%.gnu:%.cf_gnu
-	$(AM_V_GEN)$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
-	$(AM_V_at)sed -ie '/\.section/d' $@
-else
 
 # straight m68k to gas syntax conversion
-%.gnu: $(basename %.gnu) $(CONV2GAS)
+%.gnu.s: %.s $(CONV2GAS)
 	$(AM_V_GEN)$(CONV2GAS).sh $<
-endif
-
 
 # Assember for .gnu
-%.gnu.o: %.gnu
+%.gnu.o: %.gnu.s
 	$(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ $<
 
 clean_gnu:
-	$(RM) $(SINCSRC_GNU) $(SSRC_GNU) $(SSRC_GNU_CF) $(SSRC_GNU:.gnu=.gnue)
+	$(RM) $(SINCSRC_GNU) *.gnu.s *.cf_gnu.s *.cf_gnu.se *.inf *.ino

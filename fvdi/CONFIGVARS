@@ -32,8 +32,8 @@ DEBUG  = no
 endif
 
 # CPU to compile for
-ifndef CPU
-CPU    = 020
+ifeq ($(CPU),)
+CPU    ?= 020
 endif
 
 ifeq ($(CPU),v4e)

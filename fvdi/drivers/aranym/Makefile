@@ -54,7 +54,12 @@ include $(top_srcdir)/utility/conv2gas/RULES
 $(SSRC_GNU): $(SINCSRC_GNU)
 
 # engine binary objects
-OBJECTS = $(SSRC_GNU:.gnu=.gnu.o) $(CSRC:.c=.o)
+ifeq ($(CPU),v4e)
+OBJECTS = $(SSRC_GNU_CF:.s=.o)
+else
+OBJECTS = $(SSRC_GNU:.s=.o)
+endif
+OBJECTS += $(CSRC:.c=.o)
 
 $(TARGET): depend $(OBJECTS) $(LIBFILES)
 	$(AM_V_LD)$(LD) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
