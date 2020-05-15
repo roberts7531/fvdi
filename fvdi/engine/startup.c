@@ -18,7 +18,7 @@
 
 #define SYSNAME "fvdi.sys"
 
-#define VERSION	0x0968
+#define VERSION	0x0970
 #define BETA	3
 #define VERmaj	(VERSION >> 12)
 #define VERmin	(((VERSION & 0x0f00) >> 8) * 100 + ((VERSION & 0x00f0) >> 4) * 10 + (VERSION & 0x000f))
