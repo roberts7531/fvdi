@@ -160,14 +160,13 @@ $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
 	  echo "* of license."; \
 	  echo "*****"; \
 	  echo ; \
-	) > $@
-	$(AM_V_at)$(CC) -E -DANONYMOUS $(top_srcdir)/include/fvdi.h | \
+	  $(CC) -E -DANONYMOUS $< | \
 	  $(top_srcdir)/utility/structer/structer \
 	  Virtual=vwk Workstation=wk Fontheader=font MFDB=mfdb \
 	  Colour=colour RGB=rgb List=list Driver=driver \
 	  Mouse=mouse Device=dev DrvLine=drvline DrvPalette=drvpalette \
-	  v_bez_pars=v_bez_pars \
-	  >> $@ || { $(RM) $@; exit 1; }
+	  v_bez_pars=v_bez_pars; \
+	 ) > $@.tmp && { mv $@.tmp $@; } || { $(RM) $@ $@.tmp; exit 1; }
 
 depend: $(CSRC)
 #	"$(CC) -MM" does not seem able to keep track of the directory of the
