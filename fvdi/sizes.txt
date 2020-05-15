@@ -1,0 +1,29 @@
+                 gcc 4.6.4   gcc 7.5.0   gcc 8.4.1   gcc 9.3.1
+
+w/o freetype         76537       76895       76863       75960
+freetype 2.2.1      384199      389661      390537      388216
+freetype 2.5.2      538097      544614      547353      543436
+freetype 2.8.0      528542      534045      537286      532840
+freetype 2.10.1     544115      549408      553161      549871
+
+                 gcc 4.6.4   gcc 7.5.0    gcc 8.4.1  gcc 9.3.1
+
+16_bit.sys:          18564       18145       17855       17846
+aranym.sys:          15702       15599       15585       15462
+bitplane.sys:        20111       20314       20070       19935
+firebee.sys:         21628       21104       20778       20793
+saga.sys:            31344       31414       31098       31049
+uaegfx.sys:          16965       16473       16544       16529
+
+
+FT_CONFIG_OPTION_INCREMENTAL: ~2k
+TT_CONFIG_OPTION_POSTSCRIPT_NAMES: ~1.5k
+TT_CONFIG_OPTION_SFNT_NAMES: ~0.5k
+TT_CONFIG_OPTION_BYTECODE_INTERPRETER: ~20.5k
+TT_CONFIG_OPTION_BDF: ~1k
+T1_CONFIG_OPTION_NO_MM_SUPPORT: ~3k
+AF_CONFIG_OPTION_CJK: ~5k
+
+BDF module:    ~17k
+PCF module:    ~26k
+WINFNT module: ~3k
