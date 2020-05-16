@@ -19,3 +19,8 @@ fvdi/utility/structer/structer
 struct.tab.c
 struct.tab.h
 lex.yy.c
+fvdi.includes
+fvdi.files
+fvdi.config
+fvdi.creator*
+
