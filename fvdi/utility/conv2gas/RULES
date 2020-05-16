@@ -1,12 +1,13 @@
 # To be included after the SINCSRC and SSRC are defined
 
 CONV2GAS = $(top_srcdir)/utility/conv2gas/conv2gas
+PACF ?= pacf
 
 SYMBOLS = --defsym gas=1 --defsym lattice=0
 ifeq ($(CPU),000)
 	SYMBOLS += --defsym mc68000=1 --defsym mcoldfire=0
 else ifeq ($(CPU),v4e)
-ifeq (, $(shell which pacf))
+ifeq (, $(shell which $(PACF)))
     $(info ***)
     $(info *** No pacf in $$(PATH), compiling for ColdFire requires)
     $(info *** an installation of MicroAPL's PortAsm)
@@ -35,7 +36,6 @@ $(SINCSRC_GNU): $(SINCSRC)
 
 # special treatment for ColdFire target (uses Micro APL's PortAsm to convert the sources for ColdFire)
 ifeq ($(CPU),v4e)
-PORTASM = pacf
 PORTASM_FLAGS = \
 	-blanks on  \
 	-case on \
@@ -67,7 +67,7 @@ $(SSRC_GNU_CF): $(SSRC_GNU) $(SINCSRC_GNU)
 # after conversion, process by PortAsm pacf (gas m68k sources to ColdFire).
 # need to hack section statements that m68k-atari-mint-as doesn't translate
 %.cf_gnu.s: %.gnu.s
-	$(AM_V_GEN)$(PORTASM) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
+	$(AM_V_GEN)$(PACF) $(PORTASM_FLAGS) $(PORTASM_INCLUDE) -o $@ $<
 	$(AM_V_at)sed -ie 's/\.section.*\(text\|data\|bss\).*/.\1/' $@
 
 # Assember for .gnu
