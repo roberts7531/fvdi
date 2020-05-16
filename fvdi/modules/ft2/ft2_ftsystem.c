@@ -30,12 +30,21 @@
 
 #include <ft2build.h>
 #include <freetype/config/ftconfig.h>
+#ifdef FT_INTERNAL_INTERNAL_H
+#include FT_INTERNAL_INTERNAL_H
+#include FT_INTERNAL_DEBUG_H
+#include FT_SYSTEM_H
+#include FT_ERRORS_H
+#include FT_TYPES_H
+#include FT_INTERNAL_STREAM_H
+#else
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftdebug.h>
 #include <freetype/ftsystem.h>
 #include <freetype/fterrors.h>
 #include <freetype/fttypes.h>
 #include <freetype/internal/ftstream.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

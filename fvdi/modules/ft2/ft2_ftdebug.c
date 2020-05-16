@@ -42,9 +42,16 @@
 
 
 #include <ft2build.h>
+#include <freetype/config/ftconfig.h>
+#ifdef FT_FREETYPE_H
+#include FT_FREETYPE_H
+#include FT_INTERNAL_INTERNAL_H
+#include FT_INTERNAL_DEBUG_H
+#else
 #include <freetype/freetype.h>
 #include <freetype/internal/internal.h>
 #include <freetype/internal/ftdebug.h>
+#endif
 
 #include "globals.h"
 

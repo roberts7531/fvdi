@@ -37,8 +37,19 @@
 #define FTCONFIG_H_
 
 #include <ft2build.h>
+
+#undef FT_CONFIG_OPTIONS_H
+#define FT_CONFIG_OPTIONS_H <freetype/config/ftoption.h>
+#undef FT_CONFIG_CONFIG_H
+#define FT_CONFIG_CONFIG_H <freetype/config/ftconfig.h>
+#undef FT_CONFIG_MODULES_H
+#define FT_CONFIG_MODULES_H <freetype/config/ftmodule.h>
 #include <freetype/config/ftoption.h>
+#ifdef FT_CONFIG_STANDARD_LIBRARY_H
+#include FT_CONFIG_STANDARD_LIBRARY_H
+#else
 #include <freetype/config/ftstdlib.h>
+#endif
 
 
 FT_BEGIN_HEADER

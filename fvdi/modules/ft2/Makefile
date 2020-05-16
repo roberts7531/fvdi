@@ -35,7 +35,7 @@ subdir      = ft2
 
 include $(top_srcdir)/CONFIGVARS
 
-CFLAGS = $(CPUOPTS) -DFT2_BUILD_LIBRARY $(OPTS) $(FT2_WARNINGS) -I$(srcdir)/include -I$(top_srcdir)/modules/include $(FT2_DEBUG_OPTS) -I$(ft2_srcdir)/src -I$(ft2_srcdir)/include
+CFLAGS = $(CPUOPTS) $(OPTS) $(FT2_WARNINGS) $(FT2_CFLAGS) -I$(top_srcdir)/modules/include -I$(ft2_srcdir)/src
 
 #
 # FreeType2 library base

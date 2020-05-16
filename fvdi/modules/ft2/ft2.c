@@ -11,15 +11,17 @@
 #include "relocate.h"
 
 #include <ft2build.h>
+#include <freetype/config/ftconfig.h>
+#ifdef FT_FREETYPE_H
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+#include FT_SYNTHESIS_H
+#include FT_STROKER_H
+#else
 #include <freetype/freetype.h>
 #include <freetype/ftglyph.h>
 #include <freetype/ftsynth.h>	/* FT_GlyphSlot_Embolden */
 #include <freetype/ftstroke.h>	/* FT_Stroker, ... */
-
-#if 0
-#include <freetype/freetype.h>
-#include <freetype/ftoutln.h>
-#include <freetype/ttnameid.h>
 #endif
 
 #include <mint/osbind.h>
@@ -116,7 +118,11 @@ static char *ft2_error(const char *msg, FT_Error error)
         int err_code;
         const char *err_msg;
     } ft_errors[] =
+#ifdef FT_ERRORS_H
+#include FT_ERRORS_H
+#else
 #include <freetype/fterrors.h>
+#endif
     int i;
     const char *err_msg;
 

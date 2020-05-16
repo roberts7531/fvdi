@@ -31,7 +31,6 @@ ifneq ($(ft2_srcdir),)
 
  LIBFT2  = $(top_srcdir)/modules/ft2/libft2.a
  LIBFILES= $(LIBFT2)
- FT2_CFLAGS = -DFT2 -I$(top_srcdir)/modules/ft2/include -I$(ft2_srcdir)/include
  CFLAGS += $(FT2_CFLAGS)
 endif
 
