@@ -1,9 +1,10 @@
 /*
- * sag_spec.c - Specification/initialization file
- * This is part of the SAGA driver for fVDI
+ * fb_spec.c - Specification/initialization file
+ * This is part of the FireBee driver for fVDI
  * Derived from Johan Klockars's example in ../16_bit/16b_spec.c
  *
  * Copyright (C) 2017 Vincent Riviere
+ * Copyright (C) 2020 Markus Fröschle
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -131,7 +132,7 @@ static long set_mode(const char **ptr)
     char token[80], *tokenptr;
 
     if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
-	{
+    {
         ;		/* *********** Error, somehow */
     }
     *ptr = access->funcs.get_token(*ptr, token, 80);
@@ -391,5 +392,5 @@ Virtual* CDECL opnwk(Virtual *vwk)
  */
 void CDECL clswk(Virtual *vwk)
 {
-	(void) vwk;
+    (void) vwk;
 }
