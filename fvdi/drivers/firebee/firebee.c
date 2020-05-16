@@ -43,9 +43,6 @@
  */
 void fbee_set_clock(const struct ModeInfo *mi)
 {
-    int clock_id = ((ULONG)mi->Numerator << 8) | mi->Denomerator;
-
-    fbee_pll_clock_program(clock_id);
 }
 
 /*
@@ -54,24 +51,6 @@ void fbee_set_clock(const struct ModeInfo *mi)
  */
 void fbee_fix_mode(struct ModeInfo *mi)
 {
-    BOOL is_NTSC = FALSE;
-    int refresh;
-    int clock_id;
-
-    refresh = mi->Numerator;
-    if (!refresh)
-        refresh = 60;
-
-    mi->PixelClock = (ULONG)mi->HorTotal * mi->VerTotal * refresh;
-    if (mi->Flags & GMF_DOUBLESCAN)
-        mi->PixelClock *= 2;
-    if (mi->Flags & GMF_DOUBLECLOCK)
-        mi->PixelClock *= 2;
-
-    /* Fix up PixelClock to a 'sane' value */
-    clock_id = fbee_pll_clock_lookup(is_NTSC, &mi->PixelClock);
-    mi->Numerator = (clock_id >> 8) & 0xff;
-    mi->Denomerator = (clock_id >> 0) & 0xff;
 }
 
 /*
