@@ -1,8 +1,9 @@
 /*
- * uae_mous.c - Mouse cursor functions
- * This is part of the WinUAE RTG driver for fVDI
+ * firebee_mouse.c - Mouse cursor functions
+ * This is part of the FireBee driver for fVDI
  *
  * Copyright (C) 2017 Vincent Riviere
+ * Copyright (C) 2020 Markus Fröschle
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
