@@ -1,9 +1,10 @@
 /*
- * saga.c - SAGA specific functions
- * This is part of the SAGA driver for fVDI
- * Most of the code here come from the SAGA Picasso96 driver.
+ * firebee.c - FireBee specific functions
+ * This is part of the FireBee driver for fVDI
+ *
  * https://github.com/ezrec/saga-drivers/tree/master/saga.card
  * Glued by Vincent Riviere
+ * Reused for the FireBee by Markus Fröschle
  */
 
 /*
