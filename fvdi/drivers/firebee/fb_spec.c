@@ -24,7 +24,7 @@
 #include "fvdi.h"
 #include "driver.h"
 #include "firebee.h"
-#include "video.h"
+#include "fb_video.h"
 #include <os.h>
 #include "string/memset.h"
 
@@ -207,50 +207,24 @@ long check_token(char *token, const char **ptr)
     return 0;
 }
 
-static struct ModeInfo *mi;
-static UBYTE *screen_address;
+static short *screen_address;
 
-/* Fix all ModeInfo with PLL data */
-static void fix_all_mode_info(void)
-{
-    int i;
-
-    for (i = 0; i < modeline_vesa_entries; i++) {
-        struct ModeInfo *mi = &modeline_vesa_entry[i];
-        fbee_fix_mode(mi);
-    }
-}
-
-/* Find ModeInfo according to requested video mode */
-static struct ModeInfo *find_mode_info(void)
-{
-    int i;
-
-    for (i = 0; i < modeline_vesa_entries; i++) {
-        struct ModeInfo *p = &modeline_vesa_entry[i];
-        if (p->Width == (UWORD)resolution.width && p->Height == (UWORD)resolution.height)
-            return p;
-    }
-
-    panic("Requested video mode mode not available.");
-    return NULL;
-}
 
 /* Allocate screen buffer */
-static UBYTE *fbee_alloc_vram(UWORD width, UWORD height)
+static short *fbee_alloc_vram(short width, short height, short depth)
 {
-    ULONG buffer;
-    ULONG vram_size = (ULONG)width * height * sizeof(short);
+    unsigned long buffer;
+    unsigned long vram_size = (unsigned long) width * height * depth;
     const int alignment = 32;
 
     /* FireBee screen buffers live in ST RAM */
-    buffer = (ULONG) Mxalloc(vram_size + alignment - 1, 0);
+    buffer = (unsigned long) Mxalloc(vram_size + alignment - 1, MX_STRAM);
     if (!buffer)
         panic("Mxalloc() failed to allocate screen buffer.");
 
     buffer = (buffer + alignment - 1) & -alignment;
 
-    return (UBYTE *) buffer + FIREBEE_VRAM_PHYS_OFFSET;
+    return (short *) buffer;
 }
 
 /*
@@ -271,10 +245,7 @@ long CDECL initialize(Virtual *vwk)
     access->funcs.puts("Free Software distributed under GPLv2\r\n");
     access->funcs.puts("\r\n");
 
-    /* Initialize the RTG card with the requested video mode */
-    fix_all_mode_info();
-    mi = find_mode_info();
-    screen_address = fbee_alloc_vram(resolution.width, resolution.height);
+    screen_address = fbee_alloc_vram(resolution.width, resolution.height, sizeof(short));
 
     vwk = me->default_vwk;	/* This is what we're interested in */
     wk = vwk->real_address;
@@ -351,14 +322,12 @@ Virtual* CDECL opnwk(Virtual *vwk)
     wk = vwk->real_address;
 
     /* Switch to SAGA screen */
-    fbee_set_clock(mi);
-    fbee_set_modeline(mi, SAGA_VIDEO_FORMAT_RGB16);
-    fbee_set_panning(screen_address);
+    fbee_set_clock(147);
 
-    /* update the settings */
-    wk->screen.mfdb.width = mi->Width;
-    wk->screen.mfdb.height = mi->Height;
-    wk->screen.mfdb.bitplanes = resolution.bpp;
+    /* update the settings (hardcoded for now) */
+    wk->screen.mfdb.width = 1280;
+    wk->screen.mfdb.height = 1024;
+    wk->screen.mfdb.bitplanes = 16;
 
     /*
      * Some things need to be changed from the
