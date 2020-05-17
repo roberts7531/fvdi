@@ -1096,7 +1096,7 @@ void *DRIVER_EXPORT malloc(size_t size)
 
     if ((debug > 2) && !(silentx[0] & 0x02))
     {
-        PRINTF(("Alloc: Need block of size %d/%ldﬂn", n, size));
+        PRINTF(("Alloc: Need block of size %d/%ld\n", n, size));
     }
 
     if (!block_free[n])
