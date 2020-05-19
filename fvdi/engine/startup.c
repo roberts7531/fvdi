@@ -324,7 +324,7 @@ long startup(void)
     {
         /* dangerous! This is self-modifying code ! Need to cache flush below to be safe */
         * (short *) ((long) vdi_dispatch + 2) = 0x0073;	/* Finally make fVDI take normal VDI calls */
-        Supexec(cache_flush);
+        Supexec((long (*)(void))cache_flush);
         readable->cookie.flags |= ACTIVE;
     }
 

@@ -13,6 +13,8 @@
 	xdef	_Fopen,_Fread,_Fclose,_Fseek,_Fcreate,_Fwrite
 	xdef	_Fsetdta,_Fsfirst,_Fsnext
 	xdef	_Supexec
+	xdef	_Fgetdta
+	xdef	_Cconout
 
 	xdef	_lib_vdi_s,_lib_vdi_sp,_lib_vdi_spppp,_lib_vdi_pp
 
@@ -159,6 +161,15 @@ _Bconout:
 	move.l	(a7)+,a2
 	rts
 
+_Cconout:
+	move.l	a2,-(a7)
+	move.w	8+0(a7),-(a7)
+	move.w	#2,-(a7)
+	trap	#1
+	addq.l	#4,a7
+	move.l	(a7)+,a2
+	rts
+
 _Super:
 	move.l	4+0(a7),-(a7)
 	move.w	#$20,-(a7)
@@ -253,6 +264,14 @@ _Fsetdta:
 	move.w	#$1a,-(a7)
 	trap	#1
 	addq.l	#6,a7
+	move.l	(a7)+,a2
+	rts
+
+_Fgetdta:
+	move.l	a2,-(a7)
+	move.w	#0x2f,-(a7)
+	trap	#1
+	addq.l	#2,a7
 	move.l	(a7)+,a2
 	rts
 

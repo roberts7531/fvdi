@@ -195,7 +195,7 @@ void CDECL lib_v_bez(Virtual *vwk, struct v_bez_pars *par)
     {
         num_points = result;
         points = xpts;
-        if ((vwk->line.width > 1) && (block = (short *) allocate_block(0)))
+        if ((vwk->line.width > 1) && (block = (short *) allocate_block(0)) != NULL)
         {
             wide_line(vwk, points, num_points, vwk->line.colour, block, vwk->mode);
             free_block(block);
@@ -487,7 +487,7 @@ short CDECL calc_bez(char *marks, short *points, long flags, long maxpnt, long m
     memneeded = _max(maxpnt, MINVERTSIN) * 2 * sizeof(short) + _max(*pnt_mv_cnt, MININTIN) * sizeof(short);
     memneeded = (memneeded + 15) >> 4;
 
-    if (!(XPTS = (short *) allocate_block(0)) || (*(long *) XPTS < memneeded))
+    if ((XPTS = (short *) allocate_block(0)) == NULL || (*(long *) XPTS < memneeded))
     {
         if (XPTS)
             free_block(XPTS);

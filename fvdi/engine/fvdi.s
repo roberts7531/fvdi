@@ -22,16 +22,16 @@ SCREENDEV	equ	7		; Any better ideas?
 xbra_chain	equ	1		; Don't want xref for vdi_address
 stack		equ	1		; nor for vdi_stack and stack_address
 
+fvdi_magic	equ	1969
+
+	.include	"vdi.inc"
+	.include	"macros.inc"
+
  ifne mcoldfire
 STACK_SIZE	equ	8192		; allow more stack for pacf converted routines
  else
 STACK_SIZE	equ	4096		; Used to be 2048
  endc
-
-fvdi_magic	equ	1969
-
-	.include	"vdi.inc"
-	.include	"macros.inc"
 
 	xref	_startup
 	xref	_basepage

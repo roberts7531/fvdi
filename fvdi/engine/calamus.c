@@ -146,7 +146,7 @@ void CDECL dcsd_blit_from_screen(struct DCSD_BLITARGS *args)
     lib_vs_clip(dcsd_vwk, 0, NULL);
 
     /* Note: From screen direction should always use the 'replace' mode */
-    lib_vdi_spppp(&lib_vro_cpyfm, dcsd_vwk, 3, coords, 0L, &dcsd_offscreen_mfdb, 0L);
+    lib_vdi_spppp(lib_vro_cpyfm, dcsd_vwk, 3, coords, 0L, &dcsd_offscreen_mfdb, 0L);
 
     lib_vs_clip(dcsd_vwk, clipping.on, &clipping.rectangle.x1);
 }
@@ -188,7 +188,7 @@ void CDECL dcsd_blit_to_screen(struct DCSD_BLITARGS *args)
 
     lib_vs_clip(dcsd_vwk, 0, NULL);
 
-    lib_vdi_spppp(&lib_vro_cpyfm, dcsd_vwk, args->mode, coords, &dcsd_offscreen_mfdb, 0L, 0L);
+    lib_vdi_spppp(lib_vro_cpyfm, dcsd_vwk, args->mode, coords, &dcsd_offscreen_mfdb, 0L, 0L);
 
     lib_vs_clip(dcsd_vwk, clipping.on, &clipping.rectangle.x1);
 }

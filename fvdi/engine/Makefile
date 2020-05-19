@@ -82,8 +82,8 @@ CSRC = \
 	default.c
 
 CSRC += \
-	$(top_srcdir)/modules/ft2/atari2bics.c \
-	$(top_srcdir)/modules/ft2/bics2unicode.c
+	$(top_srcdir)/modules/ft2/atari2b.c \
+	$(top_srcdir)/modules/ft2/bics2u.c
 
 # Handle DevPac -> gas conversions
 # Defines SSRC_GNU and SINCSRC_GNU variables

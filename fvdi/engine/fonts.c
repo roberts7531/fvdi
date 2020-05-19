@@ -37,7 +37,7 @@ long DRIVER_EXPORT unpack_font(Fontheader *header, long format)
     if (height > 16)                    /* 16 bytes per character for now */
         return 0;
 
-    if (!(buf = (char *)malloc((long)chars * 16)))
+    if ((buf = (char *)malloc((long)chars * 16)) == NULL)
         return 0;
 
     header->extra.unpacked.data = buf;
@@ -84,7 +84,7 @@ long DRIVER_EXPORT fixup_font(Fontheader *header, char *buffer, long flip)
     int top;
     int header_size;
 
-    header_size = sizeof(Fontheader) - sizeof(Fontextra);
+    header_size = (int)(sizeof(Fontheader) - sizeof(Fontextra));
 
     if (flip)
     {
@@ -133,15 +133,15 @@ Fontheader *load_font(const char *name)
     int file;
     int header_size;
 
-    header_size = sizeof(Fontheader) - sizeof(Fontextra);
+    header_size = (int)(sizeof(Fontheader) - sizeof(Fontextra));
 
     if ((font_size = get_size(name) - header_size) < 0)
         return 0;
 
-    if (!(header = (Fontheader *) malloc(sizeof(Fontheader))))
+    if ((header = (Fontheader *) malloc(sizeof(Fontheader))) == NULL)
         return 0;
 
-    if ((file = Fopen(name, 0)) < 0)
+    if ((file = (int)Fopen(name, 0)) < 0)
     {
         free(header);
         return 0;
@@ -149,7 +149,7 @@ Fontheader *load_font(const char *name)
 
     Fread(file, header_size, header);
 
-    if (!(buffer = (char *) malloc(font_size)))
+    if ((buffer = (char *) malloc(font_size)) == NULL)
     {
         free(header);
         Fclose(file);

@@ -256,7 +256,7 @@ static int initialize(const unsigned char *addr, long size, Driver *driver, Virt
                 error("Module compiled with unsupported interface version.", NULL);
                 return 0;
             }
-            return locator->init(&real_access, driver, vwk, opts);
+            return (int)locator->init(&real_access, driver, vwk, opts);
         }
         addr++;
     }
@@ -308,7 +308,7 @@ static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opt
     memset(addr + header.tsize + header.dsize, 0, header.bsize);
 
     /* This will cause trouble if ever called from supervisor mode! */
-    Supexec(cache_flush);
+    Supexec((long (*)(void))cache_flush);
 
     if ((init_result = initialize(addr, header.tsize + header.dsize, driver, vwk, opts)) == 0)
     {

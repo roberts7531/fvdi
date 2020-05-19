@@ -258,14 +258,14 @@ c_v_pline:
 	move.w	vwk_line_ends_beginning(a0),d5
 	or.w	vwk_line_ends_end(a0),d5
 	and.w	#1,d5
-	beq		no_arrow
+	beq		.no_arrow
 
 	move.l	d0,d1
 	clr.l	-(a7)
 	bsr	asm_allocate_block
 	addq.l	#4,a7
 	tst.l	d0
-	beq	no_arrow
+	beq	.no_arrow
 
 	move.l	d6,-(a7)	; mode
 	move.l	d0,-(a7)	; points
@@ -279,7 +279,7 @@ c_v_pline:
 	bsr	asm_free_block
 	addq.l	#8,a7
 
-no_arrow:
+.no_arrow:
 	movem.l	(a7)+,d2-d6
 	rts
 

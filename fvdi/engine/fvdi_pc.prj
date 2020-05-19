@@ -1,17 +1,16 @@
-FVDI_PC.PRG
-
+fvdi_pc.prg
 .C[-H]
 .C[-X]
-.C[-Y]
 .C[-P]
 .C[-I..\modules\include]
 .C[-I..\include]
 .C[-Ic:\pc\include]
+.C[-W-stv]
 
 .S[-Dlattice=0]
 .S[-Dgas=0]
+.S[-DFVDI_DEBUG=0]
 .S[-S]
-.S[-Y]
 .S[-I..\include]
 .S[-I..\drivers\include]
 .S[-I..\drivers\1_plane]
@@ -57,4 +56,8 @@ calamus.c
 bconout.c
 default.c
 
-PCSTDLIB.LIB       ; standard library
+..\modules\ft2\bics2u.c
+..\modules\ft2\atari2b.c
+
+; only needed for _lmul etc
+pcstdlib.lib

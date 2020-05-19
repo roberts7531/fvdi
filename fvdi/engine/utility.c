@@ -699,7 +699,7 @@ int isspace(int c)
 
 void qsort(void *base, long nmemb, long size, int (*compar) (const void *, const void *))
 {
-    static long incs[16] = { 1391376, 463792, 198768, 86961, 33936, 13776,
+    static long incs[16] = { 1391376L, 463792L, 198768L, 86961L, 33936L, 13776L,
                              4592, 1968, 861, 336, 112, 48, 21, 7, 3, 1 };
     long i, j, k, h, j_size, h_size;
     short n;
@@ -764,12 +764,12 @@ void *fmalloc(long size, long type)
     {
         if (!(type & 0xfff8))  /* Simple type? */
             type |= 0x4030;     /* Keep around, supervisor accessible */
-        new = (Circle *)Mxalloc(size + sizeof(Circle), type);
+        new = (Circle *)Mxalloc(size + sizeof(Circle), (int)type);
     } else
     {
         type &= 3;
         if (mxalloc)      /* Alternative if possible */
-            new = (Circle *) Mxalloc(size + sizeof(Circle), type);
+            new = (Circle *) Mxalloc(size + sizeof(Circle), (int)type);
         else
             new = (Circle *) Malloc(size + sizeof(Circle));
     }
@@ -823,7 +823,7 @@ static short allocated = 0;
 
 void allocate(long amount)
 {
-    const int sizes = sizeof(block_space) / sizeof(block_space[0]);
+    const int sizes = (int)(sizeof(block_space) / sizeof(block_space[0]));
     char *buf;
     Circle *link, *last;
     int i;
@@ -1073,7 +1073,7 @@ void check_memory(void)
 void *DRIVER_EXPORT malloc(size_t size)
 {
     int m, n;
-    const int sizes = sizeof(block_space) / sizeof(block_space[0]);
+    const int sizes = (int)(sizeof(block_space) / sizeof(block_space[0]));
     char *block;
     Circle *link, *next;
 
@@ -1411,7 +1411,7 @@ long DRIVER_EXPORT kputs(const char *text)
     {
         file = -1;
 
-        if (((file = Fopen(debug_file, O_WRONLY)) < 0) ||
+        if (((file = (int)Fopen(debug_file, O_WRONLY)) < 0) ||
             (Fseek(0, file, SEEK_END) < 0) ||
             (Fwrite(file, strlen(text), text) < 0))
         {
@@ -1479,17 +1479,15 @@ long DRIVER_EXPORT equal(const char *str1, const char *str2)
 long DRIVER_EXPORT misc(long func, long par, const char *token)
 {
     (void) token;
-    switch (func)
+    switch ((int)func)
     {
     case 0:
-        switch (par)
+        switch ((int)par)
         {
         case 0:
             return key_pressed;
-            break;
         case 1:
             return debug;
-            break;
         }
     }
 
@@ -1550,7 +1548,7 @@ const char *DRIVER_EXPORT skip_space(const char *ptr)
             ;
         else if (*ptr == '#')
         {
-            if (!(ptr = next_line(ptr)))
+            if ((ptr = next_line(ptr)) == NULL)
                 return 0;
             else
                 continue;     /* Updating of ptr already done! */
@@ -1634,7 +1632,7 @@ void DRIVER_EXPORT event(long id_type, long data)
     long *xyp;
 
     /* Really needs to do something about the id part */
-    switch (id_type & 0xffff)
+    switch ((unsigned int)(id_type & 0xffff))
     {
     case 0:    /* Initialize */
         stand_alone = 1;

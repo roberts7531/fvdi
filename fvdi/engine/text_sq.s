@@ -20,6 +20,7 @@ SUB1		equ	0		; Subtract 1 from text width? (NVDI apparently doesn't)
 	xref	_lib_vqt_name,_lib_vqt_xfntinfo,_lib_vqt_fontheader
 	xref	_lib_vst_arbpt,_lib_vst_font
 	xref	_display_output
+	xref	_lib_vst_point
 
 	xdef	vst_color,vst_effects,vst_alignment,vst_rotation,vst_font,vst_charmap
 	xdef	vqt_name,vqt_fontinfo,vst_height,vqt_attributes,vqt_extent

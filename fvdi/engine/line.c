@@ -375,7 +375,7 @@ void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *p
 
     if (vwk->line.ends.beginning & ARROWED)
     {
-        arrow(vwk, &pts[0], 2, numpts, colour, points, mode);
+        arrow(vwk, &pts[0], 2, (int)numpts, colour, points, mode);
         new_x_start = pts[0];
         new_y_start = pts[1];
     }
@@ -384,7 +384,7 @@ void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *p
     {
         pts[0] = x_start;
         pts[1] = y_start;
-        arrow(vwk, &pts[2 * numpts - 2], -2, numpts, colour, points, mode);
+        arrow(vwk, &pts[2 * numpts - 2], -2, (int)numpts, colour, points, mode);
         pts[0] = new_x_start;
         pts[1] = new_y_start;
     }

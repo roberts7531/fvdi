@@ -137,7 +137,7 @@ static void col_pat(Virtual *vwk, Fgbg *fill_colour, Fgbg *border_colour, short 
 }
 
 
-static long clc_nsteps(long xrad, long yrad)
+static int clc_nsteps(long xrad, long yrad)
 {
     long n_steps;
 
@@ -153,7 +153,7 @@ static long clc_nsteps(long xrad, long yrad)
     else if (n_steps > arc_max)
         n_steps = arc_max;
 
-    return n_steps;
+    return (int)n_steps;
 }
 
 
@@ -165,7 +165,7 @@ void ellipsearc(Virtual *vwk, long gdp_code,
     Fgbg fill_colour, border_colour;
     long interior_style;
 
-    del_ang = end_ang - beg_ang;
+    del_ang = (int)(end_ang - beg_ang);
     if (del_ang <= 0)
         del_ang += 3600;
 
@@ -174,7 +174,7 @@ void ellipsearc(Virtual *vwk, long gdp_code,
     if (n_steps == 0)
         return;
 
-    if (!(points = (short *) allocate_block(0)))
+    if ((points = (short *) allocate_block(0)) == NULL)
         return;
 
     pattern = 0;
@@ -206,7 +206,7 @@ void rounded_box(Virtual *vwk, long gdp_code, short *coords)
     Fgbg fill_colour, border_colour;
     long interior_style;
 
-    if (!(points = (short *) allocate_block(0)))
+    if ((points = (short *) allocate_block(0)) == NULL)
         return;
 
     pattern = 0;

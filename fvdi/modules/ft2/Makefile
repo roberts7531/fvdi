@@ -222,7 +222,7 @@ endif
 
 OBJS = $(BASEOBJ) $(AHINTOBJ) $(PSOBJ) $(RASTEROBJ) sfnt.o ftcache.o $(FONTDOBJ) $(GZOBJ)
 
-CSRC = ft2.c atari2unicode.c ft2_ftsystem.c ft2_ftdebug.c
+CSRC = ft2.c atari2u.c ft2_ftsystem.c ft2_ftdebug.c
 OBJS += $(CSRC:.c=.o)
 
 include $(top_srcdir)/DEPENDENCIES

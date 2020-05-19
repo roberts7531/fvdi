@@ -1,3 +1,5 @@
+mcoldfire equ 0
+
   ifb	stack
 	xref	stack_address
 	xref	vdi_stack
@@ -92,24 +94,15 @@ special_stack	set	1
 	endm
 
 	macro	ijsr indirect
-  if mc68000 == 1
 	local	return
 	pea	.&return
 	move.l	indirect,-(a7)
 	rts
-.&return:
-  else
-	jsr	([indirect])
-  endc
 	endm
 
 	macro	ijmp indirect
-  ifne mc68000 == 1
 	move.l	indirect,-(a7)
 	rts
-  else
-	jmp	([indirect])
-  endc
 	endm
 
 	macro	label name,number

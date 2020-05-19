@@ -132,7 +132,7 @@ int CDECL lib_vq_color(Virtual *vwk, long pen, long flag, RGB *colour)
     int index;
     Colour *palette;
 
-    index = vdi2idx(vwk->real_address, pen);
+    index = vdi2idx(vwk->real_address, (int)pen);
     if (index < 0)
         return -1;
 
@@ -153,7 +153,7 @@ int CDECL lib_vq_color(Virtual *vwk, long pen, long flag, RGB *colour)
         colour->blue = palette[index].hw.blue;
     }
 
-    return pen;
+    return (int)pen;
 }
 
 
@@ -184,7 +184,6 @@ static int fg_bg_index(Virtual *vwk, int subfunction, short **fg, short **bg)
     case 4:
         /* This will be for bitmaps */
         return 0;
-        break;
 
     default:
         return 0;
@@ -204,7 +203,7 @@ int CDECL lib_vs_fg_color(Virtual *vwk, long subfunction, long colour_space, COL
     if ((unsigned int)colour_space > 1)    /* Only 0 or 1 allowed for now (current or RGB) */
         return 0;
 
-    if (!fg_bg_index(vwk, subfunction, &fg, &bg))
+    if (!fg_bg_index(vwk, (int)subfunction, &fg, &bg))
         return -1;
     index = *fg = -subfunction * 2 - 2;      /* Index -2/-4... */
 
@@ -242,7 +241,7 @@ int CDECL lib_vs_bg_color(Virtual *vwk, long subfunction, long colour_space, COL
     if ((unsigned int)colour_space > 1)    /* Only 0 or 1 allowed for now (current or RGB) */
         return 0;
 
-    if (!fg_bg_index(vwk, subfunction, &fg, &bg))
+    if (!fg_bg_index(vwk, (int)subfunction, &fg, &bg))
         return -1;
     index = *bg = -subfunction * 2 - 3;      /* Index -3/-5... */
 
@@ -275,7 +274,7 @@ long CDECL lib_vq_fg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
     short *fg, *bg, index;
     Colour *palette;
 
-    if (!fg_bg_index(vwk, subfunction, &fg, &bg))
+    if (!fg_bg_index(vwk, (int)subfunction, &fg, &bg))
         return -1;
     index = *fg;
 
@@ -298,7 +297,7 @@ long CDECL lib_vq_bg_color(Virtual *vwk, long subfunction, COLOR_ENTRY *colour)
     short *fg, *bg, index;
     Colour *palette;
 
-    if (!fg_bg_index(vwk, subfunction, &fg, &bg))
+    if (!fg_bg_index(vwk, (int)subfunction, &fg, &bg))
         return -1;
     index = *bg;
 
@@ -320,7 +319,7 @@ int CDECL colour_entry(Virtual *vwk, long subfunction, short *intin, short *into
 {
     (void) vwk;
     (void) intin;
-    switch (subfunction)
+    switch ((int)subfunction)
     {
     case 0:     /* v_color2value */
         PUTS("v_color2value not yet supported\n");
@@ -337,7 +336,7 @@ int CDECL colour_entry(Virtual *vwk, long subfunction, short *intin, short *into
     case 3:     /* vq_px_format */
         PUTS("vq_px_format not yet supported\n");
         *(long *)&intout[0] = 1;
-        *(long *)&intout[2] = 0x03421820;
+        *(long *)&intout[2] = 0x03421820L;
         return 4;
 
     default:
@@ -365,7 +364,7 @@ static int set_col_table(Virtual *vwk, long count, long start, COLOR_ENTRY *valu
 
     set_palette(vwk, &palette_pars);
 
-    return count;
+    return (int)count;
 }
 
 
@@ -373,7 +372,7 @@ int CDECL set_colour_table(Virtual *vwk, long subfunction, short *intin)
 {
     COLOR_TAB *ctab;
 
-    switch (subfunction)
+    switch ((int)subfunction)
     {
     case 0:     /* vs_ctab */
         ctab = (COLOR_TAB *)intin;
@@ -396,7 +395,7 @@ int CDECL set_colour_table(Virtual *vwk, long subfunction, short *intin)
 
 int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *intout)
 {
-    switch (subfunction)
+    switch ((int)subfunction)
     {
     case 0:     /* vq_ctab */
         {
@@ -417,11 +416,11 @@ int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *into
                 PRINTF(("Too little space available for ctab (%ld when ctab needs %ld)!\n", *(long *) &intin[0], length));
                 return 0;
             }
-            ctab->magic = 0x63746162; /* 'ctab' */
+            ctab->magic = 0x63746162L; /* 'ctab' */
             ctab->length = length;
             ctab->format = 0;
             ctab->reserved = 0;
-            ctab->map_id = 0xbadc0de1;
+            ctab->map_id = 0xbadc0de1L;
             ctab->color_space = 1;
             ctab->flags = 0;
             ctab->no_colors = 256;
@@ -449,7 +448,7 @@ int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *into
                     palette[i].hw.green & 0xffff,
                     palette[i].hw.blue & 0xffff));
             }
-            return length / 2;
+            return (int)(length / 2);
         }
 
     case 1:     /* vq_ctab_entry */
@@ -458,7 +457,7 @@ int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *into
 
     case 2:     /* vq_ctab_id */
         PUTS("vq_ctab_id not yet supported\n");
-        *(long *)&intout[0] = 0xbadc0de1;   /* Not really correct */
+        *(long *)&intout[0] = 0xbadc0de1L;   /* Not really correct */
         return 2;
 
     case 3:     /* v_ctab_idx2vdi */
@@ -475,7 +474,7 @@ int CDECL colour_table(Virtual *vwk, long subfunction, short *intin, short *into
 
     case 6:     /* v_get_ctab_id */
         PUTS("v_get_ctab_id not yet supported\n");
-        *(long *)&intout[0] = 0xbadc0de1;   /* Should always be different */
+        *(long *)&intout[0] = 0xbadc0de1L;   /* Should always be different */
         return 2;
 
     case 7:     /* vq_dflt_ctab */
@@ -502,14 +501,14 @@ int CDECL inverse_table(Virtual *vwk, long subfunction, short *intin, short *int
 {
     (void) vwk;
     (void) intin;
-    switch (subfunction)
+    switch ((int) subfunction)
     {
     case 0:     /* v_create_itab */
         {
             /* COLOR_TAB *ctab = (COLOR_TAB *) *(long *)&intin[0]; */
 
             PUTS("v_create_itab not yet supported\n");
-            *(long *)&intout[0] = 0xbadc0de1;
+            *(long *)&intout[0] = 0xbadc0de1L;
             return 2;
         }
 

@@ -461,7 +461,7 @@ void setup_vbl_handler(void)
     int n;
     long addr;
 
-    n = get_l(0x452L) & 0xffffL;        /* nvbls */
+    n = (int)(get_l(0x452L) & 0xffffL);        /* nvbls */
     addr = get_l(0x456);                /* vblqueue */
     for (; n > 0; n--)
     {
@@ -482,7 +482,7 @@ void shutdown_vbl_handler(void)
     int n;
     long addr;
 
-    n = get_l(0x452L) & 0xffffL;        /* nvbls */
+    n = (int)(get_l(0x452L) & 0xffffL);        /* nvbls */
     addr = get_l(0x456);                /* vblqueue */
     for (; n > 0; n--)
     {
