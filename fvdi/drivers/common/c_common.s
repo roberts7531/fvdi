@@ -43,6 +43,10 @@
 *	d0	pixel colour
 *	d1	x or table address
 *	d2	y or table length (high) and type (0 - coordinates)
+*
+* called by:
+*     engine/mouse.s: mouse_show
+*     engine/vdi_misc.s: setup_blit (various blit routines)
 *---------
 _c_set_pixel:
 	movem.l		d0-d2/a0-a2,-(a7)
@@ -83,11 +87,15 @@ _c_set_pixel:
 
 *---------
 * Get a coloured pixel
-* c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
+* long c_get_pixel(Virtual *vwk, MFDB *mfdb, long x, long y)
 * In:	a0	VDI struct, source MFDB
 *	d1	x
 *	d2	y
 * Out:	d0	pixel colour
+*
+* called by:
+*     engine/mouse.s: mouse_show
+*     engine/vdi_misc.s: setup_blit (various blit routines)
 *---------
 _c_get_pixel:
 	movem.l		d1-d2/a0-a2,-(a7)
@@ -116,6 +124,13 @@ _c_get_pixel:
 *	d4	y2 or move index address
 *	d5	pattern
 *	d6	mode
+*
+* called by:
+*     engine/draw.s: call_draw_line
+*     engine/draw.s: v_bez_accel
+*     engine/draw.s: _lib_v_pline
+*     engine/draw.s: v_pmarker
+*     engine/draw.s: lib_v_bez_fill
 *---------
 _c_line:
 	cmp.w		#$c0de,d0
@@ -265,6 +280,9 @@ new_api_line:
 *	d1-d2	x1,y1 source
 *	d3-d6	x1,y1 x2,y2 destination
 *	d7	logic operation
+*
+* called by:
+*     engine/blit.s: lib_vrt_cpyfm
 *---------
 _c_expand:
 	movem.l		d0-d2/a0-a2,-(a7)
@@ -322,6 +340,13 @@ _c_expand:
 *	d5	pattern address
 *	d6	mode
 *	d7	interior/style
+*
+* called by:
+*     engine/blit.s: lib_v_bar
+*     engine/blit.s: vr_recfl
+*     engine/blit.s: fill_area
+*     engine/draw.s: hline
+*     engine/draw.s: fill_spans
 *---------
 _c_fill:
 	movem.l		d0-d2/a0-a2,-(a7)
@@ -404,6 +429,11 @@ _c_fill:
 *	d5	pattern address
 *	d6	mode
 *	d7	interior/style
+*
+* called by:
+*     engine/draw.s: lib_v_bez_fill
+*     engine/draw.s: lib_v_fillarea
+*     engine/draw.s: _fill_poly
 *---------
 _c_fillpoly:
 	movem.l		d0-d2/a0-a2,-(a7)
@@ -450,6 +480,9 @@ _c_fillpoly:
 *	d0	logic operation
 *	d1-d2	x1,y1 source
 *	d3-d6	x1,y1 x2,y2 destination
+*
+* called by:
+*     engine/blit.s: lib_vro_cpyfm
 *---------
 _c_blit:
 	movem.l		d0-d2/a0-a2,-(a7)
@@ -503,6 +536,12 @@ _c_blit:
 *	a2	offset table
 *	d0	string length
 *	d1	x1,y1 destination
+*
+* called by:
+*     engine/text.s: lib_v_gtext
+*     engine/text.s: _draw_text
+*     engine/text.s: v_ftext
+*     engine/text.s: v_ftext_offset
 *---------
 _c_text:
 	movem.l		d0-d2/a0-a2,-(a7)	; Was d2
@@ -541,6 +580,11 @@ _c_text:
 *	d1	y
 *	d2	0 (move shown), 1 (move hidden), 2 (hide), 3 (show), Mouse* (change)
 * Out:	d0	mouse op to try again (low), pointer delay (high)
+*
+* called by:
+*     engine/mouse.s: lib_vsc_form
+*     engine/mouse.s: lib_v_show_c
+*     engine/mouse.s: lib_v_hide_c
 *---------
 _c_mouse:
 	move.l		d2,-(a7)
@@ -562,6 +606,10 @@ _c_mouse:
 *	d0	number of entries, start entry
 *	a1	requested colour values (3 word/entry)
 *	a2	colour palette
+*
+* called by:
+*     engine/colours.s: set_palette
+*     engine/support.s: initialize_palette
 *---------
 _c_set_palette:
 	cmp.w		#$c0de,d0
@@ -607,6 +655,11 @@ new_api_set_palette:
 * In:	a0	VDI struct
 *	d0	fore- and background colour indices
 * Out:	d0	fore- and background colour
+*
+* called by:
+*     engine/draw.s: _default_line
+*     engine/draw.s: _default_fill
+*     engine/draw.s: _default_expand
 *---------
 _c_colour:
 	movem.l		d1-d2/a0-a2,-(a7)

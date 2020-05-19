@@ -51,6 +51,11 @@ upto8		equ	0	; Handle 8 bit drawing
 *	d0	colour
 *	d1	x or table address
 *	d2	y or table length (high) and type (0 - coordinates)
+*
+* called by:
+*     engine/mouse.s: mouse_unshow
+*     engine/mouse.s: mouse_show
+*     engine/vdi_misc.s: setup_blit (various blit routines)
 *---------
 _set_pixel:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
@@ -94,6 +99,10 @@ _set_pixel:
 *	d1	x
 *	d2	y
 * Out:	d0	line colour
+*
+* called by:
+*     engine/mouse.s: mouse_show
+*     engine/vdi_misc.s: setup_blit (various blit routines)
 *---------
 _get_pixel:
 	movem.l		d1-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
@@ -124,6 +133,13 @@ _get_pixel:
 *	d4	y2 or move index address
 *	d5	pattern
 *	d6	colour
+*
+* called by:
+*     engine/draw.s: call_draw_line
+*     engine/draw.s: v_bez_accel
+*     engine/draw.s: _lib_v_pline
+*     engine/draw.s: v_pmarker
+*     engine/draw.s: lib_v_bez_fill
 *---------
 _line:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
@@ -228,6 +244,9 @@ _line:
 *	d3-d4	destination coordinates
 *	d6	background and foreground colour
 *	d7	logic operation
+*
+* called by:
+*     engine/blit.s: lib_vrt_cpyfm
 *---------
 _expand:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3(/6)/4(/6)/6 for normal/both/upto8
@@ -272,6 +291,13 @@ _expand:
 *	d6	mode
 *	d7	interior/style
 **	+colour in a really dumb way...
+*
+* called by:
+*     engine/blit.s: lib_v_bar
+*     engine/blit.s: vr_recfl
+*     engine/blit.s: fill_area
+*     engine/draw.s: hline
+*     engine/draw.s: fill_spans
 *---------
 _fill:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
@@ -402,6 +428,11 @@ _fill:
 *	d6	mode
 *	d7	interior/style
 **	+colour in a really dumb way...
+*
+* called by:
+*     engine/draw.s: lib_v_bez_fill
+*     engine/draw.s: lib_v_fillarea
+*     engine/draw.s: _fill_poly
 *---------
 _fillpoly:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
@@ -492,6 +523,9 @@ _fillpoly:
 *	d1-d2	source coordinates
 *	d3-d4	destination coordinates
 *	d5	logic operation
+*
+* called by:
+*     engine/blit.s: lib_vro_cpyfm
 *---------
 _blit:
 	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
@@ -531,6 +565,12 @@ _blit:
 *	d0	string length
 *	d3-d4	destination coordinates
 *	a4	string address
+*
+* called by:
+*     engine/text.s: lib_v_gtext
+*     engine/text.s: _draw_text
+*     engine/text.s: v_ftext
+*     engine/text.s: v_ftext_offset
 *---------
 _text:
 	movem.l		d0-d7/a0-a6,-(a7)	; Was d2-d7/a3-a6
@@ -564,6 +604,11 @@ _text:
 *	d1	y
 *	d2	0 (move shown), 1 (move hidden), 2 (hide), 3 (show), Mouse* (change)
 * Out:	d0	mouse op to try again (low), pointer delay (high)
+*
+* called by:
+*     engine/mouse.s: lib_vsc_form
+*     engine/mouse.s: lib_v_show_c
+*     engine/mouse.s: lib_v_hide_c
 *---------
 _mouse:
 	ijsr		_mouse_draw_r
@@ -576,6 +621,10 @@ _mouse:
 *	d0	number of entries, start entry
 *	a1	requested colour values (3 word/entry)
 *	a2	colour palette
+*
+* called by:
+*     engine/colours.s: set_palette
+*     engine/support.s: initialize_palette
 *---------
 _set_palette:
 	movem.l		d0-d7/a0-a6,-(a7)	; Overkill
@@ -591,6 +640,11 @@ _set_palette:
 * In:	a0	VDI struct
 *	d0	fore- and background colour indices
 * Out:	d0	fore- and background colour
+*
+* called by:
+*     engine/draw.s: _default_line
+*     engine/draw.s: _default_fill
+*     engine/draw.s: _default_expand
 *---------
 _colour:
 	movem.l		d1-d7/a0-a6,-(a7)
