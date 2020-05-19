@@ -239,9 +239,7 @@ nomemlink
 # It is a very good idea to have a system font in the same sizes as
 # the normal GEM one, but it is not necessary.
 
-#01r 1dummy.sys
-01r 1plane.sys
-#01r 4plane.sys
+01r bitplane.sys
 #01r 16bit.sys shadow oldmouse accelerate xxxxxx-
 #01r rage.sys screencache onlysrc 4mb mode key imgcache
 
