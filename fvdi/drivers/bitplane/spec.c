@@ -28,8 +28,11 @@ static char const green[] = { 6 };
 static char const blue[] = { 6 };
 static char const none[] = { 0 };
 
-static Mode const mode[1] = {
-    { 1, CHECK_PREVIOUS, { red, green, blue, none, none, none}, 0, 0, 1, 1 }
+static Mode const mode[4] = {
+    { 1, CHECK_PREVIOUS, { red, green, blue, none, none, none }, 0, 0, 1, 1 },
+    { 2, CHECK_PREVIOUS, { red, green, blue, none, none, none }, 0, 0, 1, 1 },
+    { 4, CHECK_PREVIOUS, { red, green, blue, none, none, none }, 0, 0, 1, 1 },
+    { 8, CHECK_PREVIOUS, { red, green, blue, none, none, none }, 0, 0, 1, 1 }
 };
 
 char driver_name[] = "Bitplane (shadow)";
@@ -60,21 +63,67 @@ short no_restore = 0;
 short depth = 0;
 
 
+static Option const options[] = {
+    { "debug",      { &debug },             2 },  /* debug, turn on debugging aids */
+    { "shadow",     { &shadow },            0 },  /* Use a separate buffer of the screen in RAM */
+    { "fixshape",   { &fix_shape },         0 },  /* fixed shape; do not allow mouse shape changes */
+    { "norestore",  { &no_restore },        0 },
+};
+
 /*
  * Handle any driver specific parameters
  */
 long check_token(char *token, const char **ptr)
 {
-	(void) ptr;
-    if (access->funcs.equal(token, "shadow"))
-        shadow = 1;
-    else if (access->funcs.equal(token, "fixshape"))
-        fix_shape = 1;
-    else if (access->funcs.equal(token, "norestore"))
-        no_restore = 1;
-    else
-        return 0;
-    return 1;
+    int i;
+    int normal;
+    char *xtoken;
+
+    xtoken = token;
+    switch (token[0])
+    {
+    case '+':
+        xtoken++;
+        normal = 1;
+        break;
+    case '-':
+        xtoken++;
+        normal = 0;
+        break;
+    default:
+        normal = 1;
+        break;
+    }
+    for (i = 0; i < (int)(sizeof(options) / sizeof(Option)); i++)
+    {
+        if (access->funcs.equal(xtoken, options[i].name))
+        {
+            switch (options[i].type)
+            {
+            case -1:      /* Function call */
+                return (options[i].var.func)(ptr);
+            case 0:        /* Default 1, set to 0 */
+                *options[i].var.s = 1 - normal;
+                return 1;
+            case 1:      /* Default 0, set to 1 */
+                *options[i].var.s = normal;
+                return 1;
+            case 2:      /* Increase */
+                *options[i].var.s += -1 + 2 * normal;
+                return 1;
+            case 3:
+                if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
+                {
+                    ;  /* *********** Error, somehow */
+                }
+                *ptr = access->funcs.get_token(*ptr, token, 80);
+                *options[i].var.s = token[0];
+                return 1;
+            }
+        }
+    }
+
+    return 0;
 }
 
 
@@ -133,68 +182,28 @@ long initialize(Virtual *vwk)
     else                                /*   or fixed DPI (negative) */
         wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
 
-#if 0
-    device.format = mode[depth].format;
-    device.clut = mode[depth].clut;
-    device.bit_depth = mode[depth].bpp;
-    device.dummy1 = (1L << mode[depth].bpp) >> 16;
-    device.colours = (1L << mode[depth].bpp) & 0xffff;
-#endif
     device.byte_width = wk->screen.wrap;
     device.address = wk->screen.mfdb.address;
-#if 0
-    device.bits.red = mode[depth].bits.red[0];
-    device.bits.green = mode[depth].bits.green[0];
-    device.bits.blue = mode[depth].bits.blue[0];
-    device.bits.alpha = mode[depth].bits.alpha[0];
-    device.bits.genlock = mode[depth].bits.genlock[0];
-    device.bits.unused = mode[depth].bits.unused[0];
-    device.bits.organization = mode[depth].org;
-    device.dummy2 = 0;
-    if (device.clut == 2)
+
+    switch (wk->screen.mfdb.bitplanes)
     {
-        for(i = 0; i < mode[depth].bits.red[0]; i++)
-            device.bitnumber.red[i] = mode[depth].bits.red[i + 1];
-        for(i = mode[depth].bits.red[0]; i < 16; i++)
-            device.bitnumber.red[i] = -1;       /* Not used */
-        for(i = 0; i < mode[depth].bits.green[0]; i++)
-            device.bitnumber.green[i] = mode[depth].bits.green[i + 1];
-        for(i = mode[depth].bits.green[0]; i < 16; i++)
-            device.bitnumber.green[i] = -1;     /* Not used */
-        for(i = 0; i < mode[depth].bits.blue[0]; i++)
-            device.bitnumber.blue[i] = mode[depth].bits.blue[i + 1];
-        for(i = mode[depth].bits.blue[0]; i < 16; i++)
-            device.bitnumber.blue[i] = -1;      /* Not used */
-        for(i = 0; i < mode[depth].bits.alpha[0]; i++)
-            device.bitnumber.alpha[i] = mode[depth].bits.alpha[i + 1];
-        for(i = mode[depth].bits.alpha[0]; i < 16; i++)
-            device.bitnumber.alpha[i] = -1;     /* Not used */
-        for(i = 0; i < mode[depth].bits.genlock[0]; i++)
-            device.bitnumber.genlock[i] = mode[depth].bits.genlock[i + 1];
-        for(i = mode[depth].bits.genlock[0]; i < 16; i++)
-            device.bitnumber.genlock[i] = -1;   /* Not used */
-        for(i = 0; i < mode[depth].bits.unused[0]; i++)
-            device.bitnumber.unused[i] = mode[depth].bits.unused[i + 1];
-        for(i = mode[depth].bits.unused[0]; i < 32; i++)
-            device.bitnumber.unused[i] = -1;    /* Not used */
-        for(i = 0; i < 144; i++)
-            device.reserved[i] = 0;
-    } else
-    {
-        for(i = 0; i < sizeof(tos_colours); i++)
-            device.vdi2pix[i] = tos_colours[i];
-        if (mode[depth].bpp == 8)
-        {
-            for (; i < 255; i++)
-                device.vdi2pix[i] = i;
-            device.vdi2pix[255] = 15;
-        } else
-        {
-            for(; i < 256; i++)
-                device.vdi2pix[i] = 0;
-        }
+    case 1:
+        graphics_mode = &mode[0];
+        break;
+    case 2:
+        graphics_mode = &mode[1];
+        break;
+    case 4:
+        graphics_mode = &mode[2];
+        break;
+    case 8:
+        graphics_mode = &mode[3];
+        break;
+    default:
+		access->funcs.puts("Unsupported BPP.\n");
+        break;
     }
-#endif
+    setup_scrninfo(me->device, graphics_mode);
 
     PRINTF(("%dx%dx%d screen at $%08lx\n", wk->screen.mfdb.width, wk->screen.mfdb.height, wk->screen.mfdb.bitplanes,
             (long) wk->screen.mfdb.address));

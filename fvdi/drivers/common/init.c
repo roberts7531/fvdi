@@ -299,23 +299,8 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
     wk->screen.type = 4;
     wk->screen.colour = 1;
     wk->screen.bkg_colours = 0;         /* ? */
-#if 0
-    if (graphics_mode->flags & TRUE_COLOUR)
-        wk->screen.look_up_table = 0;   /* True colour */
-    else
-        wk->screen.look_up_table = 1;   /* Not true colour */
-    wk->screen.palette.possibilities = 1 << graphics_mode->bpp;
-#else
-#if 0
-    if (graphics_mode->clut)
-        wk->screen.look_up_table = 0;   /* Hardware or software lookup table */
-    else
-        wk->screen.look_up_table = 1;   /* No lookup table (ST monochrome) */
-#else
     wk->screen.look_up_table = 1;       /* Why?!? */
-#endif
     wk->screen.palette.possibilities = 0;   /* More than 32767 colours available */
-#endif
     /* Values and transformation table */
     /* Pixel width/height */
     /* Coordinates (what's 'course'?  max/min should be more sophisticated) */
