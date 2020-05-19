@@ -35,7 +35,7 @@ subdir      = ft2
 
 include $(top_srcdir)/CONFIGVARS
 
-CFLAGS = $(CPUOPTS) $(OPTS) $(FT2_WARNINGS) $(FT2_CFLAGS) -I$(top_srcdir)/modules/include -I$(ft2_srcdir)/src
+CFLAGS = $(CPUOPTS) $(OPTS) $(FT2_WARNINGS) $(FT2_CFLAGS) -I$(top_srcdir)/include -I$(top_srcdir)/modules/include -I$(ft2_srcdir)/src
 
 #
 # FreeType2 library base
@@ -221,6 +221,11 @@ FONTDOBJ += gemfnt.o
 endif
 
 OBJS = $(BASEOBJ) $(AHINTOBJ) $(PSOBJ) $(RASTEROBJ) sfnt.o ftcache.o $(FONTDOBJ) $(GZOBJ)
+
+CSRC = ft2.c atari2unicode.c ft2_ftsystem.c ft2_ftdebug.c
+OBJS += $(CSRC:.c=.o)
+
+include $(top_srcdir)/DEPENDENCIES
 
 ifneq ($(ft2_srcdir),)
 $(TARGET): $(OBJS)

@@ -17,9 +17,7 @@ srcdir     = .
 
 include $(top_srcdir)/CONFIGVARS
 
-STDLIB_CFLAGS = -I$(top_srcdir)/modules/include
-
-CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS)
+CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/modules/include
 ASFLAGS := $(ASFLAGS) -I$(top_srcdir)/drivers/1_plane
 
 LDFLAGS += --mprg-flags=0x27
@@ -88,29 +86,7 @@ CSRC = \
 	bconout.c \
 	default.c
 
-ifneq ($(ft2_srcdir),)
- CSRC+= \
-	$(top_srcdir)/modules/ft2/ft2.c \
-	$(top_srcdir)/modules/ft2/atari2unicode.c \
-	$(top_srcdir)/modules/ft2/ft2_ftsystem.c
-
- ifeq ($(DEBUG),yes)
-  CSRC+= \
-	$(top_srcdir)/modules/ft2/ft2_ftdebug.c
- endif
-
-$(top_srcdir)/modules/ft2/ft2_ftsystem.o: $(top_srcdir)/modules/ft2/ft2_ftsystem.c
-	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c -o $@ $<
-
-$(top_srcdir)/modules/ft2/ft2_ftdebug.o: $(top_srcdir)/modules/ft2/ft2_ftdebug.c
-	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c -o $@ $<
-
-$(top_srcdir)/modules/ft2/ft2.o: $(top_srcdir)/modules/ft2/ft2.c
-	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c -o $@ $<
-
-endif
-
-CSRC+= \
+CSRC += \
 	$(top_srcdir)/modules/ft2/atari2bics.c \
 	$(top_srcdir)/modules/ft2/bics2unicode.c
 
