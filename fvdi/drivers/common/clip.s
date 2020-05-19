@@ -6,7 +6,7 @@
 * Please, see LICENSE.TXT for further information.
 *****
 
-	include	"vdi.inc"
+	.include	"vdi.inc"
 
 	xdef	clip_line
 	xdef	_clip_line

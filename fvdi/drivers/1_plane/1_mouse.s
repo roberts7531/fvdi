@@ -1,5 +1,5 @@
-	include	"vdi.inc"
-	include	"types.inc"
+	.include	"vdi.inc"
+	.include	"types.inc"
 
 	xref	_me
 

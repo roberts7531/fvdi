@@ -30,8 +30,8 @@ STACK_SIZE	equ	4096		; Used to be 2048
 
 fvdi_magic	equ	1969
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	_startup
 	xref	_basepage

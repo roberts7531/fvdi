@@ -15,8 +15,8 @@ shift		equ	1
 only_16		equ	1
 
 
-	include		"pixelmac.inc"
-	include		"vdi.inc"
+	.include		"pixelmac.inc"
+	.include		"vdi.inc"
 
 	xdef		_text_area
 

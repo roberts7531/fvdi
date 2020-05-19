@@ -9,8 +9,8 @@
 transparent	equ	1		; Fall through?
 lookup32	equ	0		; Palette lookup for 32 bit vr_trn_fm?
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	clip_rect
 	xref	setup_blit,setup_plot,tos_colour

@@ -111,5 +111,5 @@ am__v_AR_0  = @echo "  AR      " $@;
 am__v_AR_1  = 
 
 COMPILE.c = $(AM_V_CC)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c
-COMPILE.s = $(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) $(TARGET_ARCH) -c
+COMPILE.s = $(AM_V_AS)$(CC) -x assembler-with-cpp $(ASFLAGS) $(SYMBOLS) $(TARGET_ARCH) -c
 COMPILE.S = $(AM_V_AS)$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 $(TARGET_ARCH) -c

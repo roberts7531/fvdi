@@ -16,8 +16,8 @@ transparent	equ	1		; Fall through?
 * v_offset Lattice manual p267
 *
 *****
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	redirect
 	xref	_no_vex

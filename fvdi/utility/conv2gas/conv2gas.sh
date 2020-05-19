@@ -48,12 +48,6 @@ mv $tmp2 $tmp1
 sed "s%^\\([ 	][ 	]*\\)bss%\1.bss%" $tmp1 >$tmp2
 mv $tmp2 $tmp1
 
-# Includes
-sed "s%\.inc\"%.inc.gnu\"%" $tmp1 >$tmp2
-mv $tmp2 $tmp1
-sed "s%\\([ 	][ 	]*\\)include%\1.include%" $tmp1 >$tmp2
-mv $tmp2 $tmp1
-
 # Hexadecimal numbers
 sed "s%\\$%0x%" $tmp1 >$tmp2
 mv $tmp2 $tmp1

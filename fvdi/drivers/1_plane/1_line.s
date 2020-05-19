@@ -13,8 +13,8 @@ mul		equ	1	; Multiply rather than use table
 shift		equ	1
 smartdraw	equ	1
 
-	include		"pixelmac.inc"
-	include		"vdi.inc"
+	.include		"pixelmac.inc"
+	.include		"vdi.inc"
 
 	xdef		line_draw,_line_draw
 

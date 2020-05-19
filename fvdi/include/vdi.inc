@@ -5,38 +5,38 @@
 * It is not copyrighted or under any sort of license.
 *****
 
-CHUNKY		equ	1
-TRUE_COLOUR	equ	2
+CHUNKY		=	1
+TRUE_COLOUR	=	2
 
-WHITE		equ 0
-BLACK 		equ	1
-EFFECTS		equ	$3f		; %00111111
+WHITE		= 0
+BLACK 		=	1
+EFFECTS		=	0x3f
 
-only_fvdi	equ	1
+only_fvdi	=	1
 
 *
 * VDI array
 *
-control		equ	0
-intin		equ	4
-ptsin		equ	8
-intout		equ	12
-ptsout		equ	16
+control		=	0
+intin		=	4
+ptsin		=	8
+intout		=	12
+ptsout		=	16
 
 *
 * Control
 *
-function	equ	0
-L_ptsin		equ	2
-L_ptsout	equ	4
-L_intin		equ	6
-L_intout	equ	8
-subfunction	equ	10
-handle		equ	12
+function	=	0
+L_ptsin		=	2
+L_ptsout	=	4
+L_intin		=	6
+L_intout	=	8
+subfunction	=	10
+handle		=	12
 
 
 *
 * VDI struct
 * Font struct
 *
-	include	"types.inc"
+	.include	"types.inc"

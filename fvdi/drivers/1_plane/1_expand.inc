@@ -1,5 +1,5 @@
 *-------------------------------------------------------*
-*	Draw in single plane modes			*	
+*	Draw in single plane modes			*
 *-------------------------------------------------------*
 **********
 *
@@ -144,7 +144,7 @@
 
 ;right:
 	label	right
-;	add.l		#$20000,d5
+;	add.l		#0x20000,d5
 	addq.l		#2,a2
 	neg.w		d1
 
@@ -530,7 +530,7 @@
 ;right_transp:
 	label	right_transp
 
-;	add.l		#$20000,d5
+;	add.l		#0x20000,d5
 	addq.l		#2,a2
 	neg.w		d1
 
@@ -794,7 +794,7 @@
 
 ;right_xor:
 	label	right_xor
-;	add.l		#$20000,d5
+;	add.l		#0x20000,d5
 	addq.l		#2,a2
 	neg.w		d1
 	swap		d0
@@ -1020,7 +1020,7 @@
 
 ;right_revtransp:
 	label	right_revtransp
-;	add.l		#$20000,d5
+;	add.l		#0x20000,d5
 	addq.l		#2,a2
 	neg.w		d1
 

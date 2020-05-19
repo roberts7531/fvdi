@@ -34,11 +34,6 @@ endif
 
 
 SINCSRC = \
-	$(top_srcdir)/include/macros.inc \
-	$(top_srcdir)/include/types.inc \
-	$(top_srcdir)/include/vdi.inc \
-	$(top_srcdir)/drivers/include/linea.inc \
-	$(top_srcdir)/drivers/include/pixelmac.inc \
 	$(top_srcdir)/drivers/1_plane/1_expand.inc
 
 SSRC = \
@@ -94,6 +89,13 @@ CSRC += \
 # Defines SSRC_GNU and SINCSRC_GNU variables
 include $(top_srcdir)/utility/conv2gas/RULES
 
+SINCSRC_GNU += \
+	$(top_srcdir)/include/types.inc \
+	$(top_srcdir)/include/macros.gnu \
+	$(top_srcdir)/include/vdi.gnu \
+	$(top_srcdir)/drivers/include/linea.gnu \
+	$(top_srcdir)/drivers/include/pixelmac.gnu
+
 # Engine binary objects
 ifeq ($(CPU),v4e)
 OBJECTS = $(SSRC_GNU_CF:.s=.o)
@@ -102,7 +104,6 @@ OBJECTS = $(SSRC_GNU:.s=.o)
 endif
 OBJECTS += $(CSRC:.c=.o)
 
-# Need to convert the .inc files as well
 $(OBJECTS): $(SINCSRC_GNU)
 
 $(LIBFT2):
@@ -114,7 +115,9 @@ $(TARGET): $(OBJECTS) $(LIBFILES)
 
 $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
 	$(MAKE) -C $(top_srcdir)/utility/structer
-	$(AM_V_GEN)(echo "*****"; \
+	$(AM_V_GEN)( \
+	  echo "*****"; \
+	  echo "*"; \
 	  echo "* fVDI structure declarations, by Johan Klockars"; \
 	  echo "*"; \
 	  echo "* GENERATED AUTOMATICALLY by structer from fvdi.h"; \
@@ -134,9 +137,9 @@ $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
 	  echo "* some such drivers to be commercial, this file is put in"; \
 	  echo "* the public domain. It is not copyrighted or under any sort"; \
 	  echo "* of license."; \
-	  echo "*****"; \
+	  echo "****"; \
 	  echo ; \
-	  $(CC) -E -DANONYMOUS $< | \
+	  $(CC) -E $< | \
 	  $(top_srcdir)/utility/structer/structer \
 	  Virtual=vwk Workstation=wk Fontheader=font MFDB=mfdb \
 	  Colour=colour RGB=rgb List=list Driver=driver \

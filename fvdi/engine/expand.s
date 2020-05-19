@@ -19,8 +19,8 @@ get		equ	1
 mul		equ	1	; Multiply rather than use table
 shift		equ	1
 
-	include		"vdi.inc"
-	include		"pixelmac.inc"
+	.include		"vdi.inc"
+	.include		"pixelmac.inc"
 
 	xdef		_expand_area
 

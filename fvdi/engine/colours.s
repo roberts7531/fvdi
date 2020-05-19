@@ -8,8 +8,8 @@
 
 transparent	equ	1		; Fall through?
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	redirect
 	xref	_lib_vs_color,_lib_vq_color,_lib_vs_fg_color,_lib_vs_bg_color

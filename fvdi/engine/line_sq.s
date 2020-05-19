@@ -8,8 +8,8 @@
 
 transparent	equ	1		; Fall through?
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xdef	vsl_color,vsl_width,vsl_type,vsl_udsty,vsl_ends,vql_attributes
 

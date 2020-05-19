@@ -9,8 +9,8 @@
 transparent	equ	1		; Fall through?
 
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xdef	default_functions,default_opcode5,default_opcode11
 	xdef	_default_functions,_default_opcode5,_default_opcode11

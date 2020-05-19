@@ -8,8 +8,7 @@
 only_16		equ	1
 
 
-;	include		"..\pixelmac.dev"
-	include		"vdi.inc"
+	.include		"vdi.inc"
 
 	xdef		text_area,_text_area
 

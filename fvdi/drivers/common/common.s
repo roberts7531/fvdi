@@ -13,8 +13,8 @@
 both		equ	1	; Write in both FastRAM and on screen
 upto8		equ	0	; Handle 8 bit drawing
 
-	include		"vdi.inc"
-	include		"macros.inc"
+	.include		"vdi.inc"
+	.include		"macros.inc"
 
 	xdef		_line
 	xdef		_set_pixel

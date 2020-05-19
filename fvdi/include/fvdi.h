@@ -390,11 +390,7 @@ typedef struct dev_ {
             short unused[32];
             short reserved[144];
         } bitnumber;
-#ifdef ANONYMOUS
-    };
-#else
     } scrmap;			/* Should be anonymous, but that is not ANSI C */
-#endif
 } Device;
 
 typedef struct Module_ {

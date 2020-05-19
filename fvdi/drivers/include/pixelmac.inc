@@ -1,10 +1,10 @@
   ifne gas
-	include "pixelmac.gnu"
+	.include "pixelmac.gnu"
   else
    ifne lattice
 	include "pixelmac.dev"
    else
-	include "pixelmac.tas"
+	.include "pixelmac.tas"
    endc
   endc
 

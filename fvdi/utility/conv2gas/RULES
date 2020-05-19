@@ -3,9 +3,9 @@
 CONV2GAS = $(top_srcdir)/utility/conv2gas/conv2gas
 PACF ?= pacf
 
-SYMBOLS = --defsym gas=1 --defsym lattice=0
+SYMBOLS = -Wa,--defsym,gas=1 -Wa,--defsym,lattice=0
 ifeq ($(CPU),000)
-	SYMBOLS += --defsym mc68000=1 --defsym mcoldfire=0
+	SYMBOLS += -Wa,--defsym,mc68000=1 -Wa,--defsym,mcoldfire=0
 else ifeq ($(CPU),v4e)
 ifeq (, $(shell which $(PACF)))
     $(info ***)
@@ -15,14 +15,14 @@ ifeq (, $(shell which $(PACF)))
     $(info ***)
     $(error )
 endif
-	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=1
+	SYMBOLS += -Wa,--defsym,mc68000=0 -Wa,--defsym,mcoldfire=1
 else
-	SYMBOLS += --defsym mc68000=0 --defsym mcoldfire=0
+	SYMBOLS += -Wa,--defsym,mc68000=0 -Wa,--defsym,mcoldfire=0
 endif
 ifeq ($(DEBUG),yes)
-	SYMBOLS += --defsym FVDI_DEBUG=1
+	SYMBOLS += -Wa,--defsym,FVDI_DEBUG=1
 else
-	SYMBOLS += --defsym FVDI_DEBUG=0
+	SYMBOLS += -Wa,--defsym,FVDI_DEBUG=0
 endif
 
 
@@ -50,8 +50,11 @@ PORTASM_FLAGS = \
 	-nowarning 402,502,600,900,1111,1150,1700 \
 	-noerrfile
 
+comma = ,
+empty =
+space = $(empty) $(empty)
 # externally defined assembler symbols syntax to pacf style
-PACF_SYMBOLS = $(subst --defsym,-define,$(SYMBOLS))
+PACF_SYMBOLS = $(subst -Wa$(comma)--defsym$(comma),-define$(space),$(SYMBOLS))
 PORTASM_FLAGS += $(PACF_SYMBOLS)
 
 # include paths. Better pass a variable suitable for gas _and_ pacf from toplevel?
@@ -72,7 +75,7 @@ $(SSRC_GNU_CF): $(SSRC_GNU) $(SINCSRC_GNU)
 
 # Assember for .gnu
 %.cf_gnu.o: %.cf_gnu.s
-	$(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ $<
+	$(AM_V_AS)$(AS) $(ASFLAGS) -o $@ $<
 
 endif
 
@@ -87,7 +90,7 @@ endif
 
 # Assember for .gnu
 %.gnu.o: %.gnu.s
-	$(AM_V_AS)$(AS) $(ASFLAGS) $(SYMBOLS) -o $@ $<
+	$(AM_V_AS)$(CC) -x assembler-with-cpp $(ASFLAGS) $(SYMBOLS) -c -o $@ $<
 
 clean_gnu:
-	$(RM) $(SINCSRC_GNU) *.gnu.s *.cf_gnu.s *.cf_gnu.se *.inf *.ino
+	$(RM) *.inc.gnu *.gnu.s *.cf_gnu.s *.cf_gnu.se *.inf *.ino

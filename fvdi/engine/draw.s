@@ -11,8 +11,8 @@ transparent	equ	1		; Fall through?
 
 ;max_arc_count	equ	256
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	clip_point,clip_line,clip_rect
 	xref	setup_plot,tos_colour

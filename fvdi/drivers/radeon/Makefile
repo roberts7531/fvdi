@@ -24,11 +24,6 @@ CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(BAS_INCLUDE) -I$(top_srcdir)/includ
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
-	$(top_srcdir)/include/macros.inc \
-	$(top_srcdir)/include/types.inc \
-	$(top_srcdir)/include/vdi.inc \
-	$(top_srcdir)/drivers/include/linea.inc \
-	$(top_srcdir)/drivers/include/pixelmac.inc \
 	$(top_srcdir)/drivers/1_plane/1_expand.inc
 
 SSRC = \
@@ -53,6 +48,13 @@ CSRC = \
 # defines SSRC_GNU and SINCSRC_GNU variables
 include $(top_srcdir)/utility/conv2gas/RULES
 
+SINCSRC_GNU += \
+	$(top_srcdir)/include/types.inc \
+	$(top_srcdir)/include/macros.gnu \
+	$(top_srcdir)/include/vdi.gnu \
+	$(top_srcdir)/drivers/include/linea.gnu \
+	$(top_srcdir)/drivers/include/pixelmac.gnu
+
 # engine binary objects
 ifeq ($(CPU),v4e)
 OBJECTS = $(SSRC_GNU_CF:.s=.o)
@@ -61,7 +63,6 @@ OBJECTS = $(SSRC_GNU:.s=.o)
 endif
 OBJECTS += $(CSRC:.c=.o)
 
-# need to convert the .inc file as well
 $(OBJECTS): $(SINCSRC_GNU)
 
 $(TARGET): $(OBJECTS) $(LIBFILES)

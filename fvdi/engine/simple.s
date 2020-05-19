@@ -8,8 +8,8 @@
 
 transparent	equ	1		; Fall through?
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	_v_opnwk,_v_opnvwk,_v_clsvwk,_v_clswk
 	xref	_vq_devinfo

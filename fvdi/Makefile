@@ -23,7 +23,7 @@ sizecheck:
 			$(MAKE) clean >/dev/null;  \
 			$(MAKE) -j8 CC="$$cc" >/dev/null 2>&1; \
 			$(MAKE) -C drivers/firebee clean >/dev/null;  \
-			$(MAKE) -j8 CC="$$cc" CPU=v4e -C drivers/firebee >/dev/null; \
+			: $(MAKE) -j8 CC="$$cc" CPU=v4e -C drivers/firebee >/dev/null; \
 			echo $$cc; \
 			ls -l engine/*.prg; \
 			if test "$$ft2" == ""; then ls -l drivers/16_bit/16_bit.sys drivers/aranym/aranym.sys drivers/bitplane/bitplane.sys drivers/firebee/firebee.sys drivers/saga/saga.sys drivers/uaegfx/uaegfx.sys; fi; \

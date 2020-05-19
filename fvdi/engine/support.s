@@ -8,8 +8,8 @@
 
 transparent	equ	1		; Fall through?
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	_old_wk_handle
 	xref	_cpu

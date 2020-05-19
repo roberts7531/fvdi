@@ -8,8 +8,8 @@
 
 transparent	equ	1		; Fall through?
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	clip_point,clip_line
 	xref	setup_plot,tos_colour

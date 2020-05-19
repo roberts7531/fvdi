@@ -1,10 +1,10 @@
   ifne gas
-	include "macros.gnu"
+	.include "macros.gnu"
   else
    ifne lattice
 	include "macros.dev"
    else
-	include "macros.tas"
+	.include "macros.tas"
    endc
   endc
 

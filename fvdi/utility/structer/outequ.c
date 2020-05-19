@@ -6,7 +6,7 @@
  * Please, see LICENSE.TXT for further information.
  */
 
-#undef GIVE_UP_ON_ERROR
+#define GIVE_UP_ON_ERROR
 
 #include "misc.h"
 #include "expr.h"
@@ -16,11 +16,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #undef TEST
 #define OT(text)     if (opt & 0x04) printf("outequ.c: %s\n", text)
 
-static char *outer[10];
+static const char *outer[10];
 static int count;
 
 #ifdef GIVE_UP_ON_ERROR
@@ -37,14 +38,20 @@ static int list_to_equ(char *base, List defs, int pos, List all_defs, int *size)
 static int ulist_to_equ(char *base, List defs, int pos, List all_defs, int *size);
 
 
-static void push(char *name)
+static void push(const char *name)
 {
+    if (count >= (int)(sizeof(outer) / sizeof(outer[0])))
+    {
+        fprintf(stderr, "structure nested too deeply\n");
+        EXIT(1);
+	}
     outer[count] = name;
     count++;
 }
 
 static void pop(void)
 {
+    assert(count > 0);
     count--;
 }
 
@@ -58,7 +65,7 @@ static void out(const char *name, int pos)
         if (outer[i])
             printf("%s_", outer[i]);
     }
-    printf("%s\tequ\t%d\n", name, pos);
+    printf("%s\t=\t%d\n", name, pos);
 }
 
 
@@ -308,7 +315,9 @@ void convert(char *name, List defs)
         *equ_name = '\0';
         equ_name++;
     } else
+    {
         equ_name = name;
+    }
     size = 0;
 
     ptr = FIRST(defs);
@@ -398,9 +407,12 @@ void convert(char *name, List defs)
         }
         NEXT(ptr);
     }
+    assert(count == 0);
     if (size)
     {
         size = ALIGN(size);
-        printf("%s_struct_size\tequ\t%d\n\n", equ_name, size);
+        push(equ_name);
+        out("struct_size", size);
+        pop();
     }
 }

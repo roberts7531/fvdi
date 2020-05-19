@@ -6,7 +6,7 @@
 * This software is licensed under the GNU General Public License.
 * Please, see LICENSE.TXT for further information.
 
-	include		"vdi.inc"
+	.include		"vdi.inc"
 
 colour_bits	equ	8
 

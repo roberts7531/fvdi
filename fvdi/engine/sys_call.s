@@ -2,7 +2,7 @@
 *   System routines modified from BAD MOOD   *
 *============================================*
 
-	include	"macros.inc"
+	.include	"macros.inc"
 
 	xref		_sub_call
 

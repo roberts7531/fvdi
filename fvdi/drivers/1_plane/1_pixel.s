@@ -12,8 +12,8 @@ get		equ	1
 mul		equ	1	; Multiply rather than use table
 shift		equ	1
 
-	include		"pixelmac.inc"
-	include		"vdi.inc"
+	.include		"pixelmac.inc"
+	.include		"vdi.inc"
 
 	xdef		_write_pixel
 	xdef		_read_pixel

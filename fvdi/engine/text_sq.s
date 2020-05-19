@@ -10,8 +10,8 @@ transparent	equ	1		; Fall through?
 
 SUB1		equ	0		; Subtract 1 from text width? (NVDI apparently doesn't)
 
-	include	"vdi.inc"
-	include	"macros.inc"
+	.include	"vdi.inc"
+	.include	"macros.inc"
 
 	xref	_vdi_stack_top,_vdi_stack_size
 	xref	_external_vst_point,_external_vqt_extent,_external_vqt_width

@@ -10,8 +10,8 @@
 * of license.
 *****
 
-	include		"vdi.inc"
-	include		"macros.inc"
+	.include		"vdi.inc"
+	.include		"macros.inc"
 
 	xdef		_c_line
 	xdef		_c_set_pixel

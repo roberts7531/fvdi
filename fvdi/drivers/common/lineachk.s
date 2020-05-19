@@ -9,9 +9,9 @@ doaline		equ	0	; Do actual drawing w/ linea (clip)
 mul		equ	1	; Multiply rather than use table
 shift		equ	1
 
-	include		"vdi.inc"
+	.include		"vdi.inc"
   ifne	doaline
-	include		"linea.inc"
+	.include		"linea.inc"
   endc
 
 	xdef		_check_linea

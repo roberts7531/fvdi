@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 			{
 				/* External declaration */
 				while (get_token(&ptr, token2, ','))
-					printf("*\t.external\t%s\n", token2);
+					printf("\t.xref\t%s\n", token2);
 				found = 1;
 			} else if (strcmp("xdef", token1) == 0)
 			{
@@ -151,6 +151,16 @@ int main(int argc, char **argv)
 				len = (int)strlen(token2);
 				token2[len - 1] = '\0';
 				printf("\t.include %s.gnu\"\n", token2);
+				found = 1;
+			} else if (strcmp(".include", token1) == 0)
+			{
+				/* Global declaration */
+				get_token(&ptr, token2, ',');
+				len = (int)strlen(token2) - 1;
+				token2[len] = '\0';
+				if (len > 4 && strcmp(&token2[len - 4], ".inc") == 0 && strcmp(token2, "types.inc") != 0)
+					strcpy(&token2[len - 4], ".gnu");
+				printf("\t.include %s\"\n", token2);
 				found = 1;
 			} else if (strcmp("dc.b", token1) == 0)
 			{
