@@ -37,7 +37,6 @@ transparent	equ	1		; Fall through?
 * In:	a1	Parameter block
 *	a0	VDI struct
 v_gtext:
-;	use_special_stack
 	sub.l	#10,a7
 	move.l	intin(a1),a2
 	move.l	a2,4(a7)	; String
@@ -137,7 +136,6 @@ _draw_text:
 * In:	a1	Parameter block
 *	a0	VDI struct
 v_ftext:
-;	use_special_stack
 	sub.l	#14,a7
 	move.l	intin(a1),a2
 	move.l	a2,4(a7)	; String
@@ -231,7 +229,6 @@ lib_v_ftext_offset:
 * In:	a1	Parameter block
 *	a0	VDI struct
 v_justified:
-;	use_special_stack
 	sub.l	#16,a7
 	move.l	intin(a1),a2
 	move.l	(a2)+,12(a7)	; Flags

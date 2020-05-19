@@ -99,7 +99,6 @@ static char vdi_stack[8192];   /* Used to be 2048, but Standa wants 8192 for Fre
 char *vdi_stack_top = &vdi_stack[sizeof(vdi_stack)];
 long vdi_stack_size = sizeof(vdi_stack);
 
-static long stack_address;
 
 static long bconout_hook(void)
 {
@@ -228,8 +227,6 @@ long startup(void)
     {
         Supexec(bconout_hook); /* cannot use Setexc() as the 0x586 is not divisible by 4 */;
     }
-
-    stack_address = (long)vdi_stack;
 
     kprintf("fVDI v%d.%d", VERmaj, VERmin);
     if (BETA)

@@ -104,7 +104,6 @@ lib_v_get_pixel:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_bar:
-;	use_special_stack
 	uses_d1
 	move.l	ptsin(a1),a1
 	bsr	lib_v_bar
@@ -196,7 +195,6 @@ lib_v_bar:
 * In:   a1      Parameter block
 *       a0      VDI struct
 vr_recfl:
-;	use_special_stack
 	uses_d1
 	move.l	ptsin(a1),a1
 	bsr	lib_vr_recfl
@@ -475,7 +473,6 @@ _default_fill:
 * In:   a1      Parameter block
 *       a0      VDI struct
 vrt_cpyfm:
-;	use_special_stack
 	sub.l	#18,a7
 	move.l	intin(a1),a2
 	move.w	(a2)+,0(a7)	; Mode
@@ -700,7 +697,6 @@ _default_expand:
 * In:   a1      Parameter block
 *       a0      VDI struct
 vro_cpyfm:
-;	use_special_stack
 	sub.l	#14,a7
 	move.l	intin(a1),a2
 	move.w	(a2),0(a7)	; Mode
@@ -985,7 +981,6 @@ inverse_table:
 * In:   a1      Parameter block
 *       a0      VDI struct
 vr_trn_fm:
-;	use_special_stack
 	move.l	control(a1),a2
 	lea	14(a2),a1
 	bsr	lib_vr_trn_fm

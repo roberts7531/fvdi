@@ -1,13 +1,5 @@
 mcoldfire equ 0
 
-  ifb	stack
-	xref	stack_address
-	xref	vdi_stack
-  endc
-
-special_stack	set	0
-SPECIAL_STACK_SIZE	equ	512
-
   ifnb	xbra_chain
 	xref	vdi_address
   endc
@@ -39,11 +31,6 @@ SPECIAL_STACK_SIZE	equ	512
 
 	macro	return
 	local	do_rte
-  ifne	special_stack
-	move.l	(a7)+,a7
-	add.l	#SPECIAL_STACK_SIZE,stack_address
-special_stack	set	0
-  endc
 	restore_regs
   if transparent
 	tst.w	_stand_alone
@@ -59,11 +46,6 @@ special_stack	set	0
 	endm
 
 	macro	real_return
-  ifne	special_stack
-	move.l	(a7)+,a7
-	add.l	#SPECIAL_STACK_SIZE,stack_address
-special_stack	set	0
-  endc
 	restore_regs
 	rte
 	endm
@@ -74,23 +56,6 @@ special_stack	set	0
   else
 	return
   endc
-	endm
-
-	macro	use_special_stack
-	local	ok
-special_stack	set	1
-	move	sr,d0
-	or	#$700,sr
-	move.l	stack_address,a2
-	cmp.l	#vdi_stack,a2
-	beq	.&ok
-	illegal
-.&ok:
-	move.l	a7,-(a2)
-	move.l	a2,a7
-	sub.w	#SPECIAL_STACK_SIZE-4,a2
-	move.l	a2,stack_address
-	move	d0,sr
 	endm
 
 	macro	ijsr indirect

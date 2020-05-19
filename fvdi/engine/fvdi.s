@@ -20,7 +20,6 @@ MAX_HANDLE	equ	HANDLES		;  also in setup.c
 SCREENDEV	equ	7		; Any better ideas?
 
 xbra_chain	equ	1		; Don't want xref for vdi_address
-stack		equ	1		; nor for vdi_stack and stack_address
 
 fvdi_magic	equ	1969
 

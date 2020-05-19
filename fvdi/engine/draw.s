@@ -189,7 +189,6 @@ _lib_v_pline:
 	move.l	4(a7),a0		; VDI structure
 	move.l	8(a7),a1		; lib_v_pline args
 lib_v_pline:
-;	use_special_stack
 ;	move.w	#0,d0			; Background colour
 ;	swap	d0
 	move.l	vwk_line_colour(a0),d0
@@ -562,7 +561,6 @@ _default_line:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_circle:
-;	use_special_stack
 	move.l	ptsin(a1),a2
 	move.w	8(a2),4(a2)
 	move.w	8(a2),6(a2)
@@ -574,7 +572,6 @@ v_circle:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_arc:
-;	use_special_stack
 	move.l	ptsin(a1),a2
 	move.w	12(a2),4(a2)
 	move.w	12(a2),6(a2)
@@ -586,7 +583,6 @@ v_arc:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_pie:
-;	use_special_stack
 	move.l	ptsin(a1),a2
 	move.w	12(a2),4(a2)
 	move.w	12(a2),6(a2)
@@ -702,7 +698,6 @@ v_ellpie:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_ellipse:
-;	use_special_stack
 	uses_d1
 	move.l	d2,-(a7)
 
@@ -804,7 +799,6 @@ lib_v_rfbox:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_pmarker:
-;	use_special_stack
 ;	move.w	#0,d0			; Background colour
 ;	swap	d0
 	move.l	vwk_marker_colour(a0),d0
@@ -841,7 +835,6 @@ v_pmarker:
 * In:   a1      Parameter block
 *       a0      VDI struct
 v_fillarea:
-;	use_special_stack
 	uses_d1
 	move.l	control(a1),a2
 

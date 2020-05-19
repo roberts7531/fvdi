@@ -277,9 +277,6 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
         wk->screen.palette.size = Min(1L << wk->screen.mfdb.bitplanes, MAX_PALETTE);
         wk->screen.mfdb.address = (void *)Physbase();
         wk->screen.mfdb.wdwidth = wk->screen.mfdb.width / 16;
-#if 0
-        wk->screen.logical = Logical();
-#endif
 
         if ((default_palette = (Colour *) access->funcs.malloc(wk->screen.palette.size * sizeof(Colour), 3)) == NULL)
         {
