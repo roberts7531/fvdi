@@ -36,7 +36,7 @@ LDEFS=\
 M68K_ATARI_MINT_LDFLAGS += $(LDEFS) -Wl,-Map,mapfile
 
 SINCSRC = \
-	$(top_srcdir)/drivers/1_plane/1_expand.inc
+	$(top_srcdir)/drivers/bitplane/1_expand.inc
 
 SSRC = \
 	../common/c_common.s \

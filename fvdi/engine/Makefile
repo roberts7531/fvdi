@@ -18,7 +18,6 @@ srcdir     = .
 include $(top_srcdir)/CONFIGVARS
 
 CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/modules/include
-ASFLAGS := $(ASFLAGS) -I$(top_srcdir)/drivers/1_plane
 
 LDFLAGS += --mprg-flags=0x27
 
@@ -34,7 +33,7 @@ endif
 
 
 SINCSRC = \
-	$(top_srcdir)/drivers/1_plane/1_expand.inc
+	$(top_srcdir)/drivers/bitplane/1_expand.inc
 
 SSRC = \
 	fvdi.s \

@@ -58,7 +58,7 @@ PACF_SYMBOLS = $(subst -Wa$(comma)--defsym$(comma),-define$(space),$(SYMBOLS))
 PORTASM_FLAGS += $(PACF_SYMBOLS)
 
 # include paths. Better pass a variable suitable for gas _and_ pacf from toplevel?
-PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include,$(top_srcdir)/drivers/1_plane
+PORTASM_INCLUDE = -i $(top_srcdir)/include,$(top_srcdir)/drivers/include
 
 # intermediate filenames for PortAsm output
 SSRC_GNU_CF    = $(SSRC:.s=.cf_gnu.s)

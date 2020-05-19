@@ -13,7 +13,6 @@ fvdi_pc.prg
 .S[-S]
 .S[-I..\include]
 .S[-I..\drivers\include]
-.S[-I..\drivers\1_plane]
 =
 fvdi.s		(..\include\vdi.inc, ..\include\types.inc, ..\include\macros.tas)
 blit.s		(..\include\vdi.inc, ..\include\types.inc, ..\include\macros.tas)

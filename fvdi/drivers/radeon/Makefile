@@ -24,7 +24,7 @@ CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(BAS_INCLUDE) -I$(top_srcdir)/includ
 ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
-	$(top_srcdir)/drivers/1_plane/1_expand.inc
+	$(top_srcdir)/drivers/bitplane/1_expand.inc
 
 SSRC = \
 	../common/c_common.s \

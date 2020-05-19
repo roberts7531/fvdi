@@ -323,13 +323,13 @@ revtransp:
 shadow	set	0
 oldboth	set	both
 both	set	0
-	include		"1_expand.inc"
+	include		"../drivers/bitplane/1_expand.inc"
 
 ; Shadow mode, if asked for
 both	set	oldboth
   ifne both
 shadow	set	1
-	include		"1_expand.inc"
+	include		"../drivers/bitplane/1_expand.inc"
   endc
 
 
