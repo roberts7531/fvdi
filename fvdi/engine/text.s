@@ -75,19 +75,6 @@ lib_v_gtext:
 ;	add.w	#1,d1		; Was right coordinate, need width
 	add.w	#16+16,a7
 	movem.l	(a7)+,d2/a0-a2
-  ifne 0
-	movem.l	a0-a1,-(a7)
-	sub.w	#8*2,a7
-	pea	(a7)
-	move.l	4(a1),-(a7)
-	move.w	8(a1),-(a7)
-	move.l	a7,a1
-	bsr	lib_vqt_extent
-	move.w	10+4(a7),d1
-;	add.w	#1,d1		; Was right coordinate, need width
-	add.w	#10+16,a7
-	movem.l	(a7)+,a0-a1
-  endc
 	cmp.w	#2,vwk_text_alignment_horizontal(a0)
 	beq	.right_justified
 	lsr.w	#1,d1 
@@ -860,29 +847,20 @@ bold:
 	subq.w	#1,d3
 	subq.w	#1,d7
 .lines_b:
-	ifne 1
 	moveq	 #0,d1
-	endc
 	move.w	d3,d6
 .words_b:
-	ifne 1
 	move.w	(a0)+,d0
 	move.w	d0,d1
 	swap	d0
 	move.w	d1,d0		; Remember in top word
-	else
-	move.l	(a0)+,d1	; Doesn't work in place
-	addq.l	#2,a0  
-	endc
 	move.w	d4,d5
 .shifts_b:
 	lsr.l	#1,d1
 	or.w	d1,d0
 	dbra	d5,.shifts_b
 	move.w	d0,(a1)+
-	ifne 1
 	move.l	d0,d1		; Restore top word
-	endc
 	dbra	d6,.words_b
 	add.l	a6,a0
 	add.l	a6,a1
@@ -981,33 +959,6 @@ outline:
 	rts
 
 dscale:
-  ifne 0
-	move.w	(a0)+,d0
-	moveq	#15,d5
-	moveq	#15,d7
-	add.w	d0,d0
-	scs	d6
-.put_d:
-	add.w	d3,d3
-	sub.b	d6,d3
-	subq.w	#1,d7
-	bpl	.no_write_d
-	move.w	d3,(a1)+
-	moveq	#15,d7
-.no_write_d:
-	subq.w	#1,d5
-	bpl	.no_fetch_d
-	subq.w	#1,d4
-	bmi	.finished_d
-	move.w	(a0)+,d0
-	moveq	 #15,d5
-.no_fetch_d:
-	add.w	d0,d0
-	scs	d6
-	add.w	d1,d2
-	bvc	.no_write_d
-	bra	.put_d	
-  else
 	moveq	#15,d7
 .not_finished_d:
 	move.w	(a0)+,d0
@@ -1029,7 +980,6 @@ dscale:
 	add.w	d0,d0
 	dbra	d5,.no_fetch_d
 	dbra	d4,.not_finished_d
-  endc
 .finished_d:
 	cmp.w	#15,d7
 	bne	.done_d
@@ -1039,33 +989,6 @@ dscale:
 	rts
 
 uscale:
-  ifne 0
-	move.w	(a0)+,d0
-	moveq	#15,d5
-	moveq	#15,d7
-	add.w	d0,d0
-	scs	d6
-.put_u:
-	add.w	d3,d3
-	sub.b	d6,d3
-	subq.w	#1,d7
-	bpl	.no_write_u
-	move.w	d3,(a1)+
-	moveq	#15,d7
-.no_write_u:
-	add.w	d1,d2
-	bvc	.put_u
-	subq.w	#1,d5
-	bpl	.no_fetch_u
-	subq.w	#1,d4
-	bmi	.finished_u
-	move.w	(a0)+,d0
-	moveq	 #15,d5
-.no_fetch_u:
-	add.w	d0,d0
-	scs	d6
-	bra	.put_u
-  else
 	moveq	#15,d7
 .not_finished_u:
 	move.w	(a0)+,d0
@@ -1085,7 +1008,6 @@ uscale:
 	dbra	d5,.no_fetch_u
 	dbra	d4,.not_finished_u
 	bra	.finished_u
-  endc
 .finished_u:
 	cmp.w	#15,d7
 	bne	.done_u

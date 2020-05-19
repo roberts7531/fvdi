@@ -11,7 +11,6 @@
 *****
 
 both		equ	1	; Write in both FastRAM and on screen
-upto8		equ	0	; Handle 8 bit drawing
 
 	.include		"vdi.inc"
 	.include		"macros.inc"
@@ -28,7 +27,6 @@ upto8		equ	0	; Handle 8 bit drawing
 	xdef		_set_palette
 	xdef		_colour
 	xdef		_initialize_palette
-	xdef		_get_colour_masks
 
 	xref		_line_draw_r,_write_pixel_r,_read_pixel_r,_expand_area_r
 	xref		_fill_area_r,_fill_poly_r,_blit_area_r,_text_area_r,_mouse_draw_r
@@ -58,7 +56,7 @@ upto8		equ	0	; Handle 8 bit drawing
 *     engine/vdi_misc.s: setup_blit (various blit routines)
 *---------
 _set_pixel:
-	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
+	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both
 
 	move.l		a0,a1
 
@@ -105,7 +103,7 @@ _set_pixel:
 *     engine/vdi_misc.s: setup_blit (various blit routines)
 *---------
 _get_pixel:
-	movem.l		d1-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
+	movem.l		d1-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both
 
 	move.l		a0,a1
 	
@@ -142,7 +140,7 @@ _get_pixel:
 *     engine/draw.s: lib_v_bez_fill
 *---------
 _line:
-	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
+	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both
 
 	move.l		a0,a1
 	exg		d0,d6
@@ -249,7 +247,7 @@ _line:
 *     engine/blit.s: lib_vrt_cpyfm
 *---------
 _expand:
-	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3(/6)/4(/6)/6 for normal/both/upto8
+	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3(/6)/4(/6)/6 for normal/both
 
 	move.l		a0,a1
 
@@ -300,7 +298,7 @@ _expand:
 *     engine/draw.s: fill_spans
 *---------
 _fill:
-	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
+	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both
 
 	move.l		a0,a1
 
@@ -308,37 +306,6 @@ _fill:
 ; of the background colour on the stack.
 ; That's needed for non-solid replace mode.
 ; None of this is any kind of good idea except for bitplanes!
-
-  ifne 0
-; ******************** Should probably use get_colour_masks like the rest **************
-	lea		_colour,a3
-    ifne	upto8
-;	move.w		d0,d5
-;	lsr.w		#1,d5			; (d5 >> 4) << 3
-;	and.w		#$0078,d5
-;	move.l		(a3,d5.w),a5
-;	move.l		4(a3,d5.w),a6
-	move.l		d0,d5
-	lsr.l		#1,d5			; (d5 >> 4) << 3
-	and.l		#$00780078,d5
-	swap		d5
-	pea		(a3,d5.w)
-	swap		d5
-	move.l		(a3,d5.w),a5
-	move.l		4(a3,d5.w),a6
-    endc
-;	and.w		#$000f,d0
-;	lsl.w		#3,d0
-;	move.l		(a3,d0.w),a2
-;	move.l		4(a3,d0.w),a3
-	and.l		#$000f000f,d0
-	lsl.l		#3,d0
-	swap		d0
-	pea		0(a3,d0.w)
-	swap		d0
-	move.l		0(a3,d0.w),a2
-	move.l		4(a3,d0.w),a3
-  endc
 
 	exg		d4,d0
 ;	move.w		d4,d0
@@ -355,26 +322,10 @@ _fill:
 	tst.l		d0
 	lbgt		.l1,1
 	lbmi		.l2,2
-  ifne 0
-    ifeq	upto8
-	addq.l		#4,a7
-    endc
-    ifne	upto8
-	addq.l		#8,a7
-    endc
-  endc
 	move.l		_fallback_fill,d0
 	bra		give_up
 
  label .l1,1
-  ifne 0
-    ifeq	upto8
-	addq.l		#4,a7
-    endc
-    ifne	upto8
-	addq.l		#8,a7
-    endc
-  endc
 	movem.l		(a7)+,d0-d7/a0-a6
 	rts
 
@@ -435,7 +386,7 @@ _fill:
 *     engine/draw.s: _fill_poly
 *---------
 _fillpoly:
-	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
+	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both
 
 	move.l		a0,a1
 
@@ -443,37 +394,6 @@ _fillpoly:
 ; of the background colour on the stack.
 ; That's needed for non-solid replace mode.
 ; None of this is any kind of good idea except for bitplanes!
-
-  ifne 0
-; ******************** Should probably use get_colour_masks like the rest **************
-	lea		_colour,a3
-    ifne	upto8
-;	move.w		d0,d5
-;	lsr.w		#1,d5			; (d5 >> 4) << 3
-;	and.w		#$0078,d5
-;	move.l		(a3,d5.w),a5
-;	move.l		4(a3,d5.w),a6
-	move.l		d0,d5
-	lsr.l		#1,d5			; (d5 >> 4) << 3
-	and.l		#$00780078,d5
-	swap		d5
-	pea		(a3,d5.w)
-	swap		d5
-	move.l		(a3,d5.w),a5
-	move.l		4(a3,d5.w),a6
-    endc
-;	and.w		#$000f,d0
-;	lsl.w		#3,d0
-;	move.l		(a3,d0.w),a2
-;	move.l		4(a3,d0.w),a3
-	and.l		#$000f000f,d0
-	lsl.l		#3,d0
-	swap		d0
-	pea		0(a3,d0.w)
-	swap		d0
-	move.l		0(a3,d0.w),a2
-	move.l		4(a3,d0.w),a3
-	endc
 
 	swap	d2
 	move.w	d4,d2
@@ -488,26 +408,10 @@ _fillpoly:
 	lbmi		.l2,2
 
  label .l2,2
-  ifne 0
-    ifeq	upto8
-	addq.l		#4,a7
-    endc
-    ifne	upto8
-	addq.l		#8,a7
-    endc
-  endc
 	move.l		_fallback_fillpoly,d0
 	bra		give_up
 
  label .l1,1
-  ifne 0
-    ifeq	upto8
-	addq.l		#4,a7
-    endc
-    ifne	upto8
-	addq.l		#8,a7
-    endc
-  endc
 	movem.l		(a7)+,d0-d7/a0-a6
 	rts
 
@@ -528,7 +432,7 @@ _fillpoly:
 *     engine/blit.s: lib_vro_cpyfm
 *---------
 _blit:
-	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both/upto8
+	movem.l		d0-d7/a0-a6,-(a7)	; Used to have -3/4/6 for normal/both
 
 	move.l		a0,a1
 
@@ -655,7 +559,6 @@ _colour:
 	rts
 
 
-  ifne	1
 *---------
 * Set palette colours
 * initialize_palette(Virtual *vwk, int start, int n, int requested[][3], Colour palette[])
@@ -675,37 +578,6 @@ _initialize_palette:
 	ijsr		_set_colours_r
 
 	movem.l		(a7)+,d0-d7/a0-a6
-	rts
-  endc
-
-
-*---------
-* Get colour masks
-* get_colour_masks(int colour)
-* In:	d0	background colour, foreground colour
-* Out:	a2-a3	First four colour bits
-*	a5-a6	Last four colour bits (only when 'upto8')
-*	d0	Pointer to colour bits for background
-* XXX:	d0
-*---------
-_get_colour_masks:
-	lea		_mask,a3
-  ifne	upto8
-	move.w		d0,a2
-	lsr.l		#1,d0			; (d5 >> 4) << 3
-	and.l		#$00780078,d0
-	move.l		(a3,d0.w),a5
-	move.l		4(a3,d0.w),a6
-	move.w		a2,d0
-  endc
-	and.l		#$000f000f,d0
-	lsl.l		#3,d0
-	swap		d0
-	pea		0(a3,d0.w)
-	swap		d0
-	move.l		0(a3,d0.w),a2
-	move.l		4(a3,d0.w),a3
-	move.l		(a7)+,d0
 	rts
 
 

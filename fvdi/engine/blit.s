@@ -7,7 +7,6 @@
 *****
 
 transparent	equ	1		; Fall through?
-lookup32	equ	0		; Palette lookup for 32 bit vr_trn_fm?
 
 	.include	"vdi.inc"
 	.include	"macros.inc"
@@ -1347,104 +1346,11 @@ to_standard_ip:			; Should have code for chunky modes (working on it)
 	bra	end_vr_trn_fm
 
 .not_8bit_ts_ip:
-;	move.w	d1,d6			; Copy source to destination since the
-;	mulu	d2,d6			;  current dechunk routine is in-place
-;	mulu	d0,d6			; d6 = pix/16 * planes * height * 2 = total words
-;
-;	subq.l	#1,d6
-;	move.l	a3,a5
-;	move.l	a4,a6
-;5$:
-;	move.w	(a5)+,(a6)+
-;	dbra	d6,5$
 
 	cmp.w	#32,d2
 	bne	.not_32bit_ts_ip
 	bsr	to_standard_32
 	bra	end_vr_trn_fm
-
-
-  ifne 0
-	cmp.w	#16,d2
-	bne	.not_16bit_ts_ip
-
-	cmp.w	#1,d1
-	bne	.can_not_do_this_yet
-	cmp.w	#16,mfdb_width(a1)
-	bne	.can_not_do_this_yet
-
-	move.w	(a3),d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-	move.w	d7,d6
-	and.w	#$8000,d6
-	move.w	d6,(a4)+
-	add.w	d7,d7
-
-	bra	end_vr_trn_fm
-
-.can_not_do_this_yet:
-.not_16bit_ts_ip:
-	bra	end_vr_trn_fm
-  endc
 
 
 .not_32bit_ts_ip:
@@ -1599,49 +1505,12 @@ finish_up:
 	move.w	0(a3,d4),d5
 	add.w	d5,d5
 
-  ifne lookup32
-	addx.l	d6,d6
-;	roxr.l	#1,d6		; This _is_ the right one!
-	move.w	d5,0(a3,d4)
-	subq.w	#2,d4
-	lbpl	.loop3b,3
-
-	and.w	#$00ff,d6		; Higher palette entries aren't possible (optimize above!)
-
-	cmp.b	#16,d6
-	lblo	.lookup,5		; 0-15
-	cmp.b	#255,d6
-	lbne	.colour_ok,6		; 16-254
-	moveq	#1,d6
-	lbra	.colour_ok,6
-
- label .lookup,5
-	move.b	0(a6,d6),d6
-
- label .colour_ok,6
-
-;	add.w	d6,d6
-;	move.w	0(a6,d6),d6		; Convert to real
-	lsl.w	#4,d6			; Assume 16 byte palette entries
-	move.l	12(a5,d6),d5
-	ror.w	#8,d5
-	swap	d5
-	ror.w	#8,d5
-	swap	d5
-;	rol.l	#8,d5
-;	swap	d5
-;	ror.w	#8,d5
-;	swap	d5
-	move.l	d5,(a4)+
-  else
-;	addx.l	d6,d6
 	roxr.l	#1,d6		; This _is_ the right one!
 	move.w	d5,0(a3,d4)
 	subq.w	#2,d4
 	lbpl	.loop3b,3
 
 	move.l	d6,(a4)+
-  endc
 
  label .skipb,4
 	ldbra	d3,.loop2b,2
@@ -1713,50 +1582,3 @@ rotate_mem:
 
 vdi_colours:
 	dc.b	0,2,3,6,4,7,5,8,9,10,11,14,12,15,13,255
-
-*
-* Now, ain't chunky<->planar and standard<->devspec fun?!?
-*
- ifne 0
-1a1b1c2a2b2c3a3b3c4a4b4c
-1a2a2b2c3a3b3c4a4b4c1b1c
-1a2a3a3b3c4a4b4c1b1c2b2c
-1a2a3a4a4b4c1b1c2b2c3b3c
-1a2a3a4a1b1c2b2c3b3c4b4c
-1a2a3a4a1b2b2c3b3c4b4c1c
-1a2a3a4a1b2b3b3c4b4c1c2c
-1a2a3a4a1b2b3b4b4c1c2c3c
-1a2a3a4a1b2b3b4b1c2c3c4c ***
-1a1b2b3b4b1c2c3c4c2a3a4a
-1a1b1c2c3c4c2a3a4a2b3b4b
-1a1b1c2a3a4a2b3b4b2c3c4c
-1a1b1c2a2b3b4b2c3c4c3a4a
-1a1b1c2a2b2c3c4c3a4a3b4b
-1a1b1c2a2b2c3a4a3b4b3c4c
-1a1b1c2a2b2c3a3b4b3c4c4a
-1a1b1c2a2b2c3a3b3c4c4a4b
-1a1b1c2a2b2c3a3b3c4a4b4c ***
-
-
-1a1b1c1A1B1C2a2b2c2A2B2C3a3b3c3A3B3C4a4b4c4A4B4C
-1a2a2b2c2A2B2C3a3b3c3A3B3C4a4b4c4A4B4C1b1c1A1B1C
-1a2a3a3b3c3A3B3C4a4b4c4A4B4C1b1c1A1B1C2b2c2A2B2C
-1a2a3a4a4b4c1b1c2b2c3b3c
-1a2a3a4a1b1c2b2c3b3c4b4c
-1a2a3a4a1b2b2c3b3c4b4c1c
-1a2a3a4a1b2b3b3c4b4c1c2c
-1a2a3a4a1b2b3b4b4c1c2c3c
-1a2a3a4a1b2b3b4b1c2c3c4c1A2A3A4A1B2B3B4B1C2C3C4C ***
-1a1b2b3b4b1c2c3c4c1A2A3A4A1B2B3B4B1C2C3C4C2a3a4a
-1a1b1c2c3c4c1A2A3A4A1B2B3B4B1C2C3C4C2a3a4a2b3b4b
-1a1b1c2a3a4a2b3b4b2c3c4c
-
-
-1a1b1c2a3a4a1A2A3A4A2b3b4b1B2B3B4B2c3c4c
-1a1b1c2a2b3b4b2c3c4c3a4a
-1a1b1c2a2b2c3c4c3a4a3b4b
-1a1b1c2a2b2c3a4a3b4b3c4c
-1a1b1c2a2b2c3a3b4b3c4c4a
-1a1b1c2a2b2c3a3b3c4c4a4b
-1a1b1c2a2b2c3a3b3c4a4b4c ***
- endc

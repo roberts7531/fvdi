@@ -13,8 +13,6 @@ show_delay	equ	1		; 5
 
 mouse_interval	equ	1		; Interval between mouse updates
 
-sven_mouse	equ	1		; Use Sven's timer draw code?
-
 	.include	"vdi.inc"
 	.include	"macros.inc"
 
@@ -47,12 +45,7 @@ vsc_form:
 	addq.l	#4,a7
 	move.l	(a7)+,a1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
-  ifne 1
 	tst.w	wk_mouse_type(a2)
-  else
-	tst.w	_stand_alone
-  endc
-;	beq	redirect			; Temporary (needs a1)
 	redir	vsc_form			; Temporary (needs a1)
 	done_return
 
@@ -92,13 +85,10 @@ lib_vsc_form:
 	move.w	wk_mouse_position_y(a1),d1
 	move.l	a0,-(a7)
 	jsr	(a2)
-;	tst.w	d0
-;	beq	3$	; .no_error
 	move.w	d0,mouse_op		; What to try again
 	swap	d0			;  and in how long
 ;	neg.w	d0
 	move.w	d0,pointer_delay
-;3$:			; .no_error
 	move.l	(a7)+,a0
 	move.l	(a7)+,d2
 	used_d1
@@ -125,12 +115,7 @@ v_show_c:
 	addq.l	#2,a7
 	move.l	(a7)+,a1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
-  ifne 1
 	tst.w	wk_mouse_type(a2)
-  else
-	tst.w	_stand_alone
-  endc
-;	beq	redirect			; Temporary (needs a1)
 	redir	v_show_c			; Temporary (needs a1)
 	done_return
 
@@ -153,31 +138,13 @@ lib_v_show_c:
 	lbeq	.end,1
 
 
-;	move.w	pointer_delay,d0
-;	bgt	3$	; .set_delay
-;	cmp.w	#-show_delay,d0
-;	bge	1$	; .end
-;3$:			; .set_delay:
-
-;	move.w	#-show_delay,pointer_delay	; Turn the mouse on soon
-
-;	move.l	wk_r_mouse(a1),d0
-;	beq	mouse_show
-;	move.l	d0,a2
-;	movem.w	wk_mouse_position(a1),d0-d1
-;	moveq	#3,d2				; Show
-;	jsr	(a2)
-
- ifne 1
 	move.l	wk_r_mouse(a1),d0
-;	bne	3$	; .call_r_mouse
 	lbne	.call_r_mouse,3
 	uses_d1
 	move.l	d2,-(a7)
 	bsr	mouse_unshow
 	move.l	(a7)+,d2
 	used_d1
- endc
  label .end,1
 	rts
 
@@ -199,7 +166,7 @@ lib_v_show_c:
 	move.l	(a7)+,a0
 	move.l	(a7)+,d2
 	used_d1
-	lbra	.end,1
+	rts
 
 
 * v_hide_c - Standard Trap function
@@ -211,12 +178,7 @@ v_hide_c:
 	bsr	lib_v_hide_c
 	move.l	(a7)+,a1
 	move.l	vwk_real_address(a0),a2
-  ifne 1
 	tst.w	wk_mouse_type(a2)		; If no mouse type, call the old VDI too
-  else
-	tst.w	_stand_alone
-  endc
-;	beq	redirect			; Temporary (needs a1)
 	redir	v_hide_c			; Temporary (needs a1)
 	done_return
 
@@ -235,19 +197,6 @@ lib_v_hide_c:
 
 	tst.w	wk_mouse_type(a1)		; If no mouse type, leave to old VDI
 	lbeq	.not_shown,1
-
-	move	sr,d0
-;	swap	d0				; For reuse of one word
-	ori	#$700,sr
-;	move.w	#1,pointer_delay
-;	move.w	pointer_shown,d0		;  here,
-;	move.w	#0,pointer_shown
-;	swap	d0
-	move	d0,sr
-
-;	swap	d0				;  and here
-;	tst.w	d0				; Not yet redrawn?
-;	bmi	1$	; .not_shown
 
 	move.l	wk_r_mouse(a1),d0
 	lbne	.call_r_mouse,2
@@ -277,7 +226,7 @@ lib_v_hide_c:
 	move.l	(a7)+,a0
 	move.l	(a7)+,d2
 	used_d1
-	lbra	.not_shown,1
+	rts
 
 
 * vq_mouse - Standard Trap function
@@ -292,7 +241,6 @@ vq_mouse:
 
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
 	redir	vq_mouse			; Temporary (needs a1)
 	done_return
 
@@ -306,14 +254,14 @@ vrq_string:
 	movem.l	d2/a0-a1,-(a7)
 
 	move.w	#2,-(a7)
-	move.w	#$01,-(a7)
+	move.w	#1,-(a7)
 	trap	#13
 	addq.l	#4,a7
 	tst.w	d0
 	beq	.no_key
 
 	move.w	#2,-(a7)
-	move.w	#$02,-(a7)
+	move.w	#2,-(a7)
 	trap	#13
 	addq.l	#4,a7
 	and.w	#$00ff,d0
@@ -339,12 +287,6 @@ vrq_string:
 	move.w	#1,L_intout(a2)
 .no_result:
 
-  ifne 0
-	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
-	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
-	redir	vrq_string			; Temporary (needs a1)
-  endc
 	done_return
 
 
@@ -355,24 +297,15 @@ vrq_string:
 vq_key_s:
 	uses_d1
 	movem.l	d2/a0-a2,-(a7)
-  ifne 1
 	move.w	#-1,-(a7)	; Kbshift(-1)
 	move.w	#$0b,-(a7)
 	trap	#13
 	addq.l	#4,a7
-  endc
 	movem.l	(a7)+,d2/a0-a2
 	used_d1
 	and.w	#$000f,d0
 	move.l	intout(a1),a2
 	move.w	d0,(a2)
-
-  ifne 0
-	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
-	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
-	redir	vq_key_s			; Temporary (needs a1)
-  endc
 	done_return
 
 
@@ -394,7 +327,6 @@ vex_butv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
 	redir	vex_butv			; Temporary (needs a1)
 	done_return
 
@@ -417,7 +349,6 @@ vex_motv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
 	redir	vex_motv			; Temporary (needs a1)
 	done_return
 
@@ -440,7 +371,6 @@ vex_curv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
 	redir	vex_curv			; Temporary (needs a1)
 	done_return
 
@@ -462,7 +392,6 @@ vex_wheelv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
 	redir	vex_wheelv			; Temporary (needs a1)
 	done_return
 
@@ -503,7 +432,6 @@ vex_timv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-;	beq	redirect			; Temporary (needs a1)
 	redir	vex_timv			; Temporary (needs a1)
 	done_return
 
@@ -516,12 +444,6 @@ _mouse_move:
 	swap	d0
 	move.w	d1,d0
 	move.l	d0,mouse_first			; Atomic
-
-;	tst.w	pointer_shown			; If not hidden,
-;	beq	1$	; .end
-;	move.w	#-1,pointer_delay		;  show mouse on next timer interrupt
-;1$:			; .end
-;	move.l	_old_curv,-(a7)			; Continue to next mouse movement routine?
 
 	rts
 
@@ -536,7 +458,6 @@ _mouse_timer:
 
 	move.l	d0,-(sp)		; This is only useful to get rid of back and forth moves
 	move.l	mouse_first,d0
- ifne 1
 	cmp.l	mouse_x,d0
 	bne	.moved
 
@@ -548,7 +469,7 @@ _mouse_timer:
 
 .moved:
 	; Do a proper redraw
- endc
+
 	move.l	d0,mouse_x		; Should this be done?
 
 	movem.l	d1-d2/a0-a2,-(a7)
@@ -579,8 +500,6 @@ _mouse_timer:
 	clr.w	wk_mouse_forced(a1)
 .not_forced:
 	jsr	(a2)
-;	tst.w	d0
-;	beq	.no_error
 .no_error:
 	move.w	d0,mouse_op
 	swap	d0

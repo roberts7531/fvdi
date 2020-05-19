@@ -254,9 +254,6 @@ new_api_line:
 	move.l		drvline_pattern(a1),d5
 	move.l		drvline_colour(a1),d0
 	move.l		drvline_mode(a1),d6
-  ifne 0
-	bsr		old_api_line
-  else
 	move.l		d6,-(a7)
 	move.l		d0,-(a7)
 	move.l		d5,-(a7)
@@ -267,7 +264,6 @@ new_api_line:
 	move.l		a0,-(a7)
 	ijsr		_line_draw_r
 	add.w		#32,a7
-  endc
 	movem.l		(a7)+,d2-d7/a2-a6
 	rts
 
@@ -350,9 +346,6 @@ _c_expand:
 *---------
 _c_fill:
 	movem.l		d0-d2/a0-a2,-(a7)
-
-;	ext.l		d1			; Perhaps these really should be extended when a0 even
-;	ext.l		d2
 
 	move.l		d7,-(a7)
 	move.l		d6,-(a7)
@@ -674,7 +667,6 @@ _c_colour:
 	rts
 
 
-  ifne	1
 *---------
 * Set palette colours
 * initialize_palette(Virtual *vwk, long start, long entries, short requested[][3], Colour palette[])
@@ -682,7 +674,6 @@ _c_colour:
 *---------
 _c_initialize_palette:
 	ijmp		_set_colours_r		; Exactly the same parameters
-  endc
 
 *---------
 * Give up and try other function

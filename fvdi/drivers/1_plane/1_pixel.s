@@ -18,7 +18,7 @@ shift		equ	1
 	xdef		_write_pixel
 	xdef		_read_pixel
 
-	xref		_get_colour_masks
+	xdef		_get_colour_masks
 
 	ifeq		shift
 	xref		dot,lline,rline
@@ -258,4 +258,23 @@ _read_pixel:
 
 	rts
 
-	end
+
+*---------
+* Get colour masks
+* get_colour_masks(int colour)
+* In:	d0	background colour, foreground colour
+* Out:	a2-a3	First four colour bits
+*	d0	Pointer to colour bits for background
+* XXX:	d0
+*---------
+_get_colour_masks:
+	lea		_mask,a3
+	and.l		#$000f000f,d0
+	lsl.l		#3,d0
+	swap		d0
+	pea		0(a3,d0.w)
+	swap		d0
+	move.l		0(a3,d0.w),a2
+	move.l		4(a3,d0.w),a3
+	move.l		(a7)+,d0
+	rts
