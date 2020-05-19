@@ -94,7 +94,21 @@ FT_Panic(const char *fmt, ...)
 #ifdef FT_DEBUG_LEVEL_TRACE
 
 /* array of trace levels, initialized to 0 */
+#if FREETYPE_VERSION >= 2010000L
+
+/* array of trace levels, initialized to 0; */
+/* this gets adjusted at run-time           */
+static int  ft_trace_levels_enabled[trace_count];
+
+/* array of trace levels, always initialized to 0 */
+static int  ft_trace_levels_disabled[trace_count];
+
+/* a pointer to either `ft_trace_levels_enabled' */
+/* or `ft_trace_levels_disabled'                 */
+int *ft_trace_levels = ft_trace_levels_enabled;
+#else
 int ft_trace_levels[trace_count];
+#endif
 
 
 /* define array of trace toggle names */
@@ -129,6 +143,21 @@ FT_EXPORT_DEF(const char *) FT_Trace_Get_Name(FT_Int idx)
     else
         return NULL;
 }
+
+
+#if FREETYPE_VERSION >= 2010000L
+FT_BASE_DEF(void)
+FT_Trace_Disable( void )
+{
+	ft_trace_levels = ft_trace_levels_disabled;
+}
+
+FT_BASE_DEF(void)
+FT_Trace_Enable( void )
+{
+	ft_trace_levels = ft_trace_levels_enabled;
+}
+#endif
 
 
 /*************************************************************************/
@@ -212,7 +241,9 @@ FT_BASE_DEF(void) ft_debug_init(void)
                         for (n = 0; n < trace_count; n++)
                             ft_trace_levels[n] = level;
                     } else
+                    {
                         ft_trace_levels[found] = level;
+                    }
                 }
             }
         }
@@ -241,6 +272,21 @@ FT_EXPORT_DEF(const char *) FT_Trace_Get_Name(FT_Int idx)
 
     return NULL;
 }
+
+
+#if FREETYPE_VERSION >= 2010000L
+FT_BASE_DEF(void)
+FT_Trace_Disable( void )
+{
+	/* nothing */
+}
+
+FT_BASE_DEF(void)
+FT_Trace_Enable( void )
+{
+	/* nothing */
+}
+#endif
 
 
 #endif /* !FT_DEBUG_LEVEL_TRACE */

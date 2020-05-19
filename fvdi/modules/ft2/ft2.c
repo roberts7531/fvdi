@@ -2563,18 +2563,3 @@ char *getenv(const char *str)
     FT_UNUSED( weights );
   }
 #endif
-
-
-#if FREETYPE_VERSION >= 201000
-FT_BASE_DEF(void)
-FT_Trace_Disable( void )
-{
-	/* nothing */
-}
-
-FT_BASE_DEF(void)
-FT_Trace_Enable( void )
-{
-	/* nothing */
-}
-#endif
