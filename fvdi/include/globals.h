@@ -25,7 +25,6 @@ extern short vbl_handler_installed;
 extern long basepage;
 extern short key_pressed;
 
-extern List *driver_list;
 extern long *pid;
 
 extern void (*trap2_address)(void);
