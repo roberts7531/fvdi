@@ -100,13 +100,13 @@ ifneq ($(ft2_srcdir),)
  endif
 
 $(top_srcdir)/modules/ft2/ft2_ftsystem.o: $(top_srcdir)/modules/ft2/ft2_ftsystem.c
-	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c -o $@ $<
 
 $(top_srcdir)/modules/ft2/ft2_ftdebug.o: $(top_srcdir)/modules/ft2/ft2_ftdebug.c
-	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c -o $@ $<
 
 $(top_srcdir)/modules/ft2/ft2.o: $(top_srcdir)/modules/ft2/ft2.c
-	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+	$(AM_V_CC)$(CC) $(CPUOPTS) $(OPTS) $(FT_WARNINGS) -I$(top_srcdir)/include $(STDLIB_CFLAGS) $(FT2_CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c -o $@ $<
 
 endif
 
@@ -132,7 +132,8 @@ $(OBJECTS): $(SINCSRC_GNU)
 $(LIBFT2):
 	$(MAKE) -C $(top_srcdir)/modules/ft2
 
-$(TARGET): depend $(OBJECTS) $(LIBFILES)
+$(TARGET): $(OBJECTS) $(LIBFILES)
+	echo $(CSRC)
 	$(AM_V_LD)$(LD) -o $@ -Map=fvdi.map $(OBJECTS) $(LDFLAGS) $(LIBS)
 
 $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
@@ -167,26 +168,14 @@ $(top_srcdir)/include/types.inc: $(top_srcdir)/include/fvdi.h
 	  v_bez_pars=v_bez_pars; \
 	 ) > $@.tmp && { mv $@.tmp $@; } || { $(RM) $@ $@.tmp; exit 1; }
 
-depend: $(CSRC)
-#	"$(CC) -MM" does not seem able to keep track of the directory of the
-#	object file, so dependencies of files outside this directory are
-#	never taken into account later. makedepend does this correctly.
-#	Unfortunately, makedepend includes system headers in its
-#	dependency lists, but you can't get everything...
-#	$(CC) -MM $(CFLAGS) $(CSRC) > depend
-	$(AM_V_at)makedepend -f- -- $(CFLAGS) $(CSRC) > depend 2> /dev/null
-	$(AM_V_at)sed "s#\/usr[^ ]*\.h##g" < depend  > depend2
-	$(AM_V_at)sed "s#^.*: *\$$##"      < depend2 > depend
-	$(AM_V_at)$(RM) depend2
+include $(top_srcdir)/DEPENDENCIES
 
 strip:
 	$(STRIP) --strip-all $(TARGET)
 
 clean:: clean_gnu
-	$(RM) $(OBJECTS) $(TARGET) fvdi.map depend
+	$(RM) *.o $(TARGET) fvdi.map
 
 install::
 	mkdir -p $(DESTDIR)/auto
 	cp -a $(TARGET) $(DESTDIR)/auto/fvdi.prg
-
--include depend

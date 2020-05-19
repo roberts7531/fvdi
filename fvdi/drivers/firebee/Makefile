@@ -73,30 +73,19 @@ OBJECTS += $(CSRC:.c=.o)
 # need to convert the .inc file as well
 $(OBJECTS): $(SINCSRC_GNU)
 
-$(TARGET): depend $(OBJECTS) $(LIBFILES)
+$(TARGET): $(OBJECTS) $(LIBFILES)
 	$(AM_V_LD)$(LD)  $(LDEFS) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
 
-depend: $(CSRC)
-#	"$(CC) -MM" does not seem able to keep track of the directory of the
-#	object file, so dependencies of files outside this directory are
-#	never taken into account later. makedepend does this correctly.
-#	Unfortunately, makedepend includes system headers in its
-#	dependency lists, but you can't get everything...
-#	$(CC) -MM $(CFLAGS) $(CSRC) > depend
-	$(AM_V_at)makedepend -f- -- $(CFLAGS) $(CSRC) > depend 2> /dev/null
-	$(AM_V_at)sed "s#\/usr[^ ]*\.h##g" < depend  > depend2
-	$(AM_V_at)sed "s#^.*: *\$$##"      < depend2 > depend
-	$(AM_V_at)$(RM) depend2
+include $(top_srcdir)/DEPENDENCIES
 
 strip:
 	$(STRIP) --strip-all $(TARGET)
 
 clean:: clean_gnu
-	$(RM) $(OBJECTS) $(TARGET) depend *.inf *.ino
+	$(RM) *.o $(TARGET) *.inf *.ino
+	$(RM) ../common/*.gnu.s ../common/*.cf_gnu.s ../common/*.cf_gnu.se ../common/*.o
 
 install::
 	mkdir -p $(DESTDIR)/gemsys
 	cp -a $(TARGET) $(DESTDIR)/gemsys/$(TARGET)
 	cp -a fvdi.sys "$(DESTDIR)/fvdifb.sys"
-
--include depend

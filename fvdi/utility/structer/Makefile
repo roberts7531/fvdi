@@ -26,16 +26,17 @@ OBJECTS		= $(CSOURCES:.c=.o)
 FLEXOUT		= lex.yy.c
 BISONOUT	= struct.tab.c struct.tab.h
 
-all:		depend $(TARGET)
+all:		$(TARGET)
 
 $(TARGET):		$(OBJECTS)
 	$(AM_V_LD)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-depend:		$(CSOURCES) $(CHEADERS)
-	$(AM_V_CC)$(CC) -MM $(CSOURCES) > depend
+include $(top_srcdir)/DEPENDENCIES
+
+lex.yy.o: struct.tab.h
 
 clean::
-	$(RM) $(OBJECTS) $(FLEXOUT) $(BISONOUT) $(TARGET) depend
+	$(RM) $(OBJECTS) $(FLEXOUT) $(BISONOUT) $(TARGET)
 
 install::
 	@:
@@ -45,5 +46,3 @@ $(BISONOUT):	struct.y
 
 $(FLEXOUT):	struct.lex
 	flex $(FLEXFLAGS) struct.lex
-
--include depend

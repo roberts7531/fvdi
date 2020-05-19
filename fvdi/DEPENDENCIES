@@ -1,0 +1,17 @@
+#
+# dependencies
+#
+DEP_FILES = $(addprefix ./.deps/, $(patsubst %.c,%.P,$(notdir $(CSRC))))
+
+# These are automatically remade, no need for make to worry about
+# them.
+.PHONY : $(DEP_FILES)
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+.SECONDARY : $(DEP_FILES)
+
+-include $(DEP_FILES)
+
+clean::
+	rm -rf .deps
