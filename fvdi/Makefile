@@ -9,6 +9,14 @@ SUBDIRS := \
 all clean install::
 	for i in $(SUBDIRS); do $(MAKE) -C $$i $@ || exit 1; done
 
+install::
+	mkdir -p $(DESTDIR)/docs
+	# omitted: driver.txt files.txt partial.txt
+	for i in fvdi.sys fvdi.txt finlvdi3.txt first.aid readme readme.1st; do
+		cp -a docs/$i $(DESTDIR)/docs/$i; \
+	done
+
+
 GCC_9=/usr/bin/m68k-atari-mint-gcc-9
 GCC_8=/usr/bin/m68k-atari-mint-gcc-8
 GCC_7=/usr/bin/m68k-atari-mint-gcc-7
