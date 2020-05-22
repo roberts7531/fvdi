@@ -29,3 +29,6 @@ deploy:
     tags: true
     repo: freemint/fvdi
     branch: master
+notifications:
+	admin@tho-otto.de
+	mfro@mubf.de
