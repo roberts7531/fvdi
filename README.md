@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/freemint/fvdi.svg?branch=master)](https://travis-ci.org/freemint/fvdi)
+
 # fvdi
 fVDI fork with additional fixes and drivers.
 
