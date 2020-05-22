@@ -30,8 +30,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef _FIREBEE_H_
-#define _FIREBEE_H_
+#ifndef FIREBEE_H
+#define FIREBEE_H
 
 #include "fvdi.h"
 #include <stdlib.h>
@@ -44,15 +44,20 @@ void fbee_set_panning(unsigned short *mem);
 
 long c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);
 long c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y);
-long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2, long pattern, long colour, long mode);
-long c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation, long colour);
-long c_fill_area(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style);
-long c_fill_polygon(Virtual *vwk, short points[], long n, short index[], long moves, short *pattern, long colour, long mode, long interior_style);
-long c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation);
+long c_line_draw(Virtual *vwk, long x1, long y1, long x2, long y2,
+                 long pattern, long colour, long mode);
+long c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst,
+                   long dst_x, long dst_y, long w, long h, long operation, long colour);
+long c_fill_area(Virtual *vwk, long x, long y, long w, long h,
+                 short *pattern, long colour, long mode, long interior_style);
+long c_fill_polygon(Virtual *vwk, short points[], long n, short index[], long moves,
+                    short *pattern, long colour, long mode, long interior_style);
+long c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
+                 MFDB *dst, long dst_x, long dst_y, long w, long h, long operation);
 long c_text_area(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets);
 long c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse);
 
 long c_get_colour(Virtual *vwk, long colour);
 void c_set_colours(Virtual *vwk, long start, long entries, unsigned short *requested, Colour palette[]);
 
-#endif /* _FIREBEE_H_ */
+#endif /* FIREBEE_H */
