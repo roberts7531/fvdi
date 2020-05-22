@@ -20,17 +20,16 @@ transparent	equ	1		; Fall through?
 	xref	_set_colour_table,_colour_table,_inverse_table
 
 	xdef	v_bar,vr_recfl,vrt_cpyfm,vro_cpyfm
-	xdef	vr_trn_fm
+	xdef	vr_trnfm
 	xdef	vr_transfer_bits,colour_entry
 	xdef	set_colour_table,colour_table,inverse_table
 	xdef	v_get_pixel
 
 	xdef	lib_v_bar,lib_vr_recfl,lib_vrt_cpyfm,lib_vro_cpyfm
-	xdef	lib_vr_trn_fm
 	xdef	lib_v_get_pixel
 
 	xdef	_lib_vrt_cpyfm,_lib_vrt_cpyfm_nocheck,_lib_vro_cpyfm
-	xdef	_lib_vr_trn_fm
+	xdef	_lib_vr_trnfm
 	xdef	_default_fill,_default_expand,_default_blit
 
 	xdef	_fill_area
@@ -975,22 +974,21 @@ inverse_table:
 	done_return
 
 	
-* vr_trn_fm - Standard Trap function
+* vr_trnfm - Standard Trap function
 * Todo: ?
 * In:   a1      Parameter block
 *       a0      VDI struct
-vr_trn_fm:
+vr_trnfm:
 	move.l	control(a1),a2
 	lea	14(a2),a1
-	bsr	lib_vr_trn_fm
+	bsr	_lib_vr_trnfm
 	done_return
 
-* lib_vr_trn_fm - Standard Library function
+* lib_vr_trnfm - Standard Library function
 * Todo: Should use C2P from MGIF instead of the current crap!
-* In:   a1      Parameters   lib_vr_trn_fm(source, dest)
+* In:   a1      Parameters   lib_vr_trnfm(source, dest)
 *       a0      VDI struct
-_lib_vr_trn_fm:
-lib_vr_trn_fm:
+_lib_vr_trnfm:
 	uses_d1
 	movem.l	d2-d7/a3-a6,-(a7)
 	move.l	(a1)+,a2
@@ -1007,7 +1005,7 @@ lib_vr_trn_fm:
 	beq	in_place
 
 ;	cmp.w	#1,d2			; Single plane is the same
-;	beq	end_vr_trn_fm		;  but needs to copy
+;	beq	end_vr_trnfm		;  but needs to copy
 
 	tst.w	mfdb_standard(a1)
 	beq	to_standard
@@ -1063,13 +1061,13 @@ to_standard:
 	cmp.w	#16,d2
 	bne	.not_16bit_ts
 	bsr	to_standard_16
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 .not_16bit_ts:
 	cmp.w	#8,d2
 	bne	.not_8bit_ts
 	bsr	to_standard_8
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 .not_8bit_ts:
 ;	move.w	d1,d6			; Copy source to destination since the
@@ -1086,7 +1084,7 @@ to_standard:
 	cmp.w	#32,d2
 	bne	not_32bit_ts
 	bsr	to_standard_32
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 
 * Transform device specific to standard format.
@@ -1264,12 +1262,12 @@ not_chunky_ts:
 	addq.w	#2,a5
 	move.l	a5,a3
 	ldbra	d7,.loop1d,1
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 
 in_place:
 	cmp.w	#1,d2			; Single plane is the same
-	beq	end_vr_trn_fm
+	beq	end_vr_trnfm
 	tst.w	mfdb_standard(a1)
 	beq	to_standard_ip
 
@@ -1337,20 +1335,20 @@ to_standard_ip:			; Should have code for chunky modes (working on it)
 	cmp.w	#16,d2
 	bne	.not_16bit_ts_ip
 	bsr	to_standard_16
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 .not_16bit_ts_ip:
 	cmp.w	#8,d2
 	bne	.not_8bit_ts_ip
 	bsr	to_standard_8
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 .not_8bit_ts_ip:
 
 	cmp.w	#32,d2
 	bne	.not_32bit_ts_ip
 	bsr	to_standard_32
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 
 .not_32bit_ts_ip:
@@ -1396,7 +1394,7 @@ to_standard_ip:			; Should have code for chunky modes (working on it)
 	ldbra	d6,.loop1,1
 
 	move.l	(a7)+,a0
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 
 finish_up:
@@ -1416,7 +1414,7 @@ finish_up:
 	moveq	#32,d6
 	moveq	#2,d7
 	bsr	to_standard_16		; Is its own inverse!
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 
 .not_16bit:
@@ -1457,7 +1455,7 @@ finish_up:
 	ldbra	d0,.loop0,0
 
 	add.w	#16,a7
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 
 .not_8bit:
@@ -1518,12 +1516,12 @@ finish_up:
 	ldbra	d0,.loop0b,0
 
 	add.w	#64,a7
-	bra	end_vr_trn_fm
+	bra	end_vr_trnfm
 
 .not_32bit:
 .not_chunky:		
 
-end_vr_trn_fm:
+end_vr_trnfm:
 	moveq	#1,d0
 	tst.w	mfdb_standard(a1)
 	beq	.was_not_standard

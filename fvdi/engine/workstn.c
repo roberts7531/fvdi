@@ -290,7 +290,7 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
         mfdb->reserved[2] = new_wk->screen.mfdb.reserved[2] = 0;
         new_wk->screen.mfdb.standard = 0;
         if (mfdb->standard)	/* Need to convert input MFDB to device dependent format? */
-            lib_vdi_pp(lib_vr_trn_fm, new_vwk, mfdb, mfdb);
+            lib_vdi_pp(lib_vr_trnfm, new_vwk, mfdb, mfdb);
 
         new_wk->screen.type = 0;
         new_wk->screen.wrap = lwidth;		/* Right? */

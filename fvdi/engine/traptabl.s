@@ -28,7 +28,7 @@ transparent	equ	1		; Fall through?
 	xref	v_pmarker,v_fillarea,vs_color,vq_color
 	xref	vrq_locator,vrq_valuator,vrq_choice,vrq_string,vsin_mode
 	xref	v_clsvwk,vq_extnd,v_contourfill,v_get_pixel,vro_cpyfm
-	xref	vr_trn_fm,vsc_form,vsf_udpat,vqin_mode,vqt_extent,vqt_width
+	xref	vr_trnfm,vsc_form,vsf_udpat,vqin_mode,vqt_extent,vqt_width
 	xref	vex_timv,vst_load_fonts,vst_unload_fonts,v_show_c,v_hide_c
 	xref	vq_mouse,vex_butv,vex_motv,vex_curv,vq_key_s,vqt_name
 	xref	vqt_fontinfo,vex_wheelv
@@ -221,7 +221,7 @@ default_functions:
 	dc.w	0,0
 	dc.l	vro_cpyfm
 	dc.w	0,0
-	dc.l	vr_trn_fm
+	dc.l	vr_trnfm
 	dc.w	0,0
 	dc.l	vsc_form
 	dc.w	0,0

@@ -85,7 +85,7 @@ int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh, short *
 void lib_vrt_cpyfm_nocheck(Virtual *vwk, short mode, short *pxy, MFDB *src, MFDB *dst, short colors[]);
 void lib_vro_cpyfm(Virtual *vwk, short mode, short *pxy, MFDB *src, MFDB *dst);
 void lib_vs_clip(Virtual *, short, short *);
-void lib_vr_trn_fm(Virtual *, MFDB *, MFDB *);
+void lib_vr_trnfm(Virtual *, MFDB *, MFDB *);
 void opnvwk_values(Virtual *, VDIpars *);
 void CDECL lib_v_bez(Virtual *vwk, struct v_bez_pars *par);
 long lib_vst_load_fonts(Virtual *vwk, long select);
