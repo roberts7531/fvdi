@@ -21,7 +21,6 @@ include $(top_srcdir)/CONFIGVARS
 BAS_INCLUDE = $(top_srcdir)/../../BaS_gcc/include
 
 CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(BAS_INCLUDE) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
-ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
 	$(top_srcdir)/drivers/bitplane/1_expand.inc

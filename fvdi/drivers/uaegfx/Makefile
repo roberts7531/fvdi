@@ -18,7 +18,6 @@ OPTS = -mshort -O2 -fomit-frame-pointer -g
 include $(top_srcdir)/CONFIGVARS
 
 CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
-ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
 SINCSRC = \
 	$(top_srcdir)/drivers/bitplane/1_expand.inc
