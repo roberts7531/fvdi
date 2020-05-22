@@ -90,7 +90,7 @@ endif
 
 # Assember for .gnu
 %.gnu.o: %.gnu.s
-	$(AM_V_AS)$(CC) -x assembler-with-cpp $(ASFLAGS) $(SYMBOLS) -c -o $@ $<
+	$(AM_V_AS)$(CC) -x assembler-with-cpp $(ASFLAGS) $(SYMBOLS) $(addprefix -Wa$(comma),$(DRIVER_INCLUDES)) -c -o $@ $<
 
 clean_gnu:
 	$(RM) *.inc.gnu *.gnu.s *.cf_gnu.s *.cf_gnu.se *.inf *.ino

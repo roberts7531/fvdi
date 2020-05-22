@@ -12,7 +12,7 @@ all clean install::
 install::
 	mkdir -p $(DESTDIR)/docs
 	# omitted: driver.txt files.txt partial.txt
-	for i in fvdi.sys fvdi.txt finlvdi3.txt first.aid readme readme.1st; do
+	for i in fvdi.sys fvdi.txt finlvdi3.txt first.aid readme readme.1st; do \
 		cp -a docs/$i $(DESTDIR)/docs/$i; \
 	done
 

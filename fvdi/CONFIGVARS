@@ -42,7 +42,8 @@ else
 	CPUOPTS = -m68$(CPU)
 endif
 
-ASFLAGS = $(CPUOPTS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+DRIVER_INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
+ASFLAGS = $(CPUOPTS) $(DRIVER_INCLUDES)
 
 # General compilation and optimization options (CFLAGS)
 WARNINGS = -Wall -W -Wunused -Wundef -Wstrict-prototypes -Wmissing-prototypes -Wnested-externs -Wdeclaration-after-statement
@@ -110,6 +111,9 @@ am__v_AR_   = $(am__v_AR_$(AM_DEFAULT_VERBOSITY))
 am__v_AR_0  = @echo "  AR      " $@;
 am__v_AR_1  = 
 
+comma = ,
+empty =
+space = $(empty) $(empty)
 COMPILE.c = $(AM_V_CC)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -MT $@ -MMD -MP -MF .deps/$(@F:.o=.P) -c
-COMPILE.s = $(AM_V_AS)$(CC) -x assembler-with-cpp $(ASFLAGS) $(SYMBOLS) $(TARGET_ARCH) -c
+COMPILE.s = $(AM_V_AS)$(CC) -x assembler-with-cpp $(ASFLAGS) $(SYMBOLS) $(addprefix,-Wa$(comma),$(DRIVER_INCLUDES)) $(TARGET_ARCH) -c
 COMPILE.S = $(AM_V_AS)$(CC) $(ASFLAGS) -Dgas=1 -Dlattice=0 $(TARGET_ARCH) -c
