@@ -7,10 +7,10 @@ addons:
     apt:
         sources:
             - sourceline: 'ppa:vriviere/ppa'
-    packages:
-        - cross-mint-essential
-        - xutils-dev
-        - lftp
+        packages:
+            - cross-mint-essential
+            - xutils-dev
+            - lftp
 
 before_install:
     - m68k-atari-mint-gcc --version
