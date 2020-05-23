@@ -16,7 +16,10 @@ before_install:
   - m68k-atari-mint-gcc --version
 script:
   - . ./.travis/build.sh
-before_deploy: 
+notifications:
+  admin@tho-otto.de
+  mfro@mubf.de
+before_deploy:
 deploy:
   provider: releases
   api_key:
@@ -29,6 +32,3 @@ deploy:
     tags: true
     repo: freemint/fvdi
     branch: master
-notifications:
-	admin@tho-otto.de
-	mfro@mubf.de
