@@ -36,7 +36,3 @@ deploy:
     file_glob: true
     file: "fvdi*tar.gz"
     overwrite: true
-    on:
-        tags: true
-        repo: freemint/fvdi
-        branch: master
