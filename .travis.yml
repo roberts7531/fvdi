@@ -27,4 +27,5 @@ deploy:
   file: fvdi-*tar.gz
   on:
     repo: freemint/fvdi
+    branch: master
   skip_cleanup: 'true'

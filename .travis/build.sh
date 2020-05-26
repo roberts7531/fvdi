@@ -63,5 +63,5 @@ for ft2 in "" ${FT2_VERSIONS}; do
 	done
 done
 
-pwd
+echo "release files at: $PWD"
 ls -l fvdi*tar.gz
