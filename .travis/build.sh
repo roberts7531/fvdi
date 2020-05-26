@@ -36,7 +36,7 @@ case $ALL_CPUS in
 	sudo dpkg --add-architecture i386
 	sudo apt-get update
 	sudo apt-get install libc6:i386
-	
+
 	mkdir -p bin
 	cd bin
 	wget -q -O - http://microapl.com/Porting/ColdFire/Download/pacflin.gz | gzip -dc > pacf
@@ -63,4 +63,5 @@ for ft2 in "" ${FT2_VERSIONS}; do
 	done
 done
 
+pwd
 ls -l fvdi*tar.gz
