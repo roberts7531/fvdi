@@ -33,9 +33,7 @@ deploy:
     file_glob: true
     file: build/freemint/fvdi/fvdi/fvdi-*tar.gz
     on:
-        repo:
-            freemint/fvdi
-        branch:
-            - master
+        repo: freemint/fvdi
+        branch: release
     cleanup: false
 
