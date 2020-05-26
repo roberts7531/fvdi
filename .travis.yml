@@ -34,6 +34,6 @@ deploy:
     file: build/freemint/fvdi/fvdi/fvdi-*tar.gz
     on:
         repo: freemint/fvdi
-        branch: release
+        branch: master
     cleanup: false
 
