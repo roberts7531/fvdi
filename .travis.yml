@@ -36,4 +36,6 @@ deploy:
         repo: freemint/fvdi
         all_branches: true
     cleanup: false
+    skip_cleanup: true
+
 
