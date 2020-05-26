@@ -14,7 +14,14 @@ before_install:
 - m68k-atari-mint-gcc --version
 script:
 - ". ./.travis/build.sh"
-notifications: admin@tho-otto.de mfro@mubf.de
+notifications:
+    email:
+        recipients:
+            - admin@tho-otto.de
+            - mfro@mubf.de
+        on_success: always
+        on_failure: always
+
 before_deploy:
 - git config --local user.name "mfro0"
 - git config --local user.email "mfro@mubf.de"
@@ -24,8 +31,9 @@ deploy:
   provider: releases
   api_key:
     secure: GcJR36MD1nA80ItY9Ke5nr1LHGDB/IOTQnsYEf24b6w8fsyoEgXOvf+tUqAVqCXrQKH1NFbvo6kbRBRyA4yLGO3Q0VUaNcEvdfkvVkdh9Zu+A92+AJZA490pbGJs6YiK+00I+IAzDELJfRDO+Uy2qzEL/b0TMhWGTdvXPOVmnfYaxfG5sc+eyNjfpH8lxYvadgn6AZcCNIPgjU0jf0Cqw1zDfxlau82ZXjNSrYntpatOCsC+r/8t5isTAKlPNg1hjnymdYZnSRcpgGVMD0TPGBaOCDJvr8d++/ecaDnI0L11zzSs7Ixr+XNVjPETteOHHKXp0593EmkyVL/3IeArlCwPnvZH/ieTGawDNdurBS5ELL2t7DIP8/LBDBzPRBTnWMVbN8JS4ZQ/OltgkGSN8z3ksdEjvSGpFyMCr26QDdAMwotsvtopkCqR/IQz+RGAXKHru/Bn0Adq04Z3D/Z1MucqV2i38ks0WdRujpD/h8YQpAaKbHwcW50xc8msF6S3V33keJvVvi7PS/U0W5LQKZKVU4gXFOf1mja9rab5kuRtyBMbyCL+P/cmn40Pe1oa07Pbke8MuAkNyKLjT0urMdwatLwTW+Re4ELgW1Yk+RKF2Og6TdK1wIXALAFb2N/QR4Enfh49s7i2lUVPuwydGb1niyQD6x8cJmUKiYj4DWw=
-  file: fvdi-*tar.gz
+  file_glob: true
+  file: fvdi/fvdi/fvdi-*tar.gz
   on:
     repo: freemint/fvdi
     branch: master
-  skip_cleanup: 'true'
+  cleanup: false
