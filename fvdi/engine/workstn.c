@@ -32,48 +32,48 @@ void linea_setup(Workstation *wk)
     if (init)
     {
         init = 0;
-        linea_orig[0] = linea[-0x2b4 / 2];
-        linea_orig[1] = linea[-0x2b2 / 2];
-        linea_orig[2] = linea[-0x00c / 2];
-        linea_orig[3] = linea[-0x004 / 2];
-        linea_orig[4] = linea[-0x306 / 2];
-        linea_orig[5] = linea[0];
-        linea_orig[6] = linea[1];
+        linea_orig[0] = linea[-0x2b4 / 2];  /* DEV_TAB[0] */
+        linea_orig[1] = linea[-0x2b2 / 2];  /* DEV_TAB[1] */
+        linea_orig[2] = linea[-0x00c / 2];  /* V_REZ_HZ */
+        linea_orig[3] = linea[-0x004 / 2];  /* V_REZ_VT */
+        linea_orig[4] = linea[-0x306 / 2];  /* INQ_TAB[4] */
+        linea_orig[5] = linea[0];           /* PLANES */
+        linea_orig[6] = linea[1];           /* WIDTH */
         linea_orig[7] = linea[-1];
-        linea_orig[8] = linea[-0x304 / 2];
-        linea_orig[9] = linea[-0x266 / 2];
-        linea_orig[10] = linea[-0x26e / 2];
-        linea_orig[11] = linea[-0x29a / 2];
+        linea_orig[8] = linea[-0x304 / 2];  /* INQ_TAB[5] */
+        linea_orig[9] = linea[-0x266 / 2];  /* DEV_TAB[39] */
+        linea_orig[10] = linea[-0x26e / 2]; /* DEV_TAB[35] */
+        linea_orig[11] = linea[-0x29a / 2]; /* DEV_TAB[13] */
     }
 
     /* Copy a few things into the lineA variables */
     width = wk->screen.mfdb.width;
     height = wk->screen.mfdb.height;
-    linea[-0x2b4 / 2] = width - 1;
-    linea[-0x2b2 / 2] = height - 1;
-    linea[-0x00c / 2] = width;
-    linea[-0x004 / 2] = height;
+    linea[-0x2b4 / 2] = width - 1;    /* DEV_TAB[0] */
+    linea[-0x2b2 / 2] = height - 1;   /* DEV_TAB[1] */
+    linea[-0x00c / 2] = width;        /* V_REZ_HZ */
+    linea[-0x004 / 2] = height;       /* V_REZ_VT */
     if (lineafix)
     {
         /* Should cover more really */
         bitplanes = wk->screen.mfdb.bitplanes;
-        linea[-0x306 / 2] = bitplanes;
-        linea[0] = bitplanes;	/* Can this perhaps be done always? */
-        width = (width * bitplanes) >> 3;	/* Bug (<8 planes) here in original */
-        linea[1] = width;
-        linea[-1] = width;	/* Really the same? */
+        linea[-0x306 / 2] = bitplanes;  /* INQ_TAB[4] */
+        linea[0] = bitplanes;
+        width = (width >> 3) * bitplanes;
+        linea[1] = width;   /* WIDTH */
+        linea[-1] = width;  /* BYTES_LIN */
     } else if (!init)
     {
-        linea[-0x306 / 2] = linea_orig[4];
-        linea[0] = linea_orig[5];
-        linea[1] = linea_orig[6];
-        linea[-1] = linea_orig[7];
+        linea[-0x306 / 2] = linea_orig[4];  /* INQ_TAB[4] */
+        linea[0] = linea_orig[5];   /* PLANES */
+        linea[1] = linea_orig[6];   /* WIDTH */
+        linea[-1] = linea_orig[7];  /* BYTES_LIN */
     }
 
-    linea[-0x304 / 2] = wk->screen.look_up_table;		/* 1/0 */
-    linea[-0x266 / 2] = wk->screen.palette.possibilities;	/* 0 */
-    linea[-0x26e / 2] = wk->screen.colour;			/* 1 */
-    linea[-0x29a / 2] = wk->screen.palette.size;		/* 0x100 */
+    linea[-0x304 / 2] = wk->screen.look_up_table;          /* INQ_TAB[5] */
+    linea[-0x266 / 2] = wk->screen.palette.possibilities;  /* DEV_TAB[39] */
+    linea[-0x26e / 2] = wk->screen.colour;                 /* DEV_TAB[35] */
+    linea[-0x29a / 2] = wk->screen.palette.size;           /* DEV_TAB[13] */
 }
 
 
@@ -186,11 +186,14 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
     }
 
     wk = vwk->real_address;
+    /* 32 - user fill pattern */
+    extra_size = 32;
+    extra_size += sizeof(*vwk);
+
     /* Check if really v_opnbm */
     if (pars->control->subfunction != 1 || pars->control->l_intin < 20)
     {
-        extra_size = 32;
-        if ((new_vwk = malloc(sizeof(Virtual) + extra_size)) == NULL)
+        if ((new_vwk = malloc(extra_size)) == NULL)
         {
             PRINTF(("v_opnbm[v_opnvwk]: out of memory\n"));
             return;
@@ -214,8 +217,11 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
             PRINTF(("v_opnbm: unsupported colors %ld\n", colors));
             return;
         }
-        bitplanes = intin[17];
-        if (bitplanes != 0 && bitplanes != 1 && bitplanes != wk->screen.mfdb.bitplanes)
+        bitplanes = mfdb->bitplanes;
+        if (bitplanes == 0)
+            bitplanes = wk->screen.mfdb.bitplanes;
+        /* Only same as physical or one allowed */
+        if (bitplanes != 1 && bitplanes != wk->screen.mfdb.bitplanes)
         {
             PRINTF(("v_opnbm: unsupported planes %d\n", bitplanes));
             return;
@@ -233,29 +239,18 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
             return;
         }
         
-        extra_size = sizeof(Workstation) + sizeof(Virtual) + 32;	/* 32 - user fill pattern */
+        extra_size += sizeof(*wk);
 
         if (mfdb->address || intin[11] || intin[12])
         {
-            width = intin[11] ? (intin[11] + 1) : mfdb ? mfdb->width : wk->screen.mfdb.width;
-            height = intin[12] ? (intin[12] + 1) : mfdb ? mfdb->height : wk->screen.mfdb.height;
+            width = intin[11] ? (intin[11] + 1) : wk->screen.mfdb.width;
+            height = intin[12] ? (intin[12] + 1) : wk->screen.mfdb.height;
         } else
         {
-            width = wk->screen.mfdb.width;		/* vwk/wk bug here in assembly file */
+            width = wk->screen.mfdb.width;
             height = wk->screen.mfdb.height;
         }
         width = (width + 15) & 0xfff0;
-
-        bitplanes = intin[17] ? intin[17] : mfdb ? mfdb->bitplanes : wk->screen.mfdb.bitplanes;
-        if (bitplanes != 1 && bitplanes != wk->screen.mfdb.bitplanes)
-        {
-            if (bitplanes)			/* Only same as physical or one allowed */
-            {
-                PRINTF(("v_opnbm: unsupported planes %d\n", bitplanes));
-                return;
-            }
-            bitplanes = wk->screen.mfdb.bitplanes;
-        }
 
         lwidth = (width >> 3) * bitplanes;	/* >> 4 in assembly file */
         size = (long)lwidth * height;
@@ -272,12 +267,13 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
 
         new_wk = (Workstation *)((long)new_vwk + sizeof(Virtual) + 32);
         copymem(wk, new_wk, sizeof(Workstation));
+        copymem(wk->driver->default_vwk, new_vwk, sizeof(Virtual));
 
         if (!mfdb->address)
         {
             mfdb->standard = 0;
             mfdb->address = (short *)((long)new_wk + sizeof(Workstation));
-            memset(mfdb->address, 0, size);
+            memset(mfdb->address, bitplanes > 8 ? -1 : 0, size);
         }
 
         new_wk->screen.mfdb.address = mfdb->address;
@@ -317,8 +313,6 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
         new_wk->various.typing = 0;
         new_wk->various.workstation_type = 0;
         new_wk->mouse.type = 0;				/* Enough? */
-
-        copymem(wk->driver->default_vwk, new_vwk, sizeof(Virtual));
 
         new_vwk->real_address = new_wk;
         vwk = new_vwk;
@@ -386,7 +380,7 @@ void CDECL v_opnwk(VDIpars *pars)
     /* For now, just assume that any
      * workstation handle >10 is non-fVDI
      */
-    if (pars->intin[0] > 10)
+    if (pars->intin[0] > LAST_SCREEN_DEVICE)
     {
         int failed = 1;
 
@@ -473,7 +467,7 @@ void CDECL v_clsvwk(Virtual *vwk, VDIpars *pars)
     hnd = vwk->standard_handle;
     if (hnd == 0)	/* Check if default VDI structure */
         return;
-    else if (hnd < 0)
+    if (hnd < 0)
     {
         call_other(pars, hnd & 0x7fff);
         hnd = pars->control->handle;
@@ -513,13 +507,13 @@ void CDECL v_clswk(Virtual *vwk, VDIpars *pars)
     wk = vwk->real_address;
     v_clsvwk(vwk, pars);
 
-    if (wk != non_fvdi_wk)
+    driver = wk->driver;
+    if (driver && wk != non_fvdi_wk && driver->module.id <= LAST_SCREEN_DEVICE)
     {
         unlink_mouse_routines();
         shutdown_vbl_handler();
 
         screen_wk = 0;
-        driver = (Driver *)driver_list->value;
 
         driver->clswk(vwk);
 
@@ -534,7 +528,7 @@ void CDECL vq_devinfo(VDIpars *pars)
     /* For now, just assume that any
      * workstation handle >10 is non-fVDI
      */
-    if (pars->intin[0] > 10)
+    if (pars->intin[0] > LAST_SCREEN_DEVICE)
     {
         if (old_gdos)
         {

@@ -393,6 +393,8 @@ typedef struct dev_ {
     } scrmap;			/* Should be anonymous, but that is not ANSI C */
 } Device;
 
+#define LAST_SCREEN_DEVICE 10
+
 typedef struct Module_ {
     short id;				/* From FVDI.SYS (or elsewhere) */
     short flags;				/* From FVDI.SYS (and elsewhere) 1 - resident */
