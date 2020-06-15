@@ -44,8 +44,6 @@ short old_gdos;
 
 static short initialized = 0;
 
-short int_is_short = sizeof(int) == sizeof(short);
-
 static long CDECL remove_fvdi(void);
 static long CDECL setup_fvdi(unsigned long, long);
 
@@ -233,7 +231,7 @@ long startup(void)
     {
         kprintf("beta%d", BETA);
     }
-    access->funcs.puts(int_is_short ? "-16bit" : "-32bit");
+    access->funcs.puts(sizeof(int) == sizeof(short) ? "-16bit" : "-32bit");
 #ifdef __GNUC__
     access->funcs.puts("-gcc");
 #else
