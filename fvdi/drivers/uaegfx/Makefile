@@ -25,8 +25,7 @@ SINCSRC = \
 SSRC = \
 	../common/c_common.s \
 	../common/common.s \
-	../common/clip.s \
-	../common/lineachk.s
+	../common/clip.s
 
 CSRC = \
 	init.c \
@@ -51,7 +50,6 @@ SINCSRC_GNU += \
 	$(top_srcdir)/include/types.inc \
 	$(top_srcdir)/include/macros.gnu \
 	$(top_srcdir)/include/vdi.gnu \
-	$(top_srcdir)/drivers/include/linea.gnu \
 	$(top_srcdir)/drivers/include/pixelmac.gnu
 
 # engine binary objects

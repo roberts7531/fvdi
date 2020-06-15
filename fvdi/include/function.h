@@ -11,7 +11,6 @@
  * Please, see LICENSE.TXT for further information.
  */
 
-Fontheader **linea_fonts(void);
 void linea_setup(Workstation *);
 
 long vector_call(void *vector, long data);

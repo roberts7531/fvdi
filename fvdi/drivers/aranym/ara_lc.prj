@@ -5,7 +5,6 @@ aranymlc.sys
 =
 ..\COMMON\INIT.C	[-b0 -b4 -r6 -v -d1 -m0 -rs -fm -i..\..\include\ -i..\include\ -j*e -Oloop,alias]	(../../include/fvdi.h,../../include/relocate.h,../include/driver.h)
 ..\COMMON\COLOURS.C		[-b0 -b4 -r6 -v -d1 -m0 -rs -fm -i..\..\include\ -j*e -Oloop,alias]	(../../include/fvdi.h,../../include/relocate.h)
-..\COMMON\LINEACHK.S	(../../include/vdi.inc,../../include/types.inc,../../include/linea.inc)
 ..\COMMON\CLIP.S		(../../include/vdi.inc,../../include/types.inc)
 ..\COMMON\COMMON.S	(../../include/vdi.inc,../../include/types.inc)
 ..\COMMON\C_COMMON.S	(../../include/vdi.inc,../../include/types.inc)

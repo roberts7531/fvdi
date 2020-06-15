@@ -184,6 +184,43 @@ extern char _bss_start[];
 extern char _edata[];
 extern char _end[];
 
+
+#ifdef __GNUC__
+static void *linea_addr(void)
+{
+	register void *addr __asm__("a0");
+	
+	__asm__ __volatile(
+#ifdef __mcoldfire__
+		"\t.dc.w 0xa920\n"
+#else
+		"\t.dc.w 0xa000\n"
+#endif
+		: "=r"(addr)
+		:
+		: "d0", "d1", "d2", "a1", "a2", "cc" AND_MEMORY);
+	return addr;
+}
+#endif
+
+
+#ifdef __PUREC__
+static void push_a2(void) 0x2F0A;
+static long pop_a2(void) 0x245F;
+static void *get_a1(void) 0x2049;
+static void *linea0(void) 0xa000;
+
+static void *linea_addr(void)
+{
+	void *linea;
+	push_a2();
+	linea = linea0();
+	pop_a2();
+	return linea;
+}
+#endif
+
+
 /*
  * Do all initialization that can be done while loading.
  * Supplied is an access structure for fVDI internals,
@@ -269,10 +306,18 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
      * Do some initialization using LineA etc
      * if it can be of use to the driver.
      */
+    wk->screen.linea = linea_addr();
 
     if (graphics_mode->flags & CHECK_PREVIOUS)
     {
-        check_linea(wk);                /* Sets linea/wrap/width/height/bitplanes */
+        unsigned short *linea;
+
+        /* Sets linea/wrap/width/height/bitplanes */
+        linea = wk->screen.linea;
+        wk->screen.mfdb.bitplanes = linea[0];        /* PLANES */
+        wk->screen.mfdb.width = linea[-0x00c / 2];   /* V_REZ_HZ */
+        wk->screen.mfdb.height = linea[-0x004 / 2];  /* V_REZ_HT */
+        wk->screen.wrap = linea[-0x002 / 2];         /* BYTES_LIN */
 
         wk->screen.palette.size = Min(1L << wk->screen.mfdb.bitplanes, MAX_PALETTE);
         wk->screen.mfdb.address = (void *)Physbase();

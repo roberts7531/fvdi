@@ -13,10 +13,10 @@ __mint_setjmp:
 
 __mint_longjmp:
 	move.l	4(sp),a0		; Address of jmp_buf[]
-	/*
-	 * this function is only used at a few places in the
-	 * freetype library, and we can safely always use '1' here
-	 */
+;
+; this function is only used at a few places in the
+; freetype library, and we can safely always use '1' here
+;
 	moveq	#1,d0		; Value to return
 	movem.l	4(a0),d2-d7/a2-a7	; Restore saved reggies
 	move.l	(a0),(sp)		;  and the saved return address

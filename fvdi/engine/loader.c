@@ -1273,6 +1273,23 @@ static long load_fonts(Virtual *vwk, const char **ptr)
 }
 
 
+static Fontheader **linea_fonts(void)
+{
+	register Fontheader **fonts __asm__("a1");
+	
+	__asm__ __volatile(
+#ifdef __mcoldfire__
+		"\t.dc.w 0xa920\n"
+#else
+		"\t.dc.w 0xa000\n"
+#endif
+		: "=r"(fonts)
+		:
+		: "d0", "d1", "d2", "a0", "a2", "cc" AND_MEMORY);
+	return fonts;
+}
+
+
 /*
  * Load and parse FVDI.SYS
  */

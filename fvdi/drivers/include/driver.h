@@ -117,8 +117,6 @@ extern long CDECL (*blit_area_r)(Virtual *vwk, MFDB *src, long src_x, long src_y
 extern long CDECL (*text_area_r)(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets);
 extern long CDECL (*mouse_draw_r)(Workstation *wk, long x, long y, Mouse *mouse);
 
-void CDECL check_linea(Workstation *);
-
 long CDECL initialize(Virtual *vwk);
 long check_token(char *, const char **);
 long CDECL setup(long, long);

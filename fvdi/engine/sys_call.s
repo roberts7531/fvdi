@@ -15,7 +15,6 @@
 	xdef		_set_inout
 	xdef		_vdi,_sub_vdi,_fvdi
 	xdef		_vq_gdos
-	xdef		_linea_fonts
 
 	xdef		_control;
 	xdef		_int_in,_pts_in,_addr_in
@@ -350,19 +349,6 @@ _fVDI:
 	move.l		#vdipb,d1
 	move.l		#1969,d0
 	trap		#2	
-	movem.l		(a7)+,d2/a2
-	rts
-
-_linea_fonts:
-	movem.l		d2/a2,-(a7)
-
-	ifne mcoldfire
-	dc.w		$a920
-	else
-	dc.w		$a000
-	endc
-
-	move.l		a1,d0
 	movem.l		(a7)+,d2/a2
 	rts
 

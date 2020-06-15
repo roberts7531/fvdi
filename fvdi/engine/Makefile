@@ -92,7 +92,7 @@ SINCSRC_GNU += \
 	$(top_srcdir)/include/types.inc \
 	$(top_srcdir)/include/macros.gnu \
 	$(top_srcdir)/include/vdi.gnu \
-	$(top_srcdir)/drivers/include/linea.gnu \
+	$(top_srcdir)/include/linea.gnu \
 	$(top_srcdir)/drivers/include/pixelmac.gnu
 
 # Engine binary objects
