@@ -1,5 +1,5 @@
   .ifdef	xbra_chain
-*	.external	vdi_address
+*	.external	_vdi_address
   .endc
 
   .ifdef	_stand_alone
@@ -33,7 +33,7 @@
 	tst.w	_stand_alone
 	bne	return\@
 	moveq	#0x73,d0
-	move.l	vdi_address(pc),-(a7)
+	move.l	_vdi_address(pc),-(a7)
 	rts
 return\@:
 	rte

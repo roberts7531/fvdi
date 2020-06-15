@@ -105,7 +105,7 @@ asm_call_other:
 	move.w	#$88,-(a7)		; In case we're on >='020
 	pea	.vdi_ret(pc)
 	move.w	sr,-(a7)
-	move.l	vdi_address(pc),-(a7)
+	move.l	_vdi_address(pc),-(a7)
 	rts
 
 .vdi_ret:
@@ -123,7 +123,7 @@ asm_call_other:
 	pea	.vdi_ret(pc)
 	move.w	sr,-(sp)
 	move.w	#0x4000,-(sp)
-	move.l	vdi_address(pc),-(sp)
+	move.l	_vdi_address(pc),-(sp)
 	rts
 .vdi_ret:
 	move.l	control(a1),a0

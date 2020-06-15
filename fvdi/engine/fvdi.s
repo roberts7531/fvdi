@@ -9,8 +9,6 @@
 
 stoplog		equ	0		; Log until no more room (not circular)
 
-off		equ	0		; Skip fVDI code via a branch?
-
 transparent	equ	1		; Fall through?
 return_version	equ	1		; Should fVDI identify itself?
 
@@ -34,7 +32,6 @@ STACK_SIZE	equ	4096		; Used to be 2048
 
 	xref	_startup
 	xref	_basepage
-;	xref	_fvdi_log
 	xref	_super
 	xref	default_functions,default_opcode5,default_opcode11
 	xref	clip_table
@@ -54,7 +51,7 @@ STACK_SIZE	equ	4096		; Used to be 2048
 	xdef	_vdi_dispatch
 	xdef	_eddi_dispatch
 	xdef	_data_start,_bss_start
-	xdef	vdi_address,_vdi_address
+	xdef	_vdi_address
 	xdef	opcode5,opcode11
 	xdef	_bad_or_non_fvdi_handle
 	xdef	sub_call,_sub_call
@@ -113,18 +110,10 @@ _trap2_address:
 * Todo: Efficiency? Dangers?
 * In:	d0	$73 for VDI, else jump to old routine
 *	d1	Parameter block
-trap2_temp:
 _trap2_temp:
-  ifne 1
-	tst.l	vdi_address		; If we get here after the real fVDI
+	tst.l	_vdi_address		; If we get here after the real fVDI
 	bne	.tt_no_vdi		;  dispatcher is linked in, just leave.
-  endc
 
-;	cmp.w	#$73,d0
-;	bne	.tt_no_vdi
-
-
- ifne 1
   ifne FVDI_DEBUG
 	cmp.w	#2,_debug
 	bls	.no_debug1
@@ -142,19 +131,10 @@ _trap2_temp:
 	movem.l	(a7)+,d0-d2/a0-a2
 .no_debug1:
   endc
- endc
-
-
-;	bra	.tt_no_vdi
-;	bra	no_vdi
 
 
 	cmp.w	#$73,d0
 	bne	.tt_no_vdi
-
-
-;	tst.w	_initialized	; fVDI not yet active?
-;	beq	.tt_no_vdi
 
 
 	move.l	a2,-(a7)		; Some always needed
@@ -173,11 +153,9 @@ _trap2_temp:
 
 ; REMOVE THIS AGAIN!
   ifne FVDI_DEBUG
-;	tst.w	_fvdi_log
 	move.l	_super,a2
 	tst.w	(a2)				; Log function call if that has (super->fvdi_log.active)
 	beq	.no_log2			; been requested (only debug version)
-;	move.l	_fvdi_log+6,a2
 	move.l	a2,d0
 	move.l	6(a2),a2
 	move.l	$88,(a2)+
@@ -186,7 +164,6 @@ _trap2_temp:
 	move.l	8(a7),(a2)+
 	move.l	12(a7),(a2)+
 	move.l	16(a7),(a2)+
-;	move.l	a2,_fvdi_log+6
 	exg	a2,d0
 	move.l	d0,6(a2)
 .no_log2:
@@ -194,21 +171,13 @@ _trap2_temp:
 
 
 
-  ifne 0
-	move.l	trap2_address,vdi_address
-	move.l	#vdi_dispatch,$88	; Link in the real dispatcher
-  endc
-  ifne 1
-;	tst.w	_initialized	; Don't do anything until fVDI startup is done
-;	beq	.no_interest
 	move.l	$88,a2
-	cmp.l	#trap2_temp,a2
+	cmp.l	#_trap2_temp,a2
 	bne	.not_alone
 	move.l	trap2_address,a2
 .not_alone:
-	move.l	a2,vdi_address
+	move.l	a2,_vdi_address
 	move.l	#vdi_dispatch,$88	; Link in the real dispatcher
-  endc
 
 	movem.l	d1-d2/a0-a1,-(a7)
 	bsr	_recheck_mtask		; MiNT/MagiC started after fVDI?
@@ -221,44 +190,13 @@ _trap2_temp:
 .no_interest:
 	move.l	(a7)+,a2
 .tt_no_vdi:
-  ifne 1
 	move.l	trap2_address,-(a7)
 	rts
-  else
-    ; Just to be safe, check that fVDI is 'on top'
-    lea vdi_dispatch+2(pc),a0
-	cmp.w	#fvdi_magic,(a0)
-	beq	.disabled1
-  ifne return_version
-	cmp.w	#$fffe,d0
-	beq	.version1
-  endc
-	cmp.w	#$ffff,d0
-	beq	.query1
-.disabled1:
-	move.l	trap2_address,-(a7)	; Continue to next in chain
-	rts
-
-.version1:
-	move.b	_vq_gdos_value+0,d0	 ; A vq_gdos, report name
-	lsl.w	#8,d0
-	move.b	_vq_gdos_value+1,d0
-	swap	d0
-	move.b	_vq_gdos_value+2,d0
-	lsl.w	#8,d0
-	move.b	_vq_gdos_value+3,d0
-	rte
-
-.query1:
-	move.l	#subroutine_call,d0	; Someone doesn't like Trap #2
-	rte
-  endc
 
 
 * XBRA chain for Trap #2
 	dc.b	"XBRA"
 	dc.b	"fVDI"
-vdi_address:
 _vdi_address:
 	dc.l	0
 
@@ -270,10 +208,6 @@ vdi_dispatch:
 _vdi_dispatch:
 	cmp.w	#fvdi_magic,d0		; Changed to $73 if fVDI is enabled
 	bne	no_vdi
-
-  ifne off
-	bra	no_vdi
-  endc
 
 dispatch_entry:
 	save_regs			; Some always needed
@@ -386,7 +320,7 @@ no_vdi:
 	cmp.w	#$ffff,d0
 	beq	.query
 .disabled:
-	move.l	vdi_address,-(a7)	; Continue to next in chain
+	move.l	_vdi_address,-(a7)	; Continue to next in chain
 	rts
 
 .version:

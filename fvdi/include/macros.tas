@@ -1,7 +1,7 @@
 mcoldfire equ 0
 
   ifnb	xbra_chain
-	xref	vdi_address
+	xref	_vdi_address
   endc
 
   ifnb	_stand_alone
@@ -36,7 +36,7 @@ mcoldfire equ 0
 	tst.w	_stand_alone
 	bne	.&do_rte
 	moveq	#$73,d0
-	move.l	vdi_address(pc),-(a7)
+	move.l	_vdi_address(pc),-(a7)
 	rts
 .&do_rte:
 	rte
