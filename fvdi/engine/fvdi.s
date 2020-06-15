@@ -363,7 +363,14 @@ bad_handle:				; The handle definitely was bad
 	cmp.w	#248,d0			; This is a vq_devinfo call
 	beq	.opnvwk_ok
 .bad_call:
-	return				; Should probably return an error instead
+	restore_regs
+	tst.w	_stand_alone
+	bne	.bad_rte
+	moveq	#0x73,d0
+	move.l	_vdi_address(pc),-(a7)
+	rts
+.bad_rte:
+	rte
 
 .opnwk_ok:				; Fake handle/vwk when necessary
 	tst.w	_fakeboot

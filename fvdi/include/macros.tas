@@ -29,22 +29,6 @@ mcoldfire equ 0
 	movem.l	(a7)+,a1-a2
 	endm
 
-	macro	return
-	local	do_rte
-	restore_regs
-  if transparent
-	tst.w	_stand_alone
-	bne	.&do_rte
-	moveq	#$73,d0
-	move.l	_vdi_address(pc),-(a7)
-	rts
-.&do_rte:
-	rte
-  else
-	rte
-  endc
-	endm
-
 	macro	real_return
 	restore_regs
 	rte

@@ -27,21 +27,6 @@ restore_regs	macro
 	movem.l	(a7)+,a1-a2
 	endm
 
-return	macro
-	restore_regs
-  ifne	transparent
-	tst.w	_stand_alone
-	bne	\@
-	moveq	#$73,d0
-	move.l	_vdi_address(pc),-(a7)
-	rts
-\@:
-	rte
-  else
-	rte
-  endc
-	endm
-
 real_return	macro
 	restore_regs
 	rte

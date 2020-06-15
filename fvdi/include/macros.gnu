@@ -27,21 +27,6 @@
 	movem.l	(a7)+,a1-a2
 	.endm
 
-	.macro	return
-	restore_regs
-  .if transparent
-	tst.w	_stand_alone
-	bne	return\@
-	moveq	#0x73,d0
-	move.l	_vdi_address(pc),-(a7)
-	rts
-return\@:
-	rte
-  .else
-	rte
-  .endif
-	.endm
-
 	.macro	real_return
 	restore_regs
 	rte

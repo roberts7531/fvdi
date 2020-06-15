@@ -69,13 +69,21 @@ redirect:
 	cmp.w	handle(a0),d0		; Already correct?
 	bne	.call
 	move.l	a1,d1			; That's where the VDI wants it
-	return
+	restore_regs
+	tst.w	_stand_alone
+	bne	.real_rte
+	moveq	#0x73,d0
+	move.l	_vdi_address(pc),-(a7)
+	rts
+.real_rte:
+	rte
 .call:
 	tst.w	_stand_alone
 	bne	.no_redirect
 	bsr	asm_call_other
 .no_redirect:
-	real_return
+	restore_regs
+	rte
 
 redirect_d0:
 	bsr	asm_call_other
