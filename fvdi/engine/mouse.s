@@ -46,7 +46,7 @@ vsc_form:
 	move.l	(a7)+,a1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	wk_mouse_type(a2)
-	redir	vsc_form			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 * lib_vsc_form - Standard Library function
@@ -87,7 +87,6 @@ lib_vsc_form:
 	jsr	(a2)
 	move.w	d0,mouse_op		; What to try again
 	swap	d0			;  and in how long
-;	neg.w	d0
 	move.w	d0,pointer_delay
 	move.l	(a7)+,a0
 	move.l	(a7)+,d2
@@ -116,7 +115,7 @@ v_show_c:
 	move.l	(a7)+,a1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	wk_mouse_type(a2)
-	redir	v_show_c			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 * lib_v_show_c - Standard Library function
@@ -161,7 +160,6 @@ lib_v_show_c:
 	jsr	(a2)
 	move.w	d0,mouse_op
 	swap	d0
-;	neg.w	d0
 	move.w	d0,pointer_delay
 	move.l	(a7)+,a0
 	move.l	(a7)+,d2
@@ -179,7 +177,7 @@ v_hide_c:
 	move.l	(a7)+,a1
 	move.l	vwk_real_address(a0),a2
 	tst.w	wk_mouse_type(a2)		; If no mouse type, call the old VDI too
-	redir	v_hide_c			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 * lib_v_hide_c - Standard Library function
@@ -221,7 +219,6 @@ lib_v_hide_c:
 	jsr	(a2)
 	move.w	d0,mouse_op
 	swap	d0
-;	neg.w	d0
 	move.w	d0,pointer_delay
 	move.l	(a7)+,a0
 	move.l	(a7)+,d2
@@ -241,7 +238,7 @@ vq_mouse:
 
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-	redir	vq_mouse			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 
@@ -327,7 +324,7 @@ vex_butv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-	redir	vex_butv			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 
@@ -349,7 +346,7 @@ vex_motv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-	redir	vex_motv			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 
@@ -371,7 +368,7 @@ vex_curv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-	redir	vex_curv			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 * vex_wheelv - Standard Trap function
@@ -392,7 +389,7 @@ vex_wheelv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-	redir	vex_wheelv			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 
@@ -432,7 +429,7 @@ vex_timv:
 	used_d1
 	move.l	vwk_real_address(a0),a2		; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
-	redir	vex_timv			; Temporary (needs a1)
+	beq     redirect
 	done_return
 
 
@@ -474,9 +471,7 @@ _mouse_timer:
 
 	movem.l	d1-d2/a0-a2,-(a7)
 
-;	movem.l	d0-d2/a0-a2,-(a7)
 	move.l	_screen_wk,a1
-;	move.l	mouse_first,d0
 
 	move.w	d0,d1
 	move.w	mouse_op,d0
@@ -504,7 +499,6 @@ _mouse_timer:
 	move.w	d0,mouse_op
 	swap	d0
 	move.w	d0,pointer_delay
-;	move.w	#1,pointer_shown
 .no_draw:
 	movem.l	(a7)+,d1-d2/a0-a2
 .return:
@@ -516,11 +510,8 @@ _mouse_timer:
 	rts
 
 .no_accel:
-;	tst.w	pointer_shown
-;	beq	.already_hidden
 	movem.l	d0-d1/a0-a1,-(a7)
 	bsr	mouse_unshow
-;	move.w	#0,pointer_shown
 	movem.l	(a7)+,d0-d1/a0-a1
 .already_hidden:
 	bsr	mouse_show
@@ -538,13 +529,10 @@ mouse_unshow:
 	move.l	vwk_real_address(a0),a1
 	move.l	a7,a0
 	move.l	wk_r_set_pixel(a1),a3
-;	movem.w	wk_mouse_position(a1),d1-d2
 	move.l	wk_mouse_extra_info(a1),a6
 	move.w	(a6)+,d1		; Fetch old coordinates
 	move.w	(a6)+,d2
-;	sub.w	wk_mouse_hotspot_x(a1),d1
 	move.w	d1,d7
-;	sub.w	wk_mouse_hotspot_y(a1),d2
 	moveq	#mouse_size,d5
 .rows_hide:
 	swap	d5
@@ -692,8 +680,6 @@ _vbl_handler:
 
 pointer_delay:
 	dc.w	0
-;pointer_shown:
-;	dc.w	0
 mouse_op:
 	dc.w	0
 mouse_x:

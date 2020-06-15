@@ -125,7 +125,3 @@ name:
 	macro	ldbeq reg,name,number
 	dbeq	reg,name
 	endm
-	
-	macro	redir number
-	beq	redirect
-	endm
