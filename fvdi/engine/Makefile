@@ -57,7 +57,7 @@ SSRC = \
 	vdi_misc.s \
 	dcsdstub.s \
 	bconstub.s \
-	setjmp.s
+	$(empty)
 
 
 CSRC = \
@@ -88,6 +88,10 @@ CSRC += \
 # Defines SSRC_GNU and SINCSRC_GNU variables
 include $(top_srcdir)/utility/conv2gas/RULES
 
+SSRC_GNU_COMMON = \
+	setjmp.gnu.s \
+	$(empty)
+
 SINCSRC_GNU += \
 	$(top_srcdir)/include/types.inc \
 	$(top_srcdir)/include/macros.gnu \
@@ -97,9 +101,9 @@ SINCSRC_GNU += \
 
 # Engine binary objects
 ifeq ($(CPU),v4e)
-OBJECTS = $(SSRC_GNU_CF:.s=.o)
+OBJECTS = $(SSRC_GNU_CF:.s=.o) $(SSRC_GNU_COMMON:.s=.o)
 else
-OBJECTS = $(SSRC_GNU:.s=.o)
+OBJECTS = $(SSRC_GNU:.s=.o) $(SSRC_GNU_COMMON:.s=.o)
 endif
 OBJECTS += $(CSRC:.c=.o)
 
