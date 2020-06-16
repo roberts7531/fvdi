@@ -55,6 +55,10 @@ STACK(4096);	/* Hopefully plenty */
 
 #define rsc_file "fvdiacc.rsc"
 
+#ifndef SuperToUser
+# define SuperToUser(ptr) Super(ptr)
+#endif
+
 extern void get_tedinfo(OBJECT *, int, char *);
 extern int add_xdialog(int, int (*)(int), int, char *);
 extern int frm_find(int);
@@ -100,7 +104,7 @@ long get_cookie(const char *cname)
    } else
       value = -1;
 
-   Super((void *)oldstack);
+   SuperToUser((void *)oldstack);
    return value;
 }
 
@@ -110,7 +114,7 @@ long call_fvdi(long func, long data)
 
    oldstack = (long)Super(0L);
    value = info->setup(func, data);
-   Super((void *)oldstack);
+   SuperToUser((void *)oldstack);
 
    return value;
 }

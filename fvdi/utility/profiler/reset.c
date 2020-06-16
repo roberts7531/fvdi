@@ -17,6 +17,10 @@
 
 #define ABS(x) (((x) >= 0) ? x : -x)
 
+#ifndef SuperToUser
+# define SuperToUser(ptr) Super(ptr)
+#endif
+
 #define VERSION "v0.60"
 #define SUPPORTED_TABLE 0x10
 #define MAX_COUNT 192
@@ -63,7 +67,7 @@ long get_cookie(const char *cname)
    } else
       value = -1;             /*  This used to be 0 */
 
-   Super((void *)oldstack);
+   SuperToUser((void *)oldstack);
    return value;
 }
 

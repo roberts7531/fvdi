@@ -22,6 +22,10 @@
 /* referenced in simple.s */
 void DRIVER_EXPORT event(long id_type, long data);
 
+#ifndef SuperToUser
+# define SuperToUser(ptr) Super(ptr)
+#endif
+
 
 /*
  * Global variables
@@ -142,7 +146,7 @@ long get_protected_l(long addr)
 
     oldstack = (long)Super(0L);
     v = *(long *)addr;
-    Super((void *)oldstack);
+    SuperToUser((void *)oldstack);
 
     return v;
 }
@@ -163,7 +167,7 @@ void set_protected_l(long addr, long value)
 
     oldstack = (long)Super(0L);
     *(long *)addr = value;
-    Super((void *)oldstack);
+    SuperToUser((void *)oldstack);
 }
 
 
@@ -1395,7 +1399,7 @@ long free_all(void)
             err = 1;
     }
 
-    Super((void *)oldstack);
+    SuperToUser((void *)oldstack);
 
     if (err)
         total = -total;
