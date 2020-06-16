@@ -356,7 +356,7 @@ static Driver *init_module(Virtual *vwk, const char **ptr, List **list)
     list_elem->type = 1;
     list_elem->value = driver;
     driver->module.id = -1;
-    driver->module.flags = 1;           /* Resident */
+    driver->module.flags = MOD_RESIDENT;           /* Resident */
     driver->module.file_name = tmp + sizeof(List) + sizeof(Driver);
     copy(name, driver->module.file_name);
 
@@ -1382,7 +1382,7 @@ int load_prefs(Virtual *vwk, const char *sysname)
                 if (!driver)
                     break;
                 driver->module.id = device;
-                driver->module.flags = 1;                     /* Resident */
+                driver->module.flags = MOD_RESIDENT;                     /* Resident */
                 driver_loaded = 1;
             } else
             {

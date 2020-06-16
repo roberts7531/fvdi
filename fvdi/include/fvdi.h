@@ -361,6 +361,9 @@ typedef struct vwk_ {
     Colour *palette;		/* Odd when only negative (fg/bg) */
 } Virtual;
 
+/*
+ * note: this represent the return values of vq_scrninfo()
+ */
 typedef struct dev_ {
     short format;
     short clut;
@@ -398,6 +401,7 @@ typedef struct dev_ {
 typedef struct Module_ {
     short id;				/* From FVDI.SYS (or elsewhere) */
     short flags;				/* From FVDI.SYS (and elsewhere) 1 - resident */
+#define MOD_RESIDENT 0x0001
     char *file_name;			/* From FVDI.SYS */
     char *name;				/* Identification string */
     long CDECL (*initialize)(Virtual *vwk);		/* Called after fVDI is initialized */

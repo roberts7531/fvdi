@@ -42,8 +42,6 @@ static char fake_bp[256];
 
 short old_gdos;
 
-static short initialized = 0;
-
 static long CDECL remove_fvdi(void);
 static long CDECL setup_fvdi(unsigned long, long);
 
@@ -103,6 +101,15 @@ static long bconout_hook(void)
 	void **bconout_vec = (void **) 0x586;
     bconout_address = *bconout_vec;
     *bconout_vec = bconout_stub;
+
+    return 0;
+}
+
+static long bconout_unhook(void)
+{
+	void **bconout_vec = (void **) 0x586;
+    *bconout_vec = bconout_address;
+    bconout_address = 0;
 
     return 0;
 }
@@ -223,7 +230,7 @@ long startup(void)
 
     if (bconout)
     {
-        Supexec(bconout_hook); /* cannot use Setexc() as the 0x586 is not divisible by 4 */;
+        Supexec(bconout_hook); /* cannot use Setexc() as the 0x586 is not divisible by 4 */
     }
 
     kprintf("fVDI v%d.%d", VERmaj, VERmin);
@@ -270,10 +277,8 @@ long startup(void)
     while (element)
     {
         driver = (Driver *)element->value;
-        if (driver->module.flags & 1)
+        if (driver->module.flags & MOD_RESIDENT)
         {
-            if (!first_vwk)
-                first_vwk = driver->default_vwk;
             if (debug)
             {
                 PRINTF((" %s at $%08lx\n", driver->module.name, (long) driver->module.initialize));
@@ -282,9 +287,26 @@ long startup(void)
             {
                 /* Driver that fails initialization should be removed! */
                 error("Failed driver initialization of ", driver->module.name);
+            } else
+            {
+                if (!first_vwk)
+                    first_vwk = driver->default_vwk;
             }
         }
         element = element->next;
+    }
+
+    if (first_vwk == 0)
+    {
+        error("no suitable screen driver found", 0);
+        remove_xbra(34 * 4, "fVDI");        /* Trap #2 handler */
+        remove_xbra(46 * 4, "fVDI");        /* Trap #14 handler */
+        remove_xbra(10 * 4, "fVDI");        /* LineA handler */
+        if (bconout_address)
+        {
+            Supexec(bconout_unhook);
+        }
+        return 0;
     }
 
     /*
@@ -362,12 +384,10 @@ long startup(void)
         *pid = (long)fake_bp;
     }
 
-    if (debug && (!booted || disabled))
+    if (debug && !booted)
     {
         KEY_WAIT(10);
     }
-
-    initialized = 1;
 
     return 1;
 }
@@ -393,6 +413,10 @@ static long CDECL remove_fvdi(void)
         remove_xbra(34 * 4, "fVDI");		/* Trap #2 handler */
         remove_xbra(46 * 4, "fVDI");		/* Trap #14 handler */
         remove_xbra(10 * 4, "fVDI");		/* LineA handler */
+        if (bconout_address)
+        {
+            Supexec(bconout_unhook);
+        }
         ret = free_all();
         shut_down();
         readable->cookie.flags = 0;
