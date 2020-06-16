@@ -368,6 +368,7 @@ long check_token(char *token, const char **ptr)
 static void setup_wk(Virtual *vwk)
 {
     Workstation *wk = vwk->real_address;
+    unsigned short *linea;
 
     /* update the settings */
     wk->screen.mfdb.width = resolution.width;
@@ -400,6 +401,10 @@ static void setup_wk(Virtual *vwk)
 
     device.address = wk->screen.mfdb.address;
     device.byte_width = wk->screen.wrap;
+
+    linea = wk->screen.linea;
+    wk->mouse.position.x = linea[-0x25a / 2]; /* GCURX */
+    wk->mouse.position.y = linea[-0x258 / 2]; /* GCURY */
 
     /**
      * The following needs to be here due to bpp > 8 modes where the SDL
