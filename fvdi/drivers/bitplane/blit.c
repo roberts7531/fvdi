@@ -879,26 +879,6 @@ static void bit_blt(struct blit_frame *info)
 }
 
 
-#if 0
-/*
- * If bit 5 of mode is set, use pattern with blit
- */
-/* This needs more thought (and to be actually implemented in the blit) */
-static void setup_pattern(Virtual *vwk, struct blit_frame *info)
-{
-    /* Multi-plane pattern? */
-    info->p_nxpl = 0;                   /* Next plane pattern offset default. */
-    if (vwk->fill.user.multiplane)
-    {
-        info->p_nxpl = 32;              /* Yes, next plane pat offset = 32. */
-    }
-    info->p_addr = vwk->fill.user.pattern.in_use;   /* Get pattern pointer */
-    info->p_nxln = 2;                   /* Offset to next line in pattern */
-    info->p_mask = 0xf;                 /* Pattern index mask */
-}
-#endif
-
-
 /*
  * Fill the info structure with MFDB values
  */
@@ -971,23 +951,10 @@ long CDECL c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *ds
 {
     struct blit_frame info;             /* Holds some internal info for bit_blt */
 
-#if 0
-    /* If mode is made up of more than the first 5 bits */
-    if (operation & ~0x001f)
-        return 1;                       /* Mode is invalid */
-#else
     operation &= 0x0f;
-#endif
 
     /* Check the pattern flag (bit 5) and revert to log op # */
     info.p_addr = 0;                    /* Clear pattern pointer */
-#if 0
-    if (operation & PAT_FLAG)
-    {
-        operation &= ~PAT_FLAG;         /* Set bit to 0! */
-        setup_pattern(vwk, &info);      /* Fill in pattern related stuff */
-    }
-#endif
 
     /* If true, the plane count is invalid or clipping took all! */
     if (setup_info(vwk->real_address, &info, src, dst, src_x, src_y, dst_x, dst_y, w, h))
@@ -1025,39 +992,10 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 
     c_get_colours((Virtual *) ((long)vwk & ~1), colour, &foreground, &background);
 
-#if 0
-    /* With this active, no texts disappear on icons */
-    foreground = 1;
-    background = 0;
-#endif
-
-#if 0
-    /* If mode is made up of more than the first 5 bits */
-    if (operation & ~0x001f)
-        return;                         /* Mode is invalid */
-#else
     operation = ((operation - 1) & 0x03) + 1;
-#endif
 
     /* Check the pattern flag (bit 5) and revert to log op # */
     info.p_addr = 0;                    /* Get pattern pointer */
-#if 0
-    if (operation & PAT_FLAG)
-    {
-        operation &= ~PAT_FLAG;         /* Set bit to 0! */
-        setup_pattern(vwk, &info);      /* Fill in pattern related stuff */
-    }
-#endif
-
-#if 0
-    /* Try to get everything to display! */
-    if (dst_x && !(dst_x % 16))
-#if 0
-        dst_x -= 1;
-#else
-        dbg = 1;
-#endif
-#endif
 
     if (w != 1 || h != 1)
     {

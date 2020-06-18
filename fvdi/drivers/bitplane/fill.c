@@ -481,53 +481,8 @@ long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h, short *patt
 
   c_get_colours((Virtual *)((long)vwk & ~1), colour, &foreground, &background);
 
-#if 0
-  MFDB src;
-  src.address   = pattern;
-  src.width     = 16;
-  src.height    = 16;
-  src.wdwidth   = 1;
-  src.standard  = 0;
-  src.bitplanes = 1;
-
-  /* Always fill with black, white or XOR, for the time being */
-  if (mode == 3)
-    c_blit_area(vwk, 0L, 0L, 0L, 0L, x, y, w, h, 12L);  /* XOR */
-  else if (colour == 1)
-    c_blit_area(vwk, 0L, 0L, 0L, 0L, x, y, w, h, 15L);  /* Black */
-  else
-    c_blit_area(vwk, 0L, 0L, 0L, 0L, x, y, w, h, 0L);   /* White */
-#else
   (void) interior_style;
   draw_rect(vwk, x, y, w, h, pattern, foreground, mode);
-#endif
 
   return 1;
 }
-
-
-#if 0
-long CDECL
-c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour)
-{
-  MFDB src;
-  short pixel;
-
-  /* Don't understand any table operations yet. */
-  if ((long)vwk & 1)
-    return -1;
-
-  pixel = 0x8000;
-  src.address   = &pixel;
-  src.width     = 16;
-  src.height    = 1;
-  src.wdwidth   = 1;
-  src.standard  = 0;
-  src.bitplanes = 1;
-
-  /* Blit a transparent (could as well have been replace mode) pixel */
-  c_expand_area(vwk, &src, 0L, 0L, mfdb, x, y, 1L, 1L, 2L, colour);
-
-  return 1;
-}
-#endif
