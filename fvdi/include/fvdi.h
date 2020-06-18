@@ -19,6 +19,8 @@
 #define CDECL
 #endif
 
+#define FVDI_MAGIC 0x66564449L /* "fVDI" */
+
 #define CHUNKY		1
 #define TRUE_COLOUR	2
 #define CHECK_PREVIOUS	4

@@ -324,13 +324,7 @@ no_vdi:
 	rts
 
 .version:
-	move.b	_vq_gdos_value+0,d0	 ; A vq_gdos, report name
-	lsl.w	#8,d0
-	move.b	_vq_gdos_value+1,d0
-	swap	d0
-	move.b	_vq_gdos_value+2,d0
-	lsl.w	#8,d0
-	move.b	_vq_gdos_value+3,d0
+	move.l	_vq_gdos_value,d0	 ; A vq_gdos, report name
 	rte
 
 .query:

@@ -98,7 +98,7 @@ char silent[32] = {
 	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 char silentx[1] = { 0 };
-char vq_gdos_value[] = "fVDI";
+long vq_gdos_value = FVDI_MAGIC;
 unsigned short sizes[64] = { 8, 9, 10, 11, 12, 14, 18, 24, 36, 48, 0xffff };
 
 short size_count = 11;
@@ -468,7 +468,6 @@ static long specify_cookie(Virtual *vwk, const char **ptr)
 long specify_vqgdos(Virtual *vwk, const char **ptr)
 {
     char token[TOKEN_SIZE];
-    long value;
 
     (void) vwk;
     if ((*ptr = skip_space(*ptr)) == NULL)
@@ -480,20 +479,11 @@ long specify_vqgdos(Virtual *vwk, const char **ptr)
 
     if ((token[0] == '$') || ((token[0] >= '0') && (token[0] <= '9')))
     {
-        value = atol(token);
-        vq_gdos_value[3] = (char)value;
-        value >>= 8;
-        vq_gdos_value[2] = (char)value;
-        value >>= 8;
-        vq_gdos_value[1] = (char)value;
-        value >>= 8;
-        vq_gdos_value[0] = (char)value;
+        vq_gdos_value = atol(token);
     } else
     {
-        vq_gdos_value[0] = token[0];
-        vq_gdos_value[1] = token[1];
-        vq_gdos_value[2] = token[2];
-        vq_gdos_value[3] = token[3];
+        token[4] = '\0';
+        vq_gdos_value = str2long(token);
     }
 
     return 1;
