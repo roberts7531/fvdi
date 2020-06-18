@@ -121,7 +121,7 @@ _trap2_temp:
 	movem.l	d0-d2/a0-a2,-(a7)
 
 	move.l	a7,a0
-	add.w	#6*4+8,a0
+	add.w	#6*4,a0
 	move.l	a0,-(a7)
 	move.l	d1,-(a7)
 	move.l	d0,-(a7)
@@ -146,30 +146,6 @@ _trap2_temp:
 
 	cmp.w	#1,d0			; Don't do anything until the
 	bne	.no_interest		;  screen workstation is opened.
-
-; Must not do this when it's only the fVDI startup code that's running
-; Fix it!!
-
-
-; REMOVE THIS AGAIN!
-  ifne FVDI_DEBUG
-	move.l	_super,a2
-	tst.w	(a2)				; Log function call if that has (super->fvdi_log.active)
-	beq	.no_log2			; been requested (only debug version)
-	move.l	a2,d0
-	move.l	6(a2),a2
-	move.l	$88,(a2)+
-	move.l	0(a7),(a2)+
-	move.l	4(a7),(a2)+
-	move.l	8(a7),(a2)+
-	move.l	12(a7),(a2)+
-	move.l	16(a7),(a2)+
-	exg	a2,d0
-	move.l	d0,6(a2)
-.no_log2:
-  endc
-
-
 
 	move.l	$88,a2
 	cmp.l	#_trap2_temp,a2
@@ -250,7 +226,12 @@ non_fvdi_ok:
 	cmp.w	#2,_debug
 	bls	.no_debug_special
 	movem.l	d0-d2/a0-a2,-(a7)
-	move.l	a2,-(a7)
+	ifne mcoldfire
+	move.l  8*4+4(a7),-(a7)
+	else
+	move.l  8*4+2(a7),-(a7)
+	endc
+	or.l    #1,d1
 	move.l	d1,-(a7)
 	jsr	_vdi_debug
 	addq.l	#8,a7
@@ -283,7 +264,11 @@ non_fvdi_ok:
 	exg	a2,d0
 	move.w	function(a1),(a2)+
 	move.w	subfunction(a1),(a2)+
-	move.l	4+10(a7),(a2)+		; Address of calling Trap #2
+	ifne mcoldfire
+	move.l  3*4+4(a7),(a2)+		; Address of calling Trap #2
+	else
+	move.l  3*4+2(a7),(a2)+		; Address of calling Trap #2
+	endc
 	exg	a2,d0
 	move.l	d0,6(a2)
 	move.l	(a7)+,a2
@@ -294,7 +279,11 @@ non_fvdi_ok:
 	cmp.w	#2,_debug
 	bls	.no_debug
 	movem.l	d0-d2/a0-a2,-(a7)
-	move.l	a2,-(a7)
+	ifne mcoldfire
+	move.l  8*4+4(a7),-(a7)
+	else
+	move.l  8*4+2(a7),-(a7)
+	endc
 	move.l	d1,-(a7)
 	jsr	_vdi_debug
 	addq.l	#8,a7

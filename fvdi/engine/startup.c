@@ -30,8 +30,6 @@
 #define MAX_NVDI_SEARCH		100	/* Words of forward search from the initial NVDI dispatcher */
 #define MAX_NVDI_DISTANCE	10000	/* Allowed distance between the two dispatchers */
 
-#define key_wait(time)	Crawcin()
-
 
 /*
  * Global variables
@@ -50,8 +48,8 @@ static int nvdi_patch(void);
 /* called from startup assembler code */
 long CDECL startup(void);
 void CDECL recheck_mtask(void);
-void CDECL vdi_debug(VDIpars * pars, char *vector);
-void CDECL trap2_debug(long type, VDIpars * pars, long *stack);
+void CDECL vdi_debug(VDIpars * pars, long pc);
+void CDECL trap2_debug(long type, VDIpars *pars, unsigned short *stack);
 void CDECL lineA_debug(long opcode, long pc);
 
 
@@ -98,7 +96,7 @@ long vdi_stack_size = sizeof(vdi_stack);
 
 static long bconout_hook(void)
 {
-	void **bconout_vec = (void **) 0x586;
+    void **bconout_vec = (void **) 0x586;
     bconout_address = *bconout_vec;
     *bconout_vec = bconout_stub;
 
@@ -107,7 +105,7 @@ static long bconout_hook(void)
 
 static long bconout_unhook(void)
 {
-	void **bconout_vec = (void **) 0x586;
+    void **bconout_vec = (void **) 0x586;
     *bconout_vec = bconout_address;
     bconout_address = 0;
 
@@ -564,7 +562,19 @@ void recheck_mtask(void)
 
 
 #ifdef FVDI_DEBUG
-void CDECL vdi_debug(VDIpars *pars, char *vector)
+
+long key_wait(void)
+{
+    long key;
+
+    PUTS("Press a key");
+    key = Crawcin();
+    PUTS("\r\n");
+    return key;
+}
+
+
+void CDECL vdi_debug(VDIpars *pars, long pc)
 {
     static long count = 1;
     static int entered = 0;
@@ -577,6 +587,7 @@ void CDECL vdi_debug(VDIpars *pars, char *vector)
     char key;
     MFDB *mfdb;
     long old_count;
+    const char *special;
 
     if (entered)
         return;
@@ -591,6 +602,14 @@ void CDECL vdi_debug(VDIpars *pars, char *vector)
         }
     }
 
+    if (((long) pars) & 1)
+    {
+        special = "special ";
+        pars = (VDIpars *)((long)pars & ~1);
+    } else
+    {
+        special = "";
+    }
     func = pars->control->function;
     if (silent[func >> 3] & (1 << (func & 7)))
     {
@@ -604,75 +623,46 @@ void CDECL vdi_debug(VDIpars *pars, char *vector)
     old_count = count;
     if (display || ((debug > 2) && (--count == 0)))
     {
-        if (vector && !*--vector)
-        {
-            /* If there is a name, locate it! */
-            while (*--vector)
-            	;
-            vector++;
-            access->funcs.puts(vector);
-            buf[0] = ' ';
-            access->funcs.ltoa(buf + 1, func, 10);
-        } else
-        {
-            access->funcs.puts("VDI ");
-            access->funcs.ltoa(buf, func, 10);
-        }
-        access->funcs.puts(buf);
+        kprintf("$%08lx: %sVDI(%d) %d", pc, special, pars->control->handle, func);
         if (pars->control->subfunction)
         {
-            buf[0] = ' ';
-            access->funcs.ltoa(buf + 1, pars->control->subfunction, 10);
-            access->funcs.puts(buf);
+            kprintf(",%d", pars->control->subfunction);
         }
-        access->funcs.puts("\n");
+        kputs("\n");
 
         if (pars->control->l_intin)
         {
-            access->funcs.puts("  Int");
-            access->funcs.ltoa(buf, pars->control->l_intin, 10);
-            access->funcs.puts(buf);
-            access->funcs.puts(" = ");
+            kprintf("  Int%d =", pars->control->l_intin);
             if ((func == 8) || (func == 241) || (func == 116) || (func == 117))
             {
-                access->funcs.puts("\"");
+                access->funcs.puts(" \"");
                 for (i = 0; i < MIN(pars->control->l_intin, 72); i++)
                 {
                     buf[0] = '.';
                     buf[1] = 0;
                     if ((pars->intin[i] >= 32) && (pars->intin[i] < 256))
                         buf[0] = (char)pars->intin[i];
-                    access->funcs.puts(buf);
+                    kputs(buf);
                 }
-                access->funcs.puts("\"");
+                kputs("\"");
             } else
             {
                 for (i = 0; i < MIN(pars->control->l_intin, 12); i++)
                 {
-                    access->funcs.ltoa(buf, pars->intin[i], 10);
-                    access->funcs.puts(buf);
-                    access->funcs.puts(" ");
+                    kprintf(" %d", pars->intin[i]);
                 }
             }
-            access->funcs.puts("\n");
+            kputs("\n");
         }
 
         if (pars->control->l_ptsin)
         {
-            access->funcs.puts("  Pts");
-            access->funcs.ltoa(buf, pars->control->l_ptsin, 10);
-            access->funcs.puts(buf);
-            access->funcs.puts(" = ");
+            kprintf("  Pts%d =", pars->control->l_ptsin);
             for (i = 0; i < MIN(pars->control->l_ptsin * 2, 12); i += 2)
             {
-                access->funcs.ltoa(buf, pars->ptsin[i], 10);
-                access->funcs.puts(buf);
-                access->funcs.puts(",");
-                access->funcs.ltoa(buf, pars->ptsin[i + 1], 10);
-                access->funcs.puts(buf);
-                access->funcs.puts(" ");
+                kprintf(" %d,%d", pars->ptsin[i], pars->ptsin[i + 1]);
             }
-            access->funcs.puts("\n");
+            kputs("\n");
         }
 
         if ((func == 109) || (func == 110) || (func == 121))
@@ -681,32 +671,20 @@ void CDECL vdi_debug(VDIpars *pars, char *vector)
             for (i = 0; i < 2; i++)
             {
                 if (i == 0)
-                    access->funcs.puts("  MFDB src = $");
+                    kputs("  MFDB src = ");
                 else
-                    access->funcs.puts("  MFDB dst = $");
+                    kputs("  MFDB dst = ");
                 if (!mfdb->address)
-                    access->funcs.puts("screen");
+                    kputs("screen\n");
                 else
                 {
-                    access->funcs.ltoa(buf, (long)mfdb->address, 16);
-                    access->funcs.puts(buf);
-                    access->funcs.puts(" ");
-                    access->funcs.ltoa(buf, mfdb->width, 10);
-                    access->funcs.puts(buf);
-                    access->funcs.puts("(");
-                    access->funcs.ltoa(buf, mfdb->wdwidth, 10);
-                    access->funcs.puts(buf);
-                    access->funcs.puts(") ");
-                    access->funcs.ltoa(buf, mfdb->height, 10);
-                    access->funcs.puts(buf);
-                    if (mfdb->standard)
-                        access->funcs.puts(" standard ");
-                    else
-                        access->funcs.puts(" specific ");
-                    access->funcs.ltoa(buf, mfdb->bitplanes, 10);
-                    access->funcs.puts(buf);
+                    kprintf("$%08lx %d(%d) %d %s %d\n",
+                        (long)mfdb->address,
+                        mfdb->width, mfdb->wdwidth,
+                        mfdb->height,
+                        mfdb->standard ? "standard" : "specific",
+                        mfdb->bitplanes);
                 }
-                access->funcs.puts("\n");
                 mfdb = (MFDB *)pars->control->addr2;
             }
         }
@@ -813,15 +791,14 @@ void display_output(VDIpars *pars)
 }
 
 
-void CDECL trap2_debug(long type, VDIpars *pars, long *stack)
+void CDECL trap2_debug(long type, VDIpars *pars, unsigned short *stack)
 {
     int i;
 
-    stack = (long *) ((long) stack + 10);
-    PUTS("Stack: \n");
+    PRINTF(("Stack: $%08lx\n", (long)stack)) ;
     for (i = 0; i < 16; i++)
     {
-        PRINTF(("%ld ", *stack++));
+        PRINTF(("$%04x ", *stack++));
     }
     PUTS(")\n");
 
@@ -833,7 +810,7 @@ void CDECL trap2_debug(long type, VDIpars *pars, long *stack)
     {
         PRINTF(("Trap #2: $%lx ($%08lx)\n", type, *(long *) 0x88));
 
-        (void) KEY_WAIT(10);
+        KEY_WAIT(10);
     }
 }
 

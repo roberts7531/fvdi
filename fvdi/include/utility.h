@@ -77,7 +77,8 @@ void check_memory(void);
 extern Access *access;
 #define PUTS(x) access->funcs.puts(x)
 #define PRINTF(x) kprintf x
-#define KEY_WAIT(x) key_wait(x)
+#define KEY_WAIT(x) key_wait()
+long key_wait(void);
 #else
 #define PUTS(x)
 #define PRINTF(x)

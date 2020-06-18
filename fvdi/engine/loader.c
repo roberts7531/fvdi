@@ -93,9 +93,9 @@ short stand_alone = 0;
 short nvdi_cookie = 0;
 short speedo_cookie = 0;
 short calamus_cookie = 0;
-char silent[32] = {
+char silent[256 / 8] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 char silentx[1] = { 0 };
 long vq_gdos_value = FVDI_MAGIC;
