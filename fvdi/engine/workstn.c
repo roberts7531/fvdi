@@ -39,7 +39,7 @@ void linea_setup(Workstation *wk)
         linea_orig[4] = linea[-0x306 / 2];  /* INQ_TAB[4] */
         linea_orig[5] = linea[0];           /* PLANES */
         linea_orig[6] = linea[1];           /* WIDTH */
-        linea_orig[7] = linea[-1];
+        linea_orig[7] = linea[-1];          /* BYTES_LIN */
         linea_orig[8] = linea[-0x304 / 2];  /* INQ_TAB[5] */
         linea_orig[9] = linea[-0x266 / 2];  /* DEV_TAB[39] */
         linea_orig[10] = linea[-0x26e / 2]; /* DEV_TAB[35] */
@@ -537,16 +537,24 @@ void CDECL vq_devinfo(VDIpars *pars)
 #ifdef FVDI_DEBUG
             {
                 int i;
+                char buf[2];
                 
                 PUTS("vq_devinfo:\n");
                 display_output(pars);
+                buf[1] = '\0';
                 PUTS("filename: ");
                 for (i = 0; i < pars->control->l_intout; i++)
-                    PUTS(pars->intout[i]);
+                {
+                    buf[0] = pars->intout[i];
+                    PUTS(buf);
+                }
                 PUTS("\n");
                 PUTS("device name: ");
                 for (i = 1; i < pars->control->l_ptsout; i++)
-                    PUTS(pars->ptsout[i]);
+                {
+                    buf[0] = pars->ptsout[i];
+                    PUTS(buf);
+                }
                 PUTS("\n");
             }
 #endif
