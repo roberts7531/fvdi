@@ -829,7 +829,7 @@ void lineA_debug(long opcode, long pc)
         return;
     entered = 1;
 
-    PRINTF(("LineA call ($a00%x) at $%08lx.\n", (int)opcode & 0, pc));
+    PRINTF(("LineA call ($a00%x) at $%08lx.\n", (int)opcode & 0x0f, pc));
 
     entered = 0;
 }

@@ -22,7 +22,7 @@
 #ifdef FVDI_DEBUG
 static void debug_out(const char *text1, int w, int old_w, int h, int src_x, int src_y, int dst_x, int dst_y)
 {
-    PRINTF(("%s%d", w));
+    PRINTF(("%s%d", text1, w));
     if (old_w > 0) {
         PRINTF(("(%d))", old_w));
     }
