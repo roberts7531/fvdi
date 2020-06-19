@@ -383,6 +383,12 @@ static void check_cookies(void)
         nf_ops = &_nf_ops;
 #endif
     nf_print_id = nf_get_id(NF_ID_STDERR);
+    /*
+     * default to NatFeats logging when detected.
+     * Can be overridden in config file
+     */
+    if (nf_print_id)
+        debug_out = -1;
 }
 
 
@@ -1409,11 +1415,9 @@ long free_all(void)
 
 long DRIVER_EXPORT kputs(const char *text)
 {
-    int file;
-
     if ((debug_out == -3) && debug_file)
     {
-        file = -1;
+        int file;
 
         if (((file = (int)Fopen(debug_file, O_WRONLY)) < 0) ||
             (Fseek(0, file, SEEK_END) < 0) ||

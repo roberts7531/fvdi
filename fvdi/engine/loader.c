@@ -87,6 +87,12 @@ short arc_split = 16384;  /* 1/4 as many lines as largest ellipse axel radius in
 short arc_min = 16;       /* Minimum number of lines in an ellipse */
 short arc_max = 256;      /* Maximum */
 short no_vex = 0;
+/*
+ * -3: write to file
+ * -2: write to console
+ * -1: write using natfeats if present, otherwise to console
+ * >=0: write to that BIOS device
+ */
 short debug_out = -2;
 short interactive = 0;
 short stand_alone = 0;
