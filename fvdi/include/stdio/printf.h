@@ -340,7 +340,7 @@ long DRIVER_EXPORT ksprintf(char *str, const char *format, ...)
 long DRIVER_EXPORT kprintf(const char *format, ...)
 {
     va_list args;
-    char buf[512];
+    static char buf[512];
     long ret;
     
     va_start(args, format);
