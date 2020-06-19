@@ -349,18 +349,24 @@ long startup(void)
      */
 
     old_eddi = get_cookie("EdDI", 0);
+    if (old_eddi == -1)
+        old_eddi = 0;
     set_cookie("EdDI", (long) eddi_dispatch);
 
     old_fsmc = get_cookie("FSMC", 0);			/* Experimental */
+    if (old_fsmc == -1)
+        old_fsmc = 0;
     set_cookie("FSMC", (long)&readable->fsmc_cookie);
 
     if (nvdi_cookie)
     {
         old_nvdi = get_cookie("NVDI", 0);
+        if (old_nvdi == -1)
+            old_nvdi = 0;
         set_cookie("NVDI", (long)&readable->nvdi_cookie);
     }
 
-    if (calamus_cookie && (get_cookie("DCSD", 0) == -1))
+    if (calamus_cookie && get_cookie("DCSD", 0) == -1)
     {
         set_cookie("DCSD", (long)&readable->dcsd_cookie);
         PUTS("Calamus cookie installed\n");
@@ -611,7 +617,7 @@ void CDECL vdi_debug(VDIpars *pars, long pc)
         special = "";
     }
     func = pars->control->function;
-    if (silent[func >> 3] & (1 << (func & 7)))
+    if (func >= 0 && func < 256 && silent[func >> 3] & (1 << (func & 7)))
     {
         entered = 0;
         return;

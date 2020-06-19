@@ -75,15 +75,8 @@ typedef struct _Circle {
 
 static Circle *mblocks = 0;
 
-short Falcon = 0;
-short TT = 0;
 long cpu = 0;
-long fpu = 0;
-long frb = 0;
-long video = 0;
 
-long nvdi = 0;
-long eddi = 0;
 long mint = 0;
 long magic = 0;
 
@@ -349,22 +342,8 @@ static void check_cookies(void)
     long addr;
 
     cpu = get_cookie("_CPU", 0);
-    fpu = get_cookie("_FPU", 0);
-    frb = get_cookie("_FRB", 0);
-    video = get_cookie("_VDO", 0);
-    switch ((int) (video >> 16))
-    {
-    case 0x0003:
-        Falcon = 1;
-        break;
-    case 0x0002:
-        TT = 1;
-        break;
-    }
-    if ((addr = get_cookie("NVDI", 0)) != -1)
-        nvdi = *(long *)addr;
-    if ((addr = get_cookie("EdDI", 0)) != -1)
-        eddi = (long)addr;
+    if (cpu == -1)
+        cpu = 0;
     if ((addr = get_cookie("MiNT", 0)) != -1)
         mint = (long)addr;
     if ((addr = get_cookie("MagX", 0)) != -1)
