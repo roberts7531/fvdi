@@ -347,8 +347,8 @@ void CDECL v_opnvwk(Virtual *vwk, VDIpars *pars)
         c = BLACK;
     vwk->marker.colour.foreground = c;
     lib_vst_font(vwk, pars->intin[5]);
-    /* Default to 10 point font (or less) (should really depend on resolution) */
-    lib_vst_point(vwk, 10, &dummy, &dummy, &dummy, &dummy);
+    /* Default to 10 or 9 point font */
+    lib_vst_point(vwk, wk->screen.mfdb.height >= 400 ? 10 : 9, &dummy, &dummy, &dummy, &dummy);
     c = pars->intin[6];
     if (c >= wk->screen.palette.size)
         c = BLACK;

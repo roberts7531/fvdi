@@ -14,7 +14,7 @@
 	text
 
 
-* int clip_line(Virtual *vwk, short *x1, short *y1, short *x2, short *y2)
+* int clip_line(Virtual *vwk, long *x1, long *y1, long *x2, long *y2)
 _clip_line:
 	movem.l	d2-d4,-(a7)
 	move.l	3*4+4(a7),a0
