@@ -59,7 +59,7 @@ static void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, lo
 {
     short i, j, start, angle;
 
-    if (vwk->clip.on)
+    /* if (vwk->clip.on) */
     {
         if (((xc + xrad) < vwk->clip.rectangle.x1) ||
             ((xc - xrad) > vwk->clip.rectangle.x2) ||

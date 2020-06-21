@@ -8,7 +8,7 @@
 
 always_clip_r	equ	1		; Always clip rectangles?
 always_clip_p	equ	1		; Always clip points?
-always_clip_l	equ	0		; Always clip lines?
+always_clip_l	equ	1		; Always clip lines?
 
 	.include	"vdi.inc"
 	.include	"macros.inc"

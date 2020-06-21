@@ -58,7 +58,7 @@ void filled_poly(Virtual *vwk, short p[][2], long n, Fgbg colour,
         }
     }
 
-    if (vwk->clip.on)
+    /* if (vwk->clip.on) */
     {
         if (miny < vwk->clip.rectangle.y1)
             miny = vwk->clip.rectangle.y1;
@@ -177,7 +177,7 @@ void filled_poly_m(Virtual *vwk, short p[][2], long n, Fgbg colour,
             maxy = y;
         }
     }
-    if (vwk->clip.on)
+    /* if (vwk->clip.on) */
     {
         if (miny < vwk->clip.rectangle.y1)
             miny = vwk->clip.rectangle.y1;

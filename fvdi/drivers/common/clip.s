@@ -56,8 +56,8 @@ _clip_line:
 * Out:	d1-d4	clipped coordinates
 clip_line:
 	movem.l		d0/d5-d7,-(a7)
-	tst.w		vwk_clip_on(a0)
-	beq		.end_clip
+;	tst.w		vwk_clip_on(a0)
+;	beq		.end_clip
 
 	moveq		#0,d0		; Coordinate flip flag
 	move.w		vwk_clip_rectangle_x1(a0),d6
