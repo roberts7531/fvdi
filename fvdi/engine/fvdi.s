@@ -36,11 +36,10 @@ STACK_SIZE	equ	4096		; Used to be 2048
 	xref	default_functions,default_opcode5,default_opcode11
 	xref	clip_table
 	xref	_handle,_handle_link
-	xref	_booted,_fakeboot
+	xref	_booted
 	xref	_screen_virtual,_default_virtual,_screen_wk
 	xref	redirect_d0
 	xref	start_unimpl,end_unimpl
-	xref	_initialized
 	xref	_recheck_mtask
 	xref	_debug,_xbiosfix
 	xref	_vdi_debug,_trap2_debug,_lineA_debug
@@ -54,7 +53,7 @@ STACK_SIZE	equ	4096		; Used to be 2048
 	xdef	_vdi_address
 	xdef	opcode5,opcode11
 	xdef	_bad_or_non_fvdi_handle
-	xdef	sub_call,_sub_call
+	xdef	_sub_call
 	xdef	_trap14_address,_trap14
 	xdef	_lineA_address,_lineA
 
@@ -102,7 +101,6 @@ _init:
 * XBRA chain for Trap #2
 	dc.b	"XBRA"
 	dc.b	"fVDI"
-trap2_address:
 _trap2_address:
 	dc.l	0
 
@@ -150,10 +148,10 @@ _trap2_temp:
 	move.l	$88,a2
 	cmp.l	#_trap2_temp,a2
 	bne	.not_alone
-	move.l	trap2_address,a2
+	move.l	_trap2_address,a2
 .not_alone:
 	move.l	a2,_vdi_address
-	move.l	#vdi_dispatch,$88	; Link in the real dispatcher
+	move.l	#_vdi_dispatch,$88	; Link in the real dispatcher
 
 	movem.l	d1-d2/a0-a1,-(a7)
 	bsr	_recheck_mtask		; MiNT/MagiC started after fVDI?
@@ -161,12 +159,12 @@ _trap2_temp:
 
 	move.l	(a7)+,a2
 	moveq	#$73,d0
-	bra	vdi_dispatch
+	bra	_vdi_dispatch
 
 .no_interest:
 	move.l	(a7)+,a2
 .tt_no_vdi:
-	move.l	trap2_address,-(a7)
+	move.l	_trap2_address,-(a7)
 	rts
 
 
@@ -180,7 +178,6 @@ _vdi_address:
 * Todo: Efficiency? Dangers?
 * In:	d0	$73 for VDI, else jump to old routine
 *	d1	Parameter block
-vdi_dispatch:
 _vdi_dispatch:
 	cmp.w	#fvdi_magic,d0		; Changed to $73 if fVDI is enabled
 	bne	no_vdi
@@ -299,7 +296,7 @@ non_fvdi_ok:
 * but check for a few other possibilities
 no_vdi:
     ; Just to be safe, check that fVDI is 'on top'
-    lea vdi_dispatch+2(pc),a0
+    lea _vdi_dispatch+2(pc),a0
 	cmp.w	#fvdi_magic,(a0)
 	beq	.disabled
   ifne return_version
@@ -356,8 +353,6 @@ bad_handle:				; The handle definitely was bad
 	rte
 
 .opnwk_ok:				; Fake handle/vwk when necessary
-	tst.w	_fakeboot
-	bne	.really_ok
 	tst.w	_booted
 	bne	.first_opnwk
 .really_ok:
@@ -420,7 +415,6 @@ _bad_or_non_fvdi_handle:
 * XBRA chain for Trap #2 with d0 == $ffff
 	dc.b	"XBRA"
 	dc.b	"fVDI"
-sub_call:
 _sub_call:
 	dc.l	0
 

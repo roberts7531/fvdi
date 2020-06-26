@@ -1643,7 +1643,7 @@ void DRIVER_EXPORT event(long id_type, long data)
             if (data != xy)
             {
                 if (move_mouse)
-                    vector_call(mouse_move, data);
+                    vector_call(user_cur, data);
                 data = vector_call(screen_wk->vector.motion, data);
                 data = vector_call(screen_wk->vector.draw, data);
             }
@@ -1664,9 +1664,7 @@ void DRIVER_EXPORT event(long id_type, long data)
         }
         break;
     case 5:    /* Vertical blank */
-        if (vbl_handler_installed)
-            shutdown_vbl_handler();
-        data = vector_call(screen_wk->vector.vblank, data);
+        /* data = vector_call(screen_wk->vector.vblank, data); */
         break;
     case 6:    /* Forced absolute move */
         xyp = (long *) &screen_wk->mouse.position.x;

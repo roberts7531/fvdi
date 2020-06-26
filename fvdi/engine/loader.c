@@ -67,10 +67,7 @@ unsigned short (*external_char_index)(Virtual *vwk, Fontheader *font, short *int
 List *driver_list = 0;
 List *module_list = 0;
 
-short disabled = 0;
 short booted = 0;
-short fakeboot = 0;
-short oldmouse = 0;
 short keep = 0;
 short debug = 0;
 short nvdifix = 0;
@@ -110,7 +107,6 @@ unsigned short sizes[64] = { 8, 9, 10, 11, 12, 14, 18, 24, 36, 48, 0xffff };
 short size_count = 11;
 short size_user = 0;
 short old_malloc = 0;
-short fall_back = 0;
 short move_mouse = 0;
 short ext_malloc = 0;
 #ifdef FVDI_DEBUG
@@ -120,6 +116,7 @@ short bconout = 0;
 short file_cache_size = 0;
 short antialiasing = 0;
 char *debug_file = 0;
+static short dummy_v;
 
 static char path[PATH_SIZE];
 
@@ -162,8 +159,8 @@ static Option const options[] = {
     {"goto", { go_to }, -1 },               /* goto label, go to :label */
     {"echo", { echo_text }, -1 },           /* echo str, write some text to the display */
     {"booted", { &booted }, 1 },            /* booted, fVDI really runs from the AUTO folder */
-    {"fakeboot", { &fakeboot }, 1 },        /* fakeboot, pretend that fVDI runs from the AUTO folder */
-    {"oldmouse", { &oldmouse }, 1 },        /* oldmouse, use only the previous VDI for mouse handling */
+    {"fakeboot", { &dummy_v }, 1 },         /* obsolete */
+    {"oldmouse", { &dummy_v }, 1 },         /* obsolete */
     {"nvdifix", { &nvdifix }, 1 },          /* nvdifix, patch NVDI for 'background' operation */
     {"lineafix", { &lineafix }, 1 },        /* lineafix, modify more lineA variables than normally */
     {"xbiosfix", { &xbiosfix }, 1 },        /* xbiosfix, return correct screen addresses from the XBIOS */
@@ -174,7 +171,7 @@ static Option const options[] = {
 #if 0
     {"alias", { &alias }, 0 },              /* alias, doesn't do anything at all currently */
 #endif
-    {"disable", { &disabled }, 1 },         /* disable, the fVDI magic number is never changed from 1969 to $73 */
+    {"disable", { &dummy_v }, 1 },          /* obsolete */
     {"novex", { &no_vex }, 1 },             /* novex, disable all the vex_ functions */
     {"width", { set_width }, -1 },          /* width, set screen width in mm */
     {"height", { set_height }, -1 },        /* height, set screen height in mm */
@@ -194,7 +191,7 @@ static Option const options[] = {
     {"silent", { set_silent }, -1 },        /* silent n, no debug for VDI call n */
     {"size", { set_size }, -1 },            /* size n, specify a default available font size */
     {"oldmalloc", { &old_malloc }, 1 },     /* oldmalloc, use only the standar Malloc/Free */
-    {"fallback", { &fall_back }, 1 },       /* fallback, forces fVDI to open workstation on an underlying VDI */
+    {"fallback", { &dummy_v }, 1 },         /* obsolete */
     {"movemouse", { &move_mouse }, 1 },     /* movemouse, forces fVDI to call its movement vector explicitly */
     {"extmalloc", { &ext_malloc }, 4 },     /* extalloc n, extend all malloc's by n bytes */
 #ifdef FVDI_DEBUG
@@ -323,6 +320,7 @@ static int load_driver(const char *name, Driver *driver, Virtual *vwk, char *opt
         return 0;
     }
 
+    kprintf("fVDI: %s loaded at $%08lx\n", name, (long)addr);
     return init_result;
 }
 
@@ -1269,6 +1267,7 @@ static long load_fonts(Virtual *vwk, const char **ptr)
 }
 
 
+#ifdef __GNUC__
 static Fontheader **linea_fonts(void)
 {
 	register Fontheader **fonts __asm__("a1");
@@ -1284,6 +1283,30 @@ static Fontheader **linea_fonts(void)
 		: "d0", "d1", "d2", "a0", "a2", "cc" AND_MEMORY);
 	return fonts;
 }
+#endif
+
+
+#ifdef __PUREC__
+/*
+ * note: we have to use d0 here, not a0,
+ * because this whole project is compiled with cdecl calling
+ */
+static void push_a2(void) 0x2F0A;
+static void pop_a2(void) 0x245F;
+static long get_a1(void) 0x2009; /* move.l a1,d0 */
+static void *linea0(void) 0xa000;
+
+static Fontheader **CDECL linea_fonts(void)
+{
+	long fonts;
+
+	push_a2();
+	linea0();
+	fonts = get_a1();
+	pop_a2();
+	return (Fontheader **)fonts;
+}
+#endif
 
 
 /*

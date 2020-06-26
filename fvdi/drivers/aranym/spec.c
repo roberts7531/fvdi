@@ -467,15 +467,6 @@ long CDECL initialize(Virtual *vwk)
 
     setup_wk(vwk);
 
-    if (event_query())
-    {
-        irq = 1;
-        access->funcs.event(((long) me->module.id << 16) | 0, 0);
-    } else
-    {
-        irq = 0;
-    }
-
     if (debug > 2)
     {
         PRINTF(("  fb_base = $%08lx\n", c_get_videoramaddress()));
@@ -536,16 +527,6 @@ Virtual *CDECL opnwk(Virtual *vwk)
     resolution.bpp = set_bpp((int) c_get_bpp());
 
     setup_wk(vwk);
-
-    if (irq)
-    {
-        next_handler = Setexc(27, event_trampoline);
-        if (event_init() != 1)
-        {
-            irq = 0;
-            (void) Setexc(27, next_handler);
-        }
-    }
 
     return 0;
 }

@@ -141,21 +141,6 @@ silent 23 24 25 104 114
 # Defaults to 4, but is neither allocated nor used without 'debug'.
 #logsize 100
 
-# Uncomment this one to use the mouse routines from the old VDI.
-# You will also need to add the same switch to the configuration line
-# of the driver being used.
-#oldmouse
-
-# To test the boot code without actually rebooting the system, it can
-# be useful to uncomment the following. With this enabled, no previous
-# virtual workstations will be copied by fVDI. They will actually continue
-# to be handled by the old VDI
-#fakeboot
-
-# For testing purposes it can be useful to make fVDI available in
-# parallel with the normal VDI. See the documentation for information.
-#disable
-
 
 # ----- Interactive setup -----
 
@@ -202,8 +187,6 @@ size 6 8 9 10 11 12 14 16 18 24 36 40 44 48 64 72
 #     If this option is not used, all acceleration will be on.
 #     Acceleration possibilities (in order):
 #        line expand fillpoly fill blit text mouse
-# oldmouse
-#     Well, this switch is actually needed here too.
 
 # The standard software accelerated drivers all recognize
 # shadow
@@ -342,11 +325,11 @@ goto font_specification
 goto font_specification
 
 :res1920x960x4
-01r aranym.sys mode 1920x960x4@72 accelerate xxxxxxx
+01r aranym.sys mode 1920x960x4@72 irq accelerate xxxxxxx
 goto font_specification
 
 :res640x480x32
-01r aranym.sys mode 640x480x32@72 accelerate xxxxxxx
+01r aranym.sys mode 640x480x32@72 irq accelerate xxxxxxx
 goto font_specification
 
 :res1920x960x16
@@ -354,11 +337,11 @@ goto font_specification
 goto font_specification
 
 :res640x480x8
-01r aranym.sys mode 640x480x8@72 accelerate xxxxxxx
+01r aranym.sys mode 640x480x8@72 irq accelerate xxxxxxx
 goto font_specification
 
 :res1280x1024x16
-01r aranym.sys mode 1280x1024x16@72 accelerate xxxxxxx
+01r aranym.sys mode 1280x1024x16@72 irq accelerate xxxxxxx
 goto font_specification
 
 :font_specification

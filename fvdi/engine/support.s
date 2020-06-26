@@ -100,7 +100,6 @@ _call_other:
 	move.l	8(a7),d0
 asm_call_other:
 	move.l	a1,d1			; That's where the VDI wants it
-;	move.l	a0,-(a7)		; Remember workstation struct
 	move.l	control(a1),a0
 	move.w	handle(a0),-(a7)	; Remember original handle
 	move.w	d0,handle(a0)		; Point to handle from above (normally default physical workstation)
@@ -125,7 +124,6 @@ asm_call_other:
 	move.l	control(a1),a0
 	move.w	handle(a0),d0
 	move.w	(a7)+,handle(a0)
-;	move.l	(a7)+,a0		; Workstation struct
 	rts
  else
 	pea	.vdi_ret(pc)

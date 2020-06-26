@@ -110,21 +110,6 @@ singlebend
 # Defaults to 4, but is neither allocated nor used without 'debug'.
 #logsize 100
 
-# Uncomment this one to use the mouse routines from the old VDI.
-# You will also need to add the same switch to the configuration line
-# of the driver being used.
-#oldmouse
-
-# To test the boot code without actually rebooting the system, it can
-# be useful to uncomment the following. With this enabled, no previous
-# virtual workstations will be copied by fVDI. They will actually continue
-# to be handled by the old VDI
-#fakeboot
-
-# For testing purposes it can be useful to make fVDI available in
-# parallel with the normal VDI. See the documentation for information.
-#disable
-
 
 # ----- Interactive setup -----
 
@@ -165,8 +150,6 @@ singlebend
 #     If this option is not used, all acceleration will be on.
 #     Acceleration possibilities (in order):
 #        line expand fillpoly fill blit text mouse
-# oldmouse
-#     Well, this switch is actually needed here too.
 
 # The standard software accelerated drivers all recognize
 # shadow

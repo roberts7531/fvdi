@@ -16,16 +16,13 @@ void linea_setup(Workstation *);
 long vector_call(void *vector, long data);
 
 void do_nothing(void);
-void mouse_move(void);
-void mouse_timer(void);
-void vbl_handler(void);
+void user_cur(void);
 
 void bad_or_non_fvdi_handle(void);
 
 int load_prefs(Virtual *vwk, const char *sysname);
 Virtual *initialize_vdi(void);
 void copy_workstations(Virtual *def, long really_copy);
-void setup_fallback(void);
 void shut_down(void);
 long tokenize(const char *buffer);
 void CDECL set_palette(Virtual *vwk, DrvPalette *palette_pars);
@@ -74,10 +71,8 @@ void CDECL lib_vdi_pp(void *func, Virtual *vwk, void *, void *);
  #endif
 #endif
 
-void link_mouse_routines(void);
-void unlink_mouse_routines(void);
-void setup_vbl_handler(void);
-void shutdown_vbl_handler(void);
+void init_interrupts(void);
+void reset_interrupts(void);
 
 int lib_vst_font(Virtual *vwk, long fontID);
 int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh, short *cellw, short *cellh);

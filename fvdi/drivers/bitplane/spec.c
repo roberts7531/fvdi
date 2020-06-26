@@ -201,7 +201,7 @@ long initialize(Virtual *vwk)
         break;
     default:
 		access->funcs.puts("Unsupported BPP.\n");
-        break;
+        return 0;
     }
     setup_scrninfo(me->device, graphics_mode);
 

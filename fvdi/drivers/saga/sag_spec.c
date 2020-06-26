@@ -321,11 +321,8 @@ long CDECL initialize(Virtual *vwk)
 	pixel.height = wk->screen.pixel.height;
 
 	/*
-	 * wk->mouse.type is set by fVDI kernel,
-	 * if oldmouse was not specified in config line for driver,
-	 * and accelerated mouse routines are in use
+	 * accelerated mouse routines are in use
 	 */
-	if (wk->mouse.type)
 	{
 		/* check whether hardware sprites are supported */
 		UBYTE boardid = ( *(volatile UWORD*)VREG_BOARD ) >> 8;
@@ -412,11 +409,8 @@ Virtual* CDECL opnwk(Virtual *vwk)
 	else									/*	 or fixed DPI (negative) */
 		wk->screen.pixel.height = 25400 / -pixel.height;
 
-	if (wk->mouse.type)
-	{
-		wk->mouse.position.x = ((wk->screen.coordinates.max_x - wk->screen.coordinates.min_x + 1) >> 1) + wk->screen.coordinates.min_x;
-		wk->mouse.position.y = ((wk->screen.coordinates.max_y - wk->screen.coordinates.min_y + 1) >> 1) + wk->screen.coordinates.min_y;
-	}
+	wk->mouse.position.x = ((wk->screen.coordinates.max_x - wk->screen.coordinates.min_x + 1) >> 1) + wk->screen.coordinates.min_x;
+	wk->mouse.position.y = ((wk->screen.coordinates.max_y - wk->screen.coordinates.min_y + 1) >> 1) + wk->screen.coordinates.min_y;
 
 	return 0;
 }

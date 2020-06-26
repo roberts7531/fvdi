@@ -20,12 +20,11 @@ extern short old_gdos;
 
 extern short old_wk_handle;
 
-extern short vbl_handler_installed;
-
 extern long basepage;
 extern short key_pressed;
 
 extern long *pid;
+extern void *linea_vars;
 
 extern void (*trap2_address)(void);
 extern void (*vdi_address)(void);
@@ -76,15 +75,11 @@ extern long vdi_stack_size;
 /*
  * Option values
  */
-extern short disabled;
 extern short booted;
-extern short fakeboot;
-extern short oldmouse;
 extern short debug;
 extern short nvdifix;
 extern short lineafix;
 extern short bconout;
-extern short bconout_redir;
 extern short xbiosfix;
 extern short singlebend;
 extern short memlink;
@@ -105,13 +100,11 @@ extern char silentx[];
 extern unsigned short sizes[];
 extern short size_count;
 extern short old_malloc;
-extern short fall_back;
 extern short move_mouse;
 extern short ext_malloc;
 #ifdef FVDI_DEBUG 
 extern short check_mem;
 #endif
-extern short bconout;
 extern short file_cache_size;
 extern short antialiasing;
 extern char *debug_file;

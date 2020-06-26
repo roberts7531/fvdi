@@ -99,7 +99,9 @@ _call_v_opnwk:
 	move.w		_control+12,d0
 	rts
 
+*
 * handle = scall_v_opnwk(long dev_id, short *int_out, short *pts_out);
+* call v_opnwk() directly using the previous VDI dispatcher
 *
 _scall_v_opnwk:
 	lea		_control,a0
@@ -130,7 +132,9 @@ _scall_v_opnwk:
 	move.w		_control+12,d0
 	rts
 
+*
 * handle = scall_v_clswk(long handle);
+* call v_clswk() directly using the previous VDI dispatcher
 *
 _scall_v_clswk:
 	lea		_control,a0

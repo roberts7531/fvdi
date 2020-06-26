@@ -39,6 +39,7 @@ long basepage;
 static char fake_bp[256];
 
 short old_gdos;
+void *linea_vars;
 
 static long CDECL remove_fvdi(void);
 static long CDECL setup_fvdi(unsigned long, long);
@@ -112,6 +113,7 @@ static long bconout_unhook(void)
     return 0;
 }
 
+
 /*
  * Top level fVDI initialization
  */
@@ -152,6 +154,7 @@ long startup(void)
         error("Error while initializing VDI.", NULL);
         return 0;
     }
+    screen_wk = base_vwk->real_address;
 
     if (!load_prefs(base_vwk, SYSNAME))
     {
@@ -209,15 +212,19 @@ long startup(void)
         PUTS("Removing previous XBRA.\n");
     }
 
+    sub_call = get_sub_call();
+
     if (nvdifix && nvdi_patch() && debug)
     {
         PUTS("Patching NVDI dispatcher\n");
     }
 
-    if (booted && !fakeboot && !singlebend)
+#if 0 /* currently does not work */
+    if (booted && !singlebend)
     {
         trap2_address = (void (*)(void)) Setexc(34, trap2_temp);	/* Install a temporary trap handler if real boot (really necessary?) */
     } else
+#endif
     {
         vdi_address = (void (*)(void)) Setexc(34, vdi_dispatch);	/*   otherwise the dispatcher directly */
     }
@@ -318,24 +325,33 @@ long startup(void)
         {
             PUTS("Copying available virtual workstations\n");
         }
-        copy_workstations(first_vwk, !fakeboot);	/* f.vwk - default vwk to set up for, fall-through if fakeboot */
-    } else if (!disabled)
+        copy_workstations(first_vwk, 1);    /* f.vwk - default vwk to set up for, fall-through if fakeboot */
+    } else
     {
-        if (!fakeboot && (!stand_alone || fall_back))
+#if 0
+        short intout[45];
+        short ptsout[12];
+
+        if (!stand_alone)
         {
             if (debug)
             {
                 PUTS("About to set up VDI fallback. Press any key.\n");
                 KEY_WAIT(10);           /* It's too late to wait for a key afterwards */
             }
-            setup_fallback();
-            readable->cookie.flags |= BOOTED;
+            /*
+             * When fVDI is being booted, this will open a
+             * screen workstation using the old VDI.
+             * This is then used mainly for mouse/keyboard input.
+             */
+            old_wk_handle = call_v_opnwk(1, intout, ptsout);
         }
+#endif
+        readable->cookie.flags |= BOOTED;
     }
 
     old_gdos = vq_gdos();
 
-    if (!disabled)
     {
         /* dangerous! This is self-modifying code ! Need to cache flush below to be safe */
         * (short *) ((long) vdi_dispatch + 2) = 0x0073;	/* Finally make fVDI take normal VDI calls */

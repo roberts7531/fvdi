@@ -428,6 +428,7 @@ void CDECL v_opnwk(VDIpars *pars)
         return;
     }
 
+#if 0
     /* Experimenting, 001217/010109 */
     if (!old_wk_handle && !stand_alone)
     {
@@ -435,6 +436,7 @@ void CDECL v_opnwk(VDIpars *pars)
 
         old_wk_handle = scall_v_opnwk(1, intout, ptsout);
     }
+#endif
 
     driver = (Driver *)driver_list->value;
     if ((vwk = driver->opnwk(default_virtual)) != NULL)
@@ -446,14 +448,11 @@ void CDECL v_opnwk(VDIpars *pars)
     screen_wk = wk = vwk->real_address;
 
     linea_setup(wk);
-
-    if (wk->mouse.type && !stand_alone)	/* Old mouse? */
-        link_mouse_routines();
-
-    if (stand_alone)
-        setup_vbl_handler();
+    init_interrupts();
 
     v_opnvwk(vwk, pars);
+
+    old_wk_handle = pars->control->handle;
 
     screen_vwk = *find_handle_entry(pars->control->handle);
 }
@@ -507,18 +506,17 @@ void CDECL v_clswk(Virtual *vwk, VDIpars *pars)
     wk = vwk->real_address;
     v_clsvwk(vwk, pars);
 
-    driver = wk->driver;
-    if (driver && wk != non_fvdi_wk && driver->module.id <= LAST_SCREEN_DEVICE)
+    if (wk != non_fvdi_wk && (driver = wk->driver) != NULL && driver->module.id <= LAST_SCREEN_DEVICE)
     {
-        unlink_mouse_routines();
-        shutdown_vbl_handler();
-
         screen_wk = 0;
 
         driver->clswk(vwk);
 
-        if (old_wk_handle)
+#if 0
+        if (old_wk_handle && !stand_alone)
             scall_v_clswk(old_wk_handle);
+#endif
+        reset_interrupts();
     }
 }
 

@@ -24,14 +24,12 @@ transparent	equ	1		; Fall through?
 
 	xdef	nothing
 	xdef	v_clrwk,v_updwk
-;	xdef	vrq_locator,vrq_valuator,vrq_choice,vrq_string,vsin_mode
 	xdef	vrq_locator,vrq_valuator,vrq_choice,vsin_mode
 	xdef	v_contourfill
 	xdef	vqin_mode
 	xdef	v_cellarray,vq_cellarray
 	xdef	vst_name,vst_width
 	xdef	v_getoutline,vst_scratch
-;	xdef	vst_error,vq_devinfo,v_savecache
 	xdef	vst_error,v_savecache
 	xdef	v_loadcache,v_flushcache,vst_setsize,vqt_cachesize
 	xdef	vqt_get_table
@@ -46,7 +44,6 @@ transparent	equ	1		; Fall through?
 	text
 
 start_unimpl:
-	dc.b	"Unimplemented functions",0
 
 * xxxx - Standard Trap function
 * Unimplemented traps
@@ -69,10 +66,8 @@ vrq_valuator:
 vrq_choice:
 ;vrq_string:
 vqin_mode:
-  ifne 1
 	move.l	intout(a1),a2
 	clr.w	(a2)
-  endc
 	bra	redirect
 
 vsin_mode:			; An experiment

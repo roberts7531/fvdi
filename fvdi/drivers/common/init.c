@@ -61,7 +61,6 @@ Device device;
 short *loaded_palette = 0;
 static unsigned char tos_colours[] = { 0, 255, 1, 2, 4, 6, 3, 5, 7, 8, 9, 10, 12, 14, 11, 13 };
 static int accelerate;
-static int oldmouse;
 
 
 long tokenize(const char *ptr)
@@ -92,10 +91,6 @@ long tokenize(const char *ptr)
                 }
                 accelerate &= ACCEL_ALL;
             }
-        }
-        if (access->funcs.equal(token, "oldmouse"))
-        {
-            oldmouse = 1;
         }
         ptr = access->funcs.skip_space(ptr);
     }
@@ -205,18 +200,23 @@ static void *linea_addr(void)
 
 
 #ifdef __PUREC__
+/*
+ * note: we have to use d0 here, not a0,
+ * because this whole project is compiled with cdecl calling
+ */
 static void push_a2(void) 0x2F0A;
-static long pop_a2(void) 0x245F;
-static void *get_a1(void) 0x2049;
+static void pop_a2(void) 0x245F;
+static long get_a0(void) 0x2008; /* move.l a0,d0 */
 static void *linea0(void) 0xa000;
 
-static void *linea_addr(void)
+static void *CDECL linea_addr(void)
 {
-	void *linea;
+	long vars;
 	push_a2();
-	linea = linea0();
+	linea0();
+	vars = get_a0();
 	pop_a2();
-	return linea;
+	return (void *)vars;
 }
 #endif
 
@@ -276,7 +276,6 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
      */
 
     accelerate = ACCEL_ALL;             /* Default to everything on */
-    oldmouse = 0;                       /* Default to fVDI mouse drawing */
     tokenize(opts);
 
 
@@ -429,20 +428,17 @@ long CDECL init(Access *_access, Driver *driver, Virtual *vwk, char *opts)
         else if (accel_c & A_TEXT)
             wk->r.text = &c_text;
     }
-    if (!oldmouse)
+    if (!mouse_draw_r || !((accel_s | accel_c) & A_MOUSE))
     {
-        if ((accelerate & A_MOUSE) && mouse_draw_r)
-        {
-            wk->mouse.type = 1;         /* Should this be here? */
-            if (accel_s & A_MOUSE)
-                wk->r.mouse = mouse;
-            else if (accel_c & A_MOUSE)
-                wk->r.mouse = c_mouse;
-        } else
-        {
-            if ((wk->mouse.extra_info = access->funcs.malloc((16 * 16 + 2) * sizeof(short), 3)) != NULL)
-                wk->mouse.type = 1;
-        }
+        PUTS("driver without mouse drawing no longer supported\n");
+        return 0;
+    }
+    {
+        wk->mouse.type = 1;
+        if (accel_s & A_MOUSE)
+            wk->r.mouse = mouse;
+        else if (accel_c & A_MOUSE)
+            wk->r.mouse = c_mouse;
     }
 
 

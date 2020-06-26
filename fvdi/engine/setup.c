@@ -29,12 +29,49 @@ Workstation *non_fvdi_wk = 0;
 
 short old_wk_handle = 0;   /* Was 1, [010109] */
 
-short vbl_handler_installed = 0;
-
 Workstation *screen_wk = 0;
 Virtual *screen_vwk = 0;
-static void *old_curv = 0;
-void *old_timv = 0;
+
+
+#ifdef __GNUC__
+static void *linea_addr(void)
+{
+	register void *addr __asm__("a0");
+
+	__asm__ __volatile(
+#ifdef __mcoldfire__
+		"\t.dc.w 0xa920\n"
+#else
+		"\t.dc.w 0xa000\n"
+#endif
+		: "=r"(addr)
+		:
+		: "d0", "d1", "d2", "a1", "a2", "cc" AND_MEMORY);
+	return addr;
+}
+#endif
+
+
+#ifdef __PUREC__
+/*
+ * note: we have to use d0 here, not a0,
+ * because this whole project is compiled with cdecl calling
+ */
+static void push_a2(void) 0x2F0A;
+static void pop_a2(void) 0x245F;
+static long get_a0(void) 0x2008; /* move.l a0,d0 */
+static void *linea0(void) 0xa000;
+
+static void *CDECL linea_addr(void)
+{
+	long vars;
+	push_a2();
+	linea0();
+	vars = get_a0();
+	pop_a2();
+	return (void *)vars;
+}
+#endif
 
 
 /*
@@ -108,7 +145,7 @@ Virtual *initialize_vdi(void)
     wk->screen.mfdb.address = 0;
     wk->screen.mfdb.wdwidth = 0;
     wk->screen.mfdb.standard = 0;
-    wk->screen.linea = 0;
+    wk->screen.linea = linea_vars = linea_addr();
     wk->screen.shadow.buffer = 0;
     wk->screen.shadow.address = 0;
     wk->screen.shadow.wrap = 0;
@@ -176,17 +213,16 @@ Virtual *initialize_vdi(void)
     wk->various.workstation_type = 0;
     /* Console */
     /* Mouse */
-    wk->mouse.type = 0;                 /* Default to old VDI mouse */
-    wk->mouse.hide = 0;
+    wk->mouse.type = 1;                 /* Default to VDI mouse */
+    wk->mouse.hide = 1;
     wk->mouse.buttons = 0;
     wk->mouse.forced = 0;
     wk->mouse.position.x = 64;
     wk->mouse.position.y = 64;
-    wk->vector.motion = mouse_move;
+    wk->vector.motion = do_nothing;
     wk->vector.draw = do_nothing;
     wk->vector.button = do_nothing;
     wk->vector.wheel = do_nothing;
-    wk->vector.vblank = mouse_timer;
     wk->vblank.real = 0;
     wk->vblank.frequency = 50;
     wk->r.set_palette = 0;
@@ -199,7 +235,7 @@ Virtual *initialize_vdi(void)
     wk->r.fillpoly = 0;
     wk->r.blit = default_blit;
     wk->r.text = default_text;
-    wk->r.mouse = 0;
+    wk->r.mouse = (void CDECL (*)(struct wk_ *wk, long x, long y, Mouse *mouse))do_nothing; /* must be set by driver */
 
     copymem(default_functions - 1, (char *)((long)wk->function - sizeof(Function)), 257 * sizeof(Function));
     wk->opcode5_count = *(short *) ((long) default_opcode5 - 2);
@@ -410,94 +446,6 @@ static void copy_setup(Virtual *def, int vwk_no, short intout[], short ptsout[])
 }
 
 
-void link_mouse_routines(void)
-{
-    /* vex_curv */
-    long *lp;
-
-    lp = (long *) &control[7];
-    *lp = (long) mouse_move;
-    if (booted && !fakeboot)
-        sub_vdi(old_wk_handle, 127, 0, 0);
-    else
-        vdi(old_wk_handle, 127, 0, 0);
-    lp = (long *)&control[9];
-    old_curv = (void *)(*lp);
-    /* vex_timv */
-    lp = (long *) &control[7];
-    *lp = (long) mouse_timer;
-    if (booted && !fakeboot)
-        sub_vdi(old_wk_handle, 118, 0, 0);
-    else
-        vdi(old_wk_handle, 118, 0, 0);
-    lp = (long *)&control[9];
-    old_timv = (void *)(*lp);
-}
-
-
-void unlink_mouse_routines(void)
-{
-    long *lp;
-
-    /* vex_curv */
-    if (old_curv)
-    {
-        lp = (long *) &control[7];
-        *lp = (long) old_curv;
-        vdi(old_wk_handle, 127, 0, 0);
-    }
-    /* vex_timv */
-    if (old_timv)
-    {
-        lp = (long *) &control[7];
-        *lp = (long) old_timv;
-        vdi(old_wk_handle, 118, 0, 0);
-    }
-}
-
-
-void setup_vbl_handler(void)
-{
-    int n;
-    long addr;
-
-    n = (int)(get_l(0x452L) & 0xffffL);        /* nvbls */
-    addr = get_l(0x456);                /* vblqueue */
-    for (; n > 0; n--)
-    {
-        if (get_l(addr) == 0)
-        {
-            old_timv = do_nothing;
-            set_l(addr, (long) vbl_handler);
-            vbl_handler_installed = 1;
-            break;
-        }
-        addr += 4;
-    }
-}
-
-
-void shutdown_vbl_handler(void)
-{
-    int n;
-    long addr;
-
-    n = (int)(get_l(0x452L) & 0xffffL);        /* nvbls */
-    addr = get_l(0x456);                /* vblqueue */
-    for (; n > 0; n--)
-    {
-        if (get_l(addr) == (long) vbl_handler)
-            break;
-        addr += 4;
-    }
-    if (n)
-    {
-        set_l(addr, 0L);
-        vbl_handler_installed = 0;
-    }
-}
-
-
 /*
  * Find all previously opened workstations and copy their setup.
  * Also links in the mouse routines under some circumstances.
@@ -548,7 +496,7 @@ void copy_workstations(Virtual *def, long really_copy)
             {                           /* Not a screen device? */
                 handle[i] = (Virtual *) tmp;
                 tmp += sizeof(Workstation *) + sizeof(short);
-                handle[i]->real_address = (void *) non_fvdi_wk;
+                handle[i]->real_address = non_fvdi_wk;
                 handle[i]->standard_handle = i | 0x8000;    /* Don't try to open virtuals for this one */
                 continue;
             }
@@ -559,18 +507,17 @@ void copy_workstations(Virtual *def, long really_copy)
             {
                 handle[i] = (Virtual *) tmp;    /* If we're not copying, */
                 tmp += sizeof(Workstation *) + sizeof(short);   /*  set up dummies for pass-through. */
-                handle[i]->real_address = (void *) non_fvdi_wk;
+                handle[i]->real_address = non_fvdi_wk;
                 handle[i]->standard_handle = i;
             }
         }
         last_handle = new_handle;
     }
 
-    if (!disabled && !oldmouse && really_copy)
+    if (really_copy)
     {
         screen_wk = handle[1]->real_address;
         screen_vwk = handle[1];
-        link_mouse_routines();
     }
 }
 
@@ -580,20 +527,4 @@ void copy_workstations(Virtual *def, long really_copy)
  */
 void shut_down(void)
 {
-    unlink_mouse_routines();
-}
-
-
-/*
- * When fVDI is being booted, this will open a
- * screen workstation using the old VDI.
- * This is then used mainly for mouse/keyboard input.
- */
-void setup_fallback(void)
-{
-    short intout[45];
-    short ptsout[12];
-
-    sub_call = get_sub_call();
-    old_wk_handle = call_v_opnwk(1, intout, ptsout);
 }
