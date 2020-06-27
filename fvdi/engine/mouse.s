@@ -645,7 +645,7 @@ mouse_no_but:
 	move.b     (a0)+,d3                 ; relative y motion
 	move.b     d2,d0
 	or.b       d3,d0                    ; mouse was moved?
-	beq.s      mouse_exit
+	beq        mouse_exit
 	ext.w      d2
 	ext.w      d3
 	movem.w    GCURX(a3),d0-d1          ; last mouse position
