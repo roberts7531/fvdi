@@ -185,19 +185,20 @@ asm_free_block:
 * Flush both caches
 _cache_flush:
 	movem.l	d0-d1,-(a7)
+  ifeq	mcoldfire
 	move.l	_cpu,d0
 	cmp.w	#20,d0
 	blo	cache_end
 	cmp.w	#30,d0
 	beq	is_030
 
-  ifeq	mcoldfire
+
 	dc.w	$f4f8		; cpusha bc
   else
-	lea	-3 * 4(sp),sp
-	movem.l	d0-d1/a0,(sp)
+	move.l	a0,-(sp)	; d0/d1 already saved above
 
 	; flush_and_invalidate_caches() stolen from BaS_gcc
+	nop			; synchronize/flush store buffer
 	clr.l	d0
 	clr.l	d1
 	move.l	d0,a0
@@ -210,13 +211,12 @@ _cache_flush:
 	bne.s	1b		; no
 	clr.l	d1		; set counter to zero again
 	addq.l	#1,d0		; increment to next way
-	move.l	d0,a0		; 
+	move.l	d0,a0		;
 	cmpi.w	#4,d0		; finished flushing all 4 ways?
 	bne.s	1b
 
-	movem.l	(sp),d0-d1/a0
-	lea	3 * 4(sp),sp
-  endc 			; mcoldfire
+	move.l	(sp)+,a0
+  endc				; mcoldfire
 
 cache_end:
 	movem.l	(a7)+,d0-d1
