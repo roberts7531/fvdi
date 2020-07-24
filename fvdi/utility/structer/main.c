@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 {
     int i, total, usage, collisions;
     int count;
-    char *name[10];
+    char *name[30];
 
     yyin = stdin;
     count = 0;
