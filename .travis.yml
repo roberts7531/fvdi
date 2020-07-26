@@ -21,14 +21,17 @@ env:
     - BINTRAY_REPO="app"
     - BINTRAY_VERSION="0.96a"
   matrix:
+    - CPU_TARGET=000
     - CPU_TARGET=000 FT2_VERSION=2.2.1
     - CPU_TARGET=000 FT2_VERSION=2.5.2
     - CPU_TARGET=000 FT2_VERSION=2.8.1
     - CPU_TARGET=000 FT2_VERSION=2.10.2
+    - CPU_TARGET=020
     - CPU_TARGET=020 FT2_VERSION=2.2.1
     - CPU_TARGET=020 FT2_VERSION=2.5.2
     - CPU_TARGET=020 FT2_VERSION=2.8.1
     - CPU_TARGET=020 FT2_VERSION=2.10.2
+    - CPU_TARGET=v4e PACF="/tmp/pacf/bin/pacf"
     - CPU_TARGET=v4e FT2_VERSION=2.2.1 PACF="/tmp/pacf/bin/pacf"
     - CPU_TARGET=v4e FT2_VERSION=2.5.2 PACF="/tmp/pacf/bin/pacf"
     - CPU_TARGET=v4e FT2_VERSION=2.8.1 PACF="/tmp/pacf/bin/pacf"
@@ -38,7 +41,7 @@ env:
 before_install:
   - wget -q -O - https://github.com/freemint/travis-scripts/archive/master.tar.gz | tar xzf - --strip-components=1 -C .travis
   # we want to have $FT2_VERSION in the filename
-  - export PROJECT_VERSION="0.96a-ft${FT2_VERSION}"
+  - if [ -n "${FT2_VERSION+x}" ]; then export PROJECT_VERSION="${BINTRAY_VERSION}-ft${FT2_VERSION}"; else export PROJECT_VERSION="${BINTRAY_VERSION}"; fi
   - if [ -x .travis/before_install.sh ]; then ./.travis/before_install.sh; else true; fi
 
 install:

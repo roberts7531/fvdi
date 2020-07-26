@@ -3,14 +3,17 @@
 # -u: Treat unset variables as an error when substituting.
 # -x: Display expanded script commands
 
-cd /tmp
-subdir=""
-if test ${FT2_VERSION} = "2.2.1"; then subdir="freetype-old/"; fi
-wget -q -O - "https://download.savannah.gnu.org/releases/freetype/${subdir}freetype-${FT2_VERSION}.tar.gz" | tar xzf -
-mv "freetype-${FT2_VERSION}" freetype
-cd -
+if [ -n "${FT2_VERSION+x}" ]
+then
+	cd /tmp
+	subdir=""
+	if test ${FT2_VERSION} = "2.2.1"; then subdir="freetype-old/"; fi
+	wget -q -O - "https://download.savannah.gnu.org/releases/freetype/${subdir}freetype-${FT2_VERSION}.tar.gz" | tar xzf -
+	mv "freetype-${FT2_VERSION}" freetype
+	cd -
 
-cd fvdi/modules/ft2 && ln -s "/tmp/freetype" && cd -
+	cd fvdi/modules/ft2 && ln -s "/tmp/freetype" && cd -
+fi
 
 case ${CPU_TARGET} in
 *v4e*)
