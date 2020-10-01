@@ -214,6 +214,8 @@ long startup(void)
 
     sub_call = get_sub_call();
 
+    old_gdos = vq_gdos();
+
     if (nvdifix && nvdi_patch() && debug)
     {
         PUTS("Patching NVDI dispatcher\n");
@@ -349,8 +351,6 @@ long startup(void)
 #endif
         readable->cookie.flags |= BOOTED;
     }
-
-    old_gdos = vq_gdos();
 
     {
         /* dangerous! This is self-modifying code ! Need to cache flush below to be safe */

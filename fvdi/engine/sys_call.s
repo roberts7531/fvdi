@@ -319,6 +319,10 @@ _vq_gdos:
 	movem.l		d2/a2,-(a7)	; Necessary?
 	moveq		#-2,d0
 	trap		#2
+	cmp.w		#-2,d0
+	sne 		d0
+	ext.w		d0
+	ext.l		d0
 	movem.l		(a7)+,d2/a2
 	rts
 
