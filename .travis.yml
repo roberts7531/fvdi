@@ -39,6 +39,8 @@ env:
 
 # If before_install, install or before_script return a non-zero exit code, the build is errored and stops immediately.
 before_install:
+  # get rid of possibly outdated dependencies
+  - sudo dpkg --remove --force-depends mintlib-m68k-atari-mint pml-m68k-atari-mint
   - wget -q -O - https://github.com/freemint/travis-scripts/archive/master.tar.gz | tar xzf - --strip-components=1 -C .travis
   # we want to have $FT2_VERSION in the filename
   - if [ -n "${FT2_VERSION+x}" ]; then export PROJECT_VERSION="${BINTRAY_VERSION}-ft${FT2_VERSION}"; else export PROJECT_VERSION="${BINTRAY_VERSION}"; fi

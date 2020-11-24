@@ -30,3 +30,5 @@ case ${CPU_TARGET} in
 	cd -
 	;;
 esac
+
+./.travis/install_bintray.sh mintlib
