@@ -17,10 +17,17 @@ fi
 
 case ${CPU_TARGET} in
 *v4e*)
+	# first cleanup the gcc mess
+	sudo apt-get remove gcc-m68k-atari-mint
 	# needed for pacf, which is a 32bit executable
 	sudo dpkg --add-architecture i386
 	sudo apt-get update
-	sudo apt-get install libc6:i386
+	# libc6:amd64 seems to be outdated
+	sudo apt-get install --only-upgrade libc6
+	# install 32-bit libc and m68k-atari-mint-gcc again
+	sudo apt-get install libc6:i386 gcc-m68k-atari-mint
+	# remove mintlib and pml again...
+	sudo dpkg --remove --force-depends mintlib-m68k-atari-mint pml-m68k-atari-mint
 
 	# PACF is defined as "/tmp/pacf/bin/pacf"
 	mkdir -p "/tmp/pacf/bin"
