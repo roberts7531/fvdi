@@ -38,4 +38,4 @@ case ${CPU_TARGET} in
 	;;
 esac
 
-./.travis/install_bintray.sh mintlib
+BINTRAY_REPO="freemint" ./.travis/install_bintray.sh mintlib
