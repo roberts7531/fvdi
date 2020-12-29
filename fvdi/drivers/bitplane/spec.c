@@ -134,6 +134,8 @@ long check_token(char *token, const char **ptr)
  */
 long initialize(Virtual *vwk)
 {
+    /* use screenpt system variable on Firebee as Physbase() doesn't work there (see below FIXME) */
+    short** screenpt = (short **) 0x45e;
     Workstation *wk;
 #ifdef FAST
     char *buf;
@@ -183,6 +185,19 @@ long initialize(Virtual *vwk)
         wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
 
     device.byte_width = wk->screen.wrap;
+
+#ifdef __mcoldfire__
+    /*
+     * FIXME: work around the problem that the FireBee screen base registers can't be
+     * read currently (FPGA bug).
+     * This has the (fatal) effect that a Physbase() call returns NULL on the FireBee.
+     * The workaround is to use the corresponding system variable
+     */
+    wk->screen.mfdb.address = *screenpt;
+#else
+    wk->screen.mfdb.address = (short *) Physbase();
+#endif /* __mcoldfire__ */
+
     device.address = wk->screen.mfdb.address;
 
     switch (wk->screen.mfdb.bitplanes)
@@ -200,7 +215,7 @@ long initialize(Virtual *vwk)
         graphics_mode = &mode[3];
         break;
     default:
-		access->funcs.puts("Unsupported BPP.\n");
+        access->funcs.puts("Unsupported BPP.\n");
         return 0;
     }
     setup_scrninfo(me->device, graphics_mode);
@@ -259,12 +274,25 @@ long setup(long type, long value)
  */
 Virtual *CDECL opnwk(Virtual *vwk)
 {
+    /* use screenpt system variable on Firebee as Physbase() doesn't work there (see below FIXME) */
+    short** screenpt = (short **) 0x45e;
+
     Workstation *wk;
     unsigned short *linea;
 
     (void) vwk;
     wk = me->default_vwk->real_address;
-    wk->screen.mfdb.address = (void *) Physbase();
+#ifdef __mcoldfire__
+    /*
+     * FIXME: work around the problem that the FireBee screen base registers can't be
+     * read currently (FPGA bug).
+     * This has the (fatal) effect that a Physbase() call returns NULL on the FireBee.
+     * The workaround is to use the corresponding system variable
+     */
+    wk->screen.mfdb.address = *screenpt;
+#else
+    wk->screen.mfdb.address = (short *) Physbase();
+#endif /* __mcoldfire__ */
 
     linea = wk->screen.linea;
     wk->mouse.position.x = linea[-0x25a / 2]; /* GCURX */
