@@ -24,4 +24,7 @@ fvdi.includes
 fvdi.files
 fvdi.config
 fvdi.creator*
+fvdi.cflags
+fvdi.cxxflags
+
 *~
