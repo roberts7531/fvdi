@@ -274,25 +274,12 @@ long setup(long type, long value)
  */
 Virtual *CDECL opnwk(Virtual *vwk)
 {
-    /* use screenpt system variable on Firebee as Physbase() doesn't work there (see below FIXME) */
-    short** screenpt = (short **) 0x45e;
-
     Workstation *wk;
     unsigned short *linea;
 
     (void) vwk;
     wk = me->default_vwk->real_address;
-#ifdef __mcoldfire__
-    /*
-     * FIXME: work around the problem that the FireBee screen base registers can't be
-     * read currently (FPGA bug).
-     * This has the (fatal) effect that a Physbase() call returns NULL on the FireBee.
-     * The workaround is to use the corresponding system variable
-     */
-    wk->screen.mfdb.address = *screenpt;
-#else
-    wk->screen.mfdb.address = (short *) Physbase();
-#endif /* __mcoldfire__ */
+    wk->screen.mfdb.address = (short *) Logbase();
 
     linea = wk->screen.linea;
     wk->mouse.position.x = linea[-0x25a / 2]; /* GCURX */
