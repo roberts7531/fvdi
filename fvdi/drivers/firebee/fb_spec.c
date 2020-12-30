@@ -20,6 +20,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#define FVDI_DEBUG  1
 
 #include "fvdi.h"
 #include "driver.h"
@@ -27,6 +28,7 @@
 #include "fb_video.h"
 #include <os.h>
 #include "string/memset.h"
+#include <stdint.h>
 
 static char const r_16[] = { 5, 11, 12, 13, 14, 15 };
 static char const g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
@@ -87,9 +89,10 @@ static void panic(const char* message)
 long wk_extend = 0;
 
 short accel_s = 0;
-short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE | A_MOUSE;
+short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE |  A_MOUSE;
 
 const Mode *graphics_mode = &mode[0];
+struct modeline modeline = { 147, 1680, 1784, 1968, 2256, 1050, 1054, 1058, 1090  };
 
 static char *get_num(char *token, short *num)
 {
@@ -150,9 +153,44 @@ static long set_mode(const char **ptr)
     return 1;
 }
 
+static long eval_modeline(const char **ptr)
+{
+    struct modeline ml;
+    char token[80];
+    char *tokenptr;
+
+    if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
+    {
+
+    }
+
+    PRINTF(("ptr=%s\r\n", *ptr));
+
+    *ptr = access->funcs.get_token(*ptr, token, 80);
+    PRINTF(("token found: %s\r\n", token));
+
+    //*ptr = access->funcs.skip_space(*ptr);
+
+    *ptr = access->funcs.get_token(*ptr, token, 80);
+    PRINTF(("token found: %s\r\n", token));
+
+    //*ptr = access->funcs.skip_space(*ptr);
+
+    *ptr = access->funcs.get_token(*ptr, token, 80);
+    PRINTF(("token found: %s\r\n", token));
+
+    //*ptr = access->funcs.skip_space(*ptr);
+
+    *ptr = access->funcs.get_token(*ptr, token, 80);
+    PRINTF(("token found: %s\r\n", token));
+
+    return 1;
+}
+
 static Option const options[] = {
     { "debug",      { &debug },             2 },  /* debug, turn on debugging aids */
     { "mode",       { set_mode },          -1 },  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+    { "modeline",   { eval_modeline },     -1 },
 };
 
 /*
@@ -207,24 +245,23 @@ long check_token(char *token, const char **ptr)
     return 0;
 }
 
-static short *screen_address;
+void *screen_address;
 
 
 /* Allocate screen buffer */
 static short *fbee_alloc_vram(short width, short height, short depth)
 {
-    unsigned long buffer;
-    unsigned long vram_size = (unsigned long) width * height * depth;
-    const int alignment = 32;
+    void *buffer;
 
     /* FireBee screen buffers live in ST RAM */
-    buffer = (unsigned long) Mxalloc(vram_size + alignment - 1, MX_STRAM);
-    if (!buffer)
+    buffer = (void *) Mxalloc((long) width * height * depth + 255, MX_STRAM);
+    if (buffer == NULL)
         panic("Mxalloc() failed to allocate screen buffer.");
 
-    buffer = (buffer + alignment - 1) & -alignment;
+    screen_address = (void *) ((((uint32_t) buffer + 255UL) & ~255UL));
 
-    return (short *) buffer;
+    PRINTF(("screen buffer allocated at 0x%lx\r\n", (long) buffer));
+    return screen_address;
 }
 
 /*
@@ -250,15 +287,17 @@ long CDECL initialize(Virtual *vwk)
     vwk = me->default_vwk;	/* This is what we're interested in */
     wk = vwk->real_address;
 
-    wk->screen.look_up_table = 0;			/* Was 1 (???)  Shouldn't be needed (graphics_mode) */
+    wk->screen.look_up_table = 0;               /* Was 1 (???)  Shouldn't be needed (graphics_mode) */
     wk->screen.mfdb.standard = 0;
-    if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
+
+    if (wk->screen.pixel.width > 0)             /* Starts out as screen width */
         wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
-    else                                   /*   or fixed DPI (negative) */
+    else                                        /*   or fixed DPI (negative) */
         wk->screen.pixel.width = 25400 / -wk->screen.pixel.width;
-    if (wk->screen.pixel.height > 0)        /* Starts out as screen height */
+
+    if (wk->screen.pixel.height > 0)            /* Starts out as screen height */
         wk->screen.pixel.height = (wk->screen.pixel.height * 1000L) / wk->screen.mfdb.height;
-    else                                    /*   or fixed DPI (negative) */
+    else                                        /*   or fixed DPI (negative) */
         wk->screen.pixel.height = 25400 / -wk->screen.pixel.height;
 
 
@@ -267,12 +306,17 @@ long CDECL initialize(Virtual *vwk)
      * Especially if there was no VDI started since before.
      */
 
+    /* replace default VDI colors with loaded palette, if available */
     if (loaded_palette)
         access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
-    if ((old_palette_size = wk->screen.palette.size) != 256) {	/* Started from different graphics mode? */
+
+    if ((old_palette_size = wk->screen.palette.size) != 256)    /* Started from different graphics mode? */
+    {
         old_palette_colours = wk->screen.palette.colours;
-        wk->screen.palette.colours = (Colour *)access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
-        if (wk->screen.palette.colours) {
+
+        wk->screen.palette.colours = (Colour *) access->funcs.malloc(256L * sizeof(Colour), 3);	/* Assume malloc won't fail. */
+        if (wk->screen.palette.colours)
+        {
             wk->screen.palette.size = 256;
             if (old_palette_colours)
                 access->funcs.free(old_palette_colours);	/* Release old (small) palette (a workaround) */
@@ -321,37 +365,65 @@ Virtual* CDECL opnwk(Virtual *vwk)
     vwk = me->default_vwk;  /* This is what we're interested in */
     wk = vwk->real_address;
 
-    /* Switch to SAGA screen */
-    fbee_set_clock(147);
+    fbee_set_video(screen_address + FB_VRAM_PHYS_OFFSET);
+
+    PRINTF(("selected resolution is %d x %d @ %d\r\n", resolution.width, resolution.height, resolution.bpp));
 
     /* update the settings (hardcoded for now) */
-    wk->screen.mfdb.width = 1280;
-    wk->screen.mfdb.height = 1024;
-    wk->screen.mfdb.bitplanes = 16;
+    wk->screen.mfdb.width = resolution.width;
+    wk->screen.mfdb.height = resolution.height;
+    wk->screen.mfdb.bitplanes = resolution.bpp;
 
     /*
      * Some things need to be changed from the
      * default workstation settings.
      */
-    wk->screen.mfdb.address = (short *)screen_address;
+    wk->screen.mfdb.address =  screen_address;
+    PRINTF(("%d x %d x %d screen at 0x%lx\r\n", wk->screen.mfdb.width, wk->screen.mfdb.height,
+            wk->screen.mfdb.bitplanes, (long) screen_address));
+
     wk->screen.mfdb.wdwidth = (wk->screen.mfdb.width + 15) / 16;
     wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
 
     wk->screen.coordinates.max_x = wk->screen.mfdb.width - 1;
     wk->screen.coordinates.max_y = wk->screen.mfdb.height - 1;
 
-    wk->screen.look_up_table = 0;			/* Was 1 (???)	Shouldn't be needed (graphics_mode) */
+    wk->screen.look_up_table = 0;           /* Was 1 (???)	Shouldn't be needed (graphics_mode) */
     wk->screen.mfdb.standard = 0;
 
-    if (pixel.width > 0)			/* Starts out as screen width */
+    if (pixel.width > 0)                    /* Starts out as screen width */
         wk->screen.pixel.width = (pixel.width * 1000L) / wk->screen.mfdb.width;
-    else								   /*	or fixed DPI (negative) */
+    else                                    /* or fixed DPI (negative) */
         wk->screen.pixel.width = 25400 / -pixel.width;
 
-    if (pixel.height > 0)		/* Starts out as screen height */
+    if (pixel.height > 0)                   /* Starts out as screen height */
         wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
-    else									/*	 or fixed DPI (negative) */
+    else                                    /*	 or fixed DPI (negative) */
         wk->screen.pixel.height = 25400 / -pixel.height;
+
+    wk->mouse.position.x = ((wk->screen.coordinates.max_x - wk->screen.coordinates.min_x + 1) >> 1) + wk->screen.coordinates.min_x;
+    wk->mouse.position.y = ((wk->screen.coordinates.max_y - wk->screen.coordinates.min_y + 1) >> 1) + wk->screen.coordinates.min_y;
+
+    /*
+     * FIXME
+     *
+     * for some strange reason, the driver only works if the palette is (re)initialized here again.
+     * Otherwise, everything is drawn black on black (not very useful).
+     *
+     * I did not yet find what I'm doing differently from other drivers (that apparently do not have this problem).
+     */
+    c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
+
+#ifdef FVDI_DEBUG
+    int i, j;
+    for (i = 0; i < wk->screen.palette.size; i += 8)
+    {
+        for (j = 0; j < 8; j++)
+            PRINTF(("(%d, %d, %d), ",
+                    wk->screen.palette.colours->vdi.red, wk->screen.palette.colours->vdi.blue, wk->screen.palette.colours->vdi.green));
+        PRINTF(("\r\n"));
+    }
+#endif
 
     return 0;
 }

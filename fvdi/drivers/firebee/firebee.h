@@ -36,11 +36,27 @@
 #include "fvdi.h"
 #include <stdlib.h>
 #include <stdbool.h>
+#include "fb_video.h"
+
+struct modeline
+{
+    unsigned short pixel_clock;
+    unsigned short h_display;
+    unsigned short h_sync_start;
+    unsigned short h_sync_end;
+    unsigned short h_total;
+    unsigned short v_display;
+    unsigned short v_sync_start;
+    unsigned short v_sync_end;
+    unsigned short v_total;
+};
 
 /* from firebee.c */
-void fbee_set_clock(int clock);
-void fbee_set_screen(void *addr);
+void fbee_set_clock(unsigned short clock);
+void fbee_set_screen(volatile struct videl_registers *regs, void *addr);
 void fbee_set_panning(unsigned short *mem);
+void set_videl_regs_from_modeline(struct modeline *ml, volatile struct videl_registers *vr);
+void fbee_set_video(short *screen_address);
 
 long c_write_pixel(Virtual *vwk, MFDB *mfdb, long x, long y, long colour);
 long c_read_pixel(Virtual *vwk, MFDB *mfdb, long x, long y);

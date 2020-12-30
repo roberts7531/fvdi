@@ -18,6 +18,7 @@ TARGET_DIR=../fvdi_test
 
 rm -f bitplane.sys
 rm -f radeon.sys
+rm -f firebee.sys
 rm -f fvdi_gnu.prg
 
 (cd ${FT2_DIR}; DEBUG=${DEBUG} CPU=${CPU} M68K_ATARI_MINT_CROSS=yes make clean) || exit
@@ -38,6 +39,7 @@ rm -f fvdi_gnu.prg
 cp ${BPL_DIR}/bitplane.sys .
 cp ${ENG_DIR}/fvdi_gnu.prg .
 cp ${RAD_DIR}/radeon.sys .
+cp ${FBE_DIR}/firebee.sys .
 
 #m68k-atari-mint-strip bitplane.sys
 #m68k-atari-mint-strip fvdi_gnu.prg
