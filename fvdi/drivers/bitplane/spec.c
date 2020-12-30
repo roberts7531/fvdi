@@ -220,7 +220,7 @@ long initialize(Virtual *vwk)
     }
     setup_scrninfo(me->device, graphics_mode);
 
-    PRINTF(("%dx%dx%d screen at $%08lx\n", wk->screen.mfdb.width, wk->screen.mfdb.height, wk->screen.mfdb.bitplanes,
+    PRINTF(("%dx%dx%d screen at %08lx\n", wk->screen.mfdb.width, wk->screen.mfdb.height, wk->screen.mfdb.bitplanes,
             (long) wk->screen.mfdb.address));
 
     return 1;
