@@ -121,7 +121,9 @@ void set_videl_regs_from_modeline(struct modeline *ml, volatile struct videl_reg
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
+//#include <math.h>
+double sqrt (double);
+
 #include <string.h>
 
 UMC_DISPLAY UMC_GTF = {
