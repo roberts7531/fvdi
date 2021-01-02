@@ -17,6 +17,7 @@ top_srcdir = ../..
 #CPU     = v4e
 OPTS    = -mshort -O2 -fomit-frame-pointer
 include $(top_srcdir)/CONFIGVARS
+CC=m68k-atari-mint-gcc
 
 CFLAGS  = $(CPUOPTS) $(OPTS) $(WARNINGS) -I$(top_srcdir)/include -I$(top_srcdir)/drivers/include
 
@@ -71,7 +72,7 @@ OBJECTS += $(CSRC:.c=.o)
 
 $(OBJECTS): $(SINCSRC_GNU)
 
-LIBDIR=$(dir $(shell $(CC) $(CPUOPTS) --print-file-name=libc.a))
+LIBDIR:=$(dir $(shell $(CC) $(CPUOPTS) --print-file-name=libm.a))
 $(TARGET): $(OBJECTS) $(LIBFILES)
 	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -L$(LIBDIR) -lm -lc $(LIBS)
 
