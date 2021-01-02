@@ -162,6 +162,7 @@ static long calc_modeline(struct res *res, struct modeline *ml)
     PRINTF(("margin: %d\r\n", (int) dsp.Margin));
     PRINTF(("\r\n"));
 
+    res->width = res->width  & ~7;
     uml = general_timing_formula(res->width, res->height, res->freq, dsp, 0.0);
 
     PRINTF(("pixel clock: %d\r\n", (int) uml->PClock));
