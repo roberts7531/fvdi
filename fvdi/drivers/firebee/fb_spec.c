@@ -40,7 +40,7 @@ static Mode const mode[1] = {
 
 char driver_name[] = "FBee";
 
-static struct
+static struct res
 {
     short used; /* Whether the mode option was used or not. */
     short width;
@@ -129,6 +129,66 @@ static int set_bpp(int bpp)
     return bpp;
 }
 
+static long calc_modeline(struct res *res, struct modeline *ml)
+{
+    UMC_DISPLAY dsp =
+    {
+        .CharacterCell = 8.0,
+        .PClockStep = 0.0,
+        .HSyncPercent = 8.0,
+        .M = 600.0,
+        .C = 40.0,
+        .K = 128.0,
+        .J = 20.0,
+        .VFrontPorch = 1.0,
+        .VBackPorchPlusSync = 550.0,
+        .VSyncWidth = 3.0,
+        .VBackPorch = 6.0,
+        .Margin = 0.0,
+        .HBlankingTicks = 160.0,
+        .HSyncTicks = 32.0,
+        .VBlankingTime = 460.0
+    };
+    UMC_MODELINE *uml;
+
+    PRINTF(("character cell: %d\r\n", (int) dsp.CharacterCell));
+    PRINTF(("pixel clock stepping: %d\r\n", (int) dsp.PClockStep));
+    PRINTF(("horizontal sync percent: %d\r\n", (int) dsp.HSyncPercent));
+    PRINTF(("C: %d K: %d J: %d\r\n", (int) dsp.C, (int) dsp.J, (int) dsp.J));
+    PRINTF(("front porch: %d\r\n", (int) dsp.VFrontPorch));
+    PRINTF(("min lines vsync + back porch: %d\r\n", (int) dsp.VBackPorchPlusSync));
+    PRINTF(("vsync width: %d\r\n", (int) dsp.VSyncWidth));
+    PRINTF(("back porch: %d\r\n", (int) dsp.VBackPorch));
+    PRINTF(("margin: %d\r\n", (int) dsp.Margin));
+    PRINTF(("\r\n"));
+
+    uml = general_timing_formula(res->width, res->height, res->freq, dsp, 0.0);
+
+    PRINTF(("pixel clock: %d\r\n", (int) uml->PClock));
+    PRINTF(("hres: %d\r\n", uml->HRes));
+    PRINTF(("hsync start: %d\r\n", uml->HSyncStart));
+    PRINTF(("hsync end: %d\r\n", uml->HSyncEnd));
+    PRINTF(("htotal: %d\r\n", uml->HTotal));
+    PRINTF(("vres: %d\r\n", uml->VRes));
+    PRINTF(("vsync start: %d\r\n", uml->VSyncStart));
+    PRINTF(("vsync end: %d\r\n", uml->VSyncEnd));
+    PRINTF(("vtotal: %d\r\n", uml->VTotal));
+    PRINTF(("\r\n"));
+
+    ml->pixel_clock = (unsigned short) uml->PClock;
+    ml->h_display = (unsigned short) uml->HRes;
+    ml->h_sync_start = (unsigned short) uml->HSyncStart;
+    ml->h_sync_end = (unsigned short) uml->HSyncEnd;
+    ml->h_total = (unsigned short) uml->HTotal;
+    ml->v_display = (unsigned short) uml->VRes;
+    ml->v_sync_start = (unsigned short) uml->VSyncStart;
+    ml->v_sync_end = (unsigned short) uml->VSyncEnd;
+    ml->v_total = (unsigned short) uml->VTotal;
+
+    return 1;
+
+}
+
 static long set_mode(const char **ptr)
 {
     char token[80], *tokenptr;
@@ -148,48 +208,15 @@ static long set_mode(const char **ptr)
     resolution.used = 1;
 
     resolution.bpp = set_bpp(resolution.bpp);
+    calc_modeline(&resolution, &modeline);
 
     return 1;
 }
 
-static long eval_modeline(const char **ptr)
-{
-    struct modeline ml;
-    char token[80];
-    char *tokenptr;
-
-    if ((*ptr = access->funcs.skip_space(*ptr)) == NULL)
-    {
-
-    }
-
-    PRINTF(("ptr=%s\r\n", *ptr));
-
-    *ptr = access->funcs.get_token(*ptr, token, 80);
-    PRINTF(("token found: %s\r\n", token));
-
-    //*ptr = access->funcs.skip_space(*ptr);
-
-    *ptr = access->funcs.get_token(*ptr, token, 80);
-    PRINTF(("token found: %s\r\n", token));
-
-    //*ptr = access->funcs.skip_space(*ptr);
-
-    *ptr = access->funcs.get_token(*ptr, token, 80);
-    PRINTF(("token found: %s\r\n", token));
-
-    //*ptr = access->funcs.skip_space(*ptr);
-
-    *ptr = access->funcs.get_token(*ptr, token, 80);
-    PRINTF(("token found: %s\r\n", token));
-
-    return 1;
-}
 
 static Option const options[] = {
     { "debug",      { &debug },             2 },  /* debug, turn on debugging aids */
     { "mode",       { set_mode },          -1 },  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
-    { "modeline",   { eval_modeline },     -1 },
 };
 
 /*
