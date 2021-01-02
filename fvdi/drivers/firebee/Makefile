@@ -71,8 +71,9 @@ OBJECTS += $(CSRC:.c=.o)
 
 $(OBJECTS): $(SINCSRC_GNU)
 
+LIBDIR=$(dir $(LIBS))
 $(TARGET): $(OBJECTS) $(LIBFILES)
-	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -lm -lc $(LIBS)
+	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -L$(LIBDIR) -lm -lc $(LIBS)
 
 include $(top_srcdir)/DEPENDENCIES
 
