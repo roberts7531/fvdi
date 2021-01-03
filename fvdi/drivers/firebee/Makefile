@@ -74,7 +74,7 @@ $(OBJECTS): $(SINCSRC_GNU)
 
 LIBDIR:=$(dir $(shell $(CC) $(CPUOPTS) --print-file-name=libm.a))
 $(TARGET): $(OBJECTS) $(LIBFILES)
-	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -L$(LIBDIR) -lm -lc $(LIBS)
+	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -L$(LIBDIR) $(LIBS)
 
 include $(top_srcdir)/DEPENDENCIES
 
