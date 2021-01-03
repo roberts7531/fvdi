@@ -129,26 +129,27 @@ static int set_bpp(int bpp)
     return bpp;
 }
 
+static UMC_DISPLAY dsp =
+{
+    .CharacterCell = 8.0,
+    .PClockStep = 0.0,
+    .HSyncPercent = 8.0,
+    .M = 600.0,
+    .C = 40.0,
+    .K = 128.0,
+    .J = 20.0,
+    .VFrontPorch = 1.0,
+    .VBackPorchPlusSync = 550.0,
+    .VSyncWidth = 3.0,
+    .VBackPorch = 6.0,
+    .Margin = 0.0,
+    .HBlankingTicks = 160.0,
+    .HSyncTicks = 32.0,
+    .VBlankingTime = 460.0
+};
+
 static long calc_modeline(struct res *res, struct modeline *ml)
 {
-    UMC_DISPLAY dsp =
-    {
-        .CharacterCell = 8.0,
-        .PClockStep = 0.0,
-        .HSyncPercent = 8.0,
-        .M = 600.0,
-        .C = 40.0,
-        .K = 128.0,
-        .J = 20.0,
-        .VFrontPorch = 1.0,
-        .VBackPorchPlusSync = 550.0,
-        .VSyncWidth = 3.0,
-        .VBackPorch = 6.0,
-        .Margin = 0.0,
-        .HBlankingTicks = 160.0,
-        .HSyncTicks = 32.0,
-        .VBlankingTime = 460.0
-    };
     UMC_MODELINE *uml;
 
     PRINTF(("character cell: %d\r\n", (int) dsp.CharacterCell));
