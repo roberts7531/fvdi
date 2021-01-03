@@ -118,11 +118,34 @@ void set_videl_regs_from_modeline(struct modeline *ml, volatile struct videl_reg
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+/* define a round function to keep the source ANSI C 89 compliant */
+static inline double round(double input)
+{
+    return ((double) ((int) (input + 0.5)));
+}
 
-#include <stdio.h>
-#include <stdlib.h>
-//#include <math.h>
-double sqrt (double);
+static inline double floor(double input)
+{
+    return ((double) ((int) input));
+}
+
+static inline double ceil(double input)
+{
+    return ((double) ((int) (input + 1.0)));
+}
+
+static inline double sqrt(const double fg)
+{
+    double n = fg / 2.0;
+    double lstX = 0.0;
+
+    while (n != lstX)
+    {
+        lstX = n;
+        n = (n + fg/n) / 2.0;
+    }
+    return n;
+}
 
 #include <string.h>
 
@@ -144,36 +167,6 @@ UMC_DISPLAY UMC_GTF = {
     460.0,  //minimum vertical blanking time
 };
 
-/* define a round function to keep the source ANSI C 89 compliant */
-double round(double input)
-{
-    return ((double) ((int) (input + 0.5)));
-}
-
-double floor(double input)
-{
-    return ((double) ((int) input));
-}
-
-double ceil(double input)
-{
-    return ((double) ((int) (input + 1.0)));
-}
-
-double sqrt(double y)
-{
-    double x, z, tempf;
-    unsigned long *tfptr = ((unsigned long *) &tempf) + 1;
-    tempf = y;
-    *tfptr = (0xbfcdd90a - *tfptr)>>1;
-
-    x =  tempf;
-    z =  y*0.5;
-    x = (1.5*x) - (x*x)*(x*z);    //The more you make replicates of this statement
-                               //the higher the accuracy, here only 2 replicates are used
-    x = (1.5*x) - (x*x)*(x*z);
-    return x*y;
-}
 
 UMC_MODELINE Modeline[1];
 
