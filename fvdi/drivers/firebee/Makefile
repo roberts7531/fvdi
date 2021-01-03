@@ -72,9 +72,9 @@ OBJECTS += $(CSRC:.c=.o)
 
 $(OBJECTS): $(SINCSRC_GNU)
 
-LIBDIR:=$(dir $(shell $(CC) $(CPUOPTS) --print-file-name=libm.a))
+LIBDIR:=$(dir $(shell $(CC) $(CPUOPTS) --print-file-name=libc.a))
 $(TARGET): $(OBJECTS) $(LIBFILES)
-	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -L$(LIBDIR) $(LIBS)
+	$(AM_V_LD)$(LD) $(LDEFS) -Map mapfile -o $@ $(OBJECTS) $(LDFLAGS) -L$(LIBDIR) -lc $(LIBS)
 
 include $(top_srcdir)/DEPENDENCIES
 

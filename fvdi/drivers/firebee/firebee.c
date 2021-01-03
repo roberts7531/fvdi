@@ -11,7 +11,7 @@
 #include "driver.h"
 #include "firebee.h"
 #include "fb_video.h"
-
+#include <stdlib.h>
 
 static void fbee_set_clockmode(enum fb_clockmode mode)
 {
@@ -147,9 +147,8 @@ static inline double sqrt(const double fg)
     return n;
 }
 
-#include <string.h>
-
-UMC_DISPLAY UMC_GTF = {
+UMC_DISPLAY UMC_GTF =
+{
     8.0,    //horizontal character cell granularity
     0.0,    //pixel clock stepping
     8.0,    //horizontal sync width% of line period
@@ -171,7 +170,7 @@ UMC_DISPLAY UMC_GTF = {
 UMC_MODELINE Modeline[1];
 
 UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
-        UMC_DISPLAY Display, double Flags)
+        UMC_DISPLAY *Display, double Flags)
 {
     /* define Clock variables */
     double RefreshRate = 0;
@@ -212,9 +211,9 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
 
     /* round character cell granularity to nearest integer*/
-    Display.CharacterCell = round(Display.CharacterCell);
+    Display->CharacterCell = round(Display->CharacterCell);
 
-    if (Display.CharacterCell < 1)
+    if (Display->CharacterCell < 1)
     {
         //fprintf(stderr, "Error:  character cell less than 1 pixel.\n");
     }
@@ -223,14 +222,14 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
     /* round number of lines in front porch to nearest integer */
     if (Flags < 0) // if doublescan mode
     {
-        Display.VFrontPorch = round(Display.VFrontPorch / 2.0) * 2.0;
+        Display->VFrontPorch = round(Display->VFrontPorch / 2.0) * 2.0;
     }
     else
     {
-        Display.VFrontPorch = floor(Display.VFrontPorch);
+        Display->VFrontPorch = floor(Display->VFrontPorch);
     }
 
-    if (Display.VFrontPorch < 0)
+    if (Display->VFrontPorch < 0)
     {
         // fprintf(stderr, "Error:  vertical sync start less than 0 lines.\n");
     }
@@ -239,14 +238,14 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
     /* round number of lines in vsync width to nearest integer */
     if (Flags < 0) // if doublescan mode
     {
-        Display.VSyncWidth = round(Display.VSyncWidth / 2.0) * 2.0;
+        Display->VSyncWidth = round(Display->VSyncWidth / 2.0) * 2.0;
     }
     else
     {
-        Display.VSyncWidth = round(Display.VSyncWidth);
+        Display->VSyncWidth = round(Display->VSyncWidth);
     }
 
-    if (Display.VSyncWidth < 1)
+    if (Display->VSyncWidth < 1)
     {
         // fprintf(stderr, "Error:  vertical sync width less than 1 line.\n");
     }
@@ -255,29 +254,29 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
     /* round number of lines in back porch to nearest integer */
     if (Flags < 0) // if doublescan mode
     {
-        Display.VBackPorch= round(Display.VBackPorch / 2.0) * 2.0;
+        Display->VBackPorch= round(Display->VBackPorch / 2.0) * 2.0;
     }
     else
     {
-        Display.VBackPorch = round(Display.VBackPorch);
+        Display->VBackPorch = round(Display->VBackPorch);
     }
 
-    if (Display.VBackPorch < 1)
+    if (Display->VBackPorch < 1)
     {
         // fprintf(stderr, "Error:  vertical sync width less than 1 line.\n");
     }
 
 
     /* Calculate M, incorporating the scaling factor */
-    if (Display.K == 0)
+    if (Display->K == 0)
     {
-        Display.K = 00.1;
+        Display->K = 00.1;
     }
-    Display.M = (Display.K / 256.0) * Display.M;
+    Display->M = (Display->K / 256.0) * Display->M;
 
 
     /* Calculate C, incorporating the scaling factor */
-    Display.C = ((Display.C - Display.J) * Display.K / 256.0) + Display.J;
+    Display->C = ((Display->C - Display->J) * Display->K / 256.0) + Display->J;
 
 
     /* number of lines per field rounded to nearest integer */
@@ -296,20 +295,20 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
 
     /* number of pixels per line rouned to nearest character cell */
-    HRes = round(HRes / Display.CharacterCell) * Display.CharacterCell;
+    HRes = round(HRes / Display->CharacterCell) * Display->CharacterCell;
 
 
     /* calculate margins */
-    if (Display.Margin > 0)
+    if (Display->Margin > 0)
     {
         /* calculate top and bottom margins */
-        TopMargin = BottomMargin = round((Display.Margin / 100.0) * VRes);
+        TopMargin = BottomMargin = round((Display->Margin / 100.0) * VRes);
 
 
         /* calculate left and right margins */
         LeftMargin = RightMargin =
-            round(HRes * (Display.Margin / 100.0) / Display.CharacterCell) *
-            Display.CharacterCell;
+            round(HRes * (Display->Margin / 100.0) / Display->CharacterCell) *
+            Display->CharacterCell;
     }
 
 
@@ -347,14 +346,14 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
         /* estimate horizontal period */
         HorizontalPeriodEstimate =
-            ((1.0 / RefreshRate) - Display.VBackPorchPlusSync / 1000000.0) /
-            (VRes + TopMargin + BottomMargin + Display.VFrontPorch + Interlace) *
+            ((1.0 / RefreshRate) - Display->VBackPorchPlusSync / 1000000.0) /
+            (VRes + TopMargin + BottomMargin + Display->VFrontPorch + Interlace) *
             1000000.0;
 
 
         /* calculate number of lines in vertical sync and back porch */
         VSyncPlusBackPorch =
-            Display.VBackPorchPlusSync / HorizontalPeriodEstimate;
+            Display->VBackPorchPlusSync / HorizontalPeriodEstimate;
 
         if (Flags < 0) // if doublescan mode
         {
@@ -371,20 +370,20 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
          *   it should have been, which is why I included it.                       *
          *                                                                          *
          ****************************************************************************/
-        if (VSyncPlusBackPorch < Display.VSyncWidth + Display.VBackPorch)
+        if (VSyncPlusBackPorch < Display->VSyncWidth + Display->VBackPorch)
         {
-            VSyncPlusBackPorch = Display.VSyncWidth + Display.VBackPorch;
+            VSyncPlusBackPorch = Display->VSyncWidth + Display->VBackPorch;
         }
 
 
         /* calculate number of lines in back porch */
-        VBackPorch = VSyncPlusBackPorch - Display.VSyncWidth;
+        VBackPorch = VSyncPlusBackPorch - Display->VSyncWidth;
 
 
         /* calculate total number of lines */
         VTotal =
             VRes + TopMargin + BottomMargin +
-            Display.VFrontPorch + VSyncPlusBackPorch + Interlace;
+            Display->VFrontPorch + VSyncPlusBackPorch + Interlace;
 
 
         /* estimate field refresh rate*/
@@ -398,7 +397,7 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
 
         /* calculate ideal duty cycle */
-        IdealDutyCycle = Display.C - (Display.M * HorizontalPeriod / 1000.0);
+        IdealDutyCycle = Display->C - (Display->M * HorizontalPeriod / 1000.0);
 
 
         /* calculate horizontal blanking time in pixels */
@@ -406,13 +405,13 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
         {
             HorizontalBlankingPixels =
                 floor((HActive * 20.0) / (100.0 - 20.0) /
-                        (2.0 * Display.CharacterCell)) * 2.0 * Display.CharacterCell;
+                        (2.0 * Display->CharacterCell)) * 2.0 * Display->CharacterCell;
         }
         else
         {
             HorizontalBlankingPixels =
                 round(HActive * IdealDutyCycle / (100.0 - IdealDutyCycle) /
-                        (2.0 * Display.CharacterCell)) * 2.0 * Display.CharacterCell;
+                        (2.0 * Display->CharacterCell)) * 2.0 * Display->CharacterCell;
         }
 
 
@@ -422,9 +421,9 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
         /* calculate pixel clock */
         PClock = HTotal / HorizontalPeriod;
-        if (Display.PClockStep > 0)
+        if (Display->PClockStep > 0)
         {
-            PClock = floor(PClock / Display.PClockStep) * Display.PClockStep;
+            PClock = floor(PClock / Display->PClockStep) * Display->PClockStep;
         }
     }
 
@@ -440,7 +439,7 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
         /* calculate number of lines in vertical sync and back porch */
         VSyncPlusBackPorch =
-            Display.VBackPorchPlusSync * HClock / 1000.0;
+            Display->VBackPorchPlusSync * HClock / 1000.0;
 
         if (Flags < 0) // if doublescan mode
         {
@@ -457,24 +456,24 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
          *   it should have been, which is why I included it.                       *
          *                                                                          *
          ****************************************************************************/
-        if (VSyncPlusBackPorch < Display.VSyncWidth + Display.VBackPorch)
+        if (VSyncPlusBackPorch < Display->VSyncWidth + Display->VBackPorch)
         {
-            VSyncPlusBackPorch = Display.VSyncWidth + Display.VBackPorch;
+            VSyncPlusBackPorch = Display->VSyncWidth + Display->VBackPorch;
         }
 
 
         /* calculate number of lines in back porch */
-        VBackPorch = VSyncPlusBackPorch - Display.VSyncWidth;
+        VBackPorch = VSyncPlusBackPorch - Display->VSyncWidth;
 
 
         /* calculate total number of lines */
         VTotal =
             VRes + TopMargin + BottomMargin +
-            Display.VFrontPorch + VSyncPlusBackPorch + Interlace;
+            Display->VFrontPorch + VSyncPlusBackPorch + Interlace;
 
 
         /* calculate ideal duty cycle */
-        IdealDutyCycle = Display.C - (Display.M / HClock);
+        IdealDutyCycle = Display->C - (Display->M / HClock);
 
 
         /* calculate horizontal blanking time in pixels */
@@ -482,13 +481,13 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
         {
             HorizontalBlankingPixels =
                 floor((HActive * 20.0) / (100.0 - 20.0) /
-                        (2.0 * Display.CharacterCell)) * 2.0 * Display.CharacterCell;
+                        (2.0 * Display->CharacterCell)) * 2.0 * Display->CharacterCell;
         }
         else
         {
             HorizontalBlankingPixels =
                 round(HActive * IdealDutyCycle / (100.0 - IdealDutyCycle) /
-                        (2.0 * Display.CharacterCell)) * 2.0 * Display.CharacterCell;
+                        (2.0 * Display->CharacterCell)) * 2.0 * Display->CharacterCell;
         }
 
 
@@ -498,9 +497,9 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
         /* calculate pixel clock */
         PClock = HTotal * HClock / 1000.0;
-        if (Display.PClockStep > 0)
+        if (Display->PClockStep > 0)
         {
-            PClock = floor(PClock / Display.PClockStep) * Display.PClockStep;
+            PClock = floor(PClock / Display->PClockStep) * Display->PClockStep;
         }
 
     }
@@ -514,21 +513,21 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
     else
     {
         PClock = Clock / 1000000.0;
-        if (Display.PClockStep > 0)
+        if (Display->PClockStep > 0)
         {
-            PClock = floor(PClock / Display.PClockStep) * Display.PClockStep;
+            PClock = floor(PClock / Display->PClockStep) * Display->PClockStep;
         }
 
 
         /* calculate ideal horizontal period */
         IdealHorizontalPeriod =
-            ((Display.C - 100) + sqrt(((100 - Display.C) * (100 - Display.C)) +
-                (0.4 * Display.M * (HActive + LeftMargin + RightMargin) / PClock))) /
-            2.0 / Display.M * 1000.0;
+            ((Display->C - 100) + sqrt(((100 - Display->C) * (100 - Display->C)) +
+                (0.4 * Display->M * (HActive + LeftMargin + RightMargin) / PClock))) /
+            2.0 / Display->M * 1000.0;
 
 
         /* calculate ideal duty cycle */
-        IdealDutyCycle = Display.C - (Display.M * IdealHorizontalPeriod / 1000);
+        IdealDutyCycle = Display->C - (Display->M * IdealHorizontalPeriod / 1000);
 
 
         /* calculate horizontal blanking time in pixels */
@@ -536,13 +535,13 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
         {
             HorizontalBlankingPixels =
                 floor((HActive * 20.0) / (100.0 - 20.0) /
-                        (2.0 * Display.CharacterCell)) * 2.0 * Display.CharacterCell;
+                        (2.0 * Display->CharacterCell)) * 2.0 * Display->CharacterCell;
         }
         else
         {
             HorizontalBlankingPixels =
                 round(HActive * IdealDutyCycle / (100.0 - IdealDutyCycle) /
-                        (2.0 * Display.CharacterCell)) * 2.0 * Display.CharacterCell;
+                        (2.0 * Display->CharacterCell)) * 2.0 * Display->CharacterCell;
         }
 
 
@@ -556,7 +555,7 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
 
         /* calculate number of lines in vertical sync and back porch */
         VSyncPlusBackPorch =
-            Display.VBackPorchPlusSync * HClock / 1000.0;
+            Display->VBackPorchPlusSync * HClock / 1000.0;
 
         if (Flags < 0) // if doublescan mode
         {
@@ -573,27 +572,27 @@ UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
          *   it should have been, which is why I included it.                       *
          *                                                                          *
          ****************************************************************************/
-        if (VSyncPlusBackPorch < Display.VSyncWidth + Display.VBackPorch)
+        if (VSyncPlusBackPorch < Display->VSyncWidth + Display->VBackPorch)
         {
-            VSyncPlusBackPorch = Display.VSyncWidth + Display.VBackPorch;
+            VSyncPlusBackPorch = Display->VSyncWidth + Display->VBackPorch;
         }
 
 
         /* calculate number of lines in back porch */
-        VBackPorch = VSyncPlusBackPorch - Display.VSyncWidth;
+        VBackPorch = VSyncPlusBackPorch - Display->VSyncWidth;
 
 
         /* calculate total number of lines */
         VTotal =
             VRes + TopMargin + BottomMargin +
-            Display.VFrontPorch + VSyncPlusBackPorch + Interlace;
+            Display->VFrontPorch + VSyncPlusBackPorch + Interlace;
     }
 
 
     /* calculate horizontal sync width in pixels */
     HSyncWidth =
-        round(Display.HSyncPercent / 100.0 * HTotal / Display.CharacterCell) *
-        Display.CharacterCell;
+        round(Display->HSyncPercent / 100.0 * HTotal / Display->CharacterCell) *
+        Display->CharacterCell;
 
 
     /* calculate horizontal back porch in pixels */

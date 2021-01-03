@@ -191,6 +191,6 @@ typedef struct __UMC_MODELINE
 } UMC_MODELINE;
 
 UMC_MODELINE *general_timing_formula(double HRes, double VRes, double Clock,
-        UMC_DISPLAY Display, double Flags);
+        UMC_DISPLAY *Display, double Flags);
 #endif /* FB_VIDEO_H */
 

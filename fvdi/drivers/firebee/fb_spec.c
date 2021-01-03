@@ -163,7 +163,7 @@ static long calc_modeline(struct res *res, struct modeline *ml)
     PRINTF(("\r\n"));
 
     res->width = res->width  & ~7;
-    uml = general_timing_formula(res->width, res->height, res->freq, dsp, 0.0);
+    uml = general_timing_formula(res->width, res->height, res->freq, &dsp, 0.0);
 
     PRINTF(("pixel clock: %d\r\n", (int) uml->PClock));
     PRINTF(("hres: %d\r\n", uml->HRes));
