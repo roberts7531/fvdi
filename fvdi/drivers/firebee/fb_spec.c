@@ -336,8 +336,9 @@ long CDECL setup(long type, long value)
     ret = -1;
     switch(type) {
         case Q_NAME:
-            ret = (long)driver_name;
+            ret = (long) driver_name;
             break;
+
         case S_DRVOPTION:
             ret = tokenize((char *)value);
             break;
@@ -405,17 +406,6 @@ Virtual* CDECL opnwk(Virtual *vwk)
      * I did not yet find what I'm doing differently from other drivers (that apparently do not have this problem).
      */
     c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
-
-#ifdef FVDI_DEBUG
-    int i, j;
-    for (i = 0; i < wk->screen.palette.size; i += 8)
-    {
-        for (j = 0; j < 8; j++)
-            PRINTF(("(%d, %d, %d), ",
-                    wk->screen.palette.colours->vdi.red, wk->screen.palette.colours->vdi.blue, wk->screen.palette.colours->vdi.green));
-        PRINTF(("\r\n"));
-    }
-#endif
 
     return 0;
 }
