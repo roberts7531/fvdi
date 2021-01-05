@@ -50,6 +50,7 @@ CSRC = \
 	fb_spec.c \
 	firebee.c \
 	firebee_mouse.c \
+	../common/modeline.c \
 	16_bit.c
 
 # handle DevPac -> gas conversions
