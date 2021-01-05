@@ -38,19 +38,6 @@
 #include <stdbool.h>
 #include "fb_video.h"
 
-struct modeline
-{
-    unsigned short pixel_clock;
-    unsigned short h_display;
-    unsigned short h_sync_start;
-    unsigned short h_sync_end;
-    unsigned short h_total;
-    unsigned short v_display;
-    unsigned short v_sync_start;
-    unsigned short v_sync_end;
-    unsigned short v_total;
-};
-
 /* from firebee.c */
 void fbee_set_clock(unsigned short clock);
 void fbee_set_screen(volatile struct videl_registers *regs, void *addr);
