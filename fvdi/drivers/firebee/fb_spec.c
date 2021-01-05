@@ -25,6 +25,7 @@
 #include "driver.h"
 #include "firebee.h"
 #include "fb_video.h"
+#include "modeline.h"
 #include <os.h>
 #include "string/memset.h"
 #include <stdint.h>
@@ -91,7 +92,7 @@ short accel_s = 0;
 short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE |  A_MOUSE;
 
 const Mode *graphics_mode = &mode[0];
-struct modeline modeline = { 147, 1680, 1784, 1968, 2256, 1050, 1054, 1058, 1090  };
+struct modeline modeline = { 147, 1680, 1784, 1968, 2256, 1050, 1054, 1058, 1090, {0, 0, 0, 0}  };
 
 static char *get_num(char *token, short *num)
 {
@@ -110,11 +111,11 @@ static char *get_num(char *token, short *num)
         return token;
 
     buf[i] = '\0';
-    *num = access->funcs.atol(buf);
+    *num = (short) access->funcs.atol(buf);
     return token;
 }
 
-static int set_bpp(int bpp)
+static short set_bpp(short bpp)
 {
     switch (bpp) {
         case -1:
@@ -129,63 +130,26 @@ static int set_bpp(int bpp)
     return bpp;
 }
 
-static UMC_DISPLAY dsp =
-{
-    .CharacterCell = 8.0,
-    .PClockStep = 0.0,
-    .HSyncPercent = 8.0,
-    .M = 600.0,
-    .C = 40.0,
-    .K = 128.0,
-    .J = 20.0,
-    .VFrontPorch = 1.0,
-    .VBackPorchPlusSync = 550.0,
-    .VSyncWidth = 3.0,
-    .VBackPorch = 6.0,
-    .Margin = 0.0,
-    .HBlankingTicks = 160.0,
-    .HSyncTicks = 32.0,
-    .VBlankingTime = 460.0
-};
 
 static long calc_modeline(struct res *res, struct modeline *ml)
 {
-    UMC_MODELINE *uml;
-
-    PRINTF(("character cell: %d\r\n", (int) dsp.CharacterCell));
-    PRINTF(("pixel clock stepping: %d\r\n", (int) dsp.PClockStep));
-    PRINTF(("horizontal sync percent: %d\r\n", (int) dsp.HSyncPercent));
-    PRINTF(("C: %d K: %d J: %d\r\n", (int) dsp.C, (int) dsp.J, (int) dsp.J));
-    PRINTF(("front porch: %d\r\n", (int) dsp.VFrontPorch));
-    PRINTF(("min lines vsync + back porch: %d\r\n", (int) dsp.VBackPorchPlusSync));
-    PRINTF(("vsync width: %d\r\n", (int) dsp.VSyncWidth));
-    PRINTF(("back porch: %d\r\n", (int) dsp.VBackPorch));
-    PRINTF(("margin: %d\r\n", (int) dsp.Margin));
-    PRINTF(("\r\n"));
-
+    /*
+     * round down horizontal resolution to closest multiple of 8. Otherwise we get staircases
+     */
     res->width = res->width  & ~7;
-    uml = general_timing_formula(res->width, res->height, res->freq, &dsp, 0.0);
 
-    PRINTF(("pixel clock: %d\r\n", (int) uml->PClock));
-    PRINTF(("hres: %d\r\n", uml->HRes));
-    PRINTF(("hsync start: %d\r\n", uml->HSyncStart));
-    PRINTF(("hsync end: %d\r\n", uml->HSyncEnd));
-    PRINTF(("htotal: %d\r\n", uml->HTotal));
-    PRINTF(("vres: %d\r\n", uml->VRes));
-    PRINTF(("vsync start: %d\r\n", uml->VSyncStart));
-    PRINTF(("vsync end: %d\r\n", uml->VSyncEnd));
-    PRINTF(("vtotal: %d\r\n", uml->VTotal));
+    ml = general_timing_formula(res->width, res->height, res->freq, 0.0);
+
+    PRINTF(("pixel clock: %d\r\n", (int) ml->pixel_clock));
+    PRINTF(("hres: %d\r\n", ml->h_display));
+    PRINTF(("hsync start: %d\r\n", ml->h_sync_start));
+    PRINTF(("hsync end: %d\r\n", ml->h_sync_end));
+    PRINTF(("htotal: %d\r\n", ml->h_total));
+    PRINTF(("vres: %d\r\n", ml->v_display));
+    PRINTF(("vsync start: %d\r\n", ml->v_sync_start));
+    PRINTF(("vsync end: %d\r\n", ml->v_sync_end));
+    PRINTF(("vtotal: %d\r\n", ml->v_total));
     PRINTF(("\r\n"));
-
-    ml->pixel_clock = (unsigned short) uml->PClock;
-    ml->h_display = (unsigned short) uml->HRes;
-    ml->h_sync_start = (unsigned short) uml->HSyncStart;
-    ml->h_sync_end = (unsigned short) uml->HSyncEnd;
-    ml->h_total = (unsigned short) uml->HTotal;
-    ml->v_display = (unsigned short) uml->VRes;
-    ml->v_sync_start = (unsigned short) uml->VSyncStart;
-    ml->v_sync_end = (unsigned short) uml->VSyncEnd;
-    ml->v_total = (unsigned short) uml->VTotal;
 
     return 1;
 
@@ -209,7 +173,7 @@ static long set_mode(const char **ptr)
 
     resolution.used = 1;
 
-    resolution.bpp = set_bpp(resolution.bpp);
+    resolution.bpp = (short) set_bpp(resolution.bpp);
     calc_modeline(&resolution, &modeline);
 
     return 1;
@@ -218,7 +182,7 @@ static long set_mode(const char **ptr)
 
 static Option const options[] = {
     { "debug",      { &debug },             2 },  /* debug, turn on debugging aids */
-    { "mode",       { set_mode },          -1 },  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+    { "mode",       { (void *) &set_mode },          -1 },  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
 };
 
 /*
