@@ -138,6 +138,10 @@ static long calc_modeline(struct res *res, struct modeline *ml)
      */
     res->width = res->width  & ~7;
 
+    /*
+     * translate the resolution information we got from FVDI.SYS into proper
+     * video timing (a modeline)
+     */
     ml = general_timing_formula(res->width, res->height, res->freq, 0.0);
 
     PRINTF(("pixel clock: %d\r\n", (int) ml->pixel_clock));

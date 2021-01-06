@@ -58,6 +58,11 @@ void fbee_set_video(short *screen_address)
 {
     fbee_set_screen(&videl_regs, screen_address);
 
+    /*
+     * disable Falcon shift mode and ST shift mode on the FireBee video side,
+     * disable FireBee video and disable the video DAC -
+     * this will leave you with a black screen and no video at all
+     */
     fb_vd_cntrl &= ~(FALCON_SHIFT_MODE | ST_SHIFT_MODE | FB_VIDEO_ON | VIDEO_DAC_ON);
 
     /* it appears we can only enable FireBee video if we write 0 to ST shift mode
@@ -66,10 +71,22 @@ void fbee_set_video(short *screen_address)
     videl_regs.stsft = 0;
     videl_regs.spshift = 0;
 
+    /*
+     * write videl registers with the timing from the modeline
+     */
     set_videl_regs_from_modeline(&modeline, &videl_regs);
 
+    /*
+     * enable 16-planes (full color) FireBee video mode and disable
+     * all other settings (the HDL doesn't do that, it's entirely possible to enable more
+     * than one single video mode which doesn't make sense, obviously)
+     */
     fb_vd_cntrl |= COLOR16 | NEG_SYNC_ALLOWED;
     fb_vd_cntrl &= ~(FALCON_SHIFT_MODE | ST_SHIFT_MODE | COLOR24 | COLOR8 | COLOR1);
+
+    /*
+     * enable video again once all the settings are done
+     */
     fb_vd_cntrl |= FB_VIDEO_ON | VIDEO_DAC_ON;
 }
 
