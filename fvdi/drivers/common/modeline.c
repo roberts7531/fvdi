@@ -71,9 +71,7 @@ static struct display dsp =
     .VBlankingTime = 460.0
 };
 
-static struct modeline Modeline[1];
-
-struct modeline *general_timing_formula(double HRes, double VRes, double Clock, double Flags)
+void general_timing_formula(double HRes, double VRes, double Clock, double Flags, struct modeline *modeline)
 {
     struct display *Display = &dsp;
 
@@ -108,9 +106,9 @@ struct modeline *general_timing_formula(double HRes, double VRes, double Clock, 
     double LeftMargin = 0;
 
 
-    /* initialize a few Modeline variables to their default values */
-    Modeline->flags.double_scan = 0;
-    Modeline->flags.interlace = 0;
+    /* initialize a few modeline variables to their default values */
+    modeline->flags.double_scan = 0;
+    modeline->flags.interlace = 0;
 
 
     /* round character cell granularity to nearest integer*/
@@ -505,45 +503,45 @@ struct modeline *general_timing_formula(double HRes, double VRes, double Clock, 
     /* output modeline calculations */
     if (Flags > 0)  // if interlace mode
     {
-        Modeline->flags.interlace = 1;
-        Modeline->pixel_clock = (unsigned short) PClock;
-        Modeline->h_display = (unsigned short) HRes;
-        Modeline->h_sync_start = (unsigned short) (HTotal - HBackPorch - HSyncWidth);
-        Modeline->h_sync_end = (unsigned short) (HTotal - HBackPorch);
-        Modeline->h_total = (unsigned short) HTotal;
-        Modeline->v_display = (unsigned short) (VRes * 2.0);
-        Modeline->v_sync_start = (unsigned short) ((VTotal - VSyncPlusBackPorch) * 2.0);
-        Modeline->v_sync_end = (unsigned short) ((VTotal - VBackPorch) * 2.0);
-        Modeline->v_total = (unsigned short) (VTotal * 2.0);
+        modeline->flags.interlace = 1;
+        modeline->pixel_clock = (unsigned short) PClock;
+        modeline->h_display = (unsigned short) HRes;
+        modeline->h_sync_start = (unsigned short) (HTotal - HBackPorch - HSyncWidth);
+        modeline->h_sync_end = (unsigned short) (HTotal - HBackPorch);
+        modeline->h_total = (unsigned short) HTotal;
+        modeline->v_display = (unsigned short) (VRes * 2.0);
+        modeline->v_sync_start = (unsigned short) ((VTotal - VSyncPlusBackPorch) * 2.0);
+        modeline->v_sync_end = (unsigned short) ((VTotal - VBackPorch) * 2.0);
+        modeline->v_total = (unsigned short) (VTotal * 2.0);
     }
     else if (Flags < 0)  // if doublescan mode
     {
-        Modeline->flags.double_scan = 1;
-        Modeline->pixel_clock = (unsigned short) PClock;
-        Modeline->h_display = (unsigned short) HRes;
-        Modeline->h_sync_start = (unsigned short) (HTotal - HBackPorch - HSyncWidth);
-        Modeline->h_sync_end = (unsigned short) (HTotal - HBackPorch);
-        Modeline->h_total = (unsigned short) HTotal;
-        Modeline->v_display = (unsigned short) (VRes / 2.0);
-        Modeline->v_sync_start = (unsigned short) ((VTotal - VSyncPlusBackPorch) / 2.0);
-        Modeline->v_sync_end = (unsigned short) ((VTotal - VBackPorch) / 2.0);
-        Modeline->v_total = (unsigned short) (VTotal / 2.0);
+        modeline->flags.double_scan = 1;
+        modeline->pixel_clock = (unsigned short) PClock;
+        modeline->h_display = (unsigned short) HRes;
+        modeline->h_sync_start = (unsigned short) (HTotal - HBackPorch - HSyncWidth);
+        modeline->h_sync_end = (unsigned short) (HTotal - HBackPorch);
+        modeline->h_total = (unsigned short) HTotal;
+        modeline->v_display = (unsigned short) (VRes / 2.0);
+        modeline->v_sync_start = (unsigned short) ((VTotal - VSyncPlusBackPorch) / 2.0);
+        modeline->v_sync_end = (unsigned short) ((VTotal - VBackPorch) / 2.0);
+        modeline->v_total = (unsigned short) (VTotal / 2.0);
     }
     else
     {
-        Modeline->pixel_clock = (unsigned short)PClock;
-        Modeline->h_display = (unsigned short) HRes;
-        Modeline->h_sync_start = (unsigned short) (HTotal - HBackPorch - HSyncWidth);
-        Modeline->h_sync_end = (unsigned short) (HTotal - HBackPorch);
-        Modeline->h_total = (unsigned short) HTotal;
-        Modeline->v_display = (unsigned short) VRes;
-        Modeline->v_sync_start = (unsigned short) (VTotal - VSyncPlusBackPorch);
-        Modeline->v_sync_end = (unsigned short) (VTotal - VBackPorch);
-        Modeline->v_total = (unsigned short) VTotal;
+        modeline->pixel_clock = (unsigned short)PClock;
+        modeline->h_display = (unsigned short) HRes;
+        modeline->h_sync_start = (unsigned short) (HTotal - HBackPorch - HSyncWidth);
+        modeline->h_sync_end = (unsigned short) (HTotal - HBackPorch);
+        modeline->h_total = (unsigned short) HTotal;
+        modeline->v_display = (unsigned short) VRes;
+        modeline->v_sync_start = (unsigned short) (VTotal - VSyncPlusBackPorch);
+        modeline->v_sync_end = (unsigned short) (VTotal - VBackPorch);
+        modeline->v_total = (unsigned short) VTotal;
     }
 
-    Modeline->flags.hsync_polarity = 0;
-    Modeline->flags.vsync_polarity = 1;
+    modeline->flags.hsync_polarity = 0;
+    modeline->flags.vsync_polarity = 1;
 
-    return (Modeline);
+    return (modeline);
 } //general_timing_formula()

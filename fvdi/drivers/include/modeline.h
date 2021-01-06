@@ -59,6 +59,6 @@ struct modeline
     struct modeline_flags flags;
 };
 
-struct modeline *general_timing_formula(double HRes, double VRes, double Clock, double Flags);
+void general_timing_formula(double HRes, double VRes, double Clock, double Flags, struct modeline *modeline);
 
 #endif // MODELINE_H

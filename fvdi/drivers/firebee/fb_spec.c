@@ -136,13 +136,13 @@ static long calc_modeline(struct res *res, struct modeline *ml)
     /*
      * round down horizontal resolution to closest multiple of 8. Otherwise we get staircases
      */
-    res->width = res->width  & ~7;
+    res->width &= ~7;
 
     /*
      * translate the resolution information we got from FVDI.SYS into proper
      * video timing (a modeline)
      */
-    ml = general_timing_formula(res->width, res->height, res->freq, 0.0);
+    general_timing_formula(res->width, res->height, res->freq, 0.0, ml);
 
     PRINTF(("pixel clock: %d\r\n", (int) ml->pixel_clock));
     PRINTF(("hres: %d\r\n", ml->h_display));
