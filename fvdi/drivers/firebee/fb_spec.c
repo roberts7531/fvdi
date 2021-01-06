@@ -49,7 +49,7 @@ static struct res
     short bpp;
     short freq;
 } resolution = {
-    0, 640, 480, 16, 60
+    0, 640, 480, 16, 71
 };
 
 static struct {
@@ -92,7 +92,7 @@ short accel_s = 0;
 short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE |  A_MOUSE;
 
 const Mode *graphics_mode = &mode[0];
-struct modeline modeline = { 147, 1680, 1784, 1968, 2256, 1050, 1054, 1058, 1090, {0, 0, 0, 0}  };
+struct modeline modeline;
 
 static char *get_num(char *token, short *num)
 {
@@ -178,7 +178,6 @@ static long set_mode(const char **ptr)
     resolution.used = 1;
 
     resolution.bpp = (short) set_bpp(resolution.bpp);
-    calc_modeline(&resolution, &modeline);
 
     return 1;
 }
@@ -278,6 +277,8 @@ long CDECL initialize(Virtual *vwk)
     access->funcs.puts("Free Software distributed under GPLv2\r\n");
     access->funcs.puts("\r\n");
 
+    calc_modeline(&resolution, &modeline);
+    PRINTF(("%d x %d x %d@%d\r\n", modeline.h_display, modeline.v_display, resolution.bpp, modeline.pixel_clock));
     screen_address = fbee_alloc_vram(resolution.width, resolution.height, sizeof(short));
 
     vwk = me->default_vwk;	/* This is what we're interested in */
@@ -364,9 +365,8 @@ Virtual* CDECL opnwk(Virtual *vwk)
 
     fbee_set_video(screen_address + FB_VRAM_PHYS_OFFSET);
 
-    PRINTF(("selected resolution is %d x %d @ %d\r\n", resolution.width, resolution.height, resolution.bpp));
+    PRINTF(("selected resolution is %dx%dx%d@%d\r\n", resolution.width, resolution.height, resolution.bpp, resolution.freq));
 
-    /* update the settings (hardcoded for now) */
     wk->screen.mfdb.width = resolution.width;
     wk->screen.mfdb.height = resolution.height;
     wk->screen.mfdb.bitplanes = resolution.bpp;
