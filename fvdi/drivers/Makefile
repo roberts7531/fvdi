@@ -3,7 +3,7 @@ SUBDIRS =
 V4E_SUBDIRS =
 
 V4E_SUBDIRS += firebee
-# V4E_SUBDIRS += radeon
+V4E_SUBDIRS += radeon
 
 DRV_SUBDIRS = \
 	aranym \
