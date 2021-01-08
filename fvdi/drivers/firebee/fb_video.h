@@ -13,11 +13,11 @@
 struct videl_registers
 {
     union {
-        int16_t vbasx;            /* on the Firebee, the high byte is extended 0xffff8200 */
+        int16_t vbasx;              /* on the Firebee, the high byte is extended 0xffff8200 */
         struct
         {
             int8_t filler;
-            int8_t vbash;             /* video base address hi  - 0xffff8201 */
+            int8_t vbash;           /* video base address hi  - 0xffff8201 */
         };
 
     };
@@ -92,9 +92,9 @@ enum fb_vd_vcntrl_fields
 
 enum fb_clockmode
 {
-    FB_CLOCK_25 = 0L,        /* 25 MHz */
-    FB_CLOCK_33 = 1L,        /* 33 MHz */
-    FB_CLOCK_PLL = 2L,        /* clock from PLL (fb_vd_frq) */
+    FB_CLOCK_25 = 0L,       /* 25 MHz */
+    FB_CLOCK_33 = 1L,       /* 33 MHz */
+    FB_CLOCK_PLL = 2L,      /* clock from PLL (fb_vd_frq) */
     FB_CLOCK_MASK = 3L
 };
 
