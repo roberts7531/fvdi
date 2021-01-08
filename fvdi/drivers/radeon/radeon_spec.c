@@ -23,13 +23,13 @@
 #include "fvdi.h"
 #include "driver.h"
 #include "radeon.h"
-#include "video.h"
+#include "modeline.h"
 #include <os.h>
 #include "string/memset.h"
 
 #include "radeon_bas_interface.h"
 #include "stdint.h"
-#include "driver_vec.h"
+#include "radeon_vec.h"
 
 static char const r_16[] = { 5, 11, 12, 13, 14, 15 };
 static char const g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
@@ -37,21 +37,22 @@ static char const b_16[] = { 5,  0,  1,  2,  3,  4 };
 static char const none[] = { 0 };
 
 static Mode const mode[1] = {
-     { 16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0,  2, 2, 1 }
+     { 16, CHUNKY | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0,  2, 2, 1 }
 };
 
 char driver_name[] = "Radeon BaS_gcc";
 
-static struct
+struct res
 {
     short used; /* Whether the mode option was used or not. */
     short width;
     short height;
     short bpp;
     short freq;
+    short flags;
 } res =   /* needs to be renamed from "resolution" since we have that name already in fb.h */
 {
-    0, 640, 480, 16, 60
+    0, 640, 480, 16, 60, 0
 };
 
 static struct {
@@ -94,6 +95,7 @@ short accel_s = 0;
 short accel_c = A_SET_PAL | A_GET_COL | A_SET_PIX | A_GET_PIX | A_BLIT | A_FILL | A_EXPAND | A_LINE | A_MOUSE;
 
 const Mode *graphics_mode = &mode[0];
+struct modeline modeline;
 
 static char *get_num(char *token, short *num)
 {
@@ -113,7 +115,7 @@ static char *get_num(char *token, short *num)
         return token;
 
     buf[i] = '\0';
-    *num = access->funcs.atol(buf);
+    *num = (short) access->funcs.atol(buf);
     return token;
 }
 
@@ -132,6 +134,34 @@ static int set_bpp(int bpp)
 
     return bpp;
 }
+
+static long calc_modeline(struct res *res, struct modeline *ml)
+{
+    /*
+     * round down horizontal resolution to closest multiple of 8. Otherwise we get staircases
+     */
+    res->width &= ~7;
+
+    /*
+     * translate the resolution information we got from FVDI.SYS into proper
+     * video timing (a modeline)
+     */
+    general_timing_formula(res->width, res->height, res->freq, 0.0, ml);
+
+    PRINTF(("pixel clock: %d\r\n", (int) ml->pixel_clock));
+    PRINTF(("hres: %d\r\n", ml->h_display));
+    PRINTF(("hsync start: %d\r\n", ml->h_sync_start));
+    PRINTF(("hsync end: %d\r\n", ml->h_sync_end));
+    PRINTF(("htotal: %d\r\n", ml->h_total));
+    PRINTF(("vres: %d\r\n", ml->v_display));
+    PRINTF(("vsync start: %d\r\n", ml->v_sync_start));
+    PRINTF(("vsync end: %d\r\n", ml->v_sync_end));
+    PRINTF(("vtotal: %d\r\n", ml->v_total));
+    PRINTF(("\r\n"));
+
+    return 1;
+}
+
 
 static long set_mode(const char **ptr)
 {
@@ -159,7 +189,7 @@ static long set_mode(const char **ptr)
 Option options[] =
 {
     {"debug",      { &debug },             2 },  /* debug, turn on debugging aids */
-    {"mode",       { set_mode },          -1 },  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
+    {"mode",       { (void *) set_mode },          -1 },  /* mode WIDTHxHEIGHTxDEPTH@FREQ */
 };
 
 /*
@@ -219,53 +249,9 @@ long check_token(char *token, const char **ptr)
     return 0;
 }
 
-static struct ModeInfo *mi;
 static unsigned char *screen_address;
-
-/* Fix all ModeInfo with PLL data */
-static void fix_all_mode_info(void)
-{
-    int i;
-
-    for (i = 0; i < modeline_vesa_entries; i++)
-    {
-        struct ModeInfo *mi = &modeline_vesa_entry[i];
-        radeon_fix_mode(mi);
-    }
-}
-
-/* Find ModeInfo according to requested video mode */
-static struct ModeInfo *find_mode_info(void)
-{
-    int i;
-
-    for (i = 0; i < modeline_vesa_entries; i++)
-    {
-        struct ModeInfo *p = &modeline_vesa_entry[i];
-        if (p->Width == (unsigned short)res.width && p->Height == (unsigned short)res.height)
-            return p;
-    }
-
-    panic("Requested video mode mode not available.");
-    return NULL;
-}
-
-/* Allocate screen buffer */
-static unsigned char *fbee_alloc_vram(unsigned short width, unsigned short height)
-{
-    unsigned long buffer;
-    unsigned long vram_size = (unsigned long) width * height * sizeof(short);
-    const int alignment = 32;
-
-    /* FireBee screen buffers live in ST RAM */
-    buffer = Mxalloc(vram_size + alignment - 1, 0);
-    if (!buffer)
-        panic("Mxalloc() failed to allocate screen buffer.");
-
-    buffer = (buffer + alignment - 1) & -alignment;
-
-    return (unsigned char *) buffer + FIREBEE_VRAM_PHYS_OFFSET;
-}
+static struct fb_info *bas_if;
+static struct fb_ops *accs;
 
 /*
  * Do whatever setup work might be necessary on boot up
@@ -277,11 +263,7 @@ long initialize(Virtual *vwk)
     Workstation *wk;
     int old_palette_size;
     Colour *old_palette_colours;
-    struct fb_info *bas_if;
-#if 0
-    struct fb_ops *radeon_accel_ops;
-#endif
-
+    struct fb_info info_fb;
 
     /* Display startup banner */
     access->funcs.puts("\r\n");
@@ -290,10 +272,11 @@ long initialize(Virtual *vwk)
     access->funcs.puts("Free Software distributed under GPLv2\r\n");
     access->funcs.puts("\r\n");
 
+    calc_modeline(&res, &modeline);
     /*
      * get driver interface struct from BaS_gcc
      */
-    bas_if = ** (struct fb_info ***) Supexec(get_driver);
+    bas_if = ** (struct fb_info ***) get_driver();
 
     if (bas_if == NULL)
     {
@@ -304,20 +287,25 @@ long initialize(Virtual *vwk)
     }
     access->funcs.puts("BaS driver interface found\r\n");
 
-#if 0
-    radeon_accel_ops = bas_if->fbops;
-#endif
+    PRINTF(("video driver interface struct at %p\r\n", (void *) bas_if));
+    PRINTF(("screen base=%p\r\n", (void *) bas_if->screen_base));
+    PRINTF(("screen size=%ld kB\r\n", (long) bas_if->screen_size / 1024));
+    PRINTF(("ram base=%p\r\n", (void *) bas_if->ram_base));
+    PRINTF(("ram_size=%ld kB\r\n", (long) bas_if->ram_size / 1024));
 
-    fix_all_mode_info();
-    mi = find_mode_info();
 
-    screen_address = fbee_alloc_vram(res.width, res.height);
+    accs = bas_if->fbops;
+    PRINTF(("accs = %lx\r\n", (long) accs));
 
+    screen_address = (unsigned char *) bas_if->screen_base;
+
+    PRINTF(("screen address = %lx\r\n", (long) screen_address));
     vwk = me->default_vwk;  /* This is what we're interested in */
     wk = vwk->real_address;
 
     wk->screen.look_up_table = 0;           /* Was 1 (???)  Shouldn't be needed (graphics_mode) */
     wk->screen.mfdb.standard = 0;
+
     if (wk->screen.pixel.width > 0)        /* Starts out as screen width */
         wk->screen.pixel.width = (wk->screen.pixel.width * 1000L) / wk->screen.mfdb.width;
     else                                   /*   or fixed DPI (negative) */
@@ -335,10 +323,11 @@ long initialize(Virtual *vwk)
 
     if (loaded_palette)
         access->funcs.copymem(loaded_palette, default_vdi_colors, 256 * 3 * sizeof(short));
+
     if ((old_palette_size = wk->screen.palette.size) != 256)
     {
-        /* Started from different graphics mode? */
         old_palette_colours = wk->screen.palette.colours;
+
         wk->screen.palette.colours = access->funcs.malloc(256L * sizeof(Colour), 3);    /* Assume malloc won't fail. */
         if (wk->screen.palette.colours)
         {
@@ -381,6 +370,67 @@ long setup(long type, long value)
     return ret;
 }
 
+#define KHZ2PICOS(a)            (1000000000UL / (a))
+
+static struct fb_var_screeninfo default_fb =
+{
+    .xres = 640,
+    .yres = 480,
+    .xres_virtual = 640 * 2,
+    .yres_virtual = 480 * 2, /* ensure we have accel offscreen space */
+    .bits_per_pixel = 8,
+    .grayscale = 0,
+    .red = { .offset = 11, .length = 5, 0 },
+    .green = { .offset = 5, .length = 6, 0 },
+    .blue = { .offset = 0, .length = 5, 0 },
+    .activate = FB_ACTIVATE_ALL | FB_ACTIVATE_FORCE | FB_ACTIVATE_NOW,
+    .height = -1L,
+    .width = -1L,
+    .pixclock = 39721,
+    .left_margin = 40,
+    .right_margin = 24,
+    .upper_margin = 32,
+    .lower_margin = 11,
+    .hsync_len = 96,
+    .vsync_len = 2,
+    .vmode = FB_VMODE_NONINTERLACED,
+};
+
+int fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
+{
+    int32_t err;
+
+    PRINTF(("var->activate = 0x%x\r\n", var->activate));
+
+    if (var->activate & FB_ACTIVATE_INV_MODE)
+    {
+        PRINTF(("invalid mode\r\n"));
+
+        return 1;
+    }
+
+    if (var->activate & FB_ACTIVATE_FORCE)
+    {
+        if ((err = info->fbops->fb_check_var(var, info)))
+        {
+            PRINTF(("fb_check_var failed\r\n"));
+
+            return err;
+        }
+
+        if ((var->activate & FB_ACTIVATE_MASK) == FB_ACTIVATE_NOW)
+        {
+            memcpy(&info->var, var, sizeof(struct fb_var_screeninfo));
+            PRINTF(("fb_set_par() = %p\r\n", info->fbops->fb_set_par));
+            info->fbops->fb_set_par(info);
+            info->fbops->fb_pan_display(var, info);
+        }
+    }
+
+    return 0;
+}
+
+
 /*
  * Initialize according to parameters (boot and sent).
  * Create new (or use old) Workstation and default Virtual.
@@ -389,24 +439,56 @@ long setup(long type, long value)
 Virtual* opnwk(Virtual *vwk)
 {
     Workstation *wk;
+
     vwk = me->default_vwk;  /* This is what we're interested in */
     wk = vwk->real_address;
 
-    /* Switch to SAGA screen */
-    radeon_set_clock(mi);
-    radeon_set_modeline(mi, SAGA_VIDEO_FORMAT_RGB16);
-    radeon_set_panning(screen_address);
+    /* Switch to Radeon screen */
+
+    default_fb.xres = default_fb.xres_virtual = (uint32_t) res.width;
+    default_fb.yres = default_fb.yres_virtual = (uint32_t) res.height;
+    default_fb.bits_per_pixel = (uint32_t) res.bpp;
+    default_fb.xoffset = default_fb.yoffset = 0;
+    default_fb.pixclock = KHZ2PICOS(modeline.pixel_clock * 1000L);
+
+    PRINTF(("modeline.pixel_clock = %d\r\n", modeline.pixel_clock));
+
+    default_fb.left_margin = modeline.h_total - modeline.h_sync_start;
+    default_fb.right_margin = modeline.h_total - modeline.h_sync_end;
+    default_fb.upper_margin = modeline.v_total - modeline.v_sync_start;
+    default_fb.lower_margin = modeline.v_total - modeline.v_sync_end;
+
+    PRINTF(("left_margin = %ld\r\n", (long) default_fb.left_margin));
+    PRINTF(("right_margin = %ld\r\n", (long) default_fb.right_margin));
+    PRINTF(("upper_margin = %ld\r\n", (long) default_fb.upper_margin));
+    PRINTF(("lower_margin = %ld\r\n", (long) default_fb.lower_margin));
+
+    (*bas_if->fbops->fb_check_modes)(bas_if, &res);
+    fb_set_var(bas_if, &default_fb);
+
+    PRINTF(("bas_if->var.xres: %ld\r\n", (long) bas_if->var.xres));
+    PRINTF(("bas_if->var.yres: %ld\r\n", (long) bas_if->var.yres));
+    PRINTF(("bas_if->var.pixclock: %ld\r\n", (long) bas_if->var.pixclock));
+    PRINTF(("bas_if->var.bits_per_pixel: %ld\r\n", (long) bas_if->var.bits_per_pixel));
+
+    screen_address = bas_if->screen_base;
+
+    PRINTF(("screen address = %lx\r\n", (unsigned long) screen_address));
 
     /* update the settings */
-    wk->screen.mfdb.width = mi->Width;
-    wk->screen.mfdb.height = mi->Height;
-    wk->screen.mfdb.bitplanes = res.bpp;
+    wk->screen.mfdb.width = (short) bas_if->var.xres;
+    wk->screen.mfdb.height = (short) bas_if->var.yres;
+    wk->screen.mfdb.bitplanes = (short) bas_if->var.bits_per_pixel;
 
     /*
      * Some things need to be changed from the
      * default workstation settings.
      */
-    wk->screen.mfdb.address = (short *)screen_address;
+    wk->screen.mfdb.address = (short *) screen_address;
+
+    PRINTF(("%d x %d x %d screen at 0x%lx\r\n", wk->screen.mfdb.width, wk->screen.mfdb.height,
+            wk->screen.mfdb.bitplanes, (long) screen_address));
+
     wk->screen.mfdb.wdwidth = (wk->screen.mfdb.width + 15) / 16;
     wk->screen.wrap = wk->screen.mfdb.width * (wk->screen.mfdb.bitplanes / 8);
 
@@ -425,6 +507,19 @@ Virtual* opnwk(Virtual *vwk)
         wk->screen.pixel.height = (pixel.height * 1000L) / wk->screen.mfdb.height;
     else                                    /*   or fixed DPI (negative) */
         wk->screen.pixel.height = 25400 / -pixel.height;
+
+    wk->mouse.position.x = ((wk->screen.coordinates.max_x - wk->screen.coordinates.min_x + 1) >> 1) + wk->screen.coordinates.min_x;
+    wk->mouse.position.y = ((wk->screen.coordinates.max_y - wk->screen.coordinates.min_y + 1) >> 1) + wk->screen.coordinates.min_y;
+
+    /*
+     * FIXME
+     *
+     * for some strange reason, the driver only works if the palette is (re)initialized here again.
+     * Otherwise, everything is drawn black on black (not very useful).
+     *
+     * I did not yet find what I'm doing differently from other drivers (that apparently do not have this problem).
+     */
+    c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
 
     return 0;
 }

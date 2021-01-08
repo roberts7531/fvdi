@@ -37,9 +37,8 @@ CSRC = \
 	radeon_bas_interface.c \
 	radeon_spec.c \
 	radeon.c \
-	modeline_vesa.c \
-	radeon_pll.c \
 	radeon_mouse.c \
+	../common/modeline.c \
 	16_bit.c
 
 # handle DevPac -> gas conversions

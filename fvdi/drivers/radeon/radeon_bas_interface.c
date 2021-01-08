@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <mint/osbind.h>
 #include <stdint.h>
-#include <driver_vec.h>
+#include "radeon_vec.h"
 #include "radeon_bas_interface.h"
-
+#include "driver.h"
 
 /*
  * BaS_gcc driver API backdoor.
@@ -74,26 +74,21 @@ long get_driver(void)
         {
             struct generic_interface *ifc = &dt->interfaces[0];
 
-            /*
-            kprintf("BaS driver table found at %p, BaS version is %d.%d\r\n", dt,
-                    dt->bas_version, dt->bas_revision);
-            */
+            PRINTF(("BaS driver table found at %p, BaS version is %d.%d\r\n", dt,
+                    dt->bas_version, dt->bas_revision));
 
             while (ifc->type != END_OF_DRIVERS)
             {
-                /*
-                kprintf("driver\"%s (%s)\" found,\r\n"
-                        "interface type is %d (%s),\r\n"
+                PRINTF(("driver\"%s (%s)\" found,\r\n"
+                        "interface type is %ld,\r\n"
                         "version %d.%d\r\n\r\n",
-                        ifc->name, ifc->description, ifc->type, dt_to_str(ifc->type),
-                        ifc->version, ifc->revision);
-                */
+                        ifc->name, ifc->description, ifc->type,
+                        ifc->version, ifc->revision));
+
 
                 if (ifc->type == VIDEO_DRIVER)
                 {
-                    /*
-                    kprintf("\r\nvideo driver found at %p\r\n", ifc);
-                    */
+                    PRINTF(("\r\nvideo driver found at %p\r\n", ifc));
 
                     return (long) ifc->interface.fb;
                 }
@@ -102,17 +97,13 @@ long get_driver(void)
         }
         else
         {
-            /*
-            kprintf("driver table not found.\r\n");
-            */
+            PRINTF(("driver table not found.\r\n"));
         }
     }
     else
     {
-        /*
-        kprintf("not running on EmuTOS,\r\n(signature 0x%08x instead of 0x%08x\r\n",
-                (uint32_t) sig, 0x45544f53);
-        */
+        PRINTF(("not running on EmuTOS,\r\n(signature 0x%08x instead of 0x%08x\r\n",
+                (uint32_t) sig, 0x45544f53));
     }
     return 0L;
 }
