@@ -44,9 +44,14 @@ static inline double sqrt(const double fg)
     double n = fg / 2.0;
     double lstX = 0.0;
 
+    if (fg < 2) return fg;
+
     while (n != lstX)
     {
         lstX = n;
+        n = (n + fg/n) / 2.0;
+        n = (n + fg/n) / 2.0;
+        n = (n + fg/n) / 2.0;
         n = (n + fg/n) / 2.0;
     }
     return n;

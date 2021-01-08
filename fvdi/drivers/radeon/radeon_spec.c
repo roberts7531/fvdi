@@ -457,13 +457,15 @@ Virtual* opnwk(Virtual *vwk)
     default_fb.right_margin = modeline.h_total - modeline.h_sync_end;
     default_fb.upper_margin = modeline.v_total - modeline.v_sync_start;
     default_fb.lower_margin = modeline.v_total - modeline.v_sync_end;
+    default_fb.hsync_len = modeline.h_sync_end - modeline.h_sync_start;
+    default_fb.vsync_len = modeline.v_sync_end - modeline.v_sync_start;
 
     PRINTF(("left_margin = %ld\r\n", (long) default_fb.left_margin));
     PRINTF(("right_margin = %ld\r\n", (long) default_fb.right_margin));
     PRINTF(("upper_margin = %ld\r\n", (long) default_fb.upper_margin));
     PRINTF(("lower_margin = %ld\r\n", (long) default_fb.lower_margin));
 
-    (*bas_if->fbops->fb_check_modes)(bas_if, &res);
+    //(*bas_if->fbops->fb_check_modes)(bas_if, &res);
     fb_set_var(bas_if, &default_fb);
 
     PRINTF(("bas_if->var.xres: %ld\r\n", (long) bas_if->var.xres));
