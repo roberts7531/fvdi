@@ -85,6 +85,7 @@ strip:
 clean:: clean_gnu
 	$(RM) *.o $(TARGET) *.inf *.ino
 	$(RM) ../common/*.gnu.s ../common/*.cf_gnu.s ../common/*.cf_gnu.se ../common/*.o
+	$(RM) mapfile
 
 install::
 	mkdir -p $(DESTDIR)/gemsys
