@@ -93,21 +93,23 @@ void CDECL c_set_colours(Virtual *vwk, long start, long entries, unsigned short 
     short *realp;
 
     (void) vwk;
-    if ((long)requested & 1) {          /* New entries? */
+    if ((long) requested & 1) {          /* New entries? */
         requested = (unsigned short *)((long)requested & 0xfffffffeL);
-        for(i = 0; i < entries; i++) {
+        for (i = 0; i < entries; i++) {
             requested++;                /* First word is reserved */
             component = *requested++ >> 8;
             palette[start + i].vdi.red = (component * 1000L) / 255;
             palette[start + i].hw.red = component;  /* Not at all correct */
             colour = component >> (16 - red_bits);  /* (component + (1 << (14 - red_bits))) */
             tc_word = colour << green_bits;
+
             component = *requested++ >> 8;
             palette[start + i].vdi.green = (component * 1000L) / 255;
             palette[start + i].hw.green = component;    /* Not at all correct */
             colour = component >> (16 - green_bits);    /* (component + (1 << (14 - green_bits))) */
             tc_word |= colour;
             tc_word <<= blue_bits;
+
             component = *requested++ >> 8;
             palette[start + i].vdi.blue = (component * 1000L) / 255;
             palette[start + i].hw.blue = component; /* Not at all correct */
@@ -117,22 +119,24 @@ void CDECL c_set_colours(Virtual *vwk, long start, long entries, unsigned short 
             tc_word = ((tc_word & 0x000000ff) << 24) | ((tc_word & 0x0000ff00) <<  8) |
                       ((tc_word & 0x00ff0000) >>  8) | ((tc_word & 0xff000000) >> 24);
 #endif
-            realp = (short *)&palette[start + i].real;
+            realp = (short *) &palette[start + i].real;
             *realp = tc_word;
         }
     } else {
-        for(i = 0; i < entries; i++) {
+        for (i = 0; i < entries; i++) {
             component = *requested++;
             palette[start + i].vdi.red = component;
             palette[start + i].hw.red = component;  /* Not at all correct */
             colour = (component * ((1L << red_bits) - 1) + 500L) / 1000;
             tc_word = colour << green_bits;
+
             component = *requested++;
             palette[start + i].vdi.green = component;
             palette[start + i].hw.green = component;    /* Not at all correct */
             colour = (component * ((1L << green_bits) - 1) + 500L) / 1000;
             tc_word |= colour;          /* Was (colour + colour) */
             tc_word <<= blue_bits;
+
             component = *requested++;
             palette[start + i].vdi.blue = component;
             palette[start + i].hw.blue = component; /* Not at all correct */
@@ -141,7 +145,7 @@ void CDECL c_set_colours(Virtual *vwk, long start, long entries, unsigned short 
 #if NOVA
             tc_word = (tc_word << 8) | (tc_word >> 8);
 #endif
-            realp = (short *)&palette[start + i].real;
+            realp = (short *) &palette[start + i].real;
             *realp = tc_word;
         }
     }
