@@ -37,7 +37,7 @@ static char const b_16[] = { 5,  0,  1,  2,  3,  4 };
 static char const none[] = { 0 };
 
 static Mode const mode[1] = {
-     { 16, CHUNKY | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0,  2, 2, 1 }
+     { 16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0,  2, 2, 1 }
 };
 
 char driver_name[] = "Radeon BaS_gcc";
