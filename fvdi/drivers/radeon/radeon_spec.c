@@ -31,13 +31,15 @@
 #include "string/memset.h"
 #include "string/memcpy.h"
 
-static char const r_16[] = { 5, 11, 12, 13, 14, 15 };
-static char const g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
-static char const b_16[] = { 5,  0,  1,  2,  3,  4 };
+/* color bit organization */
+
+static char r_16[] = {5, 11, 12, 13, 14, 15};
+static char g_16[] = {6, 5, 6, 7, 8, 9, 10};
+static char b_16[] = {5, 0, 1, 2, 3, 4};
 static char const none[] = { 0 };
 
 static Mode const mode[1] = {
-     { 16, CHUNKY | CHECK_PREVIOUS | TRUE_COLOUR, { r_16, g_16, b_16, none, none, none }, 0,  2, 2, 1 }
+    {16, CHECK_PREVIOUS | CHUNKY | TRUE_COLOUR, {r_16, g_16, b_16, none, none, none}, 0, 2, 2, 1},
 };
 
 char driver_name[] = "Radeon BaS_gcc";
@@ -181,7 +183,7 @@ static long set_mode(const char **ptr)
 
     res.used = 1;
 
-    res.bpp = set_bpp(res.bpp);
+    res.bpp = (short) set_bpp(res.bpp);
 
     return 1;
 }
@@ -438,6 +440,8 @@ int fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
 Virtual* opnwk(Virtual *vwk)
 {
     Workstation *wk;
+    int i;
+    uint32_t red, green, blue;
 
     vwk = me->default_vwk;  /* This is what we're interested in */
     wk = vwk->real_address;
@@ -521,6 +525,21 @@ Virtual* opnwk(Virtual *vwk)
      * I did not yet find what I'm doing differently from other drivers (that apparently do not have this problem).
      */
     c_initialize_palette(vwk, 0, wk->screen.palette.size, default_vdi_colors, wk->screen.palette.colours);
+
+    red = green = blue = 0;
+    for(i = 0; i < 64; i++)
+    {
+        if (red > 65535)
+            red = 65535;
+        if (green > 65535)
+            green = 65535;
+        if (blue > 65535)
+            blue = 65535;
+        bas_if->fbops->fb_setcolreg((unsigned) i, red, green, blue, 0, bas_if);
+        green += 1024;   /* 6 bits */
+        red += 2048;     /* 5 bits */
+        blue += 2048;    /* 5 bits */
+    }
 
     return 0;
 }
