@@ -1,5 +1,5 @@
 #include "modeline.h"
-
+#include "driver.h"
 
 /***************************************************************************
  *   Copyright (C) 2005 by Desmond Colin Jones                             *
@@ -121,7 +121,7 @@ void general_timing_formula(double HRes, double VRes, double Clock, double Flags
 
     if (Display->CharacterCell < 1)
     {
-        //fprintf(stderr, "Error:  character cell less than 1 pixel.\n");
+        PRINTF(("Error:  character cell less than 1 pixel.\n"));
     }
 
 
@@ -547,6 +547,4 @@ void general_timing_formula(double HRes, double VRes, double Clock, double Flags
 
     modeline->flags.hsync_polarity = 0;
     modeline->flags.vsync_polarity = 1;
-
-    return (modeline);
 } //general_timing_formula()
