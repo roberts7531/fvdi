@@ -75,7 +75,7 @@ long get_driver(void)
             struct generic_interface *ifc = &dt->interfaces[0];
 
             PRINTF(("BaS driver table found at %p, BaS version is %d.%d\r\n", dt,
-                    dt->bas_version, dt->bas_revision));
+                    (int) dt->bas_version, (int) dt->bas_revision));
 
             while (ifc->type != END_OF_DRIVERS)
             {
@@ -83,7 +83,7 @@ long get_driver(void)
                         "interface type is %ld,\r\n"
                         "version %d.%d\r\n\r\n",
                         ifc->name, ifc->description, ifc->type,
-                        ifc->version, ifc->revision));
+                        (int) ifc->version, (int) ifc->revision));
 
 
                 if (ifc->type == VIDEO_DRIVER)
@@ -102,7 +102,7 @@ long get_driver(void)
     }
     else
     {
-        PRINTF(("not running on EmuTOS,\r\n(signature 0x%08x instead of 0x%08x\r\n",
+        PRINTF(("not running on EmuTOS,\r\n(signature 0x%08lx instead of 0x%08lx\r\n",
                 (uint32_t) sig, 0x45544f53));
     }
     return 0L;
