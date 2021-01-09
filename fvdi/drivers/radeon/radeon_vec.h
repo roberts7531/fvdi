@@ -61,7 +61,7 @@ struct dma_driver_interface
 
 struct xhdi_driver_interface
 {
-    uint32_t (*xhdivec)();
+    uint32_t (*xhdivec)(void);
 };
 
 
