@@ -21,15 +21,15 @@
  */
 
 #include "fvdi.h"
-#include "driver.h"
 #include "radeon.h"
 #include "modeline.h"
 #include <os.h>
-#include "string/memset.h"
-
 #include "radeon_bas_interface.h"
 #include "stdint.h"
 #include "radeon_vec.h"
+#include "driver.h"
+#include "string/memset.h"
+#include "string/memcpy.h"
 
 static char const r_16[] = { 5, 11, 12, 13, 14, 15 };
 static char const g_16[] = { 6,  5,  6,  7,  8,  9, 10 };
