@@ -263,7 +263,6 @@ long initialize(Virtual *vwk)
     Workstation *wk;
     int old_palette_size;
     Colour *old_palette_colours;
-    struct fb_info info_fb;
 
     /* Display startup banner */
     access->funcs.puts("\r\n");
@@ -400,7 +399,7 @@ int fb_set_var(struct fb_info *info, struct fb_var_screeninfo *var)
 {
     int32_t err;
 
-    PRINTF(("var->activate = 0x%x\r\n", var->activate));
+    PRINTF(("var->activate = 0x%x\r\n", (int) var->activate));
 
     if (var->activate & FB_ACTIVATE_INV_MODE)
     {
@@ -473,7 +472,7 @@ Virtual* opnwk(Virtual *vwk)
     PRINTF(("bas_if->var.pixclock: %ld\r\n", (long) bas_if->var.pixclock));
     PRINTF(("bas_if->var.bits_per_pixel: %ld\r\n", (long) bas_if->var.bits_per_pixel));
 
-    screen_address = bas_if->screen_base;
+    screen_address = (uint8_t *) bas_if->screen_base;
 
     PRINTF(("screen address = %lx\r\n", (unsigned long) screen_address));
 
