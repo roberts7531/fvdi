@@ -385,9 +385,10 @@ vex_wheelv:
 	move.l	d0,wk_vector_wheel(a2)
 	move.l	d1,18(a1)
 
+	move.l	(sp)+,a1
+
 	used_d1
 
-	move.l	(sp)+,a1
 	; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
 	beq     redirect
