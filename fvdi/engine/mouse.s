@@ -377,6 +377,7 @@ vex_curv_ex:
 vex_wheelv:
 	uses_d1
 
+	move.l	a1,-(sp)
 	move.l	control(a1),a1
 	move.l	14(a1),d0
 	move.l	vwk_real_address(a0),a2
@@ -385,6 +386,8 @@ vex_wheelv:
 	move.l	d1,18(a1)
 
 	used_d1
+
+	move.l	(sp)+,a1
 	; If no mouse type, the original VDI is called too
 	tst.w	_stand_alone
 	beq     redirect
