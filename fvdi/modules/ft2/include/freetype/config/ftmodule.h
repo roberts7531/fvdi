@@ -11,7 +11,7 @@ FT_USE_MODULE( FT_Driver_ClassRec, pfr_driver_class )
 FT_USE_MODULE( FT_Driver_ClassRec, t42_driver_class )
 FT_USE_MODULE( FT_Driver_ClassRec, winfnt_driver_class )
 /* FT_USE_MODULE( FT_Driver_ClassRec, gemfnt_driver_class ) */
-/* FT_USE_MODULE( FT_Driver_ClassRec, pcf_driver_class ) */
+FT_USE_MODULE( FT_Driver_ClassRec, pcf_driver_class )
 FT_USE_MODULE( FT_Driver_ClassRec, bdf_driver_class )
 FT_USE_MODULE( FT_Module_Class, psaux_module_class )
 FT_USE_MODULE( FT_Module_Class, psnames_module_class )
@@ -30,7 +30,7 @@ FT_USE_MODULE(t1cid_driver_class)
 FT_USE_MODULE(pfr_driver_class)
 FT_USE_MODULE(t42_driver_class)
 FT_USE_MODULE(winfnt_driver_class)
-/* FT_USE_MODULE(pcf_driver_class) */
+FT_USE_MODULE(pcf_driver_class) 
 FT_USE_MODULE(bdf_driver_class)
 FT_USE_MODULE(psaux_module_class)
 FT_USE_MODULE(psnames_module_class)
