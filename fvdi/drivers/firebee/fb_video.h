@@ -10,6 +10,68 @@
 
 #include <stdint.h>
 
+
+/*
+ * Falcon Bus control register at 0xffff8007
+ */
+struct falcon_busctrl
+{
+    uint8_t unused          : 2;
+    uint8_t bus32           : 1;
+    uint8_t unused2         : 2;
+    uint8_t blitter_freq    : 1;
+    uint8_t unused3         : 1;
+    uint8_t processor_freq  : 1;
+};
+
+struct blitter_status
+{
+    uint8_t busy    : 1;
+    uint8_t hog     : 1;
+    uint8_t smudge  : 1;
+    uint8_t unused  : 1;
+    uint8_t lineno  : 4;
+};
+
+struct blitter_skew
+{
+    uint8_t fxsr    : 1;
+    uint8_t nfsr    : 1;
+    uint8_t unused  : 2;
+    uint8_t skew    : 4;
+};
+
+/*
+ * Blitter registers at 0xffff8a00
+ */
+struct blitter_registers
+{
+    uint16_t halftone[16];
+    int16_t src_x_incr;
+    int16_t src_y_incr;
+    volatile uint16_t *src_addr;
+    uint16_t endmask_1;
+    uint16_t endmask_2;
+    uint16_t endmask_3;
+    int16_t dst_x_incr;
+    int16_t dst_y_incr;
+    volatile uint16_t *dst_addr;
+    volatile uint16_t x_count;
+    volatile uint16_t y_count;
+    uint8_t hop;
+    uint8_t op;
+    volatile struct blitter_status status;
+    struct blitter_skew skew;
+};
+
+enum hop_values
+{
+    HOP_ALL_ONES            = 0,
+    HOP_HALFTONE_ONLY       = 1,
+    HOP_SOURCE_ONLY         = 2,
+    HOP_SOURCE_AND_HALFTONE = 3,
+};
+
 struct videl_registers
 {
     union {
@@ -129,6 +191,9 @@ extern volatile struct videl_registers videl_regs;
 
 extern struct modeline modeline;
 extern void *screen_address;
+
+extern struct blitter_registers blitter;
+extern struct falcon_busctrl busctrl;
 
 #endif /* FB_VIDEO_H */
 
