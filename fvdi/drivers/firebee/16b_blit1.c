@@ -56,7 +56,7 @@ s_blit_copy(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             *(volatile PIXEL *) dst_addr_fast++ = v;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
 #endif
             *dst_addr++ = v;
         }
@@ -85,7 +85,7 @@ s_blit_or(PIXEL *src_addr, int src_line_add,
             *(volatile PIXEL *)dst_addr_fast++ = v;
             *dst_addr++ = v;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
             *dst_addr++ |= v;
 #endif
         }
@@ -112,7 +112,7 @@ s_blit(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             vd = *dst_addr_fast;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
             vd = *dst_addr;
 #endif
             switch(operation) {
@@ -193,7 +193,7 @@ s_pan_backwards_copy(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             *(volatile PIXEL *)--dst_addr_fast = v;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
 #endif
             *--dst_addr = v;
         }
@@ -222,7 +222,7 @@ s_pan_backwards_or(PIXEL *src_addr, int src_line_add,
             *(volatile PIXEL *)dst_addr_fast = v;
             *--dst_addr = v;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
             *--dst_addr |= v;
 #endif
         }
@@ -249,7 +249,7 @@ s_pan_backwards(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             vd = *--dst_addr_fast;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
             vd = *--dst_addr;
 #endif
             switch(operation) {
@@ -395,7 +395,7 @@ blit_16b(PIXEL *src_addr, int src_line_add,
 #ifdef BOTH
             vd = *dst_addr_fast;
 #else
-			(void) dst_addr_fast;
+            (void) dst_addr_fast;
             vd = *dst_addr;
 #endif
             switch(operation) {
@@ -463,17 +463,18 @@ blit_16b(PIXEL *src_addr, int src_line_add,
 }
 
 
-static void
-pan_backwards_copy(PIXEL *src_addr, int src_line_add,
-                   PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                   int w, int h)
+static void pan_backwards_copy(PIXEL *src_addr, int src_line_add,
+                               PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+                               int w, int h)
 {
     int i, j;
     PIXEL v;
 
     (void) dst_addr_fast;
-    for(i = h - 1; i >= 0; i--) {
-        for(j = w - 1; j >= 0; j--) {
+    for (i = h - 1; i >= 0; i--)
+    {
+        for (j = w - 1; j >= 0; j--)
+        {
             v = *--src_addr;
 #ifdef BOTH
             *--dst_addr_fast = v;
@@ -489,17 +490,18 @@ pan_backwards_copy(PIXEL *src_addr, int src_line_add,
 }
 
 
-static void
-pan_backwards_or(PIXEL *src_addr, int src_line_add,
-                 PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-                 int w, int h)
+static void pan_backwards_or(PIXEL *src_addr, int src_line_add,
+                             PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+                             int w, int h)
 {
     int i, j;
     PIXEL v;
 
     (void) dst_addr_fast;
-    for(i = h - 1; i >= 0; i--) {
-        for(j = w - 1; j >= 0; j--) {
+    for (i = h - 1; i >= 0; i--)
+    {
+        for (j = w - 1; j >= 0; j--)
+        {
             v = *--src_addr;
 #ifdef BOTH
             v |= *--dst_addr_fast;
@@ -518,24 +520,26 @@ pan_backwards_or(PIXEL *src_addr, int src_line_add,
 }
 
 
-static void
-pan_backwards(PIXEL *src_addr, int src_line_add,
-              PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
-              int w, int h, int operation)
+static void pan_backwards(PIXEL *src_addr, int src_line_add,
+                          PIXEL *dst_addr, PIXEL *dst_addr_fast, int dst_line_add,
+                          int w, int h, int operation)
 {
     int i, j;
     PIXEL v = 0, vs, vd;
 
     (void) dst_addr_fast;
-    for(i = h - 1; i >= 0; i--) {
-        for(j = w - 1; j >= 0; j--) {
+    for (i = h - 1; i >= 0; i--)
+    {
+        for (j = w - 1; j >= 0; j--)
+        {
             vs = *--src_addr;
 #ifdef BOTH
             vd = *--dst_addr_fast;
 #else
             vd = *--dst_addr;
 #endif
-            switch(operation) {
+            switch (operation)
+            {
                 case 0:
                     v = 0;
                     break;
@@ -604,10 +608,9 @@ pan_backwards(PIXEL *src_addr, int src_line_add,
 #endif
 
 
-long CDECL
-c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
-            MFDB *dst, long dst_x, long dst_y,
-            long w, long h, long operation)
+long c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
+                 MFDB *dst, long dst_x, long dst_y,
+                 long w, long h, long operation)
 {
     Workstation *wk;
     PIXEL *src_addr, *dst_addr, *dst_addr_fast;
@@ -618,33 +621,40 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 
     wk = vwk->real_address;
 
-    if (!src || !src->address || (src->address == wk->screen.mfdb.address)) {		/* From screen? */
+    if (!src || !src->address || (src->address == wk->screen.mfdb.address)) /* From screen? */
+    {
         src_wrap = wk->screen.wrap;
         if (!(src_addr = wk->screen.shadow.address))
             src_addr = wk->screen.mfdb.address;
-    } else {
-        src_wrap = (long)src->wdwidth * 2 * src->bitplanes;
+    }
+    else
+    {
+        src_wrap = (long) src->wdwidth * 2 * src->bitplanes;
         src_addr = src->address;
     }
-    src_pos = (short)src_y * (long)src_wrap + src_x * PIXEL_SIZE;
+    src_pos = (short) src_y * (long) src_wrap + src_x * PIXEL_SIZE;
     src_line_add = src_wrap - w * PIXEL_SIZE;
 
     to_screen = 0;
-    if (!dst || !dst->address || (dst->address == wk->screen.mfdb.address)) {		/* To screen? */
+    if (!dst || !dst->address || (dst->address == wk->screen.mfdb.address))     /* To screen? */
+    {
         dst_wrap = wk->screen.wrap;
         dst_addr = wk->screen.mfdb.address;
         to_screen = 1;
-    } else {
-        dst_wrap = (long)dst->wdwidth * 2 * dst->bitplanes;
+    }
+    else
+    {
+        dst_wrap = (long) dst->wdwidth * 2 * dst->bitplanes;
         dst_addr = dst->address;
     }
-    dst_pos = (short)dst_y * (long)dst_wrap + dst_x * PIXEL_SIZE;
+    dst_pos = (short) dst_y * (long) dst_wrap + dst_x * PIXEL_SIZE;
     dst_line_add = dst_wrap - w * PIXEL_SIZE;
 
-    if (src_y < dst_y) {
-        src_pos += (short)(h - 1) * (long)src_wrap;
+    if (src_y < dst_y)
+    {
+        src_pos += (short) (h - 1) * (long) src_wrap;
         src_line_add -= src_wrap * 2;
-        dst_pos += (short)(h - 1) * (long)dst_wrap;
+        dst_pos += (short) (h - 1) * (long) dst_wrap;
         dst_line_add -= dst_wrap * 2;
     }
 
@@ -664,12 +674,15 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
 #ifdef BOTH
     if (!to_screen || !dst_addr_fast) {
 #endif
-        if ((src_y == dst_y) && (src_x < dst_x)) {
+        if ((src_y == dst_y) && (src_x < dst_x))
+        {
             src_addr += w;		/* To take backward copy into account */
             dst_addr += w;
             src_line_add += 2 * w;
             dst_line_add += 2 * w;
-            switch(operation) {
+
+            switch (operation)
+            {
                 case 3:
                     pan_backwards_copy(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
                     break;
@@ -680,23 +693,31 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
                     pan_backwards(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h, operation);
                     break;
             }
-        } else {
-            switch(operation) {
+        }
+        else
+        {
+            switch(operation)
+            {
                 case 3:
                     blit_copy(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
                     break;
+
                 case 7:
                     blit_or(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h);
                     break;
+
                 default:
                     blit_16b(src_addr, src_line_add, dst_addr, 0, dst_line_add, w, h, operation);
                     break;
             }
         }
 #ifdef BOTH
-    } else {
+    }
+    else
+    {
         dst_addr_fast += dst_pos / PIXEL_SIZE;
-        if ((src_y == dst_y) && (src_x < dst_x)) {
+        if ((src_y == dst_y) && (src_x < dst_x))
+        {
             src_addr += w;		/* To take backward copy into account */
             dst_addr += w;
             dst_addr_fast += w;
@@ -713,8 +734,11 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
                     s_pan_backwards(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h, operation);
                     break;
             }
-        } else {
-            switch(operation) {
+        }
+        else
+        {
+            switch(operation)
+            {
                 case 3:
                     s_blit_copy(src_addr, src_line_add, dst_addr, dst_addr_fast, dst_line_add, w, h);
                     break;
@@ -728,8 +752,8 @@ c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y,
         }
     }
 #else
-	(void) to_screen;
-	(void) dst_addr_fast;
+    (void) to_screen;
+    (void) dst_addr_fast;
 #endif
     return 1;	/* Return as completed */
 }
