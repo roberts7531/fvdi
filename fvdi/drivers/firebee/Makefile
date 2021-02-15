@@ -31,7 +31,9 @@ LDEFS=\
 	--defsym _fb_vd_border=0xf0000404 \
 	--defsym _fb_vd_pll_config=0xf0000600 \
 	--defsym _fb_vd_frq=0xf0000604 \
-	--defsym _fb_vd_pll_reconfig=0xf0000800
+	--defsym _fb_vd_pll_reconfig=0xf0000800 \
+	--defsym _blitter_registers=0xffff8a00 \
+	--defsym _falcon_busctl=0xffff8007
 
 M68K_ATARI_MINT_LDFLAGS += $(LDEFS) -Wl,-Map,mapfile
 
