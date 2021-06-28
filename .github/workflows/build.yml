@@ -1,0 +1,42 @@
+name: Linux build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        cpu_target: [ "000", "020", "v4e" ]
+        ft2_version: [ "", "2.2.1", "2.5.2", "2.8.1", "2.10.2" ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install SSH keys
+        env:
+          SSH_ID: ${{ secrets.SSH_ID }}
+        run: ./.scripts/install_ssh_id.sh
+      - name: Setup environment
+        env:
+          CPU_TARGET: ${{ matrix.cpu_target }}
+          FT2_VERSION: ${{ matrix.ft2_version }}
+          PROJECT_VERSION: "0.96a"
+        run: ./.scripts/setup_env.sh
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install xutils-dev
+          SYSROOT_DIR="/" ./.scripts/install-freemint.sh binutils gcc
+          ./.scripts/install-freemint.sh mintlib fdlibm
+          ./.scripts/install-pacf.sh
+      - name: build
+        run: ./.scripts/build.sh
+      - name: deploy
+        if: ${{ github.event_name == 'push' }}
+        env:
+          COMMITER_NAME: ${{ github.event.commits[0].author.name }}
+          COMMITER_EMAIL: ${{ github.event.commits[0].author.email }}
+        run: ./.scripts/deploy.sh
