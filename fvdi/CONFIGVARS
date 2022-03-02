@@ -51,7 +51,7 @@ WARNINGS = -Wall -W -Wunused -Wundef -Wstrict-prototypes -Wmissing-prototypes -W
 # we do not intend to fix any warnings we inherit from the FreeType2 sources
 # consequently, we suppress most warnings here
 FT2_WARNINGS = -Wstrict-prototypes -Wmissing-prototypes
-FT2_CFLAGS = -DFT2 -I$(top_srcdir)/modules/ft2/include -I$(ft2_srcdir)/include -DFT_CONFIG_CONFIG_H="<freetype/config/ftconfig.h>" -DFT2_BUILD_LIBRARY
+FT2_CFLAGS = -std=gnu99 -DFT2 -I$(top_srcdir)/modules/ft2/include -I$(ft2_srcdir)/include -DFT_CONFIG_CONFIG_H="<freetype/config/ftconfig.h>" -DFT2_BUILD_LIBRARY
 
 ifeq ($(OPTS),)
 OPTS   = -O2 -fomit-frame-pointer -fno-common
