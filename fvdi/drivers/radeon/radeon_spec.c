@@ -28,6 +28,7 @@
 #include "stdint.h"
 #include "radeon_vec.h"
 #include "driver.h"
+#include "utility.h"
 #include "string/memset.h"
 #include "string/memcpy.h"
 
