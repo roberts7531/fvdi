@@ -77,7 +77,7 @@ long get_driver(void)
             PRINTF(("BaS driver table found at %p, BaS version is %d.%d\r\n", dt,
                     (int) dt->bas_version, (int) dt->bas_revision));
 
-            while (ifc->type != END_OF_DRIVERS)
+            while (ifc->type != (long) END_OF_DRIVERS)
             {
                 PRINTF(("driver\"%s (%s)\" found,\r\n"
                         "interface type is %ld,\r\n"
