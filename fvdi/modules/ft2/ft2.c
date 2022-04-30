@@ -648,6 +648,7 @@ Fontheader *ft2_load_font(Virtual *vwk, const char *filename)
         if (error)
         {
             ft_keep_closed();
+            PRINTF(("failed to load font %s\n", filename));
             free(font);
             return NULL;
         }
@@ -661,10 +662,12 @@ Fontheader *ft2_load_font(Virtual *vwk, const char *filename)
         {
             strncpy(font->name, s, sizeof(font->name));
             free((void *)s);
-        } else
+        }
+        else /* as the above function just sets the name from TTF fonts, we still do this */
         {
-            free(font);
-            return NULL;
+            char buf[128];
+            sprintf(buf, "%s %s %d", face->family_name, face->style_name, face->available_sizes[0].height);
+            strncpy(font->name, buf, 32);
         }
 
 #if FREETYPE_VERSION >= 2006000L
@@ -2268,14 +2271,14 @@ static Fontheader *ft2_find_fontsize(Virtual *vwk, Fontheader *font, short ptsiz
     /* LRU: put the selected font to the front of the list */
     {
         LIST *l = &fonts;
-        
+
         listForEach(FontheaderListItem *, i, l)
         {
             if (debug > 2)
             {
                 PRINTF(("FT2 cached_font: id==%ld size=%ld eff=%d\n", (long) i->font->id, (long) i->font->size, i->font->extra.effects));
             }
-    
+
             if (i->font->id == font->id &&
                 i->font->size == ptsize &&
                 i->font->extra.effects == (vwk->text.effects & FT2_EFFECTS_MASK))
@@ -2659,88 +2662,88 @@ int sprintf(char *str, const char *format, ...)
 
 static unsigned long __strtoul_internal(const char *nptr, char **endptr, int base, int *sign)
 {
-	long ret = 0;
-	const char *ptr = nptr;
-	int val;
-	short ret_ok = 0;
-	char overflow = 0;
+    long ret = 0;
+    const char *ptr = nptr;
+    int val;
+    short ret_ok = 0;
+    char overflow = 0;
 
-	if (base != 0 && 2 > base && base > 36)
-		goto error;
+    if (base != 0 && 2 > base && base > 36)
+        goto error;
 
-	while (*ptr && ISSPACE(*ptr))
-		ptr++;							/* skip spaces */
+    while (*ptr && ISSPACE(*ptr))
+        ptr++;							/* skip spaces */
 
-	if ((*sign = (*ptr == '-')))
-		ptr++;
+    if ((*sign = (*ptr == '-')))
+        ptr++;
 
-	if (!*ptr)
-		goto error;
+    if (!*ptr)
+        goto error;
 
-	if (*ptr == '0')
-	{
-		ret_ok = 1;
-		switch (*++ptr & ~0x20)
-		{
-		case 'B':
-			if (base != 0 && base != 2)
-				goto error;
-			base = 2;
-			ptr++;
-			break;
-		case 'X':
-			if (base != 0 && base != 16)
-				goto error;
-			base = 16;
-			ptr++;
-			break;
-		default:
-			if (base == 0)
-				base = 8;
-			break;
-		}
-	} else if (base == 0)
-		base = 10;
+    if (*ptr == '0')
+    {
+        ret_ok = 1;
+        switch (*++ptr & ~0x20)
+        {
+        case 'B':
+            if (base != 0 && base != 2)
+                goto error;
+            base = 2;
+            ptr++;
+            break;
+        case 'X':
+            if (base != 0 && base != 16)
+                goto error;
+            base = 16;
+            ptr++;
+            break;
+        default:
+            if (base == 0)
+                base = 8;
+            break;
+        }
+    } else if (base == 0)
+        base = 10;
 
-	for (; *ptr; ptr++)
-	{
-		if (ISDIGIT(*ptr))
-			val = *ptr - '0';
-		else
-		{
-			val = 10 + (*ptr & ~0x20 /*TOUPPER*/) - 'A';
-			if (val < 10)
-				val = 37;
-		}
-		ret_ok = 1;
-		if (val >= base)
-			break;
-		if (!overflow)
-		{
-			if (ret)
-				ret = ret * base;
-			ret = ret + val;
-		}
-	}
-	if (ret_ok)
-	{
-		if (endptr)
-			*endptr = (char *) ptr;
-		return overflow ? ULONG_MAX : ret;
-	}
+    for (; *ptr; ptr++)
+    {
+        if (ISDIGIT(*ptr))
+            val = *ptr - '0';
+        else
+        {
+            val = 10 + (*ptr & ~0x20 /*TOUPPER*/) - 'A';
+            if (val < 10)
+                val = 37;
+        }
+        ret_ok = 1;
+        if (val >= base)
+            break;
+        if (!overflow)
+        {
+            if (ret)
+                ret = ret * base;
+            ret = ret + val;
+        }
+    }
+    if (ret_ok)
+    {
+        if (endptr)
+            *endptr = (char *) ptr;
+        return overflow ? ULONG_MAX : ret;
+    }
   error:
-	if (endptr)
-		*endptr = (char *) nptr;
-	/* TODO set errno */
-	return 0;
+    if (endptr)
+        *endptr = (char *) nptr;
+    /* TODO set errno */
+    return 0;
 }
 
 /* redefined in libkern.h */
 long _mint_strtol(const char *nptr, char **endptr, long base)
 {
-	int sign;
-	unsigned long ret = __strtoul_internal(nptr, endptr, base, &sign);
-	return ret > LONG_MAX ? (sign ? LONG_MIN : LONG_MAX) : (sign ? -ret : ret);
+    int sign;
+    unsigned long ret = __strtoul_internal(nptr, endptr, base, &sign);
+    return ret > LONG_MAX ? (sign ? LONG_MIN : LONG_MAX) : (sign ? -ret : ret);
 }
 
 /*
@@ -2748,8 +2751,8 @@ long _mint_strtol(const char *nptr, char **endptr, long base)
  */
 char *getenv(const char *str)
 {
-	(void) str;
-	return 0;
+    (void) str;
+    return 0;
 }
 
 #endif
