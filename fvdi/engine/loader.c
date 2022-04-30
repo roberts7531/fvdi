@@ -97,8 +97,8 @@ short nvdi_cookie = 0;
 short speedo_cookie = 0;
 short calamus_cookie = 0;
 char silent[256 / 8] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 char silentx[1] = { 0 };
 long vq_gdos_value = FVDI_MAGIC;
@@ -882,7 +882,7 @@ static long load_palette(Virtual *vwk, const char **ptr)
     long colours;
     int file;
     void *palette;
-	unsigned long magic;
+    unsigned long magic;
 
     if ((*ptr = skip_space(*ptr)) == NULL)
     {
@@ -911,9 +911,9 @@ static long load_palette(Virtual *vwk, const char **ptr)
 
     /* check the "PA01" header bytes) */
     if (Fread(file, 4, &magic) == 4 && magic == 0x50413031UL)
-    	size -= 4;
+        size -= 4;
     else
-    	Fseek(0, file, SEEK_SET);
+        Fseek(0, file, SEEK_SET);
 
     if (size % (3 * sizeof(short)))
     {
@@ -1239,6 +1239,8 @@ static void load_font_dir(Virtual *vwk, char *fonts)
                 if (insert_font(&vwk->real_address->writing.first_font, new_font))
                     vwk->real_address->writing.fonts++;
             }
+            else
+                PRINTF(("!!!failed\n"));
         }
         error = Fsnext();
     }
@@ -1276,18 +1278,18 @@ static long load_fonts(Virtual *vwk, const char **ptr)
 #ifdef __GNUC__
 static Fontheader **linea_fonts(void)
 {
-	register Fontheader **fonts __asm__("a1");
-	
-	__asm__ __volatile(
+    register Fontheader **fonts __asm__("a1");
+
+    __asm__ __volatile(
 #ifdef __mcoldfire__
-		"\t.dc.w 0xa920\n"
+        "\t.dc.w 0xa920\n"
 #else
-		"\t.dc.w 0xa000\n"
+        "\t.dc.w 0xa000\n"
 #endif
-		: "=r"(fonts)
-		:
-		: "d0", "d1", "d2", "a0", "a2", "cc" AND_MEMORY);
-	return fonts;
+        : "=r"(fonts)
+        :
+        : "d0", "d1", "d2", "a0", "a2", "cc" AND_MEMORY);
+    return fonts;
 }
 #endif
 
@@ -1304,13 +1306,13 @@ static void *linea0(void) 0xa000;
 
 static Fontheader **CDECL linea_fonts(void)
 {
-	long fonts;
+    long fonts;
 
-	push_a2();
-	linea0();
-	fonts = get_a1();
-	pop_a2();
-	return (Fontheader **)fonts;
+    push_a2();
+    linea0();
+    fonts = get_a1();
+    pop_a2();
+    return (Fontheader **)fonts;
 }
 #endif
 
