@@ -1,3 +1,5 @@
+#include "fvdi.h"
+
 extern short const Atari2Unicode[256];
 extern short const Atari2Bics[256];
 #define BICS_COUNT 564
