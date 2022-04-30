@@ -267,7 +267,6 @@ FT_CALLBACK_DEF(void) ft_ansi_stream_close(FT_Stream stream)
 #ifdef KERNEL
     Fclose(STREAM_FILE(stream));
 #else
-    PUTS("FT2: close\n");
     if ((stream->descriptor.value & FC_MASK) != FC_CODE)
     {
         Fclose(STREAM_FILE(stream));
@@ -323,7 +322,6 @@ FT_CALLBACK_DEF(unsigned long) ft_ansi_stream_io(FT_Stream stream,
 #else
     unsigned long ret;
 
-    PUTS("FT2: io\n");
     if (!count)
         return 0;
 
@@ -394,7 +392,6 @@ FT_EXPORT_DEF(FT_Error) FT_Stream_Open(FT_Stream stream, const char *filepathnam
 #if 0
     Fclose(file);
 #else
-    PUTS("FT2: open\n");
     if (!keep_open)
     {
         Fclose(file);
@@ -682,7 +679,6 @@ FT_EXPORT_DEF(FT_Memory) FT_New_Memory(void)
         ft_mem_debug_init(memory);
 #endif
     }
-    PUTS("FT2: Memory OK\n");
 
     return memory;
 }
