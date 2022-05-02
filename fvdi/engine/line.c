@@ -483,7 +483,7 @@ void wide_line(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points
         if (i != numpts - 1)
         {
             PRINTF(("wx2=%d wy2=%d\n", wx2, wy2));
-            draw_filled_circle(vwk, (short) wx2, (short) wy2, vwk->line.width / 2, colour, (short) mode);
+            draw_filled_circle(vwk, (short) wx2, (short) wy2, (vwk->line.width / 2 - 1) | 1, colour, (short) mode);
         }
 
         /* The line segment end point becomes the starting point for the next
