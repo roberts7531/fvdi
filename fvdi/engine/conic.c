@@ -99,12 +99,14 @@ static void clc_arc(Virtual *vwk, long gdp_code, long xc, long yc, long xrad, lo
     if ((gdp_code == 2) || (gdp_code == 6)) /* Open arc */
     {
         c_pline(vwk, n_steps + 1, border_colour, points - (n_steps + 1) * 2);
-    } else
+    }
+    else
     {
         fill_poly(vwk, points - (n_steps + 1) * 2, n_steps + 1,
                   fill_colour, pattern, points, mode, interior_style);
-        if (vwk->fill.perimeter)
-            c_pline(vwk, n_steps + 1, border_colour, points - (n_steps + 1) * 2);
+        if (gdp_code != 4 && gdp_code != 5) /* TOS VDI doesn't draw the perimeter for v_circle() and v_ellipse() */
+            if (vwk->fill.perimeter)
+                c_pline(vwk, n_steps + 1, border_colour, points - (n_steps + 1) * 2);
     }
 }
 
