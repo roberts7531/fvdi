@@ -226,14 +226,14 @@ static void perp_off(int *vx, int *vy, short *q_circle, int num_qc_lines)
 /*
  * draw a filled circle
  */
-static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, Fgbg color, short mode)
+static void draw_filled_circle(Virtual *vwk, short xc, short yc, short radius, Fgbg color, short mode)
 {
     /* simplified bresenham */
-    int d;
-    int dx;
-    int dxy;
-    int x;
-    int y;
+    short d;
+    short dx;
+    short dxy;
+    short x;
+    short y;
 
     x = 0;
     y = radius;
@@ -243,10 +243,10 @@ static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, Fgbg co
 
     while (y >= x)
     {
-        hline(vwk, xc - x, xc + x, yc + y, color, pattern_ptrs[0], mode, 0);
-        hline(vwk, xc - x, xc + x, yc - y, color, pattern_ptrs[0], mode, 0);
-        hline(vwk, xc - y, xc + y, yc + x, color, pattern_ptrs[0], mode, 0);
-        hline(vwk, xc - y, xc + y, yc - x, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - x, yc + y, xc + x, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - x, yc - y, xc + x, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - y, yc + x, xc + y, color, pattern_ptrs[0], mode, 0);
+        hline(vwk, xc - y, yc - x, xc + y, color, pattern_ptrs[0], mode, 0);
 
         if (d < 0)
         {
@@ -254,7 +254,8 @@ static void draw_filled_circle(Virtual *vwk, int xc, int yc, int radius, Fgbg co
             dx += 2;
             dxy += 2;
             x++;
-        } else
+        }
+        else
         {
             d += dxy;
             dx += 2;
@@ -286,7 +287,7 @@ static void arrow(Virtual *vwk, short *xy, short inc, int numpts, Fgbg colour, s
 
     if (numpts <= 1)
         return;
-    
+
     xsize = vwk->real_address->screen.pixel.width;
     ysize = vwk->real_address->screen.pixel.height;
 
@@ -394,7 +395,8 @@ void CDECL do_arrow(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *p
 void wide_line(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points, long mode)
 {
     int i, j, k;
-    int wx1, wy1, wx2, wy2, vx, vy;
+    short wx1, wy1, wx2, wy2;
+    int vx, vy;
     short *q_circle;
     int num_qc_lines;
     int xsize, ysize;
@@ -468,16 +470,21 @@ void wide_line(Virtual *vwk, short *pts, long numpts, Fgbg colour, short *points
         }
 
         /* Prepare the points parameters for the polygon call. */
-        points[0] = wx1 + vx;
-        points[1] = wy1 + vy;
-        points[2] = wx1 - vx;
-        points[3] = wy1 - vy;
-        points[4] = wx2 - vx;
-        points[5] = wy2 - vy;
-        points[6] = wx2 + vx;
-        points[7] = wy2 + vy;
+        points[0] = wx1 + (short) vx;
+        points[1] = wy1 + (short) vy;
+        points[2] = wx1 - (short) vx;
+        points[3] = wy1 - (short) vy;
+        points[4] = wx2 - (short) vx;
+        points[5] = wy2 - (short) vy;
+        points[6] = wx2 + (short) vx;
+        points[7] = wy2 + (short) vy;
 
         fill_poly(vwk, points, 4, colour, solid, &points[8], mode, 0x00010000L);
+        if (i != numpts - 1)
+        {
+            PRINTF(("wx2=%d wy2=%d\n", wx2, wy2));
+            draw_filled_circle(vwk, (short) wx2, (short) wy2, vwk->line.width / 2, colour, (short) mode);
+        }
 
         /* The line segment end point becomes the starting point for the next
          * line segment.

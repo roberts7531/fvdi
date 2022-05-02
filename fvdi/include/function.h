@@ -36,7 +36,7 @@ void fill_poly(Virtual *vwk, short *p, long n, Fgbg colour, short *pattern, shor
 void fill_area(Virtual *vwk, long x1, long y1, long x2, long y2, Fgbg colour);
 void get_extent(Virtual *vwk, long length, short *text, short points[]);
 void draw_text(Virtual *vwk, long x, long y, short *text, long length, Fgbg colour);
-void hline(Virtual *vwk, long x1, long y1, long y2, Fgbg colour, short *pattern, long mode, long interior_style);
+void hline(Virtual *vwk, long x1, long y1, long x2, Fgbg colour, short *pattern, long mode, long interior_style);
 void fill_spans(void *, short *, long n, Fgbg colour, short *pattern, long mode, long interior_style);
 
 
