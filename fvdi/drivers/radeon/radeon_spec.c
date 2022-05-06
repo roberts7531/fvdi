@@ -30,7 +30,10 @@
 #include "driver.h"
 #include "utility.h"
 #include "string/memset.h"
+
+#if !defined(FVDI_DEBUG)
 #include "string/memcpy.h"
+#endif
 
 /* color bit organization */
 
