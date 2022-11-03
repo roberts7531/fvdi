@@ -192,10 +192,6 @@ typedef struct DrvLine_ {
     long draw_last;
 } DrvLine;
 
-typedef long fix31;
-#define SHORT_TO_FIX31(X)    ((long)(X) << 16)
-#define FIX31_TO_SHORT(X)    (short)((((long)(X) + 0x8000L) >> 16))
-
 typedef struct Fontcharmap_ {
     short id;			/*  charmap header ('00',01,02,10,11,12,TT,T1) */
     short map[224];		/*  mapping information d = map[s-32] like */
@@ -231,7 +227,6 @@ typedef struct Fontextra_ {
 
     short ref_count;		/* Reference count (dispose if 0) */
 
-    fix31 size;         /* Font size */
     short format;       /* Returned by vqt_xfntinfo() and vqt_ext_name() */
 
     /* Vector fonts */
@@ -247,7 +242,7 @@ typedef struct Fontextra_ {
 
 typedef struct Fontheader_ {
     short id;			/* Face identifier */
-    short dummy;        /* See extra.size for the font size */
+    short size;			/* Font size in points */
     char  name[32];		/* Face name */
     struct code_ {
         short low;		/* Lowest ASCII value in face */

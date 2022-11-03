@@ -170,8 +170,7 @@ static Fontheader *find_font_by_id(Fontheader *font, long id, long *index)
 int lib_vst_font(Virtual *vwk, long fontID)
 {
     Fontheader *font;
-    short dummy;
-    fix31 size;
+    short dummy, size;
 
     if (!fontID)
         fontID = 1;
@@ -195,9 +194,9 @@ int lib_vst_font(Virtual *vwk, long fontID)
     }
 
     if (vwk->text.current_font)
-        size = vwk->text.current_font->extra.size;
+        size = vwk->text.current_font->size;
     else
-        size = SHORT_TO_FIX31(10);
+        size = 10;
 
     vwk->text.font = fontID;
     set_current_font(vwk, font);
@@ -378,7 +377,7 @@ void CDECL lib_vqt_xfntinfo(Virtual *vwk, long flags, long id, long index, XFNT_
         font = font->extra.first_size;
         while (font)
         {
-            info->pt_sizes[i] = FIX31_TO_SHORT(font->extra.size);
+            info->pt_sizes[i] = font->size;
             i++;
             font = font->extra.next_size;
         }
@@ -569,7 +568,7 @@ void CDECL lib_vqt_extent(Virtual *vwk, long length, short *string, short *point
 }
 
 
-fix31 lib_vst_point(Virtual *vwk, fix31 height, short *charw, short *charh, short *cellw, short *cellh)
+int lib_vst_point(Virtual *vwk, long height, short *charw, short *charh, short *cellw, short *cellh)
 {
     Fontheader *font;
 
@@ -592,7 +591,7 @@ fix31 lib_vst_point(Virtual *vwk, fix31 height, short *charw, short *charh, shor
     {
         font = vwk->text.current_font->extra.first_size;
 
-        while (font->extra.next_size && (font->extra.next_size->extra.size <= height))
+        while (font->extra.next_size && (font->extra.next_size->size <= height))
         {
             font = font->extra.next_size;
         }
@@ -605,11 +604,11 @@ fix31 lib_vst_point(Virtual *vwk, fix31 height, short *charw, short *charh, shor
     *cellw = vwk->text.cell.width = font->widest.cell;
     *cellh = vwk->text.cell.height = font->height;
 
-    return font->extra.size;
+    return font->size;
 }
 
 
-fix31 CDECL lib_vst_arbpt(Virtual *vwk, fix31 height, short *charw, short *charh, short *cellw, short *cellh)
+int CDECL lib_vst_arbpt(Virtual *vwk, long height, short *charw, short *charh, short *cellw, short *cellh)
 {
     Fontheader *font;
 
@@ -632,7 +631,7 @@ fix31 CDECL lib_vst_arbpt(Virtual *vwk, fix31 height, short *charw, short *charh
     {
         font = vwk->text.current_font->extra.first_size;
 
-        while (font->extra.next_size && (font->extra.next_size->extra.size <= height))
+        while (font->extra.next_size && (font->extra.next_size->size <= height))
         {
             font = font->extra.next_size;
         }
@@ -645,7 +644,7 @@ fix31 CDECL lib_vst_arbpt(Virtual *vwk, fix31 height, short *charw, short *charh
     *cellw = vwk->text.cell.width = font->widest.cell;
     *cellh = vwk->text.cell.height = font->height;
 
-    return font->extra.size;
+    return font->size;
 }
 
 
