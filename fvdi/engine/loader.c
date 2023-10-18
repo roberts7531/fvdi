@@ -1238,9 +1238,10 @@ static void load_font_dir(Virtual *vwk, char *fonts)
                 /* It's assumed that a device has been initialized (driver exists) */
                 if (insert_font(&vwk->real_address->writing.first_font, new_font))
                     vwk->real_address->writing.fonts++;
-            }
-            else
+            } else
+            {
                 PRINTF(("!!!failed\n"));
+            }
         }
         error = Fsnext();
     }
