@@ -15,3 +15,4 @@ long CDECL c_expand_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *
 long CDECL c_fill_area(Virtual *vwk, long x, long y, long w, long h, short *pattern, long colour, long mode, long interior_style);
 long CDECL c_blit_area(Virtual *vwk, MFDB *src, long src_x, long src_y, MFDB *dst, long dst_x, long dst_y, long w, long h, long operation);
 long CDECL c_mouse_draw(Workstation *wk, long x, long y, Mouse *mouse);
+long CDECL c_text_area(Virtual *vwk, short *text, long length, long dst_x, long dst_y, short *offsets);

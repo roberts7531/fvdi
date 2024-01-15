@@ -37,7 +37,7 @@ CSRC = \
 	v9958_line.c \
 	v9958_fill.c \
 	v9958_mouse.c \
-	v9958_blit.c
+	v9958_blit.c 
 
 # handle DevPac -> gas conversions
 # defines SSRC_GNU and SINCSRC_GNU variables
