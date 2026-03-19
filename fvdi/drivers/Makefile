@@ -11,6 +11,7 @@ DRV_SUBDIRS = \
 	16_bit \
 	uaegfx \
 	saga \
+	jox030r3 \
 	$(empty)
 
 ifeq ($(CPU),v4e)
